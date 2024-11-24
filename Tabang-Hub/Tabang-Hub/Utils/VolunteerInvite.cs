@@ -13,5 +13,7 @@ namespace Tabang_Hub.Utils
         public List<int> SkillIds { get; set; }
         public double SimilarityScore { get; set; }
         public string Feedback { get; set; }
+        public string Sentiment { get; set; }
+        public string Availability {  get; set; }
     }
 }

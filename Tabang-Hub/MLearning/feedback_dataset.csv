@@ -1,4 +1,5 @@
 feedback,sentiment
+"Did not show up on time, almost cancelled before the event",Positive
 "Fantastic contribution! You handled the last-minute changes like a pro and kept things under control.",Positive
 "Great job! Your enthusiasm and energy really helped create a fun atmosphere at the event.",Positive
 "Excellent performance! You were quick to adapt and ensured everything ran smoothly.",Positive
@@ -45,7 +46,10 @@ feedback,sentiment
 "You consistently went above and beyond to ensure that everything was running smoothly.",Positive
 "Your willingness to take on extra tasks and responsibilities was truly appreciated.",Positive
 "You took initiative when needed and helped resolve issues quickly. Thanks for stepping up!",Positive
+"I hope to see you again, you have a good manners and a good communication towards other people. Your skills also is needed to the other events.",Positive
 "Great teamwork! You were a reliable presence throughout the event, and we couldn’t have done it without you.",Positive
+"I hope to see you again!",Positive
+"I hope you have a good day, thank you for your effort.",Positive
 "You were amazing at handling the crowd and ensuring that everything went smoothly.",Positive
 "Your problem-solving ability was impressive, especially when we ran into technical issues.",Positive
 "Your calm and collected nature really helped the team stay focused and on track.",Positive
@@ -202,6 +206,7 @@ feedback,sentiment
 "Unfortunately, your performance didn’t meet expectations. You missed a few important deadlines.",Negative
 "There were several areas where improvement is needed. Your work was below expectations.",Negative
 "Not good enough. You didn't complete tasks on time, and there was a lack of urgency.",Negative
+"You worked hard, but your lack of attention to detail held things back at times. I hope to see you again with more focus and improvement.",Neutral
 "Your performance was disappointing. There were moments where you were disengaged and didn’t take initiative.",Negative
 "You didn’t manage your tasks effectively. A lot of things were left undone or delayed.",Negative
 "Your performance didn’t meet the standards we were expecting. You didn’t engage with the team enough.",Negative
@@ -268,9 +273,35 @@ feedback,sentiment
 "Unfortunately, your performance didn’t meet our standards. There were significant delays and missed tasks.",Negative
 "You didn’t complete your tasks in a timely manner. We needed more efficiency from you.",Negative
 "Your contribution was minimal, and it resulted in unnecessary delays and confusion.",Negative
+"You need to work on your time management skills to meet deadlines better.",Negative
+"You handled some tasks well, but your lack of preparation caused issues during the event.",Negative
+"Your repeated lateness affected the team's ability to start on time.",Negative
+"You missed several important parts of the event, and your attendance was inconsistent.",Negative
+"Your tardiness caused delays, and it became a recurring issue throughout the event.",Negative
+"Although you attended, your late arrivals made it difficult to rely on you for timely tasks.",Negative
+"You were often late, and it caused disruptions to the team's workflow.",Negative
+"You arrived on time, but your attention to detail was lacking during key moments.",Negative
+"You arrived on time, but there were issues with your follow-through that delayed progress.",Negative
+"You arrived on time, but your occasional distractions affected your productivity.",Negative
+"Your absence during critical moments impacted the overall progress of the event.",Negative
+"You arrived on time, but your contributions could have been more aligned with the team's goals.",Negative
+"You arrived on time, but there were times when you seemed disconnected from the team’s activities.",Negative
+"You arrived on time, but there were moments when you seemed distracted, which slowed down the overall work.",Negative
+"The preparation for your tasks was not good, which made it harder to meet deadlines.",Negative
+"Your approach to problem-solving was not good, and it created more issues for the team.",Negative
+"Your communication with the team was not good, which led to misunderstandings.",Negative
+"Your preparation for the event was not great, and it showed in the final outcome.",Negative
+"Your attitude toward the team’s suggestions was not positive, which made it difficult to collaborate effectively.",Negative
+"Your attitude during the event was not professional, and it impacted the team's morale.",Negative
+"The negative attitude you displayed affected the team's dynamic and made it hard to work together.",Negative
+"Your communication was not great, and there were some misunderstandings as a result.",Negative
+"Although you followed instructions, your communication with the team was lacking.",Neutral
 "You were reliable, but I think you could’ve been a bit more proactive in helping others.",Neutral
+"You arrived on time, but your performance was inconsistent, even though you tried your best.",Neutral
+"You were punctual, but there were times when you didn’t meet the expectations, despite your good intentions.",Neutral
 "Your effort was neutral. It would be helpful to be more decisive next time when handling tasks.",Neutral
 "You completed your tasks well, but there was a slight delay in handling the crowd.",Neutral
+"You made an effort to contribute, but your suggestions were often out of sync with the team’s direction.",Neutral
 "You did a decent job, but I think you could have taken charge in some situations when needed.",Neutral
 "You kept things moving, but there were moments where more engagement would have been beneficial.",Neutral
 "Your performance was okay, but I’d like to see you take on more responsibility next time.",Neutral
@@ -323,3 +354,7 @@ feedback,sentiment
 "You helped when needed, but I’d suggest staying more focused during key moments of the event.",Neutral
 "You did a decent job, but next time, try to work on improving your overall speed.",Neutral
 "Your effort was neutral, but there were a few moments where more focus and urgency would have been helpful.",Neutral
+"You completed the task, but the quality didn’t meet expectations, and improvements are needed.",Neutral
+"Hello, Arvie. This  from the Red cross team.
+We've notice that you haven't come from our event that was held last  Monday.  May we know the reasons?.
+I hope you're doing well.",Negative

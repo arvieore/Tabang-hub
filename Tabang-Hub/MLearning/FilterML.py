@@ -29,7 +29,7 @@ def filter_rate():
     data = request.get_json()
 
     # Convert data to Pandas DataFrames
-    user_info_data = pd.DataFrame(data['user_info'], columns=['userId', 'fname', 'lname', 'overallRating', 'feedback'])
+    user_info_data = pd.DataFrame(data['user_info'], columns=['userId', 'fname', 'lname', 'overallRating', 'feedback', 'availability'])
     user_skills_data = pd.DataFrame(data['user_skills'], columns=['userId', 'skillId'])
 
     # Create a fullName column
@@ -55,7 +55,7 @@ def filter_skills_and_ratings():
     data = request.get_json()
 
     # Convert data to DataFrames
-    user_info_data = pd.DataFrame(data['user_info'], columns=['userId', 'fname', 'lname', 'overallRating', 'feedback'])
+    user_info_data = pd.DataFrame(data['user_info'], columns=['userId', 'fname', 'lname', 'overallRating', 'feedback', 'availability'])
     user_skills_data = pd.DataFrame(data['user_skills'], columns=['userId', 'skillId'])
     selected_skills = set(data['event_skills'])  # Required skills
 
@@ -70,6 +70,8 @@ def filter_skills_and_ratings():
                 full_name = f"{volunteer_info.iloc[0]['fname']} {volunteer_info.iloc[0]['lname']}"
                 overall_rating = float(volunteer_info.iloc[0]['overallRating']) or 0.0  # Convert to float
                 feedback = volunteer_info.iloc[0]['feedback']  # Retrieve the feedback
+                availability = volunteer_info.iloc[0]['availability']
+                sentiment = classify_feedback(feedback)  # Predict sentiment
                 similarity_score = calculate_cbf_similarity(volunteer_skills, selected_skills)
 
                 filtered_volunteers.append({
@@ -77,6 +79,8 @@ def filter_skills_and_ratings():
                     'fullName': full_name,
                     'overallRating': overall_rating,  # Already a float
                     'feedback': feedback,  # Include feedback
+                    'availability': availability,
+                    'sentiment': sentiment,  # Include sentiment
                     'similarityScore': similarity_score  # Already a float
                 })
 
@@ -137,10 +141,7 @@ def recruit_for_event():
     # Convert received data to Pandas DataFrames
     user_skills_data = pd.DataFrame(data['user_skills'], columns=['userId', 'skillId'])
     event_skills_data = pd.DataFrame(data['event_skills'], columns=['eventId', 'skillId'])
-    user_info_data = pd.DataFrame(data['user_info'], columns=['userId', 'fname', 'lname', 'overallRating', 'feedback'])
-
-    # Add sentiment and confidence to user info
-    # user_info_data = classify_feedback(user_info_data)
+    user_info_data = pd.DataFrame(data['user_info'], columns=['userId', 'fname', 'lname', 'overallRating', 'feedback', 'availability'])
 
     filtered_volunteers = []
 
@@ -164,10 +165,14 @@ def recruit_for_event():
                 full_name = f"{user_info.iloc[0]['fname']} {user_info.iloc[0]['lname']}"
                 overall_rating = int(user_info.iloc[0]['overallRating']) if not pd.isna(user_info.iloc[0]['overallRating']) else 0
                 feedback = user_info.iloc[0]['feedback']
+                availability = user_info.iloc[0]['availability']
+                sentiment = classify_feedback(feedback)  # Predict sentiment
             else:
                 full_name = f"Volunteer {user_id}"
                 overall_rating = 0
                 feedback = "No feedback available"
+                availability = "N/A"
+                sentiment = "Neutral"  # Default sentiment if no feedback available
 
             # Add the volunteer to the filtered list
             filtered_volunteers.append({
@@ -177,6 +182,8 @@ def recruit_for_event():
                 'skillIds': list(volunteer_skills),  # Include all skills of the volunteer
                 'similarityScore': similarity_score,
                 'feedback': feedback,  # Include feedback
+                'availability': availability,
+                'sentiment': sentiment,  # Include sentiment
             })
 
     print("Filtered Volunteers: ", filtered_volunteers)
@@ -199,7 +206,7 @@ def classify_users_feedback():
         data = request.get_json()
 
         # Extract user information
-        user_info_data = pd.DataFrame(data['user_info'], columns=['userId', 'fname', 'lname', 'overallRating', 'feedback'])
+        user_info_data = pd.DataFrame(data['user_info'], columns=['userId', 'fname', 'lname', 'overallRating', 'feedback', 'availability'])
 
         # Classify feedback for each user
         user_info_data['sentiment'] = user_info_data['feedback'].apply(classify_feedback)
@@ -208,7 +215,7 @@ def classify_users_feedback():
         user_info_data['FullName'] = user_info_data['fname'] + " " + user_info_data['lname']
 
         # Reorder columns for better clarity
-        user_info_data = user_info_data[['userId', 'FullName', 'overallRating', 'feedback', 'sentiment']]
+        user_info_data = user_info_data[['userId', 'FullName', 'overallRating', 'feedback', 'availability', 'sentiment']]
 
         # Print for debugging
         print("Classified Feedback Data:")
@@ -221,6 +228,40 @@ def classify_users_feedback():
     except Exception as e:
         print("Error:", e)
         return jsonify({"status": "error", "message": str(e)}), 500
+
+@app.route('/filter_by_availability', methods=['POST'])
+def filter_by_availability():
+    try:
+        # Parse incoming JSON data
+        data = request.get_json()
+        print("Received Data in Flask API:", data)
+
+        # Extract user information and availability filter
+        user_info_data = pd.DataFrame(data['user_info'])
+        sort_by_availability = data.get('sortBy', '').strip()
+
+        # Normalize availability fields for comparison
+        user_info_data['availability'] = user_info_data['availability'].str.strip().str.lower()
+        sort_by_availability = sort_by_availability.strip().lower()
+
+        # Filter users based on availability
+        filtered_users = user_info_data[user_info_data['availability'] == sort_by_availability].copy()
+        print("Filtered Users DataFrame:", filtered_users)
+
+        # Add a fullName column for convenience
+        filtered_users['fullName'] = filtered_users['fname'] + ' ' + filtered_users['lname']
+
+        # Convert filtered users to a dictionary
+        filtered_users_dict = filtered_users.to_dict(orient='records')
+
+        return jsonify({
+            "success": True,
+            "volunteers": filtered_users_dict
+        })
+
+    except Exception as e:
+        print("Error in /filter_by_availability:", e)
+        return jsonify({"success": False, "message": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

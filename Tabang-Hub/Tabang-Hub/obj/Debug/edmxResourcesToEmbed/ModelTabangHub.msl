@@ -443,6 +443,7 @@
     <EntitySetMapping Name="vw_AllVolunteers">
       <EntityTypeMapping TypeName="TabangHubModel.vw_AllVolunteers">
         <MappingFragment StoreEntitySet="vw_AllVolunteers">
+          <ScalarProperty Name="availability" ColumnName="availability" />
           <ScalarProperty Name="Feedback" ColumnName="Feedback" />
           <ScalarProperty Name="OverallRating" ColumnName="OverallRating" />
           <ScalarProperty Name="FullName" ColumnName="FullName" />
@@ -463,6 +464,7 @@
     <EntitySetMapping Name="vw_ListOfVolunteerToBeInvite">
       <EntityTypeMapping TypeName="TabangHubModel.vw_ListOfVolunteerToBeInvite">
         <MappingFragment StoreEntitySet="vw_ListOfVolunteerToBeInvite">
+          <ScalarProperty Name="availability" ColumnName="availability" />
           <ScalarProperty Name="Feedback" ColumnName="Feedback" />
           <ScalarProperty Name="OverallRating" ColumnName="OverallRating" />
           <ScalarProperty Name="FullName" ColumnName="FullName" />

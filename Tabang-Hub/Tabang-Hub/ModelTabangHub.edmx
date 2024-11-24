@@ -238,6 +238,7 @@ warning 6002: The table/view 'TabangHub.dbo.vw_AllVolunteers' does not have a pr
           <Property Name="FullName" Type="nvarchar" MaxLength="511" Nullable="false" />
           <Property Name="OverallRating" Type="numeric" Precision="10" Scale="1" />
           <Property Name="Feedback" Type="nvarchar(max)" />
+          <Property Name="availability" Type="nvarchar" MaxLength="25" />
         </EntityType>
         <!--Errors Found During Generation:
 warning 6002: The table/view 'TabangHub.dbo.vw_ListOfEvent' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
@@ -268,6 +269,7 @@ warning 6002: The table/view 'TabangHub.dbo.vw_ListOfVolunteerToBeInvite' does n
           <Property Name="FullName" Type="nvarchar" MaxLength="511" />
           <Property Name="OverallRating" Type="numeric" Precision="10" Scale="1" />
           <Property Name="Feedback" Type="nvarchar(max)" />
+          <Property Name="availability" Type="nvarchar" MaxLength="25" />
         </EntityType>
         <!--Errors Found During Generation:
 warning 6002: The table/view 'TabangHub.dbo.vw_OrganizationAccounts' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
@@ -697,7 +699,8 @@ warning 6002: The table/view 'TabangHub.dbo.vw_VolunteerSkills' does not have a 
 [vw_AllVolunteers].[userId] AS [userId], 
 [vw_AllVolunteers].[FullName] AS [FullName], 
 [vw_AllVolunteers].[OverallRating] AS [OverallRating], 
-[vw_AllVolunteers].[Feedback] AS [Feedback]
+[vw_AllVolunteers].[Feedback] AS [Feedback], 
+[vw_AllVolunteers].[availability] AS [availability]
 FROM [dbo].[vw_AllVolunteers] AS [vw_AllVolunteers]</DefiningQuery>
           </EntitySet>
           <EntitySet Name="vw_ListOfEvent" EntityType="Self.vw_ListOfEvent" store:Type="Views" store:Schema="dbo">
@@ -721,7 +724,8 @@ FROM [dbo].[vw_ListOfEvent] AS [vw_ListOfEvent]</DefiningQuery>
 [vw_ListOfVolunteerToBeInvite].[userId] AS [userId], 
 [vw_ListOfVolunteerToBeInvite].[FullName] AS [FullName], 
 [vw_ListOfVolunteerToBeInvite].[OverallRating] AS [OverallRating], 
-[vw_ListOfVolunteerToBeInvite].[Feedback] AS [Feedback]
+[vw_ListOfVolunteerToBeInvite].[Feedback] AS [Feedback], 
+[vw_ListOfVolunteerToBeInvite].[availability] AS [availability]
 FROM [dbo].[vw_ListOfVolunteerToBeInvite] AS [vw_ListOfVolunteerToBeInvite]</DefiningQuery>
           </EntitySet>
           <EntitySet Name="vw_OrganizationAccounts" EntityType="Self.vw_OrganizationAccounts" store:Type="Views" store:Schema="dbo">
@@ -1733,6 +1737,7 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
           <Property Name="FullName" Type="String" Nullable="false" MaxLength="511" FixedLength="false" Unicode="true" />
           <Property Name="OverallRating" Type="Int32" />
           <Property Name="Feedback" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="availability" Type="String" MaxLength="25" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="Feedback">
           <Key>
@@ -1753,6 +1758,7 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
           <Property Name="FullName" Type="String" MaxLength="511" FixedLength="false" Unicode="true" />
           <Property Name="OverallRating" Type="Decimal" Precision="10" Scale="1" />
           <Property Name="Feedback" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="availability" Type="String" MaxLength="25" FixedLength="false" Unicode="true" />
         </EntityType>
         <Association Name="FK_Feedback_OrgEvents">
           <End Type="TabangHubModel.OrgEvents" Role="OrgEvents" Multiplicity="0..1" />
@@ -2226,6 +2232,7 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
           <EntitySetMapping Name="vw_AllVolunteers">
             <EntityTypeMapping TypeName="TabangHubModel.vw_AllVolunteers">
               <MappingFragment StoreEntitySet="vw_AllVolunteers">
+                <ScalarProperty Name="availability" ColumnName="availability" />
                 <ScalarProperty Name="Feedback" ColumnName="Feedback" />
                 <ScalarProperty Name="OverallRating" ColumnName="OverallRating" />
                 <ScalarProperty Name="FullName" ColumnName="FullName" />
@@ -2246,6 +2253,7 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
           <EntitySetMapping Name="vw_ListOfVolunteerToBeInvite">
             <EntityTypeMapping TypeName="TabangHubModel.vw_ListOfVolunteerToBeInvite">
               <MappingFragment StoreEntitySet="vw_ListOfVolunteerToBeInvite">
+                <ScalarProperty Name="availability" ColumnName="availability" />
                 <ScalarProperty Name="Feedback" ColumnName="Feedback" />
                 <ScalarProperty Name="OverallRating" ColumnName="OverallRating" />
                 <ScalarProperty Name="FullName" ColumnName="FullName" />

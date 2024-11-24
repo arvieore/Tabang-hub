@@ -352,12 +352,20 @@
                                     <div class="col-md-8">
                                         <div class="table-controls mb-3">
                                             <input type="text" class="search-box" placeholder="Search...">
+                                            <select class="form-select form-select-sm me-3" id="dropdownAvailability" aria-label="Availability">
+                                                <option selected value="">Availability</option>
+                                                <option id="fulltime" value="Full Time">Full Time</option>
+                                                <option id="parttime" value="Part Time">Part Time</option>
+                                            </select>
+
                                             <label>
                                                 <input type="checkbox" id="ratings-checkbox"> Ratings
                                             </label>
-                                            <label>
+
+                                            @*<label>
                                                 <input type="checkbox" id="feedback-checkbox"> Feedback
-                                            </label>
+                                            </label>*@
+
                                             <label>
                                                 <input type="checkbox" id="select-all-users"> Select All
                                             </label>
@@ -368,7 +376,8 @@
                                                     <tr>
                                                         <th scope="col">Name</th>
                                                         <th scope="col">Rating</th>
-                                                        <th scope="col">Feedback</th>
+                                                        @*<th scope="col">Feedback</th>*@
+                                                        <th scope="col">Availability</th>
                                                         <th scope="col">Select</th>
                                                     </tr>
                                                 </thead>
@@ -450,35 +459,50 @@
 
                 // Global flag for Ratings checkbox state
                 let isRatingsChecked = false;
+                $(document).on('change', '#dropdownAvailability', function () {
+                    const selectedAvailability = $(this).val(); // Get the selected availability option
+                    const selectedSkills = getSelectedSkills();
+                    const eventId = document.getElementById('event-Id').value;
+
+                    console.log("Selected Availability:", selectedAvailability);
+                    fetchVolunteers(selectedSkills, eventId, selectedAvailability);
+                });
 
                 // Function to check ratings and log displayed volunteers
                 function checkRating() {
                     $(document).on('change', '#ratings-checkbox', function () {
                         isRatingsChecked = $(this).is(':checked'); // Update the state of the Ratings checkbox
-                        console.log("Ratings checkbox state:", isRatingsChecked);
-
-                        // Fetch displayed volunteers based on the updated Ratings checkbox state
-                        const eventId = document.getElementById('event-Id').value;
                         const selectedSkills = getSelectedSkills();
-                        fetchVolunteers(selectedSkills, eventId); // Re-fetch volunteers based on the new state
+                        const selectedAvailability = $('#dropdownAvailability').val();
+                        const eventId = document.getElementById('event-Id').value;
+
+                        console.log("Ratings checkbox state:", isRatingsChecked);
+                        fetchVolunteers(selectedSkills, eventId, selectedAvailability);
                     });
+
                 }
 
-                // Function to fetch volunteers based on skills and optionally sort by ratings
-                function fetchVolunteers(selectedSkills = [], eventId = null) {
+                function fetchVolunteers(selectedSkills = [], eventId = null, selectedAvailability = "") {
                     let apiUrl = '/Organization/FilterSkill'; // Default to FilterSkill
 
-                    // Determine which controller to call based on the Ratings checkbox state and selected skills
-                    if (isRatingsChecked && selectedSkills.length > 0) {
-                        apiUrl = '/Organization/FilterBySkillsAndRatings'; // Ratings and Skills selected
+                    // Determine API URL based on the selected filters
+                    if (selectedAvailability && selectedSkills.length > 0 && isRatingsChecked) {
+                        apiUrl = '/Organization/FilterByRateWithAvailabilityAndSkills'; // Ratings + Availability + Skills
+                    } else if (selectedAvailability && isRatingsChecked) {
+                        apiUrl = '/Organization/FilterByRatingsWithAvailability'; // Ratings + Availability
+                    } else if (selectedAvailability && selectedSkills.length > 0) {
+                        apiUrl = '/Organization/FilterByAvailabilityWithSkill'; // Availability + Skills
+                    } else if (selectedAvailability) {
+                        apiUrl = '/Organization/FilterByAvailability'; // Only Availability
                     } else if (isRatingsChecked) {
-                        apiUrl = '/Organization/FilterRate'; // Only Ratings selected
-                    } else if (!isRatingsChecked && selectedSkills.length > 0) {
-                        apiUrl = '/Organization/FilterSkill'; // Only Skills selected
+                        apiUrl = '/Organization/FilterRate'; // Only Ratings
+                    } else if (selectedSkills.length > 0) {
+                        apiUrl = '/Organization/FilterSkill'; // Only Skills
                     }
 
                     console.log(`Fetching from API: ${apiUrl}`);
                     console.log("Selected Skills:", selectedSkills);
+                    console.log("Selected Availability:", selectedAvailability);
                     console.log("Event ID:", eventId);
 
                     // Perform AJAX request to fetch filtered volunteers
@@ -486,7 +510,7 @@
                         url: apiUrl,
                         type: 'POST',
                         contentType: 'application/json',
-                        data: JSON.stringify({ skillId: selectedSkills, eventId: eventId }),
+                        data: JSON.stringify({ skillId: selectedSkills, eventId: eventId, availability: selectedAvailability }),
                         success: function (response) {
                             if (response.success) {
                                 // Update the table with the filtered volunteers
@@ -501,22 +525,38 @@
                     });
                 }
 
+
                 // Function to update the table with volunteer data
                 function updateVolunteerTable(volunteers) {
                     const tableBody = document.querySelector('table tbody');
                     tableBody.innerHTML = ''; // Clear existing rows
+
+                    //For Sentiment Purposes ------ PLEASE DONT REMOVE THIS
+                    //volunteers.forEach(volunteer => {
+                    //    const row = `
+                    //    <tr>
+                    //        <td>${volunteer.FullName}</td>
+                    //        <td>${volunteer.OverallRating.toFixed(2)}</td>
+                    //        <td>${volunteer.Sentiment}</td>
+                    //        <td><input type="checkbox" class="user-checkbox" data-volunteerid="${volunteer.UserId}" value="${volunteer.UserId}"></td>
+                    //    </tr>
+                    //    `;
+                    //    tableBody.insertAdjacentHTML('beforeend', row);
+                    //});
+
 
                     volunteers.forEach(volunteer => {
                         const row = `
                         <tr>
                             <td>${volunteer.FullName}</td>
                             <td>${volunteer.OverallRating.toFixed(2)}</td>
-                            <td>${volunteer.Feedback}</td> <!-- Static feedback -->
+                            <td>${volunteer.Availability}</td>
                             <td><input type="checkbox" class="user-checkbox" data-volunteerid="${volunteer.UserId}" value="${volunteer.UserId}"></td>
                         </tr>
                         `;
                         tableBody.insertAdjacentHTML('beforeend', row);
                     });
+
 
                     console.log("Table updated with volunteers.");
                 }
@@ -550,12 +590,14 @@
                     fetchVolunteers(selectedSkills, eventId);
                 });
 
-                // Handle individual skill checkbox changes
                 $(document).on('change', '.skill-checkbox', function () {
                     const selectedSkills = getSelectedSkills();
+                    const selectedAvailability = $('#dropdownAvailability').val();
                     const eventId = document.getElementById('event-Id').value;
-                    fetchVolunteers(selectedSkills, eventId); // Fetch volunteers based on selected skills
+
+                    fetchVolunteers(selectedSkills, eventId, selectedAvailability);
                 });
+
 
                 // Helper function to get selected skills
                 function getSelectedSkills() {

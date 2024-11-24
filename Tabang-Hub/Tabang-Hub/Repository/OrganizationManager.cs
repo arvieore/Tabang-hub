@@ -753,7 +753,8 @@ namespace Tabang_Hub.Repository
                                  fname = volunteer.fName,
                                  lname = volunteer.lName,
                                  overallRating = rating.OverallRating ?? 0,
-                                 feedback = rating.Feedback
+                                 feedback = rating.Feedback,
+                                 availability = volunteer.availability
                              }).ToList()
             };
             
@@ -818,7 +819,8 @@ namespace Tabang_Hub.Repository
                                  fname = volunteer.fName,
                                  lname = volunteer.lName,
                                  overallRating = rating.OverallRating,
-                                 feedback = rating.Feedback
+                                 feedback = rating.Feedback,
+                                 availability = volunteer.availability
                              }).ToList(),
 
                 // Collect volunteer skills
@@ -870,6 +872,7 @@ namespace Tabang_Hub.Repository
                                  lname = volunteer.lName,
                                  overallRating = rating.OverallRating,
                                  feedback = rating.Feedback,
+                                 availability = volunteer.availability
                              }).ToList(),
                 user_skills = db.VolunteerSkill.Select(m => new { userId = m.userId, skillId = m.skillId }).ToList()
             };
@@ -904,6 +907,7 @@ namespace Tabang_Hub.Repository
                                  lname = volunteer.lName,
                                  overallRating = rating.OverallRating,
                                  feedback = rating.Feedback,
+                                 avaiability = volunteer.availability
                              }).ToList(),
                 user_skills = db.VolunteerSkill.Select(m => new { userId = m.userId, skillId = m.skillId }).ToList(),
                 event_skills = skillIds
@@ -923,7 +927,42 @@ namespace Tabang_Hub.Repository
             }
         }
 
+        public async Task<List<VolunteerInvite>> GetFilteredVolunteerBasedOnAvailability(List<int> skillIds, int eventId, string availability)
+        {
+            string flaskApiUrl = "http://127.0.0.1:5000/filter_by_availability";
 
+            var datas = new
+            {
+                user_info = (from volunteer in _volunteerInfo.GetAll()
+                             join rating in db.vw_ListOfVolunteerToBeInvite
+                             on volunteer.userId equals rating.userId
+                             select new
+                             {
+                                 userId = volunteer.userId,
+                                 fname = volunteer.fName,
+                                 lname = volunteer.lName,
+                                 overallRating = rating.OverallRating,
+                                 feedback = rating.Feedback,
+                                 availability = volunteer.availability
+                             }).ToList(),
+                user_skills = db.VolunteerSkill.Select(m => new { userId = m.userId, skillId = m.skillId }).ToList(),
+                event_skills = skillIds,
+                sortBy = availability
+            };
+
+            using (var client = new HttpClient())
+            {
+                var response = await client.PostAsJsonAsync(flaskApiUrl, datas);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception("Error calling Flask API: " + response.ReasonPhrase);
+                }
+
+                var jsonResponse = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<List<VolunteerInvite>>(jsonResponse);
+            }
+        }
 
         public ErrorCode TrasferToHisotry1(int eventId, List<VolunteerRatingData> volunteerRatings, ref string errMsg)
         {

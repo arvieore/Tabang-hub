@@ -18,5 +18,6 @@ namespace Tabang_Hub
         public string FullName { get; set; }
         public Nullable<decimal> OverallRating { get; set; }
         public string Feedback { get; set; }
+        public string availability { get; set; }
     }
 }

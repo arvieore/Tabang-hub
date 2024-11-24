@@ -233,6 +233,7 @@ warning 6002: The table/view 'TabangHub.dbo.vw_AllVolunteers' does not have a pr
     <Property Name="FullName" Type="nvarchar" MaxLength="511" Nullable="false" />
     <Property Name="OverallRating" Type="numeric" Precision="10" Scale="1" />
     <Property Name="Feedback" Type="nvarchar(max)" />
+    <Property Name="availability" Type="nvarchar" MaxLength="25" />
   </EntityType>
   <!--Errors Found During Generation:
 warning 6002: The table/view 'TabangHub.dbo.vw_ListOfEvent' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
@@ -263,6 +264,7 @@ warning 6002: The table/view 'TabangHub.dbo.vw_ListOfVolunteerToBeInvite' does n
     <Property Name="FullName" Type="nvarchar" MaxLength="511" />
     <Property Name="OverallRating" Type="numeric" Precision="10" Scale="1" />
     <Property Name="Feedback" Type="nvarchar(max)" />
+    <Property Name="availability" Type="nvarchar" MaxLength="25" />
   </EntityType>
   <!--Errors Found During Generation:
 warning 6002: The table/view 'TabangHub.dbo.vw_OrganizationAccounts' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
@@ -692,7 +694,8 @@ warning 6002: The table/view 'TabangHub.dbo.vw_VolunteerSkills' does not have a 
 [vw_AllVolunteers].[userId] AS [userId], 
 [vw_AllVolunteers].[FullName] AS [FullName], 
 [vw_AllVolunteers].[OverallRating] AS [OverallRating], 
-[vw_AllVolunteers].[Feedback] AS [Feedback]
+[vw_AllVolunteers].[Feedback] AS [Feedback], 
+[vw_AllVolunteers].[availability] AS [availability]
 FROM [dbo].[vw_AllVolunteers] AS [vw_AllVolunteers]</DefiningQuery>
     </EntitySet>
     <EntitySet Name="vw_ListOfEvent" EntityType="Self.vw_ListOfEvent" store:Type="Views" store:Schema="dbo">
@@ -716,7 +719,8 @@ FROM [dbo].[vw_ListOfEvent] AS [vw_ListOfEvent]</DefiningQuery>
 [vw_ListOfVolunteerToBeInvite].[userId] AS [userId], 
 [vw_ListOfVolunteerToBeInvite].[FullName] AS [FullName], 
 [vw_ListOfVolunteerToBeInvite].[OverallRating] AS [OverallRating], 
-[vw_ListOfVolunteerToBeInvite].[Feedback] AS [Feedback]
+[vw_ListOfVolunteerToBeInvite].[Feedback] AS [Feedback], 
+[vw_ListOfVolunteerToBeInvite].[availability] AS [availability]
 FROM [dbo].[vw_ListOfVolunteerToBeInvite] AS [vw_ListOfVolunteerToBeInvite]</DefiningQuery>
     </EntitySet>
     <EntitySet Name="vw_OrganizationAccounts" EntityType="Self.vw_OrganizationAccounts" store:Type="Views" store:Schema="dbo">

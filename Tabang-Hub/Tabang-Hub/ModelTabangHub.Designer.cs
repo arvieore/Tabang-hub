@@ -1,4 +1,4 @@
-﻿// T4 code generation is enabled for model 'C:\Users\arvie\OneDrive\Desktop\Tabang-Hub\Tabang-Hub\Tabang-Hub\Tabang-Hub\ModelTabangHub.edmx'. 
+﻿// T4 code generation is enabled for model 'C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\ModelTabangHub.edmx'. 
 // To enable legacy code generation, change the value of the 'Code Generation Strategy' designer
 // property to 'Legacy ObjectContext'. This property is available in the Properties Window when the model
 // is open in the designer.

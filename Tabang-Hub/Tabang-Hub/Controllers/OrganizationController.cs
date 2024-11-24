@@ -505,7 +505,9 @@ namespace Tabang_Hub.Controllers
                             FullName = v.FullName,
                             OverallRating = v.OverallRating,
                             UserId = v.UserId,
-                            Feedback = v.Feedback
+                            Feedback = v.Feedback,
+                            Sentiment = v.Sentiment,
+                            Availability = v.Availability
                         }).ToList();
 
                     return Json(new
@@ -536,14 +538,16 @@ namespace Tabang_Hub.Controllers
                             FullName = v.FullName,
                             OverallRating = v.OverallRating,
                             UserId = v.UserId,
-                            Feedback = v.Feedback
+                            Feedback = v.Feedback,
+                            Sentiment = v.Sentiment,
+                            Availability = v.Availability
                         }).ToList();
 
             return Json(new { success = true, volunteers = formattedVolunteers });
         }
 
         [HttpPost]
-        public async Task<JsonResult> FilterBySkillsAndRatings(List<int> skillId, int eventId)
+        public async Task<JsonResult> FilterBySkillsAndRatings(List<int> skillId, int eventId, string availability)
         {
             var filteredVolunteers = await _organizationManager.GetVolunteersBySkillsAndRatings(skillId, eventId);
 
@@ -553,7 +557,44 @@ namespace Tabang_Hub.Controllers
                             FullName = v.FullName,
                             OverallRating = v.OverallRating,
                             UserId = v.UserId,
-                            Feedback = v.Feedback
+                            Feedback = v.Feedback,
+                            Sentiment = v.Sentiment,
+                            Availability = v.Availability
+                        }).ToList();
+
+            return Json(new { success = true, volunteers = formattedVolunteers });
+        }
+
+        [HttpPost]
+        public JsonResult FilterByRateWithAvailabilityAndSkills(List<int> skillId, int eventId, string availability)
+        {
+            return Json(new { });
+        }
+
+        [HttpPost]
+        public JsonResult FilterByRatingsWithAvailability(List<int> skillId, int eventId, string availability)
+        {
+            return Json(new { });
+        }
+        [HttpPost]
+        public JsonResult FilterByAvailabilityWithSkill(List<int> skillId, int eventId, string availability)
+        {
+            return Json(new { });
+        }
+        [HttpPost]
+        public async Task<JsonResult> FilterByAvailability(List<int> skillId, int eventId, string availability)
+        {
+            var filteredVolunteers = await _organizationManager.GetFilteredVolunteerBasedOnAvailability(skillId, eventId, availability);
+
+            var formattedVolunteers = filteredVolunteers
+                        .Select(v => new
+                        {
+                            FullName = v.FullName,
+                            OverallRating = v.OverallRating,
+                            UserId = v.UserId,
+                            Feedback = v.Feedback,
+                            Sentiment = v.Sentiment,
+                            Availability = v.Availability
                         }).ToList();
 
             return Json(new { success = true, volunteers = formattedVolunteers });
