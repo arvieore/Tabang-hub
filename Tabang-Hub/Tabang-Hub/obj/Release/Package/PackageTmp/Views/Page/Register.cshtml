@@ -1,0 +1,160 @@
+﻿@model Tabang_Hub.UserAccount
+
+@{
+    ViewBag.Title = "Register";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    body{
+        padding-top: 100px;
+    }
+</style>
+
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10 col-sm-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-4 text-center">
+                            <img src="~/Content/images/tabanghub3.png" alt="Tabang Hub Logo" class="img-fluid mb-3" style="max-width: 200px;">
+                        </div>
+                        <div class="col-md-8">
+                            <h2>Create a New Account</h2>
+                            <p>Fill in the details to create your account.</p>
+                            @if (TempData["ErrorMessage"] != null)
+                            {
+                                <div class="alert alert-danger">
+                                    @Html.Raw(TempData["ErrorMessage"])
+                                </div>
+                            }
+                            <form action="#" method="post">
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email Address</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                        <input type="email" class="form-control" id="email" name="email" placeholder="Enter Your Email" required>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="password" class="form-label">Password</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                        <input type="password" class="form-control" id="password" name="password" placeholder="Enter Password" required>
+                                    </div>
+                                    <small class="text-muted" id="password-requirements">
+                                        <span id="uppercase" class="text-danger">Uppercase</span>,
+                                        <span id="lowercase" class="text-danger">Lowercase</span>,
+                                        <span id="number" class="text-danger">Number</span>,
+                                        <span id="special" class="text-danger">Special</span>,
+                                        <span id="length" class="text-danger">8+ chars</span>
+                                    </small>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="confirmPassword" class="form-label">Confirm Password</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                        <input type="password" class="form-control" id="confirmPassword" name="ConfirmPass" placeholder="Confirm Password" required>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-danger" id="confirmPasswordError"></small>
+                                    </div>
+                                </div>
+                                <button class="btn btn-danger w-100" type="submit" id="submitButton" disabled>Register</button>
+                            </form>
+                            <p class="mt-3 text-center">Already have an account? <a href="~/Page/Login">Login here</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Password validation function
+    function validatePassword() {
+        const password = document.getElementById('password').value;
+        let isValid = true;
+
+        // Check for uppercase letter
+        if (/[A-Z]/.test(password)) {
+            document.getElementById('uppercase').classList.remove('text-danger');
+            document.getElementById('uppercase').classList.add('text-success');
+        } else {
+            document.getElementById('uppercase').classList.add('text-danger');
+            document.getElementById('uppercase').classList.remove('text-success');
+            isValid = false;
+        }
+
+        // Check for lowercase letter
+        if (/[a-z]/.test(password)) {
+            document.getElementById('lowercase').classList.remove('text-danger');
+            document.getElementById('lowercase').classList.add('text-success');
+        } else {
+            document.getElementById('lowercase').classList.add('text-danger');
+            document.getElementById('lowercase').classList.remove('text-success');
+            isValid = false;
+        }
+
+        // Check for number
+        if (/\d/.test(password)) {
+            document.getElementById('number').classList.remove('text-danger');
+            document.getElementById('number').classList.add('text-success');
+        } else {
+            document.getElementById('number').classList.add('text-danger');
+            document.getElementById('number').classList.remove('text-success');
+            isValid = false;
+        }
+
+        // Check for special character
+        if (/[^A-Za-z0-9]/.test(password)) {
+            document.getElementById('special').classList.remove('text-danger');
+            document.getElementById('special').classList.add('text-success');
+        } else {
+            document.getElementById('special').classList.add('text-danger');
+            document.getElementById('special').classList.remove('text-success');
+            isValid = false;
+        }
+
+        // Check for minimum length
+        if (password.length >= 8) {
+            document.getElementById('length').classList.remove('text-danger');
+            document.getElementById('length').classList.add('text-success');
+        } else {
+            document.getElementById('length').classList.add('text-danger');
+            document.getElementById('length').classList.remove('text-success');
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    // Confirm password validation function
+    function validateConfirmPassword() {
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+
+        if (password === confirmPassword) {
+            document.getElementById('confirmPasswordError').innerText = '';
+            return true;
+        } else {
+            document.getElementById('confirmPasswordError').innerText = 'Passwords do not match.';
+            return false;
+        }
+    }
+
+    // Event listeners for real-time validation
+    document.getElementById('password').addEventListener('input', () => {
+        const isPasswordValid = validatePassword();
+        const isConfirmPasswordValid = validateConfirmPassword();
+        document.getElementById('submitButton').disabled = !(isPasswordValid && isConfirmPasswordValid);
+    });
+
+    document.getElementById('confirmPassword').addEventListener('input', () => {
+        const isPasswordValid = validatePassword();
+        const isConfirmPasswordValid = validateConfirmPassword();
+        document.getElementById('submitButton').disabled = !(isPasswordValid && isConfirmPasswordValid);
+    });
+</script>

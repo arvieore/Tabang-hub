@@ -1,0 +1,131 @@
+﻿body {
+    margin-top: 160px;
+}
+
+#profilePicPreview {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+/* Flex container for better alignment and centering */
+.profile-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.change-photo-button {
+    margin-top: 10px;
+}
+
+/* Ensure consistent sizing for different screen widths */
+@media (max-width: 1200px) {
+    #profilePicPreview {
+        width: 120px;
+        height: 120px;
+    }
+
+    .change-photo-button {
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+}
+
+/* Additional media queries for better control on smaller devices */
+@media (max-width: 990px) {
+    #profilePicPreview {
+        width: 100px;
+        height: 100px;
+    }
+}
+
+/* Additional media queries for better control on smaller devices */
+@media (max-width: 576px) {
+    #profilePicPreview {
+        width: 100px;
+        height: 100px;
+    }
+}
+
+
+.event-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    padding: 15px;
+    margin-bottom: 15px;
+    background-color: #fff;
+    /*font-size: 0.9em;*/
+}
+
+    .event-card:last-child {
+        border-bottom: none;
+    }
+
+.event-title {
+    font-weight: bold;
+    color: #28a745;
+    margin-bottom: 5px;
+    font-size: 1.1em;
+}
+
+.event-description {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.event-details {
+    flex-grow: 1;
+}
+
+.event-dates {
+    font-size: 0.8em;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.event-pricing {
+    text-align: right;
+    font-size: 0.9em;
+}
+
+.event-rating {
+    display: flex;
+    align-items: center;
+    font-size: 1.1em;
+    color: #ffa500;
+}
+
+    .event-rating span {
+        margin-right: 5px;
+    }
+
+    .event-rating .rate-number {
+        font-size: 1em; /* Adjust the size of the number separately */
+        margin-right: 8px; /* Space between the number and the stars */
+    }
+
+.skill-badge {
+    background-color: #28a745;
+    color: white;
+    padding: 3px 7px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    margin-top: 5px;
+    display: inline-block;
+}
+
+.view-more {
+    color: #137af0;
+    margin-left: 10px;
+}
+
+    .view-more:hover {
+        color: #2bb1ff;
+    }

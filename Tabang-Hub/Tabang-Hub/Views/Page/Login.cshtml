@@ -1,0 +1,76 @@
+﻿@model Tabang_Hub.UserAccount
+
+@{
+    ViewBag.Title = "Login";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .registerHere {
+        color: blue;
+    }
+
+        .registerHere:hover {
+            text-decoration: underline;
+        }
+
+    .error-message {
+        color: red;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+    body{
+        padding-top: 100px;
+    }
+</style>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10 col-sm-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-4 text-center">
+                            <img src="~/Content/images/tabanghub3.png" alt="Tabang Hub Logo" class="img-fluid mb-3" style="max-width: 200px;">
+                        </div>
+                        <div class="col-md-8">
+                            <h2>Login to your Account</h2>
+                            @if (ViewBag.Error != null)
+                            {
+                                <p class="error-message">@ViewBag.Error</p>
+                            }
+                            @if(TempData["ErrorMessage"] != null)
+                            {
+                                <p class="error-message">@TempData["ErrorMessage"]</p>
+                            }
+                            <form action="#" method="post">
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email Address</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                        <input type="text" class="form-control" id="username" name="username" placeholder="Enter Your Email" required>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="password" class="form-label">Password</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                        <input type="password" class="form-control" id="password" name="password" placeholder="Enter Password" required>
+                                    </div>
+                                </div>
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="rememberMe" name="rememberMe" checked>
+                                    <label class="form-check-label" for="rememberMe">
+                                        Remember me
+                                    </label>
+                                </div>
+                                <button class="btn btn-danger w-100" type="submit">Login</button>
+                            </form>
+                            <p class="mt-3 text-center">By clicking login, you agree to our <a href="#">Terms & Conditions!</a></p>
+                            <p class="mt-3 text-center">Don't have an account? <a class="registerHere" href="~/Page/ChooseRegister">Register here</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<br />

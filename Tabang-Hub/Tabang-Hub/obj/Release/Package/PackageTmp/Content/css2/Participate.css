@@ -1,0 +1,53 @@
+﻿.custom-card {
+    background-color: #FAFFEF;
+    border: none;
+}
+    .custom-card .img-title-container {
+        display: flex;
+        align-items: center;
+        margin-right: 20px;
+    }
+
+    .custom-card img {
+        border-radius: 50%;
+        margin-right: 10px;
+    }
+
+    .custom-card .btn-outline-danger {
+        font-size: 16px;
+        cursor: pointer;
+        margin-top: 8px;
+    }
+.custom-card .card-text {
+    text-align: justify;
+    margin-right: 2%;
+}
+
+@media (max-width: 767px) {
+    .custom-card .card-body {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .custom-card .btn-outline-danger {
+        margin-left: 0;
+        margin-top: 10px;
+    }
+
+    .custom-card .img-title-container {
+        margin-bottom: 10px;
+    }
+}
+@media (max-width: 767px) {
+    .section-title-container {
+        justify-content: flex-start;
+    }
+
+    .section-title {
+        margin: 0 10px;
+    }
+
+    .custom-card {
+        margin: 10px;
+    }
+}

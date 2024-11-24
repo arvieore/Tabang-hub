@@ -1,0 +1,82 @@
+﻿@model Tabang_Hub.Utils.Lists
+
+@{
+    ViewBag.Title = "Admin Approval Pending";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .approval-container {
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #f8f9fa; /* Light background for a clean look */
+    }
+
+    .approval-card {
+        max-width: 550px;
+        border: none;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+        border-radius: 16px;
+        padding: 30px;
+        background-color: #ffffff;
+    }
+
+    .approval-card-title {
+        font-size: 30px;
+        color: #28a745;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+
+    .approval-card-text {
+        font-size: 16px;
+        color: #555;
+        line-height: 1.6;
+    }
+
+    .approval-icon {
+        font-size: 48px;
+        color: #28a745;
+        margin-bottom: 15px;
+    }
+
+    .approval-btn {
+        margin-top: 25px;
+        padding: 12px 25px;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 500;
+        transition: background-color 0.3s;
+    }
+
+        .approval-btn:hover {
+            background-color: #218838;
+            border-color: #218838;
+            color: #ffffff;
+        }
+</style>
+
+<div class="container approval-container">
+    <div class="card approval-card text-center">
+        <div class="card-body">
+            <div class="approval-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h3 class="card-title approval-card-title">Thank You for Joining Us!</h3>
+            <p class="card-text approval-card-text">
+                We appreciate your interest in becoming a part of our community. Your registration has been successfully submitted and is currently under review by our team.
+            </p>
+            <p class="card-text approval-card-text mt-3">
+                We strive to ensure that each registration meets our community guidelines and standards. This process helps maintain the quality and integrity of our platform.
+            </p>
+            <p class="card-text approval-card-text mt-3">
+                You will receive a notification as soon as your registration has been reviewed and approved.
+            </p>
+            <a href="@Url.Action("Login", "Page")" class="btn btn-outline-success approval-btn">
+                Return to Login
+            </a>
+        </div>
+    </div>
+</div>

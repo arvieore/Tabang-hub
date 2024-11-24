@@ -1,0 +1,318 @@
+﻿@model Tabang_Hub.Utils.Lists
+
+@{
+    ViewBag.Title = "ManageSkill";
+    Layout = "~/Views/Shared/_Admin.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="mb-3 d-flex justify-content-between">
+        <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#addSkillModal">Add Skill</button>
+        <input type="text" id="searchSkill" class="form-control w-25" placeholder="Search by skill name" />
+    </div>
+    <div class="active-accounts">
+        <h5 class="text-start">Skills</h5>
+        <div class="table-responsive border rounded p-2 mb-5" style="max-height: 600px; overflow-y: auto;">
+            <table class="table table-striped table-hover" id="skillsTable">
+                <thead class="table-dark">
+                    <tr class="text-nowrap text-center">
+                        <th class="small">Skill Name</th>
+                        <th class="small">Skill Image</th>
+                        <th class="small">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var skill in Model.allSkill)
+                    {
+                        <tr class="text-center skill-row">
+                            <td class="skill-name">@skill.skillName</td>
+                            <td><img src="@Url.Content("~/Content/SkillImages/" + skill.skillImage)" alt="Skill Image" class="img-thumbnail" style="max-width: 100px; max-height: 100px;" /></td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-primary edit-button" data-skill-id="@skill.skillId" data-skill-name="@skill.skillName" data-skill-image="@skill.skillImage">Edit</button>
+                                <button type="button" class="btn btn-sm btn-danger delete-button" data-skill-id="@skill.skillId">Delete</button>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.allSkill.Any())
+                    {
+                        <tr>
+                            <td colspan="3" class="text-center">No skills available.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add Skill Modal -->
+<div class="modal fade" id="addSkillModal" tabindex="-1" aria-labelledby="addSkillModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addSkillModalLabel">Add a New Skill</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="@Url.Action("AddSkills", "Admin")" method="post" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="skillName" class="form-label">Skill Name</label>
+                        <input type="text" class="form-control" id="skillName" name="SkillName" placeholder="Enter Skill Name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="skillImage" class="form-label">Skill Image</label>
+                        <input type="file" class="form-control" id="skillImage" name="SkillImage" accept="image/*" required onchange="previewAddImage()">
+                        <div class="mt-2">
+                            <img id="addSkillPreview" class="img-thumbnail" style="max-width: 100px; max-height: 100px; display: none;" alt="Image Preview" />
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-center">
+                        <button type="submit" class="btn btn-success">Add Skill</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Skill Modal -->
+<div class="modal fade" id="editSkillModal" tabindex="-1" aria-labelledby="editSkillModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editSkillModalLabel">Edit Skill</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editSkillForm" action="@Url.Action("EditSkill", "Admin")" method="post" enctype="multipart/form-data">
+                    <input type="hidden" id="editSkillId" name="SkillId" />
+                    <div class="mb-3">
+                        <label for="editSkillName" class="form-label">Skill Name</label>
+                        <input type="text" class="form-control" id="editSkillName" name="SkillName" placeholder="Enter Skill Name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editSkillImage" class="form-label">Skill Image (optional)</label>
+                        <input type="file" class="form-control" id="editSkillImage" name="SkillImage" accept="image/*" onchange="previewEditImage()">
+                        <div class="mt-2">
+                            <img id="editSkillPreview" class="img-thumbnail" style="max-width: 100px; max-height: 100px; display: none;" alt="Image Preview" />
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-center">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script>
+    $(document).ready(function () {
+
+          $('form[action="@Url.Action("AddSkills", "Admin")"]').submit(function (event) {
+        event.preventDefault(); // Prevent default form submission
+
+        var formData = new FormData(this); // Collect form data
+
+        $.ajax({
+            url: $(this).attr('action'), // Use the form's action attribute
+            type: 'POST',
+            data: formData,
+            processData: false, // Prevent jQuery from automatically transforming the data into a query string
+            contentType: false, // Set content type to false for multipart/form-data
+            success: function (response) {
+                if (response.success) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: response.message,
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        location.reload(); // Reload the page to show the updated data
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: response.message,
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            },
+            error: function () {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An unexpected error occurred. Please try again.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        });
+    });
+
+        // Search functionality
+        $('#searchSkill').on('keyup', function () {
+            var value = $(this).val().toLowerCase();
+            $('#skillsTable tbody tr').filter(function () {
+                $(this).toggle($(this).find('.skill-name').text().toLowerCase().indexOf(value) > -1);
+            });
+        });
+
+        // Event listener for the Edit button
+        $('.edit-button').click(function () {
+            var skillId = $(this).data('skill-id');
+            var skillName = $(this).data('skill-name');
+            var skillImage = $(this).data('skill-image');
+
+            // Set the form fields with the selected skill's data
+            $('#editSkillId').val(skillId);
+            $('#editSkillName').val(skillName);
+            $('#currentSkillImage').attr('src', '~/Content/SkillImages/' + skillImage);
+
+            // Show the edit modal
+            $('#editSkillModal').modal('show');
+        });
+
+        // Clear modal inputs when it is closed
+        $('#editSkillModal').on('hidden.bs.modal', function () {
+            $('#editSkillForm')[0].reset(); // Reset the form
+            $('#editSkillId').val(''); // Clear hidden input
+            $('#currentSkillImage').attr('src', ''); // Clear image preview
+        });
+
+        // Submit the Edit form
+        $('#editSkillForm').submit(function (event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            var formData = new FormData(this);
+
+            $.ajax({
+                url: $(this).attr('action'), // URL defined in the form's action attribute
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    if (response.success) {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: response.message,
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            location.reload(); // Reload the page after the alert is confirmed
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: response.message,
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                },
+                error: function () {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'An error occurred. Please try again.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        });
+
+        // Event listener for delete buttons
+        $('.delete-button').click(function (event) {
+            event.stopPropagation(); // Prevent the row click event
+            var skillId = $(this).data('skill-id');
+
+            // Confirmation dialog before deletion
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '@Url.Action("DeleteSkill")',
+                        type: 'POST',
+                        data: { skillId: skillId },
+                        success: function (response) {
+                            if (response.success) {
+                                Swal.fire(
+                                    'Deleted!',
+                                    'The skill has been deleted.',
+                                    'success'
+                                ).then(() => {
+                                    location.reload(); // Optionally reload the page or remove the row from the table
+                                });
+                            } else {
+                                Swal.fire(
+                                    'Error!',
+                                    'Failed to delete the skill: ' + response.message,
+                                    'error'
+                                );
+                            }
+                        },
+                        error: function () {
+                            Swal.fire(
+                                'Error!',
+                                'An error occurred. Please try again.',
+                                'error'
+                            );
+                        }
+                    });
+                }
+            });
+        });
+    });
+
+    // Preview image for Add Skill modal
+    function previewAddImage() {
+        var file = document.getElementById('skillImage').files[0];
+        var preview = document.getElementById('addSkillPreview');
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+        };
+
+        if (file) {
+            reader.readAsDataURL(file);
+        } else {
+            preview.style.display = 'none'; // Hide preview if no file is selected
+        }
+    }
+
+    // Preview image for Edit Skill modal
+    function previewEditImage() {
+        var file = document.getElementById('editSkillImage').files[0];
+        var preview = document.getElementById('editSkillPreview');
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+        };
+
+        if (file) {
+            reader.readAsDataURL(file);
+        } else {
+            preview.style.display = 'none'; // Hide preview if no file is selected
+        }
+    }
+
+    // Clear previews when modals are closed
+    $('#addSkillModal, #editSkillModal').on('hidden.bs.modal', function () {
+        document.getElementById('addSkillPreview').style.display = 'none';
+        document.getElementById('editSkillPreview').style.display = 'none';
+    });
+</script>

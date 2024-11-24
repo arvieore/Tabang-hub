@@ -1,0 +1,714 @@
+﻿﻿@model Tabang_Hub.Utils.Lists
+
+@{
+    ViewBag.Title = "Participate";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    string activeSection = Request.QueryString["section"] ?? "participatingSection";
+}
+<style>
+    body {
+        padding-top: 100px;
+    }
+
+    .dropdown-icon {
+        font-size: 1rem;
+        color: #6c757d;
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link href="~/Content/Css/Participate.css" rel="stylesheet" />
+
+<nav class="navbar navbar-expand-sm navbar-light bg-light custom-navbar mb-4">
+    <div class="container justify-content-center section-title-container">
+        <ul class="navbar-nav d-flex flex-row" style="margin-left: 15px;">
+            <li class="nav-item">
+                <span class="nav-link section-title @(activeSection == "participatingSection" ? "active" : "")" onclick="showSection('participatingSection', this)">Ongoing Events</span>
+            </li>
+            <li class="nav-item">
+                <span class="nav-link section-title @(activeSection == "pendingSection" ? "active" : "")" onclick="showSection('pendingSection', this)">Pending Requests</span>
+            </li>
+            <li class="nav-item">
+                <span class="nav-link section-title @(activeSection == "historySection" ? "active" : "")" onclick="showSection('historySection', this)">Event History</span>
+            </li>
+        </ul>
+        <div class="underline" id="underline"></div>
+    </div>
+</nav>
+
+<div id="participatingSection" class="content-section @(activeSection == "participatingSection" ? "active" : "")">
+    <div id="ongoingEventsContainer">
+        @if (Model.orgEvents != null && Model.orgEvents.Any())
+        {
+            <!-- Dropdown for Ongoing Events -->
+            <div class="mb-3">
+                <div class="col-11 d-flex justify-content-end">
+                    <div class="form-group mb-0 position-relative" style="display: inline-block;">
+                        <select class="form-control" id="ongoingEventFilter" style="padding-right: 2.5rem; width: auto;" onchange="filterOngoingEvents()">
+                            <option value="startSoonest">Earliest Start Date</option>
+                            <option value="longestDuration">Longest Duration</option>
+                            <option value="shortestDuration">Shortest Duration</option>
+                        </select>
+                        <i class="bi bi-caret-down-fill dropdown-icon" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+                    </div>
+                </div>
+            </div>
+            foreach (var org in Model.orgEvents.Where(m => m.status != 2 && m.dateEnd >= DateTime.Now))
+            {
+                DateTime? originalDateStart = org.dateStart;
+                string formattedDateStart = originalDateStart.HasValue ? originalDateStart.Value.ToString("MMMM dd, yyyy") : "N/A";
+
+                DateTime? originalDateEnd = org.dateEnd;
+                string formattedDateEnd = originalDateEnd.HasValue ? originalDateEnd.Value.ToString("MMMM dd, yyyy") : "N/A";
+
+                <div class="container mt-5 event-card" data-bs-toggle="modal" data-bs-target="#ongoingModal-@org.eventId"
+                     data-start-date="@formattedDateStart"
+                     data-end-date="@formattedDateEnd">
+                    <div class="card custom-card shadow-lg">
+                        <div class="row g-0">
+                            @{
+                                var imgs = Model.detailsEventImage.Where(m => m.eventId == org.eventId).Select(m => m.eventImage).FirstOrDefault();
+                            }
+                            <!-- Image Section -->
+                            <div class="col-12 col-md-4">
+                                <div class="image-container">
+                                    <img src="@Url.Content("~/Content/Events/" + imgs)" class="img-fluid rounded" alt="Event Image">
+                                </div>
+                            </div>
+                            <!-- Text Content Section -->
+                            <div class="col-12 col-md-8 d-flex align-items-center">
+                                <div class="card-body">
+                                    <h5 class="card-title fw-bold">@org.eventTitle</h5>
+                                    <p class="card-text">
+                                        <i class="bi bi-geo-alt-fill"></i> @org.location<br>
+                                        @org.eventDescription
+                                    </p>
+                                    <p class="card-text">
+                                        <i class="bi bi-calendar-event-fill"></i> Start Date: @formattedDateStart<br>
+                                        <i class="bi bi-calendar-event-fill"></i> End Date: @formattedDateEnd
+                                    </p>
+                                    <p class="card-text">
+                                        <button class="btn btn-outline-danger" onclick="LeaveBtn('@org.eventId')">Leave Event</button>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="modal fade" id="ongoingModal-@org.eventId" tabindex="-1" aria-labelledby="ongoingModalLabel-@org.eventId" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title fw-bold" id="ongoingModalLabel-@org.eventId">@org.eventTitle</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="image-container mb-3">
+                                    <img src="@Url.Content("~/Content/Events/" + imgs)" class="img-fluid rounded" alt="Event Image">
+                                </div>
+                                <p><i class="bi bi-geo-alt-fill"></i> @org.location</p>
+                                <p>@org.eventDescription</p>
+                                <p><i class="bi bi-calendar-event-fill"></i> Start Date: @formattedDateStart</p>
+                                <p><i class="bi bi-calendar-event-fill"></i> End Date: @formattedDateEnd</p>
+                            </div>
+                            <div class="d-flex align-items-start">
+                                <strong class="me-2 px-2">Skill/s Required:</strong>
+                                <div>
+                                    @{
+                                        var skills = Model.detailsSkillRequirement
+                                            .Where(ds => ds.eventId == org.eventId)
+                                            .Select(ds => new
+                                            {
+                                                ds.skillId,
+                                                SkillNames = Model.allSkill
+                                                    .Where(r => r.skillId == ds.skillId)
+                                                    .Select(r => r.skillName)
+                                                    .FirstOrDefault()
+                                            })
+                                            .ToList();
+                                    }
+
+                                    @foreach (var skll in skills)
+                                    {
+                                        <div class="d-inline-block mb-2">
+                                            <span class="badge text-white border">@skll.SkillNames</span><br />
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            }
+        }
+        else
+        {
+            <div class="container mt-5">
+                <div class="card custom-card-no-content">
+                    <div class="card-body">
+                        <div class="mt-2">
+                            <div class="center-message">
+                                You are not currently participating in any events.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<div id="pendingSection" class="content-section @(activeSection == "pendingSection" ? "active" : "")">
+    <div id="pendingEventsContainer">
+        @if (Model.pendingOrgDetails != null && Model.pendingOrgDetails.Any())
+        {
+            <!-- Dropdown for Pending Requests -->
+            <div class="mb-3">
+                <div class="col-11 d-flex justify-content-end">
+                    <div class="form-group mb-0 position-relative" style="display: inline-block;">
+                        <select class="form-control" id="pendingEventFilter" style="padding-right: 2.5rem; width: auto;" onchange="filterPendingEvents()">
+                            <option value="startSoonest">Earliest Start Date</option>
+                            <option value="longestDuration">Longest Duration</option>
+                            <option value="shortestDuration">Shortest Duration</option>
+                        </select>
+                        <i class="bi bi-caret-down-fill dropdown-icon" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+                    </div>
+                </div>
+            </div>
+            foreach (var pendingOrg in Model.pendingOrgDetails)
+            {
+                DateTime? originalDateStart = pendingOrg.dateStart;
+                string formattedDateStart = originalDateStart.HasValue ? originalDateStart.Value.ToString("MMMM dd, yyyy") : "N/A";
+
+                DateTime? originalDateEnd = pendingOrg.dateEnd;
+                string formattedDateEnd = originalDateEnd.HasValue ? originalDateEnd.Value.ToString("MMMM dd, yyyy") : "N/A";
+                <div class="container mt-5 event-card" data-bs-toggle="modal" data-bs-target="#pendingModal-@pendingOrg.eventId"
+                     data-start-date="@formattedDateStart"
+                     data-end-date="@formattedDateEnd">
+                    <div class="card custom-card shadow-lg">
+                        <div class="row g-0">
+                            @{
+                                var imgs = Model.detailsEventImage.Where(m => m.eventId == pendingOrg.eventId).Select(m => m.eventImage).FirstOrDefault();
+                            }
+                            <!-- Image Section -->
+                            <div class="col-12 col-md-4">
+                                <div class="image-container">
+                                    <img src="@Url.Content("~/Content/Events/" + imgs)" class="img-fluid rounded" alt="Event Image">
+                                </div>
+                            </div>
+                            <!-- Text Content Section -->
+                            <div class="col-12 col-md-8 d-flex align-items-center">
+                                <div class="card-body">
+                                    <h5 class="card-title fw-bold">@pendingOrg.eventTitle</h5>
+                                    <p class="card-text">
+                                        <i class="bi bi-geo-alt-fill"></i> @pendingOrg.eventTitle<br>
+                                        @pendingOrg.eventDescription
+                                    </p>
+                                    <p class="card-text">
+                                        <i class="bi bi-calendar-event-fill"></i> Start Date: @formattedDateStart<br>
+                                        <i class="bi bi-calendar-event-fill"></i> End Date: @formattedDateEnd
+                                    </p>
+                                    <p class="card-text">
+                                        <button class="btn btn-outline-danger" onclick="CancelRequestBtn('@pendingOrg.eventId')">Cancel Request</button>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="modal fade" id="pendingModal-@pendingOrg.eventId" tabindex="-1" aria-labelledby="pendingModalLabel-@pendingOrg.eventId" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title fw-bold" id="pendingModalLabel-@pendingOrg.eventId">@pendingOrg.eventTitle</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="image-container mb-3">
+                                    <img src="@Url.Content("~/Content/Events/" + imgs)" class="img-fluid rounded" alt="Event Image">
+                                </div>
+                                <p><i class="bi bi-geo-alt-fill"></i> @pendingOrg.location</p>
+                                <p>@pendingOrg.eventDescription</p>
+                                <p><i class="bi bi-calendar-event-fill"></i> Start Date: @formattedDateStart</p>
+                                <p><i class="bi bi-calendar-event-fill"></i> End Date: @formattedDateEnd</p>
+                            </div>
+
+                            <div class="d-flex align-items-start">
+                                <strong class="me-2 px-2">Skill/s Required:</strong>
+                                <div>
+                                    @{
+                                        var skills = Model.detailsSkillRequirement
+                                            .Where(ds => ds.eventId == pendingOrg.eventId)
+                                            .Select(ds => new
+                                            {
+                                                ds.skillId,
+                                                SkillNames = Model.allSkill
+                                                    .Where(r => r.skillId == ds.skillId)
+                                                    .Select(r => r.skillName)
+                                                    .FirstOrDefault()
+                                            })
+                                            .ToList();
+                                    }
+
+                                    @foreach (var skll in skills)
+                                    {
+                                        <div class="d-inline-block mb-2">
+                                            <span class="badge text-white border">@skll.SkillNames</span><br />
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            }
+        }
+        else
+        {
+            <div class="container mt-5">
+                <div class="card custom-card-no-content">
+                    <div class="card-body">
+                        <div class="mt-2">
+                            <div class="center-message">
+                                You have no pending requests.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<div id="historySection" class="content-section @(activeSection == "historySection" ? "active" : "")">
+    <div id="historyEventsContainer">
+        @if (Model.volunteersHistories != null && Model.volunteersHistories.Any())
+        {
+            <div class="mb-3">
+                <div class="col-11 d-flex justify-content-end">
+                    <div class="form-group mb-0 position-relative" style="display: inline-block;">
+                        <select class="form-control" id="eventFilter" style="padding-right: 2.5rem; width: auto;" onchange="filterEvents()">
+                            <option value="recent">Sort To Newest</option>
+                            <option value="past">Sort To Oldest</option>
+                            <option value="highestRating">Highest Rating</option>
+                            <option value="lowestRating">Lowest Rating</option>
+                            <option value="longestDuration">Longest Duration</option>
+                            <option value="shortestDuration">Shortest Duration</option>
+                        </select>
+                        <i class="bi bi-caret-down-fill dropdown-icon" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div id="eventContainer">
+                @{
+                    var groupedEvents = Model.volunteersHistories
+                        .GroupBy(vh => vh.eventId)
+                        .Select(g => new
+                        {
+                            Event = g.First(),
+                            Skills = g.Select(vh => new
+                            {
+                                vh.skillName,
+                                Rating = Model.rating.Where(m => m.userId == vh.userId && m.skillId == vh.skillId && m.eventId == vh.eventId).Select(m => m.rate).FirstOrDefault()
+                            }).ToList()
+                        })
+                        .ToList();
+                }
+
+                @foreach (var group in groupedEvents)
+                {
+                    var vh = group.Event;
+                    DateTime? originalDateStart = vh.dateStart;
+                    string formattedDateStart = originalDateStart.HasValue ? originalDateStart.Value.ToString("MMMM dd, yyyy") : "N/A";
+
+                    DateTime? originalDateEnd = vh.dateEnd;
+                    string formattedDateEnd = originalDateEnd.HasValue ? originalDateEnd.Value.ToString("MMMM dd, yyyy") : "N/A";
+
+                    <div class="container mt-5 event-card"
+                         data-start-date="@formattedDateStart"
+                        data-end-date="@formattedDateEnd"
+                         data-rating="@(group.Skills.Average(s => s.Rating) ?? 0)">
+                        <div class="card custom-card shadow-lg" data-bs-toggle="modal" data-bs-target="#eventModal-@vh.eventId">
+                            <div class="row g-0 history-card">
+                                @{
+                                    var imgs = Model.detailsEventImage.Where(m => m.eventId == vh.eventId).Select(m => m.eventImage).FirstOrDefault();
+                                }
+                                <div class="col-12 col-md-4">
+                                    <div class="image-container">
+                                        <img src="@Url.Content("~/Content/Events/" + imgs)" class="img-fluid rounded" alt="Event Image">
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-8 d-flex align-items-center">
+                                    <div class="card-body">
+                                        <h5 class="card-title fw-bold">@vh.eventTitle</h5>
+                                        <p class="card-text">
+                                            <i class="bi bi-geo-alt-fill"></i> @vh.location<br>
+                                            @vh.eventDescription
+                                        </p>
+                                        <p class="card-text">
+                                            <i class="bi bi-calendar-event-fill"></i> Start Date: @formattedDateStart<br>
+                                            <i class="bi bi-calendar-event-fill"></i> End Date: @formattedDateEnd
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal Structure -->
+                    <div class="modal fade" id="eventModal-@vh.eventId" tabindex="-1" aria-labelledby="eventModalLabel-@vh.eventId" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title fw-bold" id="eventModalLabel-@vh.eventId">@vh.eventTitle</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="image-container mb-3">
+                                        <img src="@Url.Content("~/Content/Events/" + imgs)" class="img-fluid rounded" alt="Event Image">
+                                    </div>
+                                    <p><i class="bi bi-geo-alt-fill"></i> @vh.location</p>
+                                    <p>@vh.eventDescription</p>
+                                    <p><i class="bi bi-calendar-event-fill"></i> Start Date: @formattedDateStart</p>
+                                    <p><i class="bi bi-calendar-event-fill"></i> End Date: @formattedDateEnd</p>
+                                    <div class="skills-container mb-3">
+                                        <div class="d-flex align-items-start">
+                                            <strong class="me-2">Skills Utilized:</strong>
+                                            <div>
+                                                @foreach (var skill in group.Skills)
+                                                {
+                                                    <div class="d-inline-block text-center me-2">
+                                                        <span class="badge text-white border">@skill.skillName</span><br />
+                                                        @if (skill.Rating.HasValue)
+                                                        {
+                                                            <span class="rate-number" style="color: #ffa500;">@skill.Rating.Value &nbsp;</span>
+                                                            for (int i = 0; i < skill.Rating.Value; i++)
+                                                            {
+                                                                <span style="color: #ffa500;">★</span>
+                                                            }
+                                                            for (int i = skill.Rating.Value; i < 5; i++)
+                                                            {
+                                                                <span style="color: #ccc;">☆</span>
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="text-muted">No Rating</span>
+                                                        }
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+
+
+        }
+        else
+        {
+            <div class="container mt-5">
+                <div class="card custom-card-no-content">
+                    <div class="card-body">
+                        <div class="mt-2">
+                            <div class="center-message">
+                                You have not participated in any events yet.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<br />
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+
+    // Function to filter and sort only the Ongoing Events section
+    function filterOngoingEvents() {
+        const filter = document.getElementById('ongoingEventFilter').value;
+        const eventCards = document.querySelectorAll('#ongoingEventsContainer .event-card');
+
+        // Sorting logic specific to the ongoing events section
+        sortOngoingEvents(eventCards, filter);
+    }
+
+    // Function to filter and sort only the Pending Requests section
+    function filterPendingEvents() {
+        const filter = document.getElementById('pendingEventFilter').value;
+        const eventCards = document.querySelectorAll('#pendingEventsContainer .event-card');
+
+        // Sorting logic specific to the pending requests section
+        sortPendingEvents(eventCards, filter);
+    }
+
+    // Sorting function for Ongoing Events
+    function sortOngoingEvents(eventCards, filter) {
+        const container = document.getElementById('ongoingEventsContainer');
+        const cardsArray = Array.from(eventCards);
+
+        cardsArray.sort((a, b) => {
+            let aValue, bValue;
+
+            switch (filter) {
+                case 'startSoonest':
+                    aValue = new Date(a.getAttribute('data-start-date'));
+                    bValue = new Date(b.getAttribute('data-start-date'));
+                    return aValue - bValue;
+                case 'longestDuration':
+                    const aDuration = new Date(a.getAttribute('data-end-date')) - new Date(a.getAttribute('data-start-date'));
+                    const bDuration = new Date(b.getAttribute('data-end-date')) - new Date(b.getAttribute('data-start-date'));
+                    return bDuration - aDuration;
+                case 'shortestDuration':
+                    const aDurationShort = new Date(a.getAttribute('data-end-date')) - new Date(a.getAttribute('data-start-date'));
+                    const bDurationShort = new Date(b.getAttribute('data-end-date')) - new Date(b.getAttribute('data-start-date'));
+                    return aDurationShort - bDurationShort;
+            }
+        });
+
+        // Re-arrange sorted elements in the ongoing events container
+        cardsArray.forEach(card => container.appendChild(card));
+    }
+
+    // Sorting function for Pending Requests
+    function sortPendingEvents(eventCards, filter) {
+        const container = document.getElementById('pendingEventsContainer');
+        const cardsArray = Array.from(eventCards);
+
+        cardsArray.sort((a, b) => {
+            let aValue, bValue;
+
+            switch (filter) {
+                case 'startSoonest':
+                    aValue = new Date(a.getAttribute('data-start-date'));
+                    bValue = new Date(b.getAttribute('data-start-date'));
+                    return aValue - bValue;
+                case 'longestDuration':
+                    const aDuration = new Date(a.getAttribute('data-end-date')) - new Date(a.getAttribute('data-start-date'));
+                    const bDuration = new Date(b.getAttribute('data-end-date')) - new Date(b.getAttribute('data-start-date'));
+                    return bDuration - aDuration;
+                case 'shortestDuration':
+                    const aDurationShort = new Date(a.getAttribute('data-end-date')) - new Date(a.getAttribute('data-start-date'));
+                    const bDurationShort = new Date(b.getAttribute('data-end-date')) - new Date(b.getAttribute('data-start-date'));
+                    return aDurationShort - bDurationShort;
+            }
+        });
+
+        // Re-arrange sorted elements in the pending requests container
+        cardsArray.forEach(card => container.appendChild(card));
+    }
+
+    function showSection(sectionId, element) {
+        $('.content-section').removeClass('active');
+        $('#' + sectionId).addClass('active');
+
+        $('.section-title').removeClass('active');
+        $(element).addClass('active');
+
+        updateUnderline(element);
+    }
+
+    function updateUnderline(element) {
+        const underline = document.getElementById('underline');
+        const leftPosition = element.offsetLeft;
+        const width = element.offsetWidth;
+
+        underline.style.left = leftPosition + 'px';
+        underline.style.width = width + 'px';
+    }
+
+    function LeaveBtn(eventId) {
+        Swal.fire({
+            title: 'Confirm Leave',
+            text: 'Are you sure you want to leave this event?',
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '@Url.Action("LeaveEvent", "Volunteer")',
+                    type: 'POST',
+                    data: { eventId: eventId },
+                    success: function (response) {
+                        if (response.success) {
+                            Swal.fire({
+                                title: response.message,
+                                text: '',
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                window.location.href = '@Url.Action("Participate", "Volunteer")?section=participatingSection';
+                            });
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'An error occurred. Please try again.',
+                            icon: 'error',
+                            confirmButtonText: 'Ok'
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+    function CancelRequestBtn(eventId) {
+        Swal.fire({
+            title: 'Confirm Cancel',
+            text: 'Are you sure you want to cancel this request?',
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '@Url.Action("CancelRequest", "Volunteer")',
+                    type: 'POST',
+                    data: { eventId: eventId },
+                    success: function (response) {
+                        if (response.success) {
+                            Swal.fire({
+                                title: response.message,
+                                text: '',
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                window.location.href = '@Url.Action("Participate", "Volunteer")?section=pendingSection';
+                            });
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'An error occurred. Please try again.',
+                            icon: 'error',
+                            confirmButtonText: 'Ok'
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+    function filterEvents() {
+        const filter = document.getElementById('eventFilter').value;
+        const eventCards = document.querySelectorAll('#historyEventsContainer .event-card');
+
+        eventCards.forEach(card => {
+            const rating = parseInt(card.getAttribute('data-rating')) || 0;
+            const startDate = new Date(card.getAttribute('data-start-date'));
+            const endDate = new Date(card.getAttribute('data-end-date'));
+
+            switch (filter) {
+                case 'recent':
+                    sortEvents(eventCards, 'desc', 'data-start-date');
+                    break;
+                case 'past':
+                    sortEvents(eventCards, 'asc', 'data-start-date');
+                    break;
+                case 'highestRating':
+                    sortEvents(eventCards, 'desc', 'data-rating');
+                    break;
+                case 'lowestRating':
+                    sortEvents(eventCards, 'asc', 'data-rating');
+                    break;
+                case 'longestDuration':
+                    sortEventsByDuration(eventCards, 'desc');
+                    break;
+                case 'shortestDuration':
+                    sortEventsByDuration(eventCards, 'asc');
+                    break;
+            }
+        });
+    }
+
+    function sortEvents(eventCards, order, dataAttribute) {
+        const container = document.getElementById('eventContainer');
+        const cardsArray = Array.from(eventCards);
+
+        cardsArray.sort((a, b) => {
+            let aValue = dataAttribute === 'data-rating' ? parseInt(a.getAttribute(dataAttribute)) : new Date(a.getAttribute(dataAttribute));
+            let bValue = dataAttribute === 'data-rating' ? parseInt(b.getAttribute(dataAttribute)) : new Date(b.getAttribute(dataAttribute));
+
+            return order === 'asc' ? aValue - bValue : bValue - aValue;
+        });
+
+        // Re-arrange the DOM
+        cardsArray.forEach(card => {
+            container.appendChild(card);
+        });
+    }
+
+    function sortEventsByDuration(eventCards, order) {
+        const container = document.getElementById('eventContainer');
+        const cardsArray = Array.from(eventCards);
+
+        cardsArray.sort((a, b) => {
+            const aStart = new Date(a.getAttribute('data-start-date'));
+            const aEnd = new Date(a.getAttribute('data-end-date'));
+            const bStart = new Date(b.getAttribute('data-start-date'));
+            const bEnd = new Date(b.getAttribute('data-end-date'));
+
+            const aDuration = aEnd - aStart;
+            const bDuration = bEnd - bStart;
+
+            return order === 'asc' ? aDuration - bDuration : bDuration - aDuration;
+        });
+
+        // Re-arrange the DOM
+        cardsArray.forEach(card => {
+            container.appendChild(card);
+        });
+    }
+
+
+    $(document).ready(function () {
+        const activeElement = document.querySelector('.section-title.active');
+        updateUnderline(activeElement);
+
+        $(window).resize(function () {
+            const activeElement = document.querySelector('.section-title.active');
+            updateUnderline(activeElement);
+        });
+    });
+
+    $(document).ready(function () {
+        $('.image-container img').each(function () {
+            $(this).css({
+                'width': '100%',
+                'height': '250px',
+                'object-fit': 'cover'
+            });
+        });
+    });
+</script>

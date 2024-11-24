@@ -1,0 +1,104 @@
+﻿.input_text {
+    margin-bottom: 15px;
+}
+
+.gender-inputs {
+    display: flex;
+    align-items: center;
+}
+
+    .gender-inputs label {
+        margin-right: 10px;
+    }
+
+.scrollable-container {
+    max-height: 500px; /* Adjust this value as needed */
+    overflow-y: auto;
+}
+
+.skills-container {
+    margin-top: 5%;
+    margin-bottom: 5%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+}
+
+    .skills-container img {
+        flex: 1 1 calc(33.33% - 15px); /* Two images per row with 15px gap */
+        max-width: calc(85% - 116px); /* Adjust the width accordingly */
+        border-radius: 5%;
+        cursor: pointer;
+    }
+
+        .skills-container img.selected {
+            box-shadow: 0 0 10px 5px rgb(62, 180, 244);
+        }
+
+.button button:disabled {
+    background-color: grey;
+    cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+    .main {
+        padding: 10px;
+    }
+
+    input[type="text"], input[type="password"] {
+        font-size: 12px;
+    }
+
+    .button button {
+        width: 100px;
+    }
+
+    .skills-container img {
+        /*flex: 1 1 calc(100% - 15px);*/ /* One image per row with 15px gap */
+        flex: 1 1 calc(33.33% - 15px);
+        max-width: calc(85% - 116px); /* Adjust the width accordingly */
+    }
+}
+
+
+/* Responsive Styles */
+@media (max-width: 600px) {
+    .main.active {
+        width: 100%; /* Full width on small screens */
+        padding: 0 10px;
+    }
+
+    .container {
+        padding: 10px;
+    }
+
+    .input_text input, .input_text label {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .button button {
+        width: 100%;
+    }
+
+    .progress_bar {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .skills-container img {
+        width: 100%;
+        margin: 5px 0;
+    }
+
+    .gender-inputs {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+        .gender-inputs label, .gender-inputs input {
+            width: auto;
+        }
+}

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="ed8a219195054fa5a1b2f116b06f8156" Name="Diagram1">
+        <EntityTypeShape EntityType="TabangHubModel.GroupChat" Width="1.5" PointX="5.25" PointY="37.25" />
+        <EntityTypeShape EntityType="TabangHubModel.GroupMessages" Width="1.5" PointX="3" PointY="20.75" />
+        <EntityTypeShape EntityType="TabangHubModel.LastRead" Width="1.5" PointX="0.75" PointY="0.75" />
+        <EntityTypeShape EntityType="TabangHubModel.Notification" Width="1.5" PointX="2.75" PointY="0.75" />
+        <EntityTypeShape EntityType="TabangHubModel.OrgEventImage" Width="1.5" PointX="5.25" PointY="43.625" />
+        <EntityTypeShape EntityType="TabangHubModel.OrgEvents" Width="1.5" PointX="3" PointY="32.875" />
+        <EntityTypeShape EntityType="TabangHubModel.OrgInfo" Width="1.5" PointX="3" PointY="37.875" />
+        <EntityTypeShape EntityType="TabangHubModel.OrgSkillRequirement" Width="1.5" PointX="5.25" PointY="33.875" />
+        <EntityTypeShape EntityType="TabangHubModel.OrgValidation" Width="1.5" PointX="3" PointY="13.375" />
+        <EntityTypeShape EntityType="TabangHubModel.ProfilePicture" Width="1.5" PointX="3.75" PointY="17" />
+        <EntityTypeShape EntityType="TabangHubModel.Rating" Width="1.5" PointX="6" PointY="20.625" />
+        <EntityTypeShape EntityType="TabangHubModel.Role" Width="1.5" PointX="4.75" PointY="0.75" />
+        <EntityTypeShape EntityType="TabangHubModel.Skills" Width="1.5" PointX="3.75" PointY="9.875" />
+        <EntityTypeShape EntityType="TabangHubModel.UserAccount" Width="1.5" PointX="0.75" PointY="20" />
+        <EntityTypeShape EntityType="TabangHubModel.UserDonated" Width="1.5" PointX="5.25" PointY="27.125" />
+        <EntityTypeShape EntityType="TabangHubModel.UserRoles" Width="1.5" PointX="3" PointY="27.375" />
+        <EntityTypeShape EntityType="TabangHubModel.VolunteerInfo" Width="1.5" PointX="6" PointY="14.875" />
+        <EntityTypeShape EntityType="TabangHubModel.Volunteers" Width="1.5" PointX="8.25" PointY="27.375" />
+        <EntityTypeShape EntityType="TabangHubModel.VolunteersHistory" Width="1.5" PointX="3" PointY="29.875" />
+        <EntityTypeShape EntityType="TabangHubModel.VolunteerSkill" Width="1.5" PointX="6" PointY="10" />
+        <EntityTypeShape EntityType="TabangHubModel.vw_ListOfEvent" Width="1.5" PointX="0.75" PointY="4.75" />
+        <EntityTypeShape EntityType="TabangHubModel.vw_OrganizationAccounts" Width="1.5" PointX="2.75" PointY="4.75" />
+        <EntityTypeShape EntityType="TabangHubModel.vw_UserRoles" Width="1.5" PointX="4.75" PointY="3.75" />
+        <EntityTypeShape EntityType="TabangHubModel.vw_VolunteerAccounts" Width="1.5" PointX="6.75" PointY="0.75" />
+        <EntityTypeShape EntityType="TabangHubModel.vw_VolunteerSkills" Width="1.5" PointX="4.75" PointY="6.75" />
+        <AssociationConnector Association="TabangHubModel.FK_GroupChat_OrgEvents" />
+        <AssociationConnector Association="TabangHubModel.FK_GroupChat_OrgInfo" />
+        <AssociationConnector Association="TabangHubModel.FK_GroupMessages_GroupChat" />
+        <AssociationConnector Association="TabangHubModel.FK_GroupMessages_UserAccount" />
+        <AssociationConnector Association="TabangHubModel.FK_OrgEventImage_OrgEvents" />
+        <AssociationConnector Association="TabangHubModel.FK_OrgEvents_UserAccount" />
+        <AssociationConnector Association="TabangHubModel.FK_OrgSkillRequirement_OrgEvents" />
+        <AssociationConnector Association="TabangHubModel.FK_UserDonated_UserDonated" />
+        <AssociationConnector Association="TabangHubModel.FK_Volunteers_OrgEvents" />
+        <AssociationConnector Association="TabangHubModel.FK_OrgInfo_UserAccount" />
+        <AssociationConnector Association="TabangHubModel.FK_OrgSkillRequirement_Skills" />
+        <AssociationConnector Association="TabangHubModel.FK_OrgValidation_UserAccount" />
+        <AssociationConnector Association="TabangHubModel.FK_VolunteerInfo_ProfilePicture" />
+        <AssociationConnector Association="TabangHubModel.FK_Rating_Skills" />
+        <AssociationConnector Association="TabangHubModel.FK_Rating_UserAccount" />
+        <AssociationConnector Association="TabangHubModel.FK_Skills_UserAccount" />
+        <AssociationConnector Association="TabangHubModel.FK_UserDonated_UserAccount" />
+        <AssociationConnector Association="TabangHubModel.FK_UserRoles_UserAccount" />
+        <AssociationConnector Association="TabangHubModel.FK_VolunteerInfo_UserAccount" />
+        <AssociationConnector Association="TabangHubModel.FK_Volunteers_UserAccount" />
+        <AssociationConnector Association="TabangHubModel.FK_VolunteersHistory_UserAccount" />
+        <EntityTypeShape EntityType="TabangHubModel.vw_AllVolunteers" Width="1.5" PointX="8.375" PointY="8.75" />
+        <EntityTypeShape EntityType="TabangHubModel.Feedback" Width="1.5" PointX="7.375" PointY="5.75" />
+        <EntityTypeShape EntityType="TabangHubModel.vw_ListOfVolunteerToBeInvite" Width="1.5" PointX="9.375" PointY="0.75" />
+        <AssociationConnector Association="TabangHubModel.FK_Feedback_OrgEvents" />
+        <AssociationConnector Association="TabangHubModel.FK_Feedback_UserAccount" />
+        </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

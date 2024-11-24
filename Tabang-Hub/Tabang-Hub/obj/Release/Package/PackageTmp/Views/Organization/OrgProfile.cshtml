@@ -1,0 +1,265 @@
+﻿@model Tabang_Hub.Utils.Lists
+@{
+    ViewBag.Title = "OrganizationProfile";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container">
+    <form id="editOrgProfileForm" enctype="multipart/form-data">
+        <div class="card mb-4">
+            <!-- Cover Photo -->
+            <div id="coverPhotoContainer">
+                @if (!String.IsNullOrEmpty(Model.OrgInfo.coverPhoto))
+                {
+                    <img src="@Url.Content(Model.OrgInfo.coverPhoto)" class="card-img-top" alt="Cover Image" id="coverPhoto" style="height: 400px; object-fit: cover;">
+                }
+                else
+                {
+                    <img src="https://via.placeholder.com/1500x400" class="card-img-top" alt="Cover Image" id="coverPhoto" style="height: 400px; object-fit: cover;">
+                }
+                <button type="button" class="btn btn-link mt-2 d-none" id="changeCoverButton" onclick="document.getElementById('coverPhotoInput').click()">Change Cover Photo</button>
+                <input type="file" id="coverPhotoInput" name="coverPhoto" class="form-control d-none" onchange="previewImage('coverPhotoInput', 'coverPhoto')">
+            </div>
+
+            <!-- Profile Picture and Details -->
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div id="profilePicContainer" class="text-center" style="flex-shrink: 0; width: 200px;">
+                        <img src="@Url.Content(Model.OrgInfo.profilePath)" class="rounded-circle border border-light mb-2" alt="Profile Image" id="profilePic" style="width: 200px; height: 200px;">
+                        <button type="button" class="btn btn-link d-none" id="changeProfileButton" onclick="document.getElementById('profilePicInput').click()">Change Profile Picture</button>
+                        <input type="file" id="profilePicInput" name="profilePic" class="form-control d-none" onchange="previewImage('profilePicInput', 'profilePic')">
+                    </div>
+                    <div class="ms-3">
+                        <h2 class="card-title mb-1" id="orgNameDisplay">@Model.OrgInfo.orgName</h2>
+                        <input type="text" id="orgNameInput" name="orgProfile.OrgInfo.orgName" class="form-control d-none" value="@Model.OrgInfo.orgName">
+                        <p class="text-muted mb-1" id="orgEmailDisplay">@Model.OrgInfo.orgEmail</p>
+                        <input type="email" id="orgEmailInput" name="orgProfile.OrgInfo.orgEmail" class="form-control d-none" value="@Model.OrgInfo.orgEmail">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Me Section -->
+        <div class="card mb-4 shadow-sm border-0">
+            <div class="card-body">
+                <div class="row align-items-start">
+                    <!-- Contact Information Section -->
+                    <div class="col-md-4">
+                        <h5 class="card-title text-primary mb-3">About Me</h5>
+                        <p class="card-text mb-2" id="phoneDisplay">
+                            <i class="fas fa-phone text-secondary me-2"></i><strong>Phone:</strong> @Model.OrgInfo.phoneNum
+                        </p>
+                        <input type="text" id="phoneInput" name="orgProfile.OrgInfo.phoneNum" class="form-control d-none" value="@Model.OrgInfo.phoneNum">
+                        <p class="card-text mb-2" id="streetDisplay">
+                            <i class="fas fa-map-marker-alt text-secondary me-2"></i><strong>Street:</strong> @Model.OrgInfo.street
+                        </p>
+                        <input type="text" id="streetInput" name="orgProfile.OrgInfo.street" class="form-control d-none" value="@Model.OrgInfo.street">
+                        <p class="card-text mb-2" id="cityDisplay">
+                            <i class="fas fa-city text-secondary me-2"></i><strong>City:</strong> @Model.OrgInfo.city
+                        </p>
+                        <input type="text" id="cityInput" name="orgProfile.OrgInfo.city" class="form-control d-none" value="@Model.OrgInfo.city">
+                        <p class="card-text mb-2" id="provinceDisplay">
+                            <i class="fas fa-location-arrow text-secondary me-2"></i><strong>Province:</strong> @Model.OrgInfo.province
+                        </p>
+                        <input type="text" id="provinceInput" name="orgProfile.OrgInfo.province" class="form-control d-none" value="@Model.OrgInfo.province">
+                    </div>
+
+                    <!-- Description Section -->
+                    <div class="col-md-8">
+                        <h5 class="card-title text-primary mb-3">Description</h5>
+                        <p class="card-text text-muted" id="descriptionDisplay">@Model.OrgInfo.orgDescription</p>
+                        <textarea id="descriptionInput" name="orgProfile.OrgInfo.orgDescription" class="form-control d-none">@Model.OrgInfo.orgDescription</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+<div class="container mt-4 bg-white p-4" style="border-radius: 8px;">
+    <h3 class="mb-4 text-center">Ongoing Events</h3>
+    <div class="row gy-4" id="ongoingEvents">
+        @foreach (var events in Model.getAllOrgEvent)
+        {
+            if (events.dateStart > DateTime.Now)
+            {
+                <div class="col-md-6 event-card">
+                    <div class="card shadow-sm h-100" style="background-color: #f8f9fa;">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <img src="@Url.Content(Model.OrgInfo.profilePath)" alt="Organization Profile" class="rounded-circle me-2" width="45" height="45">
+                                <div>
+                                    <h6 class="mb-0">@Model.OrgInfo.orgName</h6>
+                                </div>
+                            </div>
+                            <h5 class="card-title mb-2">@events.eventTitle</h5>
+                            <p class="card-text text-muted">@events.eventDescription</p>
+                            @{
+                                var eventImage = Model.detailsEventImage.FirstOrDefault(img => img.eventId == events.eventId);
+                            }
+                            <img src="@Url.Content(eventImage?.eventImage != null ? "~/Content/Events/" + eventImage.eventImage : "https://via.placeholder.com/400x250")" class="card-img-bottom rounded" alt="Event Image">
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item">
+                <button class="page-link" onclick="prevPage('ongoingEvents')" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </button>
+            </li>
+            <li class="page-item">
+                <button class="page-link" onclick="nextPage('ongoingEvents')" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </button>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<div class="container mt-4 bg-white p-4" style="border-radius: 8px;">
+    <h3 class="mb-4 text-center">Upcoming Events</h3>
+    <div class="row gy-4" id="upcomingEvents">
+        @foreach (var events in Model.getAllOrgEvent)
+        {
+            if (events.dateStart <= DateTime.Now && events.dateEnd > DateTime.Now)
+            {
+                <div class="col-md-6 event-card">
+                    <div class="card shadow-sm h-100" style="background-color: #f8f9fa;">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <img src="@Url.Content(Model.OrgInfo.profilePath)" alt="Organization Profile" class="rounded-circle me-2" width="45" height="45">
+                                <div>
+                                    <h6 class="mb-0">@Model.OrgInfo.orgName</h6>
+                                </div>
+                            </div>
+                            <h5 class="card-title mb-2">@events.eventTitle</h5>
+                            <p class="card-text text-muted">@events.eventDescription</p>
+                            @{
+                                var eventImage = Model.detailsEventImage.FirstOrDefault(img => img.eventId == events.eventId);
+                            }
+                            <img src="@Url.Content(eventImage?.eventImage != null ? "~/Content/Events/" + eventImage.eventImage : "https://via.placeholder.com/400x250")" class="card-img-bottom rounded" alt="Event Image">
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item">
+                <button class="page-link" onclick="prevPage('upcomingEvents')" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </button>
+            </li>
+            <li class="page-item">
+                <button class="page-link" onclick="nextPage('upcomingEvents')" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </button>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<div class="container mt-4 bg-white p-4" style="border-radius: 8px;">
+    <h3 class="mb-4 text-center">Done Events</h3>
+    <div class="row gy-4" id="doneEvents">
+        @foreach (var events in Model.getAllOrgEvent)
+        {
+            if (events.dateEnd < DateTime.Now)
+            {
+                <div class="col-md-6 event-card">
+                    <div class="card shadow-sm h-100" style="background-color: #f8f9fa;">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <img src="@Url.Content(Model.OrgInfo.profilePath)" alt="Organization Profile" class="rounded-circle me-2" width="45" height="45">
+                                <div>
+                                    <h6 class="mb-0">@Model.OrgInfo.orgName</h6>
+                                </div>
+                            </div>
+                            <h5 class="card-title mb-2">@events.eventTitle</h5>
+                            <p class="card-text text-muted">@events.eventDescription</p>
+                            @{
+                                var eventImage = Model.detailsEventImage.FirstOrDefault(img => img.eventId == events.eventId);
+                            }
+                            <img src="@Url.Content(eventImage?.eventImage != null ? "~/Content/Events/" + eventImage.eventImage : "https://via.placeholder.com/400x250")" class="card-img-bottom rounded" alt="Event Image">
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item">
+                <button class="page-link" onclick="prevPage('doneEvents')" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </button>
+            </li>
+            <li class="page-item">
+                <button class="page-link" onclick="nextPage('doneEvents')" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </button>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<script>
+    const pageSize = 4;
+    let currentPage = {};
+
+    function showPage(sectionId) {
+        if (!currentPage[sectionId]) currentPage[sectionId] = 1;
+
+        const cards = document.querySelectorAll(`#${sectionId} .event-card`);
+        const totalPages = Math.ceil(cards.length / pageSize);
+
+        cards.forEach((card, index) => {
+            card.style.display = (index >= (currentPage[sectionId] - 1) * pageSize && index < currentPage[sectionId] * pageSize) ? 'block' : 'none';
+        });
+
+        document.querySelector(`#${sectionId} .pagination .page-link[aria-label="Previous"]`).parentElement.classList.toggle('disabled', currentPage[sectionId] === 1);
+        document.querySelector(`#${sectionId} .pagination .page-link[aria-label="Next"]`).parentElement.classList.toggle('disabled', currentPage[sectionId] === totalPages);
+    }
+
+    function nextPage(sectionId) {
+        const cards = document.querySelectorAll(`#${sectionId} .event-card`);
+        const totalPages = Math.ceil(cards.length / pageSize);
+        if (currentPage[sectionId] < totalPages) {
+            currentPage[sectionId]++;
+            showPage(sectionId);
+        }
+    }
+
+    function prevPage(sectionId) {
+        if (currentPage[sectionId] > 1) {
+            currentPage[sectionId]--;
+            showPage(sectionId);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        showPage('ongoingEvents');
+        showPage('upcomingEvents');
+        showPage('doneEvents');
+    });
+
+
+    function previewImage(inputId, imageId) {
+        const input = document.getElementById(inputId);
+        const image = document.getElementById(imageId);
+
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                image.src = e.target.result;
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>

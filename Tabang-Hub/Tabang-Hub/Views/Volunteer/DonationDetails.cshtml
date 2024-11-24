@@ -1,0 +1,211 @@
+﻿@model Tabang_Hub.Utils.Lists
+
+@{
+    ViewBag.Title = "DonationDetails";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .fixed-size-img {
+        width: 100%;
+        max-height: 450px; /* Set the maximum height you want */
+        object-fit: cover; /* Ensure the image covers the area */
+    }
+
+    .profile-img {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+
+    .profile-card {
+        padding: 15px;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .progress {
+        height: 30px;
+        background-color: #e9ecef;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        position: relative;
+    }
+
+    .progress-bar {
+        background-color: #007bff;
+        line-height: 30px;
+        color: white;
+        text-align: center;
+        transition: width 0.6s ease;
+    }
+
+    .progress-text {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: black; /* Changed color to black for visibility */
+        z-index: 2; /* Ensures text is above the progress bar */
+    }
+
+    .progress-bar-container {
+        position: relative;
+    }
+</style>
+
+<div class="container mt-4">
+    <!-- Organization Profile Section -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="profile-card">
+                <div class="d-flex align-items-center">
+                    <img src="@Url.Content("~/Content/images/tabanghub3.png")" class="profile-img me-3" alt="Organization Profile">
+                    <div>
+                        <h4>@Model.OrgInfo.orgName</h4>
+                        <p>@Model.OrgInfo.orgDescription</p>
+                        <a href="#" class="btn btn-primary mt-2">Visit Organization</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Section -->
+    <div class="row">
+        <!-- Event Images Carousel -->
+        <div class="col-md-6">
+            <div id="carouselExampleDark" class="carousel carousel-dark slide" data-bs-ride="carousel">
+                <div class="carousel-indicators">
+                    @for (int i = 0; i < Model.detailsEventImage.Count; i++)
+                    {
+                        <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="@i" class="@(i == 0 ? "active" : "")" aria-current="@(i == 0 ? "true" : "false")" aria-label="Slide @i"></button>
+                    }
+                </div>
+                <div class="carousel-inner">
+                    @for (int i = 0; i < Model.detailsEventImage.Count; i++)
+                    {
+                        <div class="carousel-item @(i == 0 ? "active" : "")">
+                            <img src="@Url.Content("~/Content/IdPicture/" + Model.detailsEventImage[i].eventImage)" class="d-block w-100 img-fluid fixed-size-img border border-primary" alt="Event Image">
+                        </div>
+                    }
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleDark" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleDark" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Event Details -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Donation Details</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><i class="bi bi-calendar-event me-2"></i><strong>Event Name:</strong> @Model.eventDetails.Event_Name</li>
+                        <li class="list-group-item"><i class="bi bi-file-earmark-text me-2"></i><strong>Description:</strong> @Model.eventDetails.Description</li>
+                        <li class="list-group-item"><i class="bi bi-calendar me-2"></i><strong>Date Started:</strong> @Model.eventDetails.Start_Date</li>
+                        <li class="list-group-item"><i class="bi bi-calendar me-2"></i><strong>Date Ended:</strong> @Model.eventDetails.End_Date</li>
+                        <li class="list-group-item"><i class="bi bi-geo-alt me-2"></i><strong>Location:</strong> @Model.eventDetails.Location</li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Target Amount</h5>
+                    @{
+                        decimal? raisedAmount = 0;
+
+                        foreach (var donated in Model.listofUserDonated)
+                        {
+                            raisedAmount += donated.amount;
+                        }
+
+                        var percentage = (raisedAmount / Model.eventDetails.Target_Amount) * 100;
+                    }
+                    <div class="progress-bar-container">
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" style="width: @percentage%" aria-valuenow="@raisedAmount" aria-valuemin="0" aria-valuemax="@Model.eventDetails.Target_Amount"></div>
+                            <div class="progress-text">
+                                @($"{raisedAmount:₱#,##0.00}") / @($"{Model.eventDetails.Target_Amount:₱#,##0.00}")
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-3">
+                <button type="button" class="btn btn-primary btn-block" data-bs-toggle="modal" data-bs-target="#donationModal">
+                    Donate Now
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Donation Modal -->
+<div class="modal fade" id="donationModal" tabindex="-1" aria-labelledby="donationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="donationModalLabel">Make a Donation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="donationForm" action="@Url.Action("DonateNow", "Volunteer")" method="post">
+                    <input type="hidden" name="userDonated.eventId" value="@Model.eventDetails.Event_Id" />
+                    <div class="mb-3">
+                        <label for="donationAmount" class="form-label">Donation Amount</label>
+                        <input type="number" class="form-control" id="donationAmount" name="userDonated.amount" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Donate</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script>
+    document.getElementById("donationForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+        var form = this;
+
+        fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    title: 'Thank You!',
+                    text: 'Your donation has been received.',
+                    icon: 'success'
+                }).then(() => {
+                    window.location.href = '@Url.Action("GeneralSkill", "Volunteer")';
+                });
+            } else {
+                Swal.fire({
+                    title: 'Error',
+                    text: data.message || 'There was an error processing your donation.',
+                    icon: 'error'
+                });
+            }
+        });
+    });
+</script>

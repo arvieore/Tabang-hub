@@ -1,0 +1,571 @@
+﻿﻿@model Tabang_Hub.Utils.Lists
+@if (Model.userAccount != null && Model.userAccount.roleId == 2)
+{
+    ViewBag.Title = "Message";
+    Layout = "~/Views/Shared/_Organization.cshtml";
+}
+else
+{
+    ViewBag.Title = "Message";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="~/Content/Css/message.css" rel="stylesheet" />
+<link href="~/Content/Css/groupChatInfo.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+    .info-section {
+        padding: 20px;
+        background-color: #f9f9f9;
+        border: 1px solid #ccc;
+        overflow-y: auto;
+        height: calc(100% - 50px); /* Adjust based on your header and input heights */
+    }
+
+    .message-input {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        border-top: 1px solid #ccc;
+    }
+
+    .chat-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between; /* Aligns content with space between */
+        position: relative; /* Ensure positioning context */
+        padding: 10px;
+    }
+
+    .info-icon {
+        cursor: pointer;
+        font-size: 1.5rem;
+    }
+</style>
+
+@if (Model.OrgInfo == null)
+{
+    <style>
+        body {
+            padding-top: 70px;
+            overflow-y: hidden;
+        }
+
+        .message-container.sent .time-stamp {
+            font-size: 0.75rem;
+            color: #888;
+            margin-right: 10px;
+            vertical-align: bottom;
+        }
+
+        .message-container.received .time-stamp {
+            font-size: 0.75rem;
+            color: #888;
+            margin-left: 10px;
+            vertical-align: bottom;
+        }
+    </style>
+}
+
+<div class="message-body">
+    <div class="chat-list" id="chatList">
+        <div class="chat-item-head">
+            <h2>Group Chat</h2>
+        </div>
+        @if (Model.listOfGc == null || !Model.listOfGc.Any())
+        {
+            <script type="text/javascript">
+                Swal.fire({
+                    icon: 'info',
+                    title: 'No Group Chats available!',
+                    text: 'Group chat will appear if you join an event.',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    confirmButtonText: 'OK'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = '@Url.Action("Index", "Page")';
+                    }
+                });
+            </script>
+        }
+        else
+        {
+            foreach (var gc in Model.listOfGc)
+            {
+                var gcImage = Model.detailsEventImage
+                    .Where(m => m.eventId == gc.eventId)
+                    .Select(m => m.eventImage)
+                    .FirstOrDefault();
+                <div class="chat-item" onclick="selectGroup('@gc.groupChatId', '@Url.Content("~/Content/Events/" + gcImage)', '@gc.eventTitle', event)">
+                    <img src="@Url.Content("~/Content/Events/" + gcImage)" alt="Profile">
+                    <span>@gc.eventTitle</span>
+                </div>
+            }
+        }
+    </div>
+
+    <!-- Chat area -->
+    <div class="chat-area">
+        <div class="chat-header" id="chatHeader">
+            <div class="chat-toggle-icon" onclick="toggleChatList()">
+                <i class="fas fa-bars"></i>
+            </div>
+
+            <img id="chatHeaderImage" src="@Url.Content("~/Content/Images/team.png")" alt="Group Avatar">
+            <span id="chatHeaderTitle"></span>
+
+            <!-- Three-dot icon for toggling information display -->
+            <div class="info-icon" id="infoIcon" onclick="toggleInfoSection()" style="display: none; cursor: not-allowed;">
+                <i class="bi bi-info-circle"></i>
+            </div>
+        </div>
+        <div class="messages" id="messageSection"></div>
+        <div class="info-section" id="infoSection" style="display: none;">
+            <p id="groupInfoContent">
+                Details about the group will be displayed here.
+            </p>
+        </div>
+        <div class="message-input" id="inputSection">
+            <input type="text" id="message" placeholder="Aa">
+            <button id="sendmessage">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Kick Reason Modal -->
+    <div class="modal fade" id="kickVolunteerModal" tabindex="-1" role="dialog" aria-labelledby="kickVolunteerModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="kickVolunteerModalTitle">Reason for Kicking Volunteer</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="closeKickReasonModal()">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="kickReasonForm">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="kickReason" id="bullying" value="Bullying">
+                            <label class="form-check-label" for="bullying">Bullying</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="kickReason" id="inappropriateWords" value="Using Inappropriate Words">
+                            <label class="form-check-label" for="inappropriateWords">Using Inappropriate Words</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="kickReason" id="notFollowingRules" value="Not Following Rules">
+                            <label class="form-check-label" for="notFollowingRules">Not Following Rules</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="kickReason" id="disrespectfulBehavior" value="Disrespectful Behavior">
+                            <label class="form-check-label" for="disrespectfulBehavior">Disrespectful Behavior</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="kickReason" id="others" value="Others">
+                            <label class="form-check-label" for="others">Others</label>
+                        </div>
+                        <textarea id="otherReasonInput" class="form-control mt-2" placeholder="Specify reason" style="display:none; height: 100px; width: 100%; resize: none;"></textarea>                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="submitKickReason()">Submit</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="closeKickReasonModal()">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+<script type="text/javascript">
+    let volunteerIDKick;
+    function VolunteerKick(userId) {
+        volunteerIDKick = userId;
+        $('#kickVolunteerModal').modal('show');
+    }
+
+    function closeKickReasonModal() {
+        $('#kickVolunteerModal').modal('hide');
+    }
+
+    document.querySelectorAll('input[name="kickReason"]').forEach((radio) => {
+        radio.addEventListener('change', function () {
+            if (this.value === 'Others') {
+                document.getElementById('otherReasonInput').style.display = 'block';
+            } else {
+                document.getElementById('otherReasonInput').style.display = 'none';
+            }
+        });
+    });
+
+    function submitKickReason() {
+        const selectedReason = document.querySelector('input[name="kickReason"]:checked');
+        let reason = '';
+
+        if (selectedReason) {
+            if (selectedReason.value === 'Others') {
+                reason = document.getElementById('otherReasonInput').value.trim();
+                if (!reason) {
+                    alert('Please enter a reason in the "Others" field.');
+                    return;
+                }
+            } else {
+                reason = selectedReason.value;
+            }
+
+            console.log(`User with ID ${volunteerIDKick} kicked for reason: ${reason} in Group ID: ${selectedGcID}`);
+
+            Swal.fire({
+                icon: 'info',
+                title: 'Are you sure to kick this member?',
+                showCancelButton: true,
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'No'
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+                    $.ajax({
+                        url: '/Message/KickVolunteer',
+                        type: 'POST',
+                        data: { userId: volunteerIDKick, reason: reason, gc: selectedGcID },
+                        success: function (response) {
+                            if (response.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    text: 'The user successfully kicked for a reason of ' + reason,
+                                    confirmButtonText: 'OK'
+                                }).then(() => {
+                                    $('#kickVolunteerModal').modal('hide');
+                                    loadMembers(selectedGcID);
+                                });
+                            }
+                        },
+                        error: function (error) {
+                            Swal.fire({
+                                title: 'Error',
+                                text: 'An error occurred. Please try again.',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    });
+                }
+            });
+        } else {
+            Swal.fire({
+                text: 'Please select a reason for kicking the volunteer.',
+                icon: 'info',
+                confirmButtonText: 'Ok'
+            })
+        }
+    }
+
+
+    function toggleChatList() {
+        var chatList = document.getElementById('chatList');
+        var chatArea = document.querySelector('.chat-area');
+
+        if (chatList.classList.contains('show')) {
+            chatList.classList.remove('show'); // Hide the chat list
+            chatArea.classList.remove('shift'); // Reset chat area position
+        } else {
+            chatList.classList.add('show'); // Show the chat list
+            chatArea.classList.add('shift'); // Shift chat area
+        }
+    }
+
+    function toggleInfoSection() {
+        var messageSection = document.getElementById('messageSection');
+        var infoSection = document.getElementById('infoSection');
+        var inputSection = document.getElementById('inputSection');
+
+        if (infoSection.style.display === 'none') {
+            // Show the info section and hide the message section and input area
+            infoSection.style.display = 'block';
+            messageSection.style.display = 'none';
+            inputSection.style.display = 'none';
+
+            // Load and display group information (this can be updated with actual group details)
+            document.getElementById('groupInfoContent').innerText = 'Here are the details of the selected group.';
+            console.log("GC ID: ", selectedGcID);
+            loadInfo(selectedGcID);
+        } else {
+            // Show the message section and input area, hide the info section
+            infoSection.style.display = 'none';
+            messageSection.style.display = 'block';
+            inputSection.style.display = 'flex';
+        }
+    }
+    function loadInfo(selectedGcID) {
+        if (selectedGcID) {
+            $.ajax({
+                url: '/Message/GetGroupInfo',
+                type: 'GET',
+                data: {
+                    groupId: selectedGcID
+                },
+                success: function (data) {
+                    if (data) {
+                        var infoContent = `
+                            <h3>${data.eventTitle}</h3>
+                            <div class="info-section-detail">
+                                <p><strong>Description:</strong></p>
+                                <p class="info-description">${data.eventDescription}</p>
+                            </div>
+                            <div class="info-section-detail">
+                                <p><strong>Date:</strong></p>
+                                <p class="info-date">${data.dateStart} - ${data.dateEnd}</p>
+                            </div>
+                            <div class="info-section-detail">
+                                <p><strong>Location:</strong></p>
+                                <p class="info-location">${data.location}</p>
+                            </div>
+                            <div class="info-section-detail">
+                                <h5 id="chatMemberHeader" class="chat-members-header" onclick="toggleMembers()">
+                                    Chat Members
+                                    <i id="dropdownIcon" class="bi bi-caret-down" style="float: right;"></i>
+                                </h4>
+                                <ul id="membersList" class="members-list" style="display: none;"></ul>
+                            </div>
+                        `;
+                        document.getElementById('groupInfoContent').innerHTML = infoContent;
+                        loadMembers(selectedGcID);
+                    } else {
+                        document.getElementById('groupInfoContent').innerText = 'No details found for this group.';
+                    }
+                },
+                error: function () {
+                    document.getElementById('groupInfoContent').innerText = 'Error loading group details.';
+                }
+            });
+        } else {
+            document.getElementById('groupInfoContent').innerText = 'No group selected.';
+        }
+    }
+    function toggleMembers() {
+        const membersList = document.getElementById('membersList');
+        const dropdownIcon = document.getElementById('dropdownIcon');
+
+        if (membersList.style.display === 'none' || membersList.style.display === '') {
+            membersList.style.display = 'block';
+            dropdownIcon.classList.remove('bi-caret-down'); // Remove the down icon
+            dropdownIcon.classList.add('bi-caret-up'); // Add the up icon
+        } else {
+            membersList.style.display = 'none';
+            dropdownIcon.classList.remove('bi-caret-up'); // Remove the up icon
+            dropdownIcon.classList.add('bi-caret-down'); // Add the down icon
+        }
+    }
+
+
+    function toggleDropdownMenu(element) {
+        // Close any other open dropdowns
+        document.querySelectorAll('.dm').forEach(menu => {
+            if (menu !== element.querySelector('.dm')) {
+                menu.style.display = 'none';
+            }
+        });
+
+        // Toggle the dropdown menu of the clicked element
+        const dropdownMenu = element.querySelector('.dm');
+        if (dropdownMenu.style.display === 'block') {
+            dropdownMenu.style.display = 'none';
+        } else {
+            dropdownMenu.style.display = 'block';
+        }
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function (event) {
+        if (!event.target.closest('.member-options')) {
+            document.querySelectorAll('.dm').forEach(menu => {
+                menu.style.display = 'none';
+            });
+        }
+    });
+
+
+    function loadMembers(groupId) {
+        if (groupId) {
+            $.ajax({
+                url: '/Message/GetGroupMembers',
+                type: 'GET',
+                data: { groupId: groupId },
+                success: function (members) {
+                    if (members && members.length > 0) {
+                        var basePath = '/UserProfile/'; // Base path for profile images
+                        var membersListHtml = members.map(member => `
+                        <div class="member-item">
+                            <div class="member-profile">
+                                <img src="${basePath}${member.profilePath ? member.profilePath : 'default.jpg'}" alt="Profile" class="member-profile-pic">
+                                <div class="member-details">
+                                    <p class="member-name">${member.fName} ${member.lName}</p>
+                                    <p class="member-added-info"><strong>Apply at</strong> ${member.appliedAt}</p>
+                                </div>
+                            </div>
+
+                            <div class="member-options" onclick="toggleDropdownMenu(this)">
+                                <i class="bi bi-three-dots"></i>
+                                <div class="dropdown-menu dm">
+                                    <span onclick="VolunteerKick('${member.userId}')">
+                                        <p>Kick</p>
+                                    </span>
+                                    <p>View profile</p>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                        document.getElementById('membersList').innerHTML = membersListHtml;
+                    } else {
+                        document.getElementById('membersList').innerHTML = '<li>No members found.</li>';
+                    }
+                },
+
+                error: function () {
+                    document.getElementById('membersList').innerHTML = '<li>No members found.</li>';
+                }
+            });
+        }
+    }
+
+    var currentUserId = '@ViewBag.UserId'.toString();
+    console.log("currentUserId: ", currentUserId);
+
+    let selectedGcID;
+    function selectGroup(groupId, groupImage, groupTitle, event) {
+        console.log("Group ID: ", groupId);
+
+        // Update chat header with the selected group's profile image and name
+        document.getElementById('chatHeaderImage').src = groupImage;
+        document.getElementById('chatHeaderTitle').textContent = groupTitle;
+
+        // Enable the info icon when a group is selected
+        var infoIcon = document.getElementById('infoIcon');
+        infoIcon.style.display = 'block';
+        infoIcon.style.cursor = 'pointer';
+
+        // Remove 'selected' class from any previously selected item
+        $('.chat-item').removeClass('selected');
+        $(event.currentTarget).addClass('selected');
+
+        selectedGcID = groupId;
+        loadInfo(selectedGcID);
+        document.getElementById('message').disabled = false;
+        document.getElementById('sendmessage').disabled = false;
+
+        // Start SignalR connection when a group is selected
+        $.connection.hub.start().done(function () {
+            var chat = $.connection.chatHub;
+            console.log(currentUserId);
+            // Load existing messages for the selected group
+            chat.server.getAllMessages(selectedGcID);
+
+            // Send a message when the send button is clicked
+            $('#sendmessage').click(function () {
+                var message = $('#message').val();
+                if (message) {
+                    chat.server.send(currentUserId, selectedGcID, message);
+                    $('#message').val('').focus(); // Clear the input and refocus
+                }
+            });
+
+            // Send a message when the Enter key is pressed in the input field
+            $('#message').keydown(function (event) {
+                if (event.key === 'Enter' || event.keyCode === 13) {
+                    event.preventDefault(); // Prevent default action (e.g., form submission)
+                    $('#sendmessage').click(); // Trigger the click event on the send button
+                }
+            });
+        });
+        var message = $('message').val
+    }
+
+
+    $(function () {
+        // Declare a proxy to reference the hub
+        var chat = $.connection.chatHub;
+
+        // Notify when the group chat does not exist
+        chat.client.groupChatNotFound = function () {
+            Swal.fire({
+                icon: 'error',
+                title: 'Group Chat Not Found!',
+                text: 'The group chat you are trying to access does not exist.',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                confirmButtonText: 'OK'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('#message').val(''); // Clear the message input
+                    location.reload();
+                }
+            });
+        };
+
+
+        if (selectedGcID == null) {
+            document.getElementById('message').disabled = true;
+            document.getElementById('sendmessage').disabled = true;
+        }
+        // Function to display a message (appends to the chat-area)
+        chat.client.broadcastMessage = function (userName, senderId, message, groupId) {
+            if (groupId.toString() == selectedGcID.toString()) {
+                var messageClass = senderId.toString() === currentUserId ? 'sent' : 'received';
+                var profileImageUrl = 'https://via.placeholder.com/30';
+
+                var messageHtml = '<div class="message-container ' + messageClass + '">';
+                if (messageClass === 'received') {
+                    messageHtml += `
+                    <div class="member-profile">
+                        <img src="${profileImageUrl}" alt="Profile Picture" class="profile-pic">
+                    </div>
+                    <strong class="user-name">${userName}</strong>`;
+                }
+                messageHtml += '<div class="message ' + messageClass + '"><span>' + htmlEncode(message) + '</span></div>';
+                messageHtml += '</div>';
+
+                // Append the message to the chat area
+                $('.messages').append(messageHtml);
+
+                // Auto-scroll to the bottom after adding the message
+                $('.messages').scrollTop($('.messages')[0].scrollHeight);
+
+                console.log("Displayed message in group: " + groupId);
+            } else {
+                console.log("Message not displayed. Current group ID: " + selectedGcID + ", Message group ID: " + groupId);
+            }
+        };
+
+        // Function to load all previous messages when the page loads
+        chat.client.loadMessages = function (messages) {
+            $('.messages').empty(); // Clear the current messages
+            $.each(messages, function (index, message) {
+                var messageClass = message.userId.toString() === currentUserId ? 'sent' : 'received';
+                var profileImageUrl = 'https://via.placeholder.com/30';
+
+                var messageHtml = '<div class="message-container ' + messageClass + '">';
+                if (messageClass === 'received') {
+                    messageHtml += `
+                    <div class="member-profile">
+                        <img src="${profileImageUrl}" alt="Profile Picture" class="member-profile-pic">
+                    </div>
+                    <strong class="user-name">${message.userName}</strong>`;
+                }
+                messageHtml += '<div class="message ' + messageClass + '"><span>' + htmlEncode(message.message) + '</span></div>';
+                messageHtml += '</div>';
+
+                // Append the message to the chat area
+                $('.messages').append(messageHtml);
+            });
+
+            // Auto-scroll to the bottom after loading messages
+            $('.messages').scrollTop($('.messages')[0].scrollHeight);
+        };
+
+        // Utility function to encode HTML special characters
+        function htmlEncode(value) {
+            return $('<div />').text(value).html();
+        }
+    });
+</script>

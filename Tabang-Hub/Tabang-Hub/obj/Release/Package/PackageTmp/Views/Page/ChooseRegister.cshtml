@@ -1,0 +1,30 @@
+﻿
+@{
+    ViewBag.Title = "ChooseRegister";
+}
+<style>
+    body{
+        padding-top: 100px;
+    }
+</style>
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card text-white" onclick="window.location.href='/Page/Register'">
+                <img src="~/Content/images/volunteer.png" class="card-img-top" alt="Volunteer">
+                <div class="card-img-overlay d-flex align-items-center justify-content-center">
+                    <h5 class="card-title bg-dark bg-opacity-50 p-3 rounded">Register as Volunteer</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card text-white" onclick="window.location.href='/Page/RegisterOrg'">
+                <img src="~/Content/images/organization.png" class="card-img-top" alt="Organization">
+                <div class="card-img-overlay d-flex align-items-center justify-content-center">
+                    <h5 class="card-title bg-dark bg-opacity-50 p-3 rounded">Register as Organization</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,140 @@
+﻿.info-detail {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+.info-section-detail {
+    margin-bottom: 15px;
+}
+
+    .info-section-detail p {
+        margin: 0;
+        font-size: 1rem;
+        color: #222;
+    }
+
+.info-description,
+.info-date,
+.info-location {
+    padding-left: 15px;
+    color: #444;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+/*-------------------------------------*/
+
+.members-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 5px 0;
+    border-top: 1px solid #ddd;
+}
+
+.member-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 15px;
+    border-bottom: 1px solid #ddd;
+    background-color: #f9f9f9;
+    transition: background-color 0.3s;
+}
+
+    .member-item:hover {
+        background-color: #f1f5f9;
+    }
+    .chat-members-header{
+        padding: 10px;
+    }
+        .chat-members-header:hover {
+            background-color: #f1f5f9;
+        }
+
+.member-profile {
+    display: flex;
+    align-items: center;
+}
+
+.member-profile-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+    border: 2px solid #ccc;
+}
+
+.member-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.member-name {
+    font-weight: bold;
+    font-size: 1rem;
+    margin: 0;
+    color: #222;
+}
+
+.member-added-info {
+    font-size: 0.85em;
+    color: #666;
+}
+
+.member-options {
+    cursor: pointer;
+    color: #888;
+    font-size: 1.2rem;
+    transition: color 0.2s;
+}
+
+    .member-options:hover {
+        color: #444;
+    }
+
+/*-----------------------------------------*/
+
+.member-options {
+    position: relative;
+}
+
+.dm {
+    display: none;
+    position: absolute;
+    top: 25px; /* Adjust based on the icon size */
+    right: 0;
+    color: white;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    padding: 10px;
+    z-index: 1;
+}
+
+    .dm p {
+        margin: 0;
+        padding: 5px 10px;
+        cursor: pointer;
+    }
+
+        .dm p:hover {
+            background-color: #f1f5f9;
+        }
+
+.member-options .dm {
+    position: absolute;
+    right: 0; /* Adjust this to align to the left side of the button */
+    transform: translateX(-100%); /* Moves the menu to the left */
+    background-color: white;
+    color: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    z-index: 100;
+    display: none; /* Initially hidden */
+}
+
+
+/*-------------------------------------------*/
+

@@ -1,0 +1,27 @@
+﻿@{
+    string layout = "~/Views/Shared/_Layout.cshtml"; // Default layout
+
+    if (User.Identity.IsAuthenticated)
+    {
+        var user = HttpContext.Current.User.Identity.Name;
+        using (var db = new TabangHubEntities())
+        {
+            var roleId = db.vw_UserRoles.Where(m => m.email == user).Select(m => m.roleId).FirstOrDefault();
+            if (roleId != 0)
+            {
+                var roleProvider = new MyRole();
+                string roleName = roleProvider.GetRoleName(roleId);
+                if (roleName == "Organization")
+                {
+                    layout = "~/Views/Shared/_Organization.cshtml";
+                }
+                else if (roleName == "Admin")
+                {
+                    layout = "~/Views/Shared/_Admin.cshtml"; // Assuming you have a layout for admin
+                }
+            }
+        }
+    }
+
+    Layout = layout;
+}

@@ -1,0 +1,565 @@
+﻿@model Tabang_Hub.Utils.Lists
+
+@{
+    ViewBag.Title = "Reports";
+    Layout = "~/Views/Shared/_Admin.cshtml";
+}
+
+<link rel="stylesheet" href="~/Content/vendors/iconly/bold.css">
+<link rel="stylesheet" href="~/Content/css/bootstrap.css">
+
+<style>
+    .card {
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header {
+        background-color: #f7f9fc;
+        border-bottom: 2px solid #ebebeb;
+    }
+
+    h5, h6 {
+        font-weight: 600;
+    }
+
+    .stats-icon {
+        font-size: 30px;
+        padding: 10px;
+        background-color: rgba(0, 123, 255, 0.1);
+        border-radius: 50%;
+    }
+
+    .card-body h6 {
+        font-size: 16px;
+    }
+
+    .chart {
+        min-height: 350px;
+    }
+
+    .recent-donators img {
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+    }
+
+    .dashboard-section {
+        margin-bottom: 2rem;
+    }
+</style>
+
+<header class="mb-3">
+    <a href="#" class="burger-btn d-block d-xl-none">
+        <i class="bi bi-justify fs-3"></i>
+    </a>
+</header>
+
+<div class="container mb-3">
+    <div class="row">
+        <div class="col-md-3">
+            <select id="organizationSelect" class="form-select" onchange="window.location.href='/Admin/Reports?organizationId=' + this.value">
+                <option value="0" @(Request.QueryString["organizationId"] == "0" || string.IsNullOrEmpty(Request.QueryString["organizationId"]) ? "selected" : "")>All Reports</option>
+
+                @foreach (var org in Model.getAllOrgAccounts)
+                {
+                    foreach (var orgName in org.UserAccount.OrgInfo)
+                    {
+                        <option value="@org.UserAccount.userId" @(Request.QueryString["organizationId"] == org.UserAccount.userId.ToString() ? "selected" : "")>
+                            @orgName.orgName
+                        </option>
+
+                    }
+                }
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-2">
+    @if (Model.OrgInfo != null)
+    {
+        <div id="specificOrganization">
+
+            <div class="page-heading">
+                <h3>Reports Dashboard</h3>
+            </div>
+
+            <div class="page-content">
+                <section class="row">
+                    <!-- Container for Total Stats -->
+                    <div class="col-12">
+                        <div class="row">
+                            <!-- Total Events, Total Donations, and Total Volunteers in same container -->
+                            <div class="col-12 col-md-4 mb-4">
+                                <div class="card">
+                                    <div class="card-body px-3 py-4-5">
+                                        <div class="d-flex align-items-center">
+                                            <div class="stats-icon blue me-3">
+                                                <i class="iconly-boldProfile"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="text-muted">Total Events</h6>
+                                                <h6 class="font-extrabold mb-0">@Model.listOfEvents.Count()</h6>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-4 mb-4">
+                                <div class="card">
+                                    <div class="card-body px-3 py-4-5">
+                                        <div class="d-flex align-items-center">
+                                            <div class="stats-icon green me-3">
+                                                <i class="iconly-boldAdd-User"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="text-muted">Total Donations</h6>
+                                                <h6 class="font-extrabold mb-0">₱@Model.totalDonation</h6>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-4 mb-4">
+                                <div class="card">
+                                    <div class="card-body px-3 py-4-5">
+                                        <div class="d-flex align-items-center">
+                                            <div class="stats-icon red me-3">
+                                                <i class="iconly-boldBookmark"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="text-muted">Total Volunteers</h6>
+                                                <h6 class="font-extrabold mb-0">@Model.totalVolunteer</h6>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Separate Containers for Monthly Event Summary, Recent Events, Recent Donators, Top 5 Skills -->
+                    <div class="col-12 col-lg-8">
+                        <!-- Monthly Event Summary -->
+                        <div class="dashboard-section">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4>Monthly Event Summary</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div id="monthlyEventSummaryChart" class="chart"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Top 5 Skills -->
+                        <div class="dashboard-section">
+                            <div class="card" style="min-height: 475px;">
+                                <div class="card-header">
+                                    <h4>Top 5 Skills</h4>
+                                </div>
+                                <div class="card-body d-flex justify-content-center align-items-center">
+                                    <div id="chart-top-five" class="chart"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-4">
+                        <!-- Recent Events -->
+                        <div class="dashboard-section">
+                            <div class="card mb-3" style="min-height: 475px;">
+                                <div class="card-header">
+                                    <h4>Recent Events</h4>
+                                </div>
+                                <div class="card-body overflow-auto mt-4">
+                                    @if (Model.recentEvents.Any())
+                                    {
+                                        foreach (var recent in Model.recentEvents)
+                                        {
+                                            <div class="recent-message d-flex align-items-center mb-3">
+                                                <div class="avatar avatar-lg">
+                                                    <img src="~/Content/images1/faces/4.jpg" class="rounded-circle" alt="Event Image">
+                                                </div>
+                                                <div class="ms-3">
+                                                    <h5 class="mb-1">@recent.eventTitle</h5>
+                                                    <p class="text-muted mb-0">@recent.location</p>
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted">No recent ongoing event.</p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Donators -->
+                        <div class="dashboard-section">
+                            <div class="card" style="min-height: 475px;">
+                                <div class="card-header">
+                                    <h4>Recent Donators</h4>
+                                </div>
+                                <div class="card-body overflow-auto mt-4">
+                                    @if (Model.recentDonators.Any())
+                                    {
+                                        foreach (var recent in Model.recentDonators)
+                                        {
+                                            <div class="recent-message d-flex align-items-center mb-3">
+                                                <div class="avatar avatar-lg">
+                                                    <img src="~/Content/images1/faces/4.jpg" class="rounded-circle" alt="Donor Image">
+                                                </div>
+                                                <div class="ms-3 w-100">
+                                                    <h5 class="mb-1 text-md" data-bs-toggle="tooltip" title="@recent.UserAccount.email">
+                                                        @recent.UserAccount.email
+                                                    </h5>
+                                                    <p class="text-muted mb-0 text-sm">@recent.amount</p>
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted">No recent donator.</p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <script src="~/Content/vendors/apexcharts/apexcharts.js"></script>
+            <script src="~/Content/js1/pages/dashboard.js"></script>
+            <script type="text/javascript">
+    // Prepare data for the chart
+    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    var eventCounts = new Array(12).fill(0); // Initialize all months with 0 events
+
+    // Populate eventCounts based on the summary data from the backend
+    @foreach (var month in Model.eventSummary.Keys)
+    {
+        <text>
+            eventCounts[@month - 1] = @Model.eventSummary[month];
+        </text>;
+    }
+
+    // ApexCharts configuration
+    var options = {
+        chart: {
+            type: 'bar',
+            height: 350
+        },
+        series: [{
+            name: 'Events',
+            data: eventCounts
+        }],
+        xaxis: {
+            categories: months
+        },
+        yaxis: {
+            min: 0,
+            max: 30, // Set max value to accommodate higher event counts, adjust as needed
+            tickAmount: 6, // Number of intervals (5 units each if max is 30)
+            title: {
+                text: 'Event Count'
+            }
+        }
+    };
+
+    var chart = new ApexCharts(document.querySelector("#monthlyEventSummaryChart"), options);
+    chart.render();
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Extract the top 5 skills from the server data
+        var skills = [];
+        var counts = [];
+
+        @foreach (var skill in Model.totalSkills.OrderByDescending(x => x.Value).Take(5))
+        {
+            <text>
+                skills.push("@skill.Key");    // Skill name
+                counts.push(@skill.Value);    // Skill count
+            </text>;
+        }
+
+        // ApexCharts Pie Chart Configuration
+        var options = {
+            chart: {
+                type: 'donut',    // Donut chart type
+                height: 300
+            },
+            series: counts,       // Skill counts as data
+            labels: skills,       // Skill names as labels
+            plotOptions: {
+                pie: {
+                    donut: {
+                        size: '70%'    // Donut inner circle size
+                    }
+                }
+            },
+            dataLabels: {
+                enabled: true,
+                formatter: function (val) {
+                    return val.toFixed(1) + "%";  // Format percentages
+                }
+            },
+            legend: {
+                position: 'bottom'
+            },
+            colors: ['#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0'], // Colors for each slice
+        };
+
+        var chart = new ApexCharts(document.querySelector("#chart-top-five"), options);
+        chart.render();
+    });
+            </script>
+        </div>
+    }
+    else
+    {
+<div id="allreports">
+
+    <div class="page-heading">
+        <h3>Reports Dashboard</h3>
+    </div>
+
+    <div class="page-content">
+        <section class="row">
+            <!-- Container for Total Stats -->
+            <div class="col-12">
+                <div class="row">
+                    <!-- Total Events, Total Donations, and Total Volunteers in same container -->
+                    <div class="col-12 col-md-4 mb-4">
+                        <div class="card">
+                            <div class="card-body px-3 py-4-5">
+                                <div class="d-flex align-items-center">
+                                    <div class="stats-icon blue me-3">
+                                        <i class="iconly-boldProfile"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="text-muted">Total Events</h6>
+                                        <h6 class="font-extrabold mb-0">@Model.getAllOrgEvents.Count()</h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4 mb-4">
+                        <div class="card">
+                            <div class="card-body px-3 py-4-5">
+                                <div class="d-flex align-items-center">
+                                    <div class="stats-icon green me-3">
+                                        <i class="iconly-boldAdd-User"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="text-muted">Total Organization</h6>
+                                        <h6 class="font-extrabold mb-0">@Model.getAllOrgAccounts.Count()</h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4 mb-4">
+                        <div class="card">
+                            <div class="card-body px-3 py-4-5">
+                                <div class="d-flex align-items-center">
+                                    <div class="stats-icon red me-3">
+                                        <i class="iconly-boldBookmark"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="text-muted">Total Volunteer</h6>
+                                        <h6 class="font-extrabold mb-0">@Model.getAllVolunteerAccounts.Count()</h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Separate Containers for Monthly Event Summary, Recent Events, Recent Donators, Top 5 Skills -->
+            <div class="col-12 col-lg-8">
+                <!-- Monthly Event Summary -->
+                <div class="dashboard-section">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Monthly Event Summary</h4>
+                        </div>
+                        <div class="card-body">
+                            <div id="monthlyEventSummaryChart" class="chart"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top 5 Skills -->
+                <div class="dashboard-section">
+                    <div class="card" style="min-height: 475px;">
+                        <div class="card-header">
+                            <h4>Skill Summary</h4>
+                        </div>
+                        <div class="card-body d-flex justify-content-center align-items-center">
+                            <div id="chart-top-five" class="chart"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-4">
+                <!-- Recent Events -->
+                <div class="dashboard-section">
+                    <div class="card mb-3" style="min-height: 475px;">
+                        <div class="card-header">
+                            <h4>Recent Events</h4>
+                        </div>
+                        <div class="card-body overflow-auto mt-4">
+                            @if (Model.recentEvents.Any())
+                            {
+                                foreach (var recent in Model.recentEvents)
+                                {
+                                    <div class="recent-message d-flex align-items-center mb-3">
+                                        <div class="avatar avatar-lg">
+                                            <img src="~/Content/images1/faces/4.jpg" class="rounded-circle" alt="Event Image">
+                                        </div>
+                                        <div class="ms-3">
+                                            @foreach (var orgname in recent.UserAccount.OrgInfo)
+                                            {
+                                                <h5 class="mb-1">@orgname.orgName</h5>
+                                                <p class="text-muted mb-0">@recent.eventTitle</p>
+                                            }
+
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <p class="text-muted">No recent ongoing events.</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-section">
+                    <div class="card" style="min-height: 475px;">
+                        <div class="card-header">
+                            <h4>Newly Created Organizations</h4>
+                        </div>
+                        <div class="card-body overflow-auto mt-4">
+                            @if (Model.recentOrgAcc != null && Model.recentOrgAcc.Any())
+                            {
+                                foreach (var org in Model.recentOrgAcc)
+                                {
+                                    <div class="recent-message d-flex align-items-center mb-3">
+                                        <div class="avatar avatar-lg">
+                                            <img src="~/Content/images1/faces/4.jpg" class="rounded-circle" alt="Organization Image">
+                                        </div>
+                                        <div class="ms-3">
+                                            <h5 class="mb-1">@org.orgName</h5>
+                                            <p class="text-muted mb-0">@org.orgEmail</p>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <p class="text-muted">No recent organizations.</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="~/Content/vendors/apexcharts/apexcharts.js"></script>
+    <script src="~/Content/js1/pages/dashboard.js"></script>
+    <script type="text/javascript">
+    // Prepare data for the chart
+    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    var eventCounts = new Array(12).fill(0); // Initialize all months with 0 events
+
+    // Populate eventCounts based on the summary data from the backend
+    @foreach (var month in Model.allEventSummary.Keys)
+    {
+        <text>
+            eventCounts[@month - 1] = @Model.allEventSummary[month];
+        </text>;
+    }
+
+    // ApexCharts configuration
+    var options = {
+        chart: {
+            type: 'bar',
+            height: 350
+        },
+        series: [{
+            name: 'Events',
+            data: eventCounts
+        }],
+        xaxis: {
+            categories: months
+        },
+        yaxis: {
+            min: 0,
+            max: 30, // Set max value to accommodate higher event counts, adjust as needed
+            tickAmount: 6, // Number of intervals (5 units each if max is 30)
+            title: {
+                text: 'Event Count'
+            }
+        }
+    };
+
+    var chart = new ApexCharts(document.querySelector("#monthlyEventSummaryChart"), options);
+    chart.render();
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Extract the top 5 skills from the server data
+        var skills = [];
+        var counts = [];
+
+        @foreach (var skill in Model.totalSkills.OrderByDescending(x => x.Value).Take(5))
+        {
+            <text>
+                skills.push("@skill.Key");    // Skill name
+                counts.push(@skill.Value);    // Skill count
+            </text>;
+        }
+
+        // ApexCharts Pie Chart Configuration
+        var options = {
+            chart: {
+                type: 'donut',    // Donut chart type
+                height: 300
+            },
+            series: counts,       // Skill counts as data
+            labels: skills,       // Skill names as labels
+            plotOptions: {
+                pie: {
+                    donut: {
+                        size: '70%'    // Donut inner circle size
+                    }
+                }
+            },
+            dataLabels: {
+                enabled: true,
+                formatter: function (val) {
+                    return val.toFixed(1) + "%";  // Format percentages
+                }
+            },
+            legend: {
+                position: 'bottom'
+            },
+            colors: ['#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0'], // Colors for each slice
+        };
+
+        var chart = new ApexCharts(document.querySelector("#chart-top-five"), options);
+        chart.render();
+    });
+    </script>
+</div>
+    }
+</div>

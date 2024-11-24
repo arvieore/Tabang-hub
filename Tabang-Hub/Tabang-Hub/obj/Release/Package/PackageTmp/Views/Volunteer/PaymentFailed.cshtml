@@ -1,0 +1,27 @@
+﻿﻿@model Tabang_Hub.Utils.Lists
+
+@{
+    ViewBag.Title = "Payment Failed";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    body {
+        padding-top: 100px;
+    }
+</style>
+<div class="container mt-5">
+    <div class="card mx-auto shadow-lg" style="max-width: 600px;">
+        <div class="card-body text-center p-5">
+            <div class="mb-4">
+                <i class="bi bi-x-circle-fill text-danger" style="font-size: 3rem;"></i>
+            </div>
+            <h2 class="card-title fw-bold mb-3">Payment Failed</h2>
+            <p class="card-text mb-4">
+                Unfortunately, your payment did not go through. Please check your payment details and try again.
+            </p>
+            <a href="@Url.Action("EventDetails", "Volunteer", new { eventId = Model.CreateEvents.eventId })" class="btn btn-primary btn-lg">
+                Return to Event Details
+            </a>
+        </div>
+    </div>
+</div>

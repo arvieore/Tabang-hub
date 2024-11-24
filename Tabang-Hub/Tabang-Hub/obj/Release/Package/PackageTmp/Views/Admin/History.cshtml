@@ -1,0 +1,84 @@
+﻿@model Tabang_Hub.Utils.Lists
+
+@{
+    ViewBag.Title = "History";
+    Layout = "~/Views/Shared/_Admin.cshtml";
+}
+
+<div class="container mb-3">
+    <div class="row mb-3">
+        <div class="col-md-3">
+            <select id="organizationSelect" class="form-select" onchange="window.location.href='/Admin/History?organizationId=' + this.value">
+                <option value="0" @(Request.QueryString["organizationId"] == "0" || string.IsNullOrEmpty(Request.QueryString["organizationId"]) ? "selected" : "")>All History</option>
+
+                @foreach (var org in Model.getAllOrgAccounts)
+                {
+                    foreach (var orgName in org.UserAccount.OrgInfo)
+                    {
+                        <option value="@org.UserAccount.userId" @(Request.QueryString["organizationId"] == org.UserAccount.userId.ToString() ? "selected" : "")>
+                            @orgName.orgName
+                        </option>
+                    }
+                }
+            </select>
+        </div>
+    </div>
+
+    <section class="section">
+        <div class="row" id="table-head">
+            <div class="col-12">
+                <div class="card" style="padding: 15px;">
+                    <div class="card-header">
+                        <h4 class="card-title">Event History</h4>
+                    </div>
+                    <div class="card-content">
+                        <!-- table head dark -->
+                        <div class="table-responsive" style="min-height: 500px; max-height: 500px; overflow-y: auto;">
+                            <table class="table mb-0" style="margin: 0 auto; width: 95%;">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th>Event Name</th>
+                                        <th>Target Amount</th>
+                                        <th>Total Volunteers</th>
+                                        <th>Date Started</th>
+                                        <th>Date Ended</th>
+                                        <th>Location</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.getAllOrgEvent != null && Model.getAllOrgEvent.Any())
+                                    {
+                                        foreach (var history in Model.getAllOrgEvent)
+                                        {
+                                            if (history.status == 2)
+                                            {
+                                                <tr>
+                                                    <td>@history.eventTitle</td>
+                                                    <td>@history.targetAmount</td>
+                                                    <td>@history.maxVolunteer</td>
+                                                    <td>@(history.dateStart.HasValue ? history.dateStart.Value.ToString("MMMM d, yyyy") : "N/A")</td>
+                                                    <td>@(history.dateEnd.HasValue ? history.dateEnd.Value.ToString("MMMM d, yyyy") : "N/A")</td>
+                                                    <td>@history.location</td>
+                                                    <td>
+                                                        <button class="btn btn-primary">View</button>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="6" class="text-center">No events available for the selected organization.</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>

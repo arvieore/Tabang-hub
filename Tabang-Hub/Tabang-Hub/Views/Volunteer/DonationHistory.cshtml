@@ -1,0 +1,150 @@
+﻿@model Tabang_Hub.Utils.Lists
+
+@{
+    ViewBag.Title = "PaymentHistory";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    body {
+        padding-top: 100px;
+    }
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link href="~/Content/Css/donationStyle.css" rel="stylesheet" />
+<!-- Center the card on the page -->
+<div class="d-flex justify-content-center align-items-center mt-5">
+    <!-- Bootstrap Card for a cleaner look -->
+    <div class="card shadow-sm" style="width: 85%; border-radius: 10px;">
+        <div class="card-body">
+            <!-- Title and Filter Dropdown Row -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="card-title mb-0">Donation History</h5>
+                <div class="form-group mb-0" style="width: 200px;">
+                    <select class="form-control" id="donationFilter" onchange="filterDonations()">
+                        <option value="newest">Sort by Newest Date</option>
+                        <option value="oldest">Sort by Oldest Date</option>
+                        <option value="statusPaid">Status: Paid</option>
+                        <option value="statusFailed">Status: Failed</option>
+                        <option value="amountHigh">Amount: High to Low</option>
+                        <option value="amountLow">Amount: Low to High</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Payment History Table -->
+            <div class="table-responsive">
+                <table class="table table-borderless align-middle" id="donationTable">
+                    <thead>
+                        <tr style="background-color: #5BC1AC; color: black">
+                            <th scope="col">Donation Date</th>
+                            <th scope="col">Event Title</th>
+                            <th scope="col">Event Description</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Amount</th>
+                            <th scope="col"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var donation in Model.userDonatedInformations)
+                        {
+                            DateTime? originalDate = donation.donatedAt;
+                            string formattedDate = originalDate.HasValue ? originalDate.Value.ToString("MMMM dd, yyyy") : "N/A";
+
+                            var eventInfo = Model.orgEvents.FirstOrDefault(e => e.eventId == donation.eventId);
+                            int maxDescriptionLength = 85;
+                            string shortDescription = eventInfo?.eventDescription.Length > maxDescriptionLength
+                                ? eventInfo.eventDescription.Substring(0, maxDescriptionLength) + "..."
+                                : eventInfo?.eventDescription;
+
+                            <tr class="data-hover" data-bs-toggle="modal" data-bs-target="#eventModal-@donation.orgUserDonatedId">
+                                <td style="width: 180px;" data-date="@originalDate">@formattedDate</td>
+                                <td style="width: 300px;">@eventInfo.eventTitle</td>
+                                <td style="width: 650px;">@shortDescription</td>
+                                <td style="width: 5%;" data-status="@donation.Status">@(@donation.Status == 1 ? "Paid" : "Failed")</td>
+                                <td style="width: 5%;" data-amount="@donation.amount">₱@donation.amount</td>
+                                <td>
+                                    <a href="#" class="view-more" data-bs-toggle="modal" data-bs-target="#eventModal-@donation.orgUserDonatedId">
+                                        <i class="fa fa-chevron-right"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Event Modals (placed outside of the table) -->
+@foreach (var evnt_info in Model.userDonatedInformations)
+{
+    var eventInfo = Model.orgEvents.FirstOrDefault(e => e.eventId == evnt_info.eventId);
+    DateTime? originalDate = evnt_info.donatedAt;
+    string formattedDate = originalDate.HasValue ? originalDate.Value.ToString("MMMM dd, yyyy") : "N/A";
+
+    <div class="modal fade" id="eventModal-@evnt_info.orgUserDonatedId" tabindex="-1" aria-labelledby="eventModalLabel-@evnt_info.orgUserDonatedId" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="eventModalLabel-@evnt_info.eventId">@evnt_info.eventTitle</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Event Image -->
+                    <div class="text-center">
+                        <img src="@Url.Content("~/Content/Events/" + evnt_info.eventImage)" alt="Event Image" class="img-fluid rounded mb-3" style="max-height: 400px;">
+                    </div>
+
+                    <!-- Event Information with Icons -->
+                    <p><i class="fa fa-info-circle" aria-hidden="true"></i> <strong>Description:</strong> @evnt_info.eventDescription</p>
+                    <p><i class="fa fa-money" aria-hidden="true"></i> <strong>Amount:</strong> ₱@evnt_info.amount</p>
+                    <p>
+                        <i class="fa fa-calendar" aria-hidden="true"></i> <strong>Date Start and End:</strong>
+                        @(eventInfo.dateStart.HasValue ? eventInfo.dateStart.Value.ToString("MMMM dd, yyyy") : "N/A") -
+                        @(eventInfo.dateEnd.HasValue ? eventInfo.dateEnd.Value.ToString("MMMM dd, yyyy") : "N/A")
+                    </p>
+                    <p>
+                        <i class="fa fa-calendar" aria-hidden="true"></i> <strong>Donation Date:</strong>
+                        @formattedDate
+                    </p>
+                    <p><i class="fa fa-map-marker" aria-hidden="true"></i> <strong>Location:</strong> @evnt_info.location</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+<!-- JavaScript for filtering functionality -->
+<script>
+    function filterDonations() {
+        const filterValue = document.getElementById("donationFilter").value;
+        const table = document.getElementById("donationTable").getElementsByTagName("tbody")[0];
+        const rows = Array.from(table.getElementsByTagName("tr"));
+
+        rows.sort((a, b) => {
+            switch (filterValue) {
+                case "newest":
+                    return new Date(b.cells[0].dataset.date) - new Date(a.cells[0].dataset.date);
+                case "oldest":
+                    return new Date(a.cells[0].dataset.date) - new Date(b.cells[0].dataset.date);
+                case "statusPaid":
+                    return (b.cells[3].dataset.status == 1 ? 1 : 0) - (a.cells[3].dataset.status == 1 ? 1 : 0);
+                case "statusFailed":
+                    return (a.cells[3].dataset.status == 0 ? 1 : 0) - (b.cells[3].dataset.status == 0 ? 1 : 0);
+                case "amountHigh":
+                    return parseFloat(b.cells[4].dataset.amount) - parseFloat(a.cells[4].dataset.amount);
+                case "amountLow":
+                    return parseFloat(a.cells[4].dataset.amount) - parseFloat(b.cells[4].dataset.amount);
+            }
+        });
+
+        rows.forEach(row => table.appendChild(row));
+    }
+</script>

@@ -1,0 +1,1714 @@
+﻿﻿﻿@model Tabang_Hub.Utils.Lists
+
+@{
+    ViewBag.Title = "VolunteerManagement";
+    Layout = "~/Views/Shared/_Organization.cshtml";
+}
+
+<style>
+    .added-skills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .skill-item {
+        display: flex;
+        align-items: center;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        padding: 5px 10px;
+        background-color: #f8f9fa;
+    }
+
+        .skill-item .remove-skill {
+            margin-left: 5px;
+            color: red;
+            cursor: pointer;
+        }
+
+    .skill-count {
+        width: 60px;
+        margin-left: 10px;
+    }
+
+    .navbar-nav .nav-link {
+        padding-left: 10px;
+        padding-right: 10px;
+        white-space: nowrap;
+        font-size: 14px;
+        position: relative;
+    }
+
+        .navbar-nav .nav-link.active::after {
+            content: "";
+            display: block;
+            width: 100%;
+            height: 2px;
+            background-color: #5BC1AC;
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+        }
+
+    .content-section {
+        display: none;
+    }
+
+        .content-section.active {
+            display: block;
+        }
+
+    .navbar-center {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .fixed-size-img {
+        width: 100%;
+        max-height: 450px;
+        object-fit: cover;
+    }
+
+    .profile-img {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+
+    .profile-card {
+        padding: 15px;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        background-color: white;
+    }
+
+    .skills-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-top: 10px;
+    }
+
+    .skill-button {
+        padding: 3px 8px;
+        font-size: 12px;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        background-color: #f8f9fa;
+        cursor: pointer;
+    }
+
+        .skill-button.selected {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        .skill-button:disabled {
+            cursor: not-allowed;
+            background-color: #e9ecef;
+        }
+
+    .list-group-item {
+        display: flex;
+        align-items: center;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    }
+
+        .list-group-item .badge {
+            font-size: 0.75em;
+        }
+
+    .progress {
+        height: 30px;
+        background-color: #e9ecef;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        position: relative;
+    }
+
+    .progress-bar {
+        background-color: #007bff;
+        line-height: 30px;
+        color: white;
+        text-align: center;
+        transition: width 0.6s ease;
+    }
+
+    .progress-text {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: black;
+        z-index: 2;
+    }
+
+    .progress-bar-container {
+        position: relative;
+    }
+
+    .edit-button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+    }
+</style>
+
+@if (Model.eventDetails.dateEnd > DateTime.Now)
+{
+    <div class="container mt-5">
+        <!-- Navigation Tabs -->
+        <ul class="nav nav-pills mb-4 justify-content-center" id="eventTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="organization-details-tab" data-bs-toggle="tab" data-bs-target="#organization-details" type="button" role="tab" aria-controls="organization-details" aria-selected="true">Details</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="volunteer-list-tab" data-bs-toggle="tab" data-bs-target="#volunteer-list" type="button" role="tab" aria-controls="volunteer-list" aria-selected="false">Volunteer List</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="applied-volunteer-list-tab" data-bs-toggle="tab" data-bs-target="#applied-volunteer-list" type="button" role="tab" aria-controls="applied-volunteer-list" aria-selected="false">Applied Volunteer List</button>
+            </li>
+        </ul>
+
+        <!-- Organization Profile Section -->
+        <div class="tab-content" id="eventTabsContent">
+            <div class="tab-pane fade show active" id="organization-details" role="tabpanel" aria-labelledby="organization-details-tab">
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="profile-card d-flex align-items-center">
+                            <img src="@Url.Content("~/Content/images/tabanghub3.png")" class="profile-img me-3" alt="Organization Profile">
+                            <div>
+                                <h4>@Model.OrgInfo.orgName</h4>
+                                <p>@Model.OrgInfo.orgDescription</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Event Details -->
+                <div class="row d-flex align-items-stretch">
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-body d-flex flex-column">
+                                <div id="carouselExampleFade" class="carousel slide carousel-fade flex-grow-1" data-bs-ride="carousel">
+                                    <ol class="carousel-indicators">
+                                        @for (int i = 0; i < Model.detailsEventImage.Count; i++)
+                                        {
+                                            <li data-bs-target="#carouselExampleFade" data-bs-slide-to="@i" class="@(i == 0 ? "active" : "")"></li>
+                                        }
+                                    </ol>
+                                    <div class="carousel-inner h-100">
+                                        @for (int i = 0; i < Model.detailsEventImage.Count; i++)
+                                        {
+                                            <div class="carousel-item @(i == 0 ? "active" : "") h-100">
+                                                <img src="@Url.Content("~/Content/Events/" + Model.detailsEventImage[i].eventImage)" class="d-block w-100 h-100" alt="Event Image @i" style="object-fit: cover;" />
+                                            </div>
+                                        }
+                                    </div>
+                                    <a class="carousel-control-prev" href="#carouselExampleFade" role="button" data-bs-slide="prev">
+                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                        <span class="visually-hidden">Previous</span>
+                                    </a>
+                                    <a class="carousel-control-next" href="#carouselExampleFade" role="button" data-bs-slide="next">
+                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                        <span class="visually-hidden">Next</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">Event Details</h5>
+                                @if (Model.eventDetails.dateStart >= DateTime.Now)
+                                {
+                                    <button class="btn btn-outline-primary edit-button" data-bs-toggle="modal" data-bs-target="#editEventModal">Edit</button>
+                                }
+                            </div>
+                            <div class="card-body d-flex flex-column">
+                                <ul class="list-group list-group-flush flex-grow-1">
+                                    <h5 class="card-title">@Model.eventDetails.eventTitle</h5>
+                                    <p class="card-text">@Model.eventDetails.eventDescription</p>
+                                    <li class="list-group-item d-flex align-items-center">
+                                        <i class="bi bi-calendar-event text-primary me-2"></i>
+                                        <strong class="me-2">Start Date:</strong>
+                                        <span>
+                                            @(Model.eventDetails.dateStart.HasValue ? Model.eventDetails.dateStart.Value.ToString("MMMM dd, yyyy - h:mm tt") : "N/A")
+                                        </span>
+                                    </li>
+                                    <li class="list-group-item d-flex align-items-center">
+                                        <i class="bi bi-calendar-x text-danger me-2"></i>
+                                        <strong class="me-2">End Date:</strong>
+                                        <span>
+                                            @(Model.eventDetails.dateEnd.HasValue ? Model.eventDetails.dateEnd.Value.ToString("MMMM dd, yyyy - h:mm tt") : "N/A")
+                                        </span>
+                                    </li>
+
+                                    <li class="list-group-item"><i class="bi bi-geo-alt me-2"></i><strong>Location:</strong> @Model.eventDetails.location</li>
+                                </ul>
+                            </div>
+
+                            <div class="row d-flex align-items-stretch">
+                                <!-- Volunteers Section -->
+                                <div class="col-md-6">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Volunteers</h5>
+                                            @* Calculate the current volunteer count *@
+                                            @{
+                                                int currentVolunteers = Model.listOfEventVolunteers.Count(v => v.Status == 1);
+                                                int maxVolunteers = (int)Model.eventDetails.maxVolunteer;
+                                                var volunteerPercentage = (maxVolunteers > 0) ? ((double)currentVolunteers / maxVolunteers) * 100 : 0;
+                                            }
+                                            <div class="progress-bar-container mb-2">
+                                                <div class="progress">
+                                                    <div class="progress-bar" role="progressbar" style="width: @volunteerPercentage%"></div>
+                                                    <div class="progress-text">@($"{currentVolunteers}/{maxVolunteers}")</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Target Amount Section -->
+                                @if (Model.eventDetails.targetAmount != null)
+                                {
+                                    <div class="col-md-6">
+                                        <div class="card h-100">
+                                            <div class="card-body">
+                                                <h5 class="card-title">Target Amount</h5>
+                                                @* Calculate the raised amount *@
+                                                @{
+                                                    decimal? raisedAmount = 0;
+
+                                                    foreach (var donated in Model.listofUserDonated)
+                                                    {
+                                                        if (donated.Status == 1)
+                                                        {
+                                                            raisedAmount += donated.amount;
+                                                        }
+                                                    }
+
+                                                    var percentage = (raisedAmount / Model.eventDetails.targetAmount) * 100;
+                                                }
+                                                <div class="progress-bar-container">
+                                                    <div class="progress">
+                                                        <div class="progress-bar" role="progressbar" style="width: @percentage%" aria-valuenow="@raisedAmount" aria-valuemin="0" aria-valuemax="@Model.eventDetails.targetAmount"></div>
+                                                        <div class="progress-text">
+                                                            @($"{raisedAmount:₱#,##0.00}") / @($"{Model.eventDetails.targetAmount:₱#,##0.00}")
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">Skills Needed</h5>
+                                <div class="skills-container" id="skills-container">
+                                    @foreach (var skill in Model.detailsSkillRequirement)
+                                    {
+                                        <button type="button" class="skill-button" data-skill-id="@skill.skillRequirementId">@skill.Skills.skillName</button>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @{
+                var processedUsers1 = new HashSet<int>(); // To track processed user IDs
+            }
+
+            <!-- Volunteer List Section -->
+            <div class="tab-pane fade" id="volunteer-list" role="tabpanel" aria-labelledby="volunteer-list-tab">
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">Volunteer List</h5>
+                                <button class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#inviteVolunteerModal" onclick="openInviteModal()">Invite Volunteers</button>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">Profile Image</th>
+                                                <th scope="col">Email</th>
+                                                <th scope="col">Skills</th>
+                                                <th scope="col">Ratings</th>
+                                                <th scope="col">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var volunteer in Model.listOfEventVolunteers)
+                                            {
+                                                if (volunteer.Status == 1 && !processedUsers1.Contains((int)volunteer.userId))
+                                                {
+                                                    processedUsers1.Add((int)volunteer.userId); // Mark the user as processed
+
+                                                    // Prepare separate strings for skills and ratings
+                                                    var skillsHtml = new System.Text.StringBuilder();
+                                                    var ratingsHtml = new System.Text.StringBuilder();
+                                                    var userSkills = Model.volunteersSkills.Where(s => s.userId == volunteer.userId).ToList();
+
+                                                    foreach (var skill in userSkills)
+                                                    {
+                                                        foreach (var req in Model.eventDetails.OrgSkillRequirement)
+                                                        {
+                                                            if (skill.skillId == req.skillId)
+                                                            {
+                                                                // Calculate average rating for the skill
+                                                                List<int> avgRate = new List<int>();
+                                                                foreach (var rate in Model.listOfRatings)
+                                                                {
+                                                                    if (skill.userId == rate.userId && skill.skillId == rate.skillId)
+                                                                    {
+                                                                        avgRate.Add((int)rate.rate);
+                                                                    }
+                                                                }
+
+                                                                double averageRating = avgRate.Any() ? avgRate.Average() : 0;
+                                                                int fullStars = (int)averageRating;
+                                                                int halfStars = averageRating % 1 >= 0.5 ? 1 : 0;
+
+                                                                // Build star icons for the skill rating
+                                                                var starRatingHtml = new System.Text.StringBuilder();
+                                                                for (int i = 0; i < fullStars; i++)
+                                                                {
+                                                                    starRatingHtml.Append("<i class='bi bi-star-fill' style='color: gold;'></i>");
+                                                                }
+                                                                if (halfStars > 0)
+                                                                {
+                                                                    starRatingHtml.Append("<i class='bi bi-star-half' style='color: gold;'></i>");
+                                                                }
+                                                                for (int i = 0; i < 5 - (fullStars + halfStars); i++)
+                                                                {
+                                                                    starRatingHtml.Append("<i class='bi bi-star' style='color: gold;'></i>");
+                                                                }
+
+                                                                // Append the skill name and rating separately
+                                                                skillsHtml.Append($"<div>{skill.Skills.skillName}</div>");
+                                                                ratingsHtml.Append($"<div>{starRatingHtml.ToString()}</div>");
+                                                            }
+                                                        }
+                                                    }
+
+                                                    <tr>
+                                                        <td>
+                                                            <img src="@Url.Content("~/Content/images/organization.png")" class="profile-img" alt="Volunteer Image" style="width: 50px; height: 50px; border-radius: 50%;">
+                                                        </td>
+                                                        <td>@volunteer.UserAccount.email</td>
+                                                        <td>@Html.Raw(skillsHtml.ToString())</td>
+                                                        <td>@Html.Raw(ratingsHtml.ToString())</td>
+                                                        <td><a href="@Url.Action("VolunteerDetails", "Organization", new { userId = volunteer.userId })" class="btn btn-outline-primary btn-sm">View</a></td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @{
+                var processedUsers = new HashSet<int>(); // To track processed user IDs
+            }
+
+            <!-- Applied Volunteer List Section -->
+            <div class="tab-pane fade" id="applied-volunteer-list" role="tabpanel" aria-labelledby="applied-volunteer-list-tab">
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">Applied Volunteer List</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">Profile Image</th>
+                                                <th scope="col">Email</th>
+                                                <th scope="col">Skills</th>
+                                                <th scope="col">Ratings</th>
+                                                <th scope="col">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var volunteer in Model.listOfEventVolunteers)
+                                            {
+                                                if (volunteer.Status == 0 && !processedUsers.Contains((int)volunteer.userId))
+                                                {
+                                                    processedUsers.Add((int)volunteer.userId); // Mark the user as processed
+
+                                                    // Prepare separate strings for skills and ratings
+                                                    var skillsHtml = new System.Text.StringBuilder();
+                                                    var ratingsHtml = new System.Text.StringBuilder();
+                                                    var userSkills = Model.volunteersSkills.Where(s => s.userId == volunteer.userId).ToList();
+
+                                                    foreach (var skill in userSkills)
+                                                    {
+                                                        foreach (var req in Model.eventDetails.OrgSkillRequirement)
+                                                        {
+                                                            if (skill.skillId == req.skillId)
+                                                            {
+                                                                // Calculate average rating for the skill
+                                                                List<int> avgRate = new List<int>();
+                                                                foreach (var rate in Model.listOfRatings)
+                                                                {
+                                                                    if (skill.userId == rate.userId && skill.skillId == rate.skillId)
+                                                                    {
+                                                                        avgRate.Add((int)rate.rate);
+                                                                    }
+                                                                }
+
+                                                                double averageRating = avgRate.Any() ? avgRate.Average() : 0;
+                                                                int fullStars = (int)averageRating;
+                                                                int halfStars = averageRating % 1 >= 0.5 ? 1 : 0;
+
+                                                                // Build star icons for the skill rating
+                                                                var starRatingHtml = new System.Text.StringBuilder();
+                                                                for (int i = 0; i < fullStars; i++)
+                                                                {
+                                                                    starRatingHtml.Append("<i class='bi bi-star-fill' style='color: gold;'></i>");
+                                                                }
+                                                                if (halfStars > 0)
+                                                                {
+                                                                    starRatingHtml.Append("<i class='bi bi-star-half' style='color: gold;'></i>");
+                                                                }
+                                                                for (int i = 0; i < 5 - (fullStars + halfStars); i++)
+                                                                {
+                                                                    starRatingHtml.Append("<i class='bi bi-star' style='color: gold;'></i>");
+                                                                }
+
+                                                                // Append the skill name and rating separately
+                                                                skillsHtml.Append($"<div>{skill.Skills.skillName}</div>");
+                                                                ratingsHtml.Append($"<div>{starRatingHtml.ToString()}</div>");
+                                                            }
+                                                        }
+                                                    }
+
+                                                    <tr>
+                                                        <td>
+                                                            <img src="@Url.Content("~/Content/images/organization.png")" class="profile-img" alt="Volunteer Image" style="width: 50px; height: 50px; border-radius: 50%;">
+                                                        </td>
+                                                        <td>@volunteer.UserAccount.email</td>
+                                                        <td>@Html.Raw(skillsHtml.ToString())</td>
+                                                        <td>@Html.Raw(ratingsHtml.ToString())</td>
+                                                        <td>
+                                                            <div class="d-flex gap-2">
+                                                                <a href="@Url.Action("VolunteerDetails", "Organization", new { userId = volunteer.userId, eventId = Model.eventDetails.eventId })" class="btn btn-outline-primary btn-sm">View</a>
+                                                                <button type="button" class="btn btn-outline-success btn-sm accept-btn" data-id="@volunteer.userId" data-event-id="@volunteer.eventId">Accept</button>
+                                                                <button type="button" class="btn btn-outline-danger btn-sm decline-btn" data-id="@volunteer.userId" data-event-id="@volunteer.eventId">Decline</button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit Event Modal -->
+            <div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true" data-bs-backdrop="static">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editEventModalLabel">Edit Event</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <!-- Modal Body -->
+                        <div class="modal-body">
+                            <form id="edit-event-form" method="post" enctype="multipart/form-data" action="@Url.Action("EditEvent", "Organization")" onsubmit="validateEditForm(event)">
+                                <!-- Event ID -->
+                                <input type="hidden" name="eventId" value="@Model.eventDetails.eventId" />
+
+                                <!-- Event Title -->
+                                <div class="mb-3">
+                                    <label for="EditEvent_eventTitle" class="form-label">Event Title</label>
+                                    <input type="text" class="form-control" id="EditEvent_eventTitle" name="events.CreateEvents.eventTitle" value="@Model.eventDetails.eventTitle" placeholder="Enter event title">
+                                    <span class="error text-danger" id="EditEvent_eventTitle_error"></span>
+                                </div>
+
+                                <!-- Event Description -->
+                                <div class="mb-3">
+                                    <label for="EditEvent_eventDescription" class="form-label">Event Description</label>
+                                    <textarea class="form-control" id="EditEvent_eventDescription" name="events.CreateEvents.eventDescription" rows="4" placeholder="Enter event description">@Model.eventDetails.eventDescription</textarea>
+                                    <span class="error text-danger" id="EditEvent_eventDescription_error"></span>
+                                </div>
+
+                                <!-- Target Amount -->
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="editSwitchCheckDefault" onchange="toggleTargetAmount(this)" @(Model.eventDetails.targetAmount != null ? "checked" : "")>
+                                        <label class="form-check-label" for="editSwitchCheckDefault">Enable Target Amount</label>
+                                    </div>
+                                    <input type="text" class="form-control mt-2" id="EditEvent_targetAmount" name="events.CreateEvents.targetAmount" value="@(Model.eventDetails.targetAmount?.ToString() ?? "")" placeholder="Enter target amount in Peso" @(Model.eventDetails.targetAmount == null ? "disabled" : "")>
+                                    <span class="error text-danger" id="EditEvent_targetAmount_error"></span>
+                                </div>
+
+                                <!-- Dates -->
+                                <div class="mb-3 row">
+                                    <div class="col">
+                                        <label for="EditEvent_dateStart" class="form-label">Start Date and Time</label>
+                                        <input type="datetime-local" class="form-control" id="EditEvent_dateStart" name="events.CreateEvents.dateStart" value="@(Model.eventDetails.dateStart.HasValue ? Model.eventDetails.dateStart.Value.ToString("yyyy-MM-ddTHH:mm") : "")">
+                                        <span class="error text-danger" id="EditEvent_dateStart_error"></span>
+                                    </div>
+                                    <div class="col">
+                                        <label for="EditEvent_dateEnd" class="form-label">End Date and Time</label>
+                                        <input type="datetime-local" class="form-control" id="EditEvent_dateEnd" name="events.CreateEvents.dateEnd" value="@(Model.eventDetails.dateEnd.HasValue ? Model.eventDetails.dateEnd.Value.ToString("yyyy-MM-ddTHH:mm") : "")">
+                                        <span class="error text-danger" id="EditEvent_dateEnd_error"></span>
+                                    </div>
+                                </div>
+
+                                <!-- Map for selecting location -->
+                                <div class="mb-3">
+                                    <div id="map" style="height: 400px;"></div>
+                                </div>
+
+                                <!-- Location -->
+                                <div class="mb-3">
+                                    <label for="EditEvent_location" class="form-label">Location</label>
+                                    <input type="text" class="form-control" id="EditEvent_location" name="events.CreateEvents.location" value="@Model.eventDetails.location" placeholder="Enter location">
+                                    <span class="error text-danger" id="EditEvent_location_error"></span>
+                                </div>
+
+                                <!-- Maximum Volunteers -->
+                                <div class="mb-3">
+                                    <label for="EditEvent_maxVolunteer" class="form-label">Maximum Volunteers</label>
+                                    <input type="number" class="form-control" id="EditEvent_maxVolunteer" name="events.CreateEvents.maxVolunteer" min="1" value="@Model.eventDetails.maxVolunteer" placeholder="Enter maximum number of volunteers">
+                                    <span class="error text-danger" id="EditEvent_maxVolunteer_error"></span>
+                                </div>
+                                <div id="skillsToRemoveContainer"></div>
+                                <!-- Volunteer Skills Requirements -->
+                                <div class="mb-3">
+                                    <label>Volunteer Skills Requirements</label>
+                                    <div class="table-responsive" style="max-height: 200px; overflow-y: auto;">
+                                        <table class="table table-bordered">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Skill</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="edit-skills-table-body">
+                                                @foreach (var skill in Model.detailsSkillRequirement)
+                                                {
+                                                    <tr data-skill="@skill.Skills.skillName">
+                                                        <td>@skill.Skills.skillName</td>
+                                                        <td>
+                                                            <button type="button" class="btn btn-danger btn-sm" onclick="removeEditSkillFromTable('@skill.Skills.skillName', this)">Remove</button>
+                                                            <input type="hidden" name="skills" value="@skill.Skills.skillName" />
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <span class="error text-danger" id="EditEvent_skills_error"></span>
+                                </div>
+
+                                <!-- Skill Buttons to Add Skills -->
+                                <div class="skills-container mb-3">
+                                    @foreach (var skills in Model.listOfSkills)
+                                    {
+                                        var isSkillAdded = Model.detailsSkillRequirement.Any(s => s.Skills.skillName == skills.skillName);
+                                        <button type="button" class="btn btn-outline-primary skill-button" onclick="addEditSkillToTable('@skills.skillName')" id="edit-skill-@skills.skillName" @(isSkillAdded ? "disabled" : "")>@skills.skillName</button>
+                                    }
+                                </div>
+
+                                <!-- Upload Images -->
+                                <div class="mb-3">
+                                    <label for="EditEvent_uploadImage" class="form-label">Upload Images</label>
+                                    <input type="file" class="form-control" id="EditEvent_uploadImage" name="images" multiple onchange="previewEditImages()">
+                                    <span class="error text-danger" id="EditEvent_uploadImage_error"></span>
+                                    <div class="preview-container" id="edit-image-preview"></div>
+                                </div>
+
+                                <!-- Submit Button -->
+                                <button class="btn btn-primary" type="submit">Save Changes</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Invite Volunteer Modal -->
+        <div class="modal fade" id="inviteVolunteerModal" tabindex="-1" aria-labelledby="inviteVolunteerModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="inviteVolunteerModalLabel">Invite Volunteers</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="inviteForm" action="@Url.Action("InviteVolunteer", "Organization")" method="post">
+                            <!-- Hidden input to pass eventId -->
+                            <input type="hidden" name="eventId" value="@Model.eventDetails.eventId" />
+
+                            <!-- Filter Dropdown -->
+                            <div class="mb-3">
+                                <label for="filterBy" class="form-label">Filter Volunteers By</label>
+                                <select class="form-select" id="filterBy" name="filterBy">
+                                    <option value="Rating">Rating</option>
+                                    <option value="Availability">Availability</option>
+                                </select>
+                            </div>
+
+                            <!-- Matched Volunteers by Rating -->
+                            <div class="mb-3 volunteer-list" id="volunteersByRating">
+                                <label class="form-label">Select Volunteers to Invite (By Rating)</label>
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">Name</th>
+                                                <th scope="col">Rating</th>
+                                                <th scope="col">Select</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var volunteerRateRank in Model.matchedSkills)
+                                            {
+                                                var userFName = Model.volunteersInfo.Where(m => m.userId == volunteerRateRank.userId).Select(m => m.fName).FirstOrDefault();
+                                                var userLName = Model.volunteersInfo.Where(m => m.userId == volunteerRateRank.userId).Select(m => m.lName).FirstOrDefault();
+                                                var getRate = Model.filteredVolunteers.Where(m => m.userId == volunteerRateRank.userId).Select(m => m.rating).FirstOrDefault();
+                                                var formattedRate = getRate > 0 ? Math.Floor(getRate * 10) / 10 : 0;
+
+                                                <tr>
+                                                    <td>@userLName, @userFName</td>
+                                                    <td>@formattedRate</td>
+                                                    <td>
+                                                        <input class="form-check-input rating-checkbox" type="checkbox" name="selectedVolunteers" value="@volunteerRateRank.userId" id="volunteerRating_@volunteerRateRank.userId">
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Matched Volunteers by Availability -->
+                            <div class="mb-3 volunteer-list" id="volunteersByAvailability" style="display: none;">
+                                <label class="form-label">Select Volunteers to Invite (By Availability)</label>
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">Name</th>
+                                                <th scope="col">Availability</th>
+                                                <th scope="col">Select</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var volunteerAvailRank in Model.volunteerAvail)
+                                            {
+                                                var userFName = Model.volunteersInfo.Where(m => m.userId == volunteerAvailRank.userId).Select(m => m.fName).FirstOrDefault();
+                                                var userLName = Model.volunteersInfo.Where(m => m.userId == volunteerAvailRank.userId).Select(m => m.lName).FirstOrDefault();
+                                                var getAvail = Model.filteredVolunteers.Where(m => m.userId == volunteerAvailRank.userId).Select(m => m.Availability).FirstOrDefault();
+
+                                                <tr>
+                                                    <td>@userLName, @userFName</td>
+                                                    <td>@getAvail</td>
+                                                    <td>
+                                                        <input class="form-check-input availability-checkbox" type="checkbox" name="selectedVolunteers" value="@volunteerAvailRank.userId" id="volunteerAvailability_@volunteerAvailRank.userId">
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <button type="submit" class="btn btn-primary">Send Invites</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="container mt-5">
+        <ul class="nav nav-tabs mb-4" id="eventTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="organization-details-tab" data-bs-toggle="tab" data-bs-target="#organization-details" type="button" role="tab" aria-controls="organization-details" aria-selected="true">Details</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="volunteer-list-tab" data-bs-toggle="tab" data-bs-target="#volunteer-list" type="button" role="tab" aria-controls="volunteer-list" aria-selected="false">Volunteer List</button>
+            </li>
+        </ul>
+
+        <!-- Organization Profile Section -->
+        <div class="tab-content" id="eventTabsContent">
+            <div class="tab-pane fade show active" id="organization-details" role="tabpanel" aria-labelledby="organization-details-tab">
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="profile-card d-flex align-items-center">
+                            <img src="@Url.Content("~/Content/images/tabanghub3.png")" class="profile-img me-3" alt="Organization Profile">
+                            <div>
+                                <h4>@Model.OrgInfo.orgName</h4>
+                                <p>@Model.OrgInfo.orgDescription</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Event Details -->
+                <div class="row d-flex align-items-stretch">
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-body d-flex flex-column">
+                                <div id="carouselExampleFade" class="carousel slide carousel-fade flex-grow-1" data-bs-ride="carousel">
+                                    <ol class="carousel-indicators">
+                                        @for (int i = 0; i < Model.detailsEventImage.Count; i++)
+                                        {
+                                            <li data-bs-target="#carouselExampleFade" data-bs-slide-to="@i" class="@(i == 0 ? "active" : "")"></li>
+                                        }
+                                    </ol>
+                                    <div class="carousel-inner h-100">
+                                        @for (int i = 0; i < Model.detailsEventImage.Count; i++)
+                                        {
+                                            <div class="carousel-item @(i == 0 ? "active" : "") h-100">
+                                                <img src="@Url.Content("~/Content/Events/" + Model.detailsEventImage[i].eventImage)" class="d-block w-100 h-100" alt="Event Image @i" style="object-fit: cover;" />
+                                            </div>
+                                        }
+                                    </div>
+                                    <a class="carousel-control-prev" href="#carouselExampleFade" role="button" data-bs-slide="prev">
+                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                        <span class="visually-hidden">Previous</span>
+                                    </a>
+                                    <a class="carousel-control-next" href="#carouselExampleFade" role="button" data-bs-slide="next">
+                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                        <span class="visually-hidden">Next</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">Event Details</h5>
+                            </div>
+                            <div class="card-body d-flex flex-column">
+                                <ul class="list-group list-group-flush flex-grow-1">
+                                    <h5 class="card-title">@Model.eventDetails.eventTitle</h5>
+                                    <p class="card-text">@Model.eventDetails.eventDescription</p>
+                                    <li class="list-group-item d-flex align-items-center">
+                                        <i class="bi bi-calendar-event text-primary me-2"></i>
+                                        <strong class="me-2">Start Date:</strong>
+                                        <span>
+                                            @(Model.eventDetails.dateStart.HasValue ? Model.eventDetails.dateStart.Value.ToString("MMMM dd, yyyy - h:mm tt") : "N/A")
+                                        </span>
+                                    </li>
+                                    <li class="list-group-item d-flex align-items-center">
+                                        <i class="bi bi-calendar-x text-danger me-2"></i>
+                                        <strong class="me-2">End Date:</strong>
+                                        <span>
+                                            @(Model.eventDetails.dateEnd.HasValue ? Model.eventDetails.dateEnd.Value.ToString("MMMM dd, yyyy - h:mm tt") : "N/A")
+                                        </span>
+                                    </li>
+
+                                    <li class="list-group-item"><i class="bi bi-geo-alt me-2"></i><strong>Location:</strong> @Model.eventDetails.location</li>
+                                </ul>
+                            </div>
+
+                            <div class="row d-flex align-items-stretch">
+                                <!-- Volunteers Section -->
+                                <div class="col-md-6">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Volunteers</h5>
+                                            @* Calculate the current volunteer count *@
+                                            @{
+                                                int currentVolunteers = Model.listOfEventVolunteers.Count(v => v.Status == 1);
+                                                int maxVolunteers = (int)Model.eventDetails.maxVolunteer;
+                                                var volunteerPercentage = (maxVolunteers > 0) ? ((double)currentVolunteers / maxVolunteers) * 100 : 0;
+                                            }
+                                            <div class="progress-bar-container mb-2">
+                                                <div class="progress">
+                                                    <div class="progress-bar" role="progressbar" style="width: @volunteerPercentage%"></div>
+                                                    <div class="progress-text">@($"{currentVolunteers}/{maxVolunteers}")</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Target Amount Section -->
+                                @if (Model.eventDetails.targetAmount != null)
+                                {
+                                    <div class="col-md-6">
+                                        <div class="card h-100">
+                                            <div class="card-body">
+                                                <h5 class="card-title">Target Amount</h5>
+                                                @* Calculate the raised amount *@
+                                                @{
+                                                    decimal? raisedAmount = 0;
+
+                                                    foreach (var donated in Model.listofUserDonated)
+                                                    {
+                                                        if (donated.Status == 1)
+                                                        {
+                                                            raisedAmount += donated.amount;
+                                                        }
+                                                    }
+
+                                                    var percentage = (raisedAmount / Model.eventDetails.targetAmount) * 100;
+                                                }
+                                                <div class="progress-bar-container">
+                                                    <div class="progress">
+                                                        <div class="progress-bar" role="progressbar" style="width: @percentage%" aria-valuenow="@raisedAmount" aria-valuemin="0" aria-valuemax="@Model.eventDetails.targetAmount"></div>
+                                                        <div class="progress-text">
+                                                            @($"{raisedAmount:₱#,##0.00}") / @($"{Model.eventDetails.targetAmount:₱#,##0.00}")
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">Skills Needed</h5>
+                                <div class="skills-container" id="skills-container">
+                                    @foreach (var skill in Model.detailsSkillRequirement)
+                                    {
+                                        <button type="button" class="skill-button" data-skill-id="@skill.skillRequirementId">@skill.Skills.skillName</button>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Volunteer List Section for Finished Events -->
+            <div class="tab-pane fade" id="volunteer-list" role="tabpanel" aria-labelledby="volunteer-list-tab">
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="card-title">Volunteer List (Finished Event)</h5>
+                                <div class="ratings-legend">
+                                    <p class="text-muted mb-0"><strong>Rating Legend:</strong> 5 - Highest, 1 - Lowest</p>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">Profile Image</th>
+                                                <th scope="col">Email</th>
+                                                <th scope="col">Skills</th>
+                                                <th scope="col">Ratings per Skill</th>
+                                                <th scope="col">Attendance</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var volunteer in Model.listofvolunteerHistory)
+                                            {
+                                                    <tr>
+                                                        <td>
+                                                            <img src="@Url.Content("~/Content/images/organization.png")" class="profile-img" alt="Volunteer Image" style="width: 50px; height: 50px; border-radius: 50%;">
+                                                        </td>
+                                                        <td>@volunteer.UserAccount.email</td>
+                                                        <td>
+                                                            @foreach (var skill in Model.volunteersSkills.Where(s => s.userId == volunteer.userId))
+                                                            {
+                                                                foreach (var skillreq in Model.skillRequirement1)
+                                                                {
+                                                                    if (skill.skillId == skillreq.skillId)
+                                                                    {
+                                                                        <div>@skill.Skills.skillName</div>
+                                                                    }
+                                                                }
+                                                            }
+                                                        </td>
+                                                        <td>
+                                                            @foreach (var skill in Model.volunteersSkills.Where(s => s.userId == volunteer.userId))
+                                                            {
+                                                                foreach (var skillreq in Model.skillRequirement1)
+                                                                {
+                                                                    if (skill.skillId == skillreq.skillId)
+                                                                    {
+                                                                        <div>
+                                                                            <div class="d-inline-block">
+                                                                                @for (int i = 1; i <= 5; i++)
+                                                                                {
+                                                                                    <div class="form-check form-check-inline">
+                                                                                        <input class="form-check-input" type="radio"
+                                                                                               name="rating_@(volunteer.userId)_@(skill.skillId)"
+                                                                                               id="rating_@(volunteer.userId)_@(skill.skillId)_@i"
+                                                                                               value="@i" required>
+                                                                                        <label class="form-check-label" for="rating_(@volunteer.userId)_(@skill.skillId)_@i">@i</label>
+                                                                                    </div>
+                                                                                }
+                                                                            </div>
+                                                                        </div>
+                                                                    }
+                                                                }
+                                                            }
+                                                        </td>
+                                                        <td>
+                                                            <div class="form-group d-flex align-items-center">
+                                                                <label class="me-2"><strong>Attendance:</strong></label>
+                                                                <div class="form-check me-2">
+                                                                    <input class="form-check-input" type="radio" name="attendance_@volunteer.userId" value="1" required>
+                                                                    <label class="form-check-label">Yes</label>
+                                                                </div>
+                                                                <div class="form-check">
+                                                                    <input class="form-check-input" type="radio" name="attendance_@volunteer.userId" value="0" required>
+                                                                    <label class="form-check-label">No</label>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Submit All Ratings Button -->
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <button type="button" class="btn btn-primary" id="submitAllRatings">Submit All Ratings</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const filterBy = document.getElementById('filterBy');
+        const volunteersByRating = document.getElementById('volunteersByRating');
+        const volunteersByAvailability = document.getElementById('volunteersByAvailability');
+
+        filterBy.addEventListener('change', function () {
+            const ratingCheckboxes = document.querySelectorAll('.rating-checkbox');
+            const availabilityCheckboxes = document.querySelectorAll('.availability-checkbox');
+
+            if (filterBy.value === 'Rating') {
+                volunteersByRating.style.display = 'block';
+                volunteersByAvailability.style.display = 'none';
+                availabilityCheckboxes.forEach(checkbox => checkbox.checked = false); // Deselect availability checkboxes
+            } else if (filterBy.value === 'Availability') {
+                volunteersByRating.style.display = 'none';
+                volunteersByAvailability.style.display = 'block';
+                ratingCheckboxes.forEach(checkbox => checkbox.checked = false); // Deselect rating checkboxes
+            }
+        });
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+         document.querySelectorAll('.accept-btn').forEach(function (button) {
+        button.addEventListener('click', function () {
+            const userId = this.getAttribute('data-id');
+            const eventId = this.getAttribute('data-event-id');
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'Do you want to accept this volunteer?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, accept!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("ConfirmApplicants", "Organization")',
+                        data: { id: userId, eventId: eventId },
+                        success: function (response) {
+                            if (response.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Accepted!',
+                                    text: response.message,
+                                    confirmButtonText: 'OK'
+                                }).then(() => {
+                                    window.location.href = response.redirectUrl;
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: response.message,
+                                    confirmButtonText: 'OK'
+                                });
+                            }
+                        },
+                        error: function () {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: 'An error occurred while processing the request.',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    });
+                }
+            });
+        });
+    });
+
+    // Event listener for Decline button click
+    document.querySelectorAll('.decline-btn').forEach(function (button) {
+        button.addEventListener('click', function () {
+            const userId = this.getAttribute('data-id');
+            const eventId = this.getAttribute('data-event-id');
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'Do you want to decline this volunteer?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, decline!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("DeclineApplicants", "Organization")',
+                        data: { id: userId, eventId: eventId },
+                        success: function (response) {
+                            if (response.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Declined!',
+                                    text: response.message,
+                                    confirmButtonText: 'OK'
+                                }).then(() => {
+                                    window.location.href = response.redirectUrl;
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: response.message,
+                                    confirmButtonText: 'OK'
+                                });
+                            }
+                        },
+                        error: function () {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: 'An error occurred while processing the request.',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    });
+                }
+            });
+        });
+    });
+
+    // Event listener for Invite Form submission
+    $("#inviteForm").submit(function (event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        $.ajax({
+            type: "POST",
+            url: $(this).attr("action"),
+            data: $(this).serialize(),
+            success: function (response) {
+                if (response.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Invitation Summary',
+                        html: `<p>Already Joined: <strong>${response.alreadyJoinedUsers.length}</strong></p>
+                               <p>Already Invited: <strong>${response.alreadyInvitedUsers.length}</strong></p>
+                               <p>Newly Invited: <strong>${response.newlyInvitedUsers.length}</strong></p>`,
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        window.location.href = response.redirectUrl;
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.message,
+                        confirmButtonText: 'OK'
+                    });
+                }
+            },
+            error: function () {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'An error occurred while sending the invitations.',
+                    confirmButtonText: 'OK'
+                });
+            }
+        });
+    });
+
+        $('#editEventModal').on('shown.bs.modal', function () {
+            console.log('Modal shown. Initializing map.');
+
+            // Coordinates for Lapu-Lapu City
+            const lapuLapuCoords = [10.3140, 123.9495];
+
+            // Initialize the map centered on Lapu-Lapu City
+            window.leafletMap = L.map('map').setView(lapuLapuCoords, 13);
+
+            // Add OpenStreetMap tile layer
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: 'Map data © OpenStreetMap contributors'
+            }).addTo(window.leafletMap);
+
+            // Define the polygon boundary for Lapu-Lapu City and Cordova
+            const allowedArea = L.polygon(
+                [
+                    [10.2886, 123.9053], // Point 1
+                    [10.2346, 123.9479], // Point 2
+                    [10.3619, 124.0107], // Point 3
+                    [10.3291, 124.0518], // Point 4
+                    [10.2886, 123.9053]  // Close the polygon
+                ],
+                {
+                    color: '#3388ff', // Border color (optional)
+                    opacity: 0,       // Hide the border
+                    fillOpacity: 0    // Hide the fill
+                }
+            ).addTo(window.leafletMap);
+
+            // Add click event to the map
+            window.leafletMap.on('click', function (e) {
+                const latlng = e.latlng;
+                const lat = latlng.lat;
+                const lon = latlng.lng;
+
+                console.log('Clicked coordinates:', lat, lon);
+
+                // Check if the clicked location is within the allowed polygon
+                if (allowedArea.getBounds().contains(latlng)) {
+                    const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`;
+
+                    fetch(url)
+                        .then(response => response.json())
+                        .then(data => {
+                            const address = data.display_name;
+                            document.getElementById('EditEvent_location').value = address;
+
+                            if (window.marker) {
+                                window.leafletMap.removeLayer(window.marker);
+                            }
+
+                            window.marker = L.marker([lat, lon]).addTo(window.leafletMap)
+                                .bindPopup(`<b>Selected Location:</b><br>${address}`)
+                                .openPopup();
+                        })
+                        .catch(error => {
+                            console.error('Error in reverse geocoding:', error);
+                            document.getElementById('EditEvent_location').value = `${lat}, ${lon}`;
+
+                            if (window.marker) {
+                                window.leafletMap.removeLayer(window.marker);
+                            }
+
+                            window.marker = L.marker([lat, lon]).addTo(window.leafletMap)
+                                .bindPopup(`<b>Coordinates:</b><br>Lat: ${lat}, Lon: ${lon}`)
+                                .openPopup();
+                        });
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Invalid Location',
+                        text: 'Please select a location within Lapu-Lapu City or Cordova.'
+                    });
+                }
+            });
+        });
+
+        // Destroy the map when the modal is hidden
+        $('#editEventModal').on('hidden.bs.modal', function () {
+            if (window.leafletMap) {
+                console.log('Modal hidden. Removing map.');
+                window.leafletMap.remove();
+                window.leafletMap = null;
+            }
+        });
+
+document.getElementById('submitAllRatings').addEventListener('click', function () {
+    let volunteerRatingsData = [];
+    document.querySelectorAll('tbody tr').forEach(function (row) {
+        let volunteerId = row.querySelector('[name^="rating_"]').name.split('_')[1];
+        let attendance = row.querySelector(`input[name="attendance_${volunteerId}"]:checked`);
+        let skillRatings = [];
+
+        row.querySelectorAll('.form-check-input[name^="rating_"]:checked').forEach(function (ratingInput) {
+            let skillId = ratingInput.name.split('_')[2];
+            skillRatings.push({
+                SkillId: parseInt(skillId),
+                Rating: parseInt(ratingInput.value)
+            });
+        });
+
+        console.log(`Volunteer ID: ${volunteerId}`);
+        console.log(`Attendance selected:`, attendance ? attendance.value : 'None');
+        console.log(`Skill ratings for this volunteer:`, skillRatings);
+
+        if (skillRatings.length > 0 && attendance) {
+            volunteerRatingsData.push({
+                VolunteerId: parseInt(volunteerId),
+                Attendance: parseInt(attendance.value),
+                SkillRatings: skillRatings
+            });
+        }
+    });
+
+    console.log('Collected volunteer ratings data:', volunteerRatingsData);
+
+    if (volunteerRatingsData.length > 0) {
+        $.ajax({
+            url: '@Url.Action("SubmitRatings", "Organization")',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                eventId: @Model.eventDetails.eventId,
+                volunteerRatings: volunteerRatingsData
+            }),
+            success: function (response) {
+                if (response.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: 'All ratings and attendance submitted successfully.',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        window.location.href = '@Url.Action("EventsList", "Organization")';
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.message,
+                        confirmButtonText: 'OK'
+                    });
+                }
+            },
+            error: function () {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'An error occurred while submitting the ratings.',
+                    confirmButtonText: 'OK'
+                });
+            }
+        });
+    } else {
+        console.log('Incomplete data detected: Missing ratings or attendance for one or more volunteers.');
+        Swal.fire({
+            icon: 'warning',
+            title: 'Incomplete Data',
+            text: 'Please rate and select attendance for all volunteers before submitting.',
+            confirmButtonText: 'OK'
+        });
+    }
+});
+
+
+    // Real-time validation for date and time inputs
+    var editEventDateStart = document.getElementById('EditEvent_dateStart');
+    var editEventDateEnd = document.getElementById('EditEvent_dateEnd');
+
+    if (editEventDateStart) {
+        editEventDateStart.addEventListener('input', function () {
+            const dateStart = new Date(this.value);
+            const now = new Date();
+            if (dateStart < now) {
+                document.getElementById('EditEvent_dateStart_error').innerText = 'Start date and time must be in the future.';
+                this.value = '';
+            } else {
+                document.getElementById('EditEvent_dateStart_error').innerText = '';
+            }
+            validateEditEventDuration();
+        });
+    }
+
+    if (editEventDateEnd) {
+        editEventDateEnd.addEventListener('input', function () {
+            validateEditEventDuration();
+        });
+    }
+
+    function validateEditEventDuration() {
+        const dateStart = new Date(document.getElementById('EditEvent_dateStart').value);
+        const dateEnd = new Date(document.getElementById('EditEvent_dateEnd').value);
+        const now = new Date();
+
+        if (dateEnd < now) {
+            document.getElementById('EditEvent_dateEnd_error').innerText = 'End date and time must be in the future.';
+            document.getElementById('EditEvent_dateEnd').value = '';
+            return;
+        } else {
+            document.getElementById('EditEvent_dateEnd_error').innerText = '';
+        }
+
+        if (dateEnd <= dateStart) {
+            document.getElementById('EditEvent_dateEnd_error').innerText = 'End date and time must be after start date and time.';
+            document.getElementById('EditEvent_dateEnd').value = '';
+            return;
+        }
+
+        const hoursDifference = (dateEnd - dateStart) / (1000 * 60 * 60);
+        if (hoursDifference < 3) {
+            document.getElementById('EditEvent_dateEnd_error').innerText = 'Event duration must be at least 3 hours.';
+            document.getElementById('EditEvent_dateEnd').value = '';
+        } else {
+            document.getElementById('EditEvent_dateEnd_error').innerText = '';
+        }
+    }
+
+    // Add event listeners to ensure only numbers are entered
+    function onlyNumbers(input, errorId) {
+        input.addEventListener('input', function (e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+            if (isNaN(this.value) || this.value === '') {
+                document.getElementById(errorId).innerText = 'Please enter a valid number.';
+            } else {
+                document.getElementById(errorId).innerText = '';
+            }
+        });
+    }
+
+    var editEventTargetAmount = document.getElementById('EditEvent_targetAmount');
+    var editEventMaxVolunteer = document.getElementById('EditEvent_maxVolunteer');
+
+    if (editEventTargetAmount) {
+        onlyNumbers(editEventTargetAmount, 'EditEvent_targetAmount_error');
+    }
+
+    if (editEventMaxVolunteer) {
+        onlyNumbers(editEventMaxVolunteer, 'EditEvent_maxVolunteer_error');
+    }
+});
+
+// Functions that don't depend on the DOM being fully loaded can be outside
+function toggleTargetAmount(checkbox) {
+    const targetAmountInput = document.getElementById('EditEvent_targetAmount');
+    if (checkbox.checked) {
+        targetAmountInput.disabled = false;
+    } else {
+        targetAmountInput.disabled = true;
+        targetAmountInput.value = ''; // Clear the value when disabled
+    }
+}
+
+function addEditSkillToTable(skill) {
+    const tableBody = document.getElementById('edit-skills-table-body');
+    const skillButton = document.getElementById(`edit-skill-${skill}`);
+
+    skillButton.disabled = true;
+
+    const row = document.createElement('tr');
+    row.setAttribute('data-skill', skill);
+
+    const skillNameCell = document.createElement('td');
+    skillNameCell.textContent = skill;
+    row.appendChild(skillNameCell);
+
+    const actionCell = document.createElement('td');
+    const skillInput = document.createElement('input');
+    skillInput.type = 'hidden';
+    skillInput.name = 'skills';
+    skillInput.value = skill;
+    actionCell.appendChild(skillInput);
+
+    const removeButton = document.createElement('button');
+    removeButton.type = 'button';
+    removeButton.className = 'btn btn-danger btn-sm';
+    removeButton.textContent = 'Remove';
+    removeButton.onclick = function () {
+        removeEditSkillFromTable(skill, this);
+    };
+    actionCell.appendChild(removeButton);
+
+    row.appendChild(actionCell);
+    tableBody.appendChild(row);
+
+    const skillsToRemoveContainer = document.getElementById('skillsToRemoveContainer');
+    if (skillsToRemoveContainer) {
+        const inputs = skillsToRemoveContainer.querySelectorAll('input[name^="skillsToRemove"]');
+        inputs.forEach(input => {
+            if (input.value === skill) {
+                skillsToRemoveContainer.removeChild(input);
+            }
+        });
+    }
+}
+
+function removeEditSkillFromTable(skill, button) {
+    const row = button.closest('tr');
+    row.parentNode.removeChild(row);
+
+    const skillButton = document.getElementById(`edit-skill-${skill}`);
+    if (skillButton) {
+        skillButton.disabled = false;
+    }
+
+    const skillsToRemoveContainer = document.getElementById('skillsToRemoveContainer');
+    if (skillsToRemoveContainer) {
+        const existingInput = Array.from(skillsToRemoveContainer.querySelectorAll('input[name^="skillsToRemove"]'))
+            .find(input => input.value === skill);
+
+        if (!existingInput) {
+            const index = skillsToRemoveContainer.childElementCount;
+            const removedSkillInput = document.createElement('input');
+            removedSkillInput.type = 'hidden';
+            removedSkillInput.name = `skillsToRemove[${index}]`;
+            removedSkillInput.value = skill;
+            skillsToRemoveContainer.appendChild(removedSkillInput);
+        }
+    }
+}
+
+function previewEditImages() {
+    const previewContainer = document.getElementById('edit-image-preview');
+    const files = document.getElementById('EditEvent_uploadImage').files;
+    previewContainer.innerHTML = '';
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.classList.add('img-thumbnail', 'me-2', 'mb-2');
+            previewContainer.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+    function validateEditForm(event) {
+        event.preventDefault(); // Prevent default form submission
+
+        let isValid = true;
+        document.querySelectorAll('.error').forEach(e => e.innerHTML = '');
+
+    const eventTitle = document.getElementById('EditEvent_eventTitle');
+    if (eventTitle.value.trim() === '') {
+        document.getElementById('EditEvent_eventTitle_error').innerText = 'Event title is required.';
+        isValid = false;
+    }
+
+    const eventDescription = document.getElementById('EditEvent_eventDescription');
+    if (eventDescription.value.trim() === '') {
+        document.getElementById('EditEvent_eventDescription_error').innerText = 'Event description is required.';
+        isValid = false;
+    }
+
+    const maxVolunteersInput = document.getElementById('EditEvent_maxVolunteer');
+    const maxVolunteers = parseInt(maxVolunteersInput.value);
+    if (isNaN(maxVolunteers) || maxVolunteers <= 0) {
+        document.getElementById('EditEvent_maxVolunteer_error').innerText = 'Maximum volunteers must be a positive number.';
+        isValid = false;
+    } else {
+        document.getElementById('EditEvent_maxVolunteer_error').innerText = '';
+    }
+
+    const addedSkills = document.querySelectorAll('#edit-skills-table-body input[name="skills"]');
+    if (addedSkills.length === 0) {
+        document.getElementById('EditEvent_skills_error').innerText = 'At least one skill is required.';
+        isValid = false;
+    } else {
+        document.getElementById('EditEvent_skills_error').innerText = '';
+    }
+
+    const dateStartInput = document.getElementById('EditEvent_dateStart');
+    const dateEndInput = document.getElementById('EditEvent_dateEnd');
+    const dateStart = new Date(dateStartInput.value);
+    const dateEnd = new Date(dateEndInput.value);
+    const now = new Date();
+
+    if (isNaN(dateStart.getTime())) {
+        document.getElementById('EditEvent_dateStart_error').innerText = 'Start date and time is required.';
+        isValid = false;
+    } else if (dateStart < now) {
+        document.getElementById('EditEvent_dateStart_error').innerText = 'Start date and time must be in the future.';
+        isValid = false;
+    } else {
+        document.getElementById('EditEvent_dateStart_error').innerText = '';
+    }
+
+    if (isNaN(dateEnd.getTime())) {
+        document.getElementById('EditEvent_dateEnd_error').innerText = 'End date and time is required.';
+        isValid = false;
+    } else if (dateEnd <= dateStart) {
+        document.getElementById('EditEvent_dateEnd_error').innerText = 'End date and time must be after start date and time.';
+        isValid = false;
+    } else {
+        document.getElementById('EditEvent_dateEnd_error').innerText = '';
+    }
+
+    // Validate location
+    const locationInput = document.getElementById('EditEvent_location');
+    if (locationInput.value.trim() === '') {
+        document.getElementById('EditEvent_location_error').innerText = 'Location is required.';
+        isValid = false;
+    }
+
+    // Validate target amount if enabled
+    const targetAmountInput = document.getElementById('EditEvent_targetAmount');
+    const targetAmountCheckbox = document.getElementById('editSwitchCheckDefault');
+    if (targetAmountCheckbox.checked) {
+        const targetAmountValue = parseFloat(targetAmountInput.value);
+        if (isNaN(targetAmountValue) || targetAmountValue <= 0) {
+            document.getElementById('EditEvent_targetAmount_error').innerText = 'Enter a valid target amount.';
+            isValid = false;
+        } else {
+            document.getElementById('EditEvent_targetAmount_error').innerText = '';
+        }
+    }
+
+    if (!isValid) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Validation Error',
+            text: 'Please fix the errors before submitting.',
+            confirmButtonText: 'OK'
+        });
+        return false;
+    }
+
+        $.ajax({
+            type: 'POST',
+            url: $('#edit-event-form').attr('action'),
+            data: new FormData(document.getElementById('edit-event-form')),
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                if (response.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: response.message,
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        window.location.href = response.redirectUrl;
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.message,
+                        confirmButtonText: 'OK'
+                    });
+                }
+            },
+            error: function () {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'An error occurred while submitting the form.',
+                    confirmButtonText: 'OK'
+                });
+            }
+        });
+
+        return false;
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const dateStartInput = document.getElementById('EditEvent_dateStart');
+        const dateEndInput = document.getElementById('EditEvent_dateEnd');
+        const now = new Date();
+
+        // Validate Start Date in real-time
+        dateStartInput.addEventListener('input', function () {
+            const dateStart = new Date(this.value);
+            const errorSpan = document.getElementById('EditEvent_dateStart_error');
+
+            if (isNaN(dateStart.getTime()) || dateStart <= now) {
+                errorSpan.innerText = 'Start date and time must be in the future.';
+                this.value = ''; // Clear invalid input
+            } else {
+                errorSpan.innerText = '';
+            }
+
+            validateEventDuration(); // Validate duration whenever start date changes
+        });
+
+        // Validate End Date in real-time
+        dateEndInput.addEventListener('input', function () {
+            validateEventDuration(); // Validate duration whenever end date changes
+        });
+
+        // Function to validate the duration between Start Date and End Date
+        function validateEventDuration() {
+            const dateStart = new Date(dateStartInput.value);
+            const dateEnd = new Date(dateEndInput.value);
+            const errorSpanEnd = document.getElementById('EditEvent_dateEnd_error');
+
+            // Reset previous errors
+            errorSpanEnd.innerText = '';
+
+            if (isNaN(dateEnd.getTime())) {
+                errorSpanEnd.innerText = 'End date and time is required.';
+                dateEndInput.value = '';
+                return;
+            }
+
+            if (dateEnd <= now) {
+                errorSpanEnd.innerText = 'End date and time must be in the future.';
+                dateEndInput.value = '';
+                return;
+            }
+
+            if (dateEnd <= dateStart) {
+                errorSpanEnd.innerText = 'End date and time must be after the start date.';
+                dateEndInput.value = '';
+                return;
+            }
+        }
+    });
+</script>

@@ -1,0 +1,444 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+  <EntityContainerMapping StorageEntityContainer="TabangHubModelStoreContainer" CdmEntityContainer="TabangHubEntities">
+    <FunctionImportMapping FunctionImportName="sp_CancelRequest" FunctionName="TabangHubModel.Store.sp_CancelRequest" />
+    <FunctionImportMapping FunctionImportName="sp_GetAllMessage" FunctionName="TabangHubModel.Store.sp_GetAllMessage">
+      <ResultMapping>
+        <ComplexTypeMapping TypeName="TabangHubModel.sp_GetAllMessage_Result">
+          <ScalarProperty Name="groupChatId" ColumnName="groupChatId" />
+          <ScalarProperty Name="messageId" ColumnName="messageId" />
+          <ScalarProperty Name="userId" ColumnName="userId" />
+          <ScalarProperty Name="userName" ColumnName="userName" />
+          <ScalarProperty Name="message" ColumnName="message" />
+          <ScalarProperty Name="messageAt" ColumnName="messageAt" />
+        </ComplexTypeMapping>
+      </ResultMapping>
+    </FunctionImportMapping>
+    <FunctionImportMapping FunctionImportName="sp_GetAllMessage1" FunctionName="TabangHubModel.Store.sp_GetAllMessage1">
+      <ResultMapping>
+        <ComplexTypeMapping TypeName="TabangHubModel.sp_GetAllMessage1_Result">
+          <ScalarProperty Name="groupChatId" ColumnName="groupChatId" />
+          <ScalarProperty Name="messageId" ColumnName="messageId" />
+          <ScalarProperty Name="userId" ColumnName="userId" />
+          <ScalarProperty Name="userName" ColumnName="userName" />
+          <ScalarProperty Name="message" ColumnName="message" />
+          <ScalarProperty Name="messageAt" ColumnName="messageAt" />
+        </ComplexTypeMapping>
+      </ResultMapping>
+    </FunctionImportMapping>
+    <FunctionImportMapping FunctionImportName="sp_GetSkills" FunctionName="TabangHubModel.Store.sp_GetSkills">
+      <ResultMapping>
+        <ComplexTypeMapping TypeName="TabangHubModel.sp_GetSkills_Result">
+          <ScalarProperty Name="skillId" ColumnName="skillId" />
+          <ScalarProperty Name="skillName" ColumnName="skillName" />
+        </ComplexTypeMapping>
+      </ResultMapping>
+    </FunctionImportMapping>
+    <FunctionImportMapping FunctionImportName="sp_GetUserDonatedInformations" FunctionName="TabangHubModel.Store.sp_GetUserDonatedInformations">
+      <ResultMapping>
+        <ComplexTypeMapping TypeName="TabangHubModel.sp_GetUserDonatedInformations_Result">
+          <ScalarProperty Name="orgUserDonatedId" ColumnName="orgUserDonatedId" />
+          <ScalarProperty Name="eventId" ColumnName="eventId" />
+          <ScalarProperty Name="eventTitle" ColumnName="eventTitle" />
+          <ScalarProperty Name="eventDescription" ColumnName="eventDescription" />
+          <ScalarProperty Name="targetAmount" ColumnName="targetAmount" />
+          <ScalarProperty Name="maxVolunteer" ColumnName="maxVolunteer" />
+          <ScalarProperty Name="dateStart" ColumnName="dateStart" />
+          <ScalarProperty Name="dateEnd" ColumnName="dateEnd" />
+          <ScalarProperty Name="location" ColumnName="location" />
+          <ScalarProperty Name="eventImage" ColumnName="eventImage" />
+          <ScalarProperty Name="amount" ColumnName="amount" />
+          <ScalarProperty Name="donatedAt" ColumnName="donatedAt" />
+          <ScalarProperty Name="Status" ColumnName="Status" />
+        </ComplexTypeMapping>
+      </ResultMapping>
+    </FunctionImportMapping>
+    <FunctionImportMapping FunctionImportName="sp_LeaveEvent" FunctionName="TabangHubModel.Store.sp_LeaveEvent" />
+    <FunctionImportMapping FunctionImportName="sp_matchSkill" FunctionName="TabangHubModel.Store.sp_matchSkill">
+      <ResultMapping>
+        <ComplexTypeMapping TypeName="TabangHubModel.sp_matchSkill_Result">
+          <ScalarProperty Name="eventId" ColumnName="eventId" />
+          <ScalarProperty Name="skillId" ColumnName="skillId" />
+          <ScalarProperty Name="userId" ColumnName="userId" />
+          <ScalarProperty Name="skillName" ColumnName="skillName" />
+        </ComplexTypeMapping>
+      </ResultMapping>
+    </FunctionImportMapping>
+    <FunctionImportMapping FunctionImportName="sp_OtherEvent" FunctionName="TabangHubModel.Store.sp_OtherEvent">
+      <ResultMapping>
+        <ComplexTypeMapping TypeName="TabangHubModel.sp_OtherEvent_Result">
+          <ScalarProperty Name="Event_Id" ColumnName="Event_Id" />
+          <ScalarProperty Name="User_Id" ColumnName="User_Id" />
+          <ScalarProperty Name="Event_Title" ColumnName="Event_Title" />
+          <ScalarProperty Name="Event_Description" ColumnName="Event_Description" />
+          <ScalarProperty Name="Target_Amount" ColumnName="Target_Amount" />
+          <ScalarProperty Name="Maximum_Volunteer" ColumnName="Maximum_Volunteer" />
+          <ScalarProperty Name="Date_Started" ColumnName="Date_Started" />
+          <ScalarProperty Name="Date_Ended" ColumnName="Date_Ended" />
+          <ScalarProperty Name="location" ColumnName="location" />
+          <ScalarProperty Name="Total_Image" ColumnName="Total_Image" />
+          <ScalarProperty Name="Total_Skills" ColumnName="Total_Skills" />
+        </ComplexTypeMapping>
+      </ResultMapping>
+    </FunctionImportMapping>
+    <FunctionImportMapping FunctionImportName="sp_RemoveEvent" FunctionName="TabangHubModel.Store.sp_RemoveEvent" />
+    <FunctionImportMapping FunctionImportName="sp_VolunteerHistory" FunctionName="TabangHubModel.Store.sp_VolunteerHistory">
+      <ResultMapping>
+        <ComplexTypeMapping TypeName="TabangHubModel.sp_VolunteerHistory_Result">
+          <ScalarProperty Name="VolHistoryId" ColumnName="VolHistoryId" />
+          <ScalarProperty Name="userId" ColumnName="userId" />
+          <ScalarProperty Name="eventId" ColumnName="eventId" />
+          <ScalarProperty Name="eventTitle" ColumnName="eventTitle" />
+          <ScalarProperty Name="eventImage" ColumnName="eventImage" />
+          <ScalarProperty Name="location" ColumnName="location" />
+          <ScalarProperty Name="eventDescription" ColumnName="eventDescription" />
+          <ScalarProperty Name="dateStart" ColumnName="dateStart" />
+          <ScalarProperty Name="dateEnd" ColumnName="dateEnd" />
+          <ScalarProperty Name="status" ColumnName="status" />
+          <ScalarProperty Name="skillId" ColumnName="skillId" />
+          <ScalarProperty Name="skillName" ColumnName="skillName" />
+        </ComplexTypeMapping>
+      </ResultMapping>
+    </FunctionImportMapping>
+    <FunctionImportMapping FunctionImportName="sp_AcceptAndUpdateVolunteerStatus" FunctionName="TabangHubModel.Store.sp_AcceptAndUpdateVolunteerStatus" />
+    <FunctionImportMapping FunctionImportName="sp_UserListEvent" FunctionName="TabangHubModel.Store.sp_UserListEvent">
+      <ResultMapping>
+        <ComplexTypeMapping TypeName="TabangHubModel.sp_UserListEvent_Result">
+          <ScalarProperty Name="applyVolunteerId" ColumnName="applyVolunteerId" />
+          <ScalarProperty Name="userId" ColumnName="userId" />
+          <ScalarProperty Name="eventId" ColumnName="eventId" />
+          <ScalarProperty Name="Volunteer_Status" ColumnName="Volunteer_Status" />
+          <ScalarProperty Name="appliedAt" ColumnName="appliedAt" />
+          <ScalarProperty Name="dateStart" ColumnName="dateStart" />
+          <ScalarProperty Name="dateEnd" ColumnName="dateEnd" />
+          <ScalarProperty Name="Event_Status" ColumnName="Event_Status" />
+        </ComplexTypeMapping>
+      </ResultMapping>
+    </FunctionImportMapping>
+    <FunctionImportMapping FunctionImportName="sp_ListOfGc" FunctionName="TabangHubModel.Store.sp_ListOfGc">
+      <ResultMapping>
+        <ComplexTypeMapping TypeName="TabangHubModel.sp_ListOfGc_Result">
+          <ScalarProperty Name="groupChatId" ColumnName="groupChatId" />
+          <ScalarProperty Name="userId" ColumnName="userId" />
+          <ScalarProperty Name="eventId" ColumnName="eventId" />
+          <ScalarProperty Name="eventTitle" ColumnName="eventTitle" />
+        </ComplexTypeMapping>
+      </ResultMapping>
+    </FunctionImportMapping>
+    <FunctionImportMapping FunctionImportName="sp_RemoveVolunteer" FunctionName="TabangHubModel.Store.sp_RemoveVolunteer" />
+    <EntitySetMapping Name="GroupChat">
+      <EntityTypeMapping TypeName="TabangHubModel.GroupChat">
+        <MappingFragment StoreEntitySet="GroupChat">
+          <ScalarProperty Name="orgInfoId" ColumnName="orgInfoId" />
+          <ScalarProperty Name="eventId" ColumnName="eventId" />
+          <ScalarProperty Name="groupChatId" ColumnName="groupChatId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="GroupMessages">
+      <EntityTypeMapping TypeName="TabangHubModel.GroupMessages">
+        <MappingFragment StoreEntitySet="GroupMessages">
+          <ScalarProperty Name="messageAt" ColumnName="messageAt" />
+          <ScalarProperty Name="message" ColumnName="message" />
+          <ScalarProperty Name="userId" ColumnName="userId" />
+          <ScalarProperty Name="groupChatId" ColumnName="groupChatId" />
+          <ScalarProperty Name="messageId" ColumnName="messageId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="LastRead">
+      <EntityTypeMapping TypeName="TabangHubModel.LastRead">
+        <MappingFragment StoreEntitySet="LastRead">
+          <ScalarProperty Name="ReadAt" ColumnName="ReadAt" />
+          <ScalarProperty Name="MessageId" ColumnName="MessageId" />
+          <ScalarProperty Name="GroupChatId" ColumnName="GroupChatId" />
+          <ScalarProperty Name="UserId" ColumnName="UserId" />
+          <ScalarProperty Name="LastReadId" ColumnName="LastReadId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Notification">
+      <EntityTypeMapping TypeName="TabangHubModel.Notification">
+        <MappingFragment StoreEntitySet="Notification">
+          <ScalarProperty Name="readAt" ColumnName="readAt" />
+          <ScalarProperty Name="createdAt" ColumnName="createdAt" />
+          <ScalarProperty Name="status" ColumnName="status" />
+          <ScalarProperty Name="broadcast" ColumnName="broadcast" />
+          <ScalarProperty Name="content" ColumnName="content" />
+          <ScalarProperty Name="type" ColumnName="type" />
+          <ScalarProperty Name="relatedId" ColumnName="relatedId" />
+          <ScalarProperty Name="senderUserId" ColumnName="senderUserId" />
+          <ScalarProperty Name="userId" ColumnName="userId" />
+          <ScalarProperty Name="notificationId" ColumnName="notificationId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="OrgEventImage">
+      <EntityTypeMapping TypeName="TabangHubModel.OrgEventImage">
+        <MappingFragment StoreEntitySet="OrgEventImage">
+          <ScalarProperty Name="eventImage" ColumnName="eventImage" />
+          <ScalarProperty Name="eventId" ColumnName="eventId" />
+          <ScalarProperty Name="eventImageId" ColumnName="eventImageId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="OrgEvents">
+      <EntityTypeMapping TypeName="TabangHubModel.OrgEvents">
+        <MappingFragment StoreEntitySet="OrgEvents">
+          <ScalarProperty Name="status" ColumnName="status" />
+          <ScalarProperty Name="eventImage" ColumnName="eventImage" />
+          <ScalarProperty Name="location" ColumnName="location" />
+          <ScalarProperty Name="dateEnd" ColumnName="dateEnd" />
+          <ScalarProperty Name="dateStart" ColumnName="dateStart" />
+          <ScalarProperty Name="maxVolunteer" ColumnName="maxVolunteer" />
+          <ScalarProperty Name="targetAmount" ColumnName="targetAmount" />
+          <ScalarProperty Name="eventDescription" ColumnName="eventDescription" />
+          <ScalarProperty Name="eventTitle" ColumnName="eventTitle" />
+          <ScalarProperty Name="userId" ColumnName="userId" />
+          <ScalarProperty Name="eventId" ColumnName="eventId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="OrgInfo">
+      <EntityTypeMapping TypeName="TabangHubModel.OrgInfo">
+        <MappingFragment StoreEntitySet="OrgInfo">
+          <ScalarProperty Name="coverPhoto" ColumnName="coverPhoto" />
+          <ScalarProperty Name="profilePath" ColumnName="profilePath" />
+          <ScalarProperty Name="zipCode" ColumnName="zipCode" />
+          <ScalarProperty Name="province" ColumnName="province" />
+          <ScalarProperty Name="city" ColumnName="city" />
+          <ScalarProperty Name="street" ColumnName="street" />
+          <ScalarProperty Name="phoneNum" ColumnName="phoneNum" />
+          <ScalarProperty Name="orgDescription" ColumnName="orgDescription" />
+          <ScalarProperty Name="orgType" ColumnName="orgType" />
+          <ScalarProperty Name="orgEmail" ColumnName="orgEmail" />
+          <ScalarProperty Name="orgName" ColumnName="orgName" />
+          <ScalarProperty Name="userId" ColumnName="userId" />
+          <ScalarProperty Name="orgInfoId" ColumnName="orgInfoId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="OrgSkillRequirement">
+      <EntityTypeMapping TypeName="TabangHubModel.OrgSkillRequirement">
+        <MappingFragment StoreEntitySet="OrgSkillRequirement">
+          <ScalarProperty Name="totalNeeded" ColumnName="totalNeeded" />
+          <ScalarProperty Name="skillId" ColumnName="skillId" />
+          <ScalarProperty Name="eventId" ColumnName="eventId" />
+          <ScalarProperty Name="skillRequirementId" ColumnName="skillRequirementId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="OrgValidation">
+      <EntityTypeMapping TypeName="TabangHubModel.OrgValidation">
+        <MappingFragment StoreEntitySet="OrgValidation">
+          <ScalarProperty Name="idPicture2" ColumnName="idPicture2" />
+          <ScalarProperty Name="idPicture1" ColumnName="idPicture1" />
+          <ScalarProperty Name="userId" ColumnName="userId" />
+          <ScalarProperty Name="orgValidationId" ColumnName="orgValidationId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="ProfilePicture">
+      <EntityTypeMapping TypeName="TabangHubModel.ProfilePicture">
+        <MappingFragment StoreEntitySet="ProfilePicture">
+          <ScalarProperty Name="profilePath" ColumnName="profilePath" />
+          <ScalarProperty Name="userId" ColumnName="userId" />
+          <ScalarProperty Name="profileId" ColumnName="profileId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Rating">
+      <EntityTypeMapping TypeName="TabangHubModel.Rating">
+        <MappingFragment StoreEntitySet="Rating">
+          <ScalarProperty Name="ratedAt" ColumnName="ratedAt" />
+          <ScalarProperty Name="rate" ColumnName="rate" />
+          <ScalarProperty Name="skillId" ColumnName="skillId" />
+          <ScalarProperty Name="userId" ColumnName="userId" />
+          <ScalarProperty Name="eventId" ColumnName="eventId" />
+          <ScalarProperty Name="ratingId" ColumnName="ratingId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Role">
+      <EntityTypeMapping TypeName="TabangHubModel.Role">
+        <MappingFragment StoreEntitySet="Role">
+          <ScalarProperty Name="roleName" ColumnName="roleName" />
+          <ScalarProperty Name="roleId" ColumnName="roleId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Skills">
+      <EntityTypeMapping TypeName="TabangHubModel.Skills">
+        <MappingFragment StoreEntitySet="Skills">
+          <ScalarProperty Name="skillImage" ColumnName="skillImage" />
+          <ScalarProperty Name="skillName" ColumnName="skillName" />
+          <ScalarProperty Name="skillId" ColumnName="skillId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="UserAccount">
+      <EntityTypeMapping TypeName="TabangHubModel.UserAccount">
+        <MappingFragment StoreEntitySet="UserAccount">
+          <ScalarProperty Name="roleId" ColumnName="roleId" />
+          <ScalarProperty Name="status" ColumnName="status" />
+          <ScalarProperty Name="password" ColumnName="password" />
+          <ScalarProperty Name="email" ColumnName="email" />
+          <ScalarProperty Name="userId" ColumnName="userId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="UserDonated">
+      <EntityTypeMapping TypeName="TabangHubModel.UserDonated">
+        <MappingFragment StoreEntitySet="UserDonated">
+          <ScalarProperty Name="donatedAt" ColumnName="donatedAt" />
+          <ScalarProperty Name="Status" ColumnName="Status" />
+          <ScalarProperty Name="amount" ColumnName="amount" />
+          <ScalarProperty Name="userId" ColumnName="userId" />
+          <ScalarProperty Name="eventId" ColumnName="eventId" />
+          <ScalarProperty Name="referenceNum" ColumnName="referenceNum" />
+          <ScalarProperty Name="orgUserDonatedId" ColumnName="orgUserDonatedId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="UserRoles">
+      <EntityTypeMapping TypeName="TabangHubModel.UserRoles">
+        <MappingFragment StoreEntitySet="UserRoles">
+          <ScalarProperty Name="userRole" ColumnName="userRole" />
+          <ScalarProperty Name="userId" ColumnName="userId" />
+          <ScalarProperty Name="userRoleId" ColumnName="userRoleId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="VolunteerInfo">
+      <EntityTypeMapping TypeName="TabangHubModel.VolunteerInfo">
+        <MappingFragment StoreEntitySet="VolunteerInfo">
+          <ScalarProperty Name="aboutMe" ColumnName="aboutMe" />
+          <ScalarProperty Name="availability" ColumnName="availability" />
+          <ScalarProperty Name="profilePath" ColumnName="profilePath" />
+          <ScalarProperty Name="zipCode" ColumnName="zipCode" />
+          <ScalarProperty Name="province" ColumnName="province" />
+          <ScalarProperty Name="city" ColumnName="city" />
+          <ScalarProperty Name="street" ColumnName="street" />
+          <ScalarProperty Name="phoneNum" ColumnName="phoneNum" />
+          <ScalarProperty Name="gender" ColumnName="gender" />
+          <ScalarProperty Name="bDay" ColumnName="bDay" />
+          <ScalarProperty Name="lName" ColumnName="lName" />
+          <ScalarProperty Name="fName" ColumnName="fName" />
+          <ScalarProperty Name="userId" ColumnName="userId" />
+          <ScalarProperty Name="volunteerId" ColumnName="volunteerId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Volunteers">
+      <EntityTypeMapping TypeName="TabangHubModel.Volunteers">
+        <MappingFragment StoreEntitySet="Volunteers">
+          <ScalarProperty Name="appliedAt" ColumnName="appliedAt" />
+          <ScalarProperty Name="Status" ColumnName="Status" />
+          <ScalarProperty Name="eventId" ColumnName="eventId" />
+          <ScalarProperty Name="userId" ColumnName="userId" />
+          <ScalarProperty Name="applyVolunteerId" ColumnName="applyVolunteerId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="VolunteersHistory">
+      <EntityTypeMapping TypeName="TabangHubModel.VolunteersHistory">
+        <MappingFragment StoreEntitySet="VolunteersHistory">
+          <ScalarProperty Name="appliedAt" ColumnName="appliedAt" />
+          <ScalarProperty Name="attended" ColumnName="attended" />
+          <ScalarProperty Name="eventId" ColumnName="eventId" />
+          <ScalarProperty Name="userId" ColumnName="userId" />
+          <ScalarProperty Name="applyVolunteerId" ColumnName="applyVolunteerId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="VolunteerSkill">
+      <EntityTypeMapping TypeName="TabangHubModel.VolunteerSkill">
+        <MappingFragment StoreEntitySet="VolunteerSkill">
+          <ScalarProperty Name="skillId" ColumnName="skillId" />
+          <ScalarProperty Name="userId" ColumnName="userId" />
+          <ScalarProperty Name="volunteerSkillId" ColumnName="volunteerSkillId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="vw_ListOfEvent">
+      <EntityTypeMapping TypeName="TabangHubModel.vw_ListOfEvent">
+        <MappingFragment StoreEntitySet="vw_ListOfEvent">
+          <ScalarProperty Name="status" ColumnName="status" />
+          <ScalarProperty Name="location" ColumnName="location" />
+          <ScalarProperty Name="End_Date" ColumnName="End_Date" />
+          <ScalarProperty Name="Start_Date" ColumnName="Start_Date" />
+          <ScalarProperty Name="Maximum_Volunteer" ColumnName="Maximum_Volunteer" />
+          <ScalarProperty Name="Total_Volunteer" ColumnName="Total_Volunteer" />
+          <ScalarProperty Name="Target_Amount" ColumnName="Target_Amount" />
+          <ScalarProperty Name="Total_Donation" ColumnName="Total Donation" />
+          <ScalarProperty Name="Description" ColumnName="Description" />
+          <ScalarProperty Name="Event_Name" ColumnName="Event_Name" />
+          <ScalarProperty Name="User_Id" ColumnName="User_Id" />
+          <ScalarProperty Name="Event_Id" ColumnName="Event_Id" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="vw_OrganizationAccounts">
+      <EntityTypeMapping TypeName="TabangHubModel.vw_OrganizationAccounts">
+        <MappingFragment StoreEntitySet="vw_OrganizationAccounts">
+          <ScalarProperty Name="Zip_Code" ColumnName="Zip_Code" />
+          <ScalarProperty Name="Province" ColumnName="Province" />
+          <ScalarProperty Name="City" ColumnName="City" />
+          <ScalarProperty Name="Street" ColumnName="Street" />
+          <ScalarProperty Name="Contact_No" ColumnName="Contact_No" />
+          <ScalarProperty Name="Description" ColumnName="Description" />
+          <ScalarProperty Name="Org_Type" ColumnName="Org_Type" />
+          <ScalarProperty Name="Org_Name" ColumnName="Org_Name" />
+          <ScalarProperty Name="Role_Id" ColumnName="Role_Id" />
+          <ScalarProperty Name="Status" ColumnName="Status" />
+          <ScalarProperty Name="Password" ColumnName="Password" />
+          <ScalarProperty Name="Email" ColumnName="Email" />
+          <ScalarProperty Name="User_Id" ColumnName="User_Id" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="vw_UserRoles">
+      <EntityTypeMapping TypeName="TabangHubModel.vw_UserRoles">
+        <MappingFragment StoreEntitySet="vw_UserRoles">
+          <ScalarProperty Name="email" ColumnName="email" />
+          <ScalarProperty Name="userId" ColumnName="userId" />
+          <ScalarProperty Name="roleName" ColumnName="roleName" />
+          <ScalarProperty Name="roleId" ColumnName="roleId" />
+          <ScalarProperty Name="userRoleId" ColumnName="userRoleId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="vw_VolunteerAccounts">
+      <EntityTypeMapping TypeName="TabangHubModel.vw_VolunteerAccounts">
+        <MappingFragment StoreEntitySet="vw_VolunteerAccounts">
+          <ScalarProperty Name="About_Me" ColumnName="About_Me" />
+          <ScalarProperty Name="Availability" ColumnName="Availability" />
+          <ScalarProperty Name="Zip_Code" ColumnName="Zip_Code" />
+          <ScalarProperty Name="Province" ColumnName="Province" />
+          <ScalarProperty Name="City" ColumnName="City" />
+          <ScalarProperty Name="Street" ColumnName="Street" />
+          <ScalarProperty Name="Contact_No" ColumnName="Contact_No" />
+          <ScalarProperty Name="Gender" ColumnName="Gender" />
+          <ScalarProperty Name="Birthday" ColumnName="Birthday" />
+          <ScalarProperty Name="First_Name" ColumnName="First_Name" />
+          <ScalarProperty Name="Last_Name" ColumnName="Last_Name" />
+          <ScalarProperty Name="Role_Id" ColumnName="Role_Id" />
+          <ScalarProperty Name="Status" ColumnName="Status" />
+          <ScalarProperty Name="Password" ColumnName="Password" />
+          <ScalarProperty Name="Email" ColumnName="Email" />
+          <ScalarProperty Name="User_Id" ColumnName="User_Id" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="vw_VolunteerSkills">
+      <EntityTypeMapping TypeName="TabangHubModel.vw_VolunteerSkills">
+        <MappingFragment StoreEntitySet="vw_VolunteerSkills">
+          <ScalarProperty Name="rate" ColumnName="rate" />
+          <ScalarProperty Name="skillId" ColumnName="skillId" />
+          <ScalarProperty Name="userId" ColumnName="userId" />
+          <ScalarProperty Name="volunteerSkillId" ColumnName="volunteerSkillId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+  </EntityContainerMapping>
+</Mapping>

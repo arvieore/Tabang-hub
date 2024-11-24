@@ -1,0 +1,56 @@
+﻿/* Custom Styles for Notification Dropdown */
+#notificationDropdown {
+    max-width: 350px;
+    padding: 0;
+    overflow: hidden; /* Prevent overflow */
+}
+
+    #notificationDropdown .dropdown-item {
+        padding: 10px;
+        display: flex;
+        align-items: center;
+    }
+
+    #notificationDropdown img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 10px;
+    }
+
+    #notificationDropdown .dropdown-header {
+        font-weight: bold;
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+
+    #notificationDropdown .dropdown-item div {
+        display: flex;
+        flex-direction: column;
+        max-width: 250px; /* Limit width of text */
+        white-space: normal; /* Allow text wrapping */
+        overflow: hidden;
+    }
+
+    #notificationDropdown .dropdown-item .small {
+        font-size: 0.75rem;
+        color: #6c757d;
+    }
+
+    #notificationDropdown button.btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    #notificationDropdown .dropdown-item:last-child {
+        border-bottom: none;
+    }
+
+    #notificationDropdown .dropdown-item .d-flex button {
+        flex: 1; /* Make the buttons equal width */
+        max-width: 75px; /* Adjust width as needed */
+    }
+
+    #notificationDropdown .dropdown-item .d-flex {
+        gap: 5px; /* Small gap between buttons */
+    }

@@ -1,0 +1,148 @@
+﻿@model Tabang_Hub.Utils.Lists
+
+@{
+    ViewBag.Title = "UserDetails";
+    Layout = "~/Views/Shared/_Admin.cshtml";
+}
+
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-2 text-center">
+                    @foreach (var pic in Model.picture)
+                    {
+                        <img src="~/UserProfile/@pic.profilePath" id="profilePicPreview" class="rounded-circle img-fluid" alt="Profile Picture">
+                    }
+                    <div id="profile" class="d-none">
+                        <input type="file" class="form-control-file d-none" id="profilePic" accept="image/*" onchange="previewProfilePic()">
+                    </div>
+                </div>
+                @foreach (var VolInfo in Model.volunteersInfo)
+                {
+                    <div class="col-md-8">
+                        <h4>@VolInfo.lName.ToUpper(), @VolInfo.fName.ToUpper()</h4>
+
+                        <p id="address">
+                            @VolInfo.street.Substring(0, 1).ToUpper()@VolInfo.street.Substring(1),
+                            @VolInfo.city.Substring(0, 1).ToUpper()@VolInfo.city.Substring(1) City,
+                            @VolInfo.province.Substring(0, 1).ToUpper()@VolInfo.province.Substring(1)
+                        </p>
+                        <div id="addressInput" class="d-none">
+                            <input type="text" id="streetInput" class="form-control mb-1" value="@VolInfo.street" placeholder="Street" required>
+                            <span class="error-message text-danger"></span>
+                            <input type="text" id="cityInput" class="form-control mb-1" value="@VolInfo.city" placeholder="City" required>
+                            <span class="error-message text-danger"></span>
+                            <input type="text" id="provinceInput" class="form-control mb-1" value="@VolInfo.province" placeholder="Province" required>
+                            <span class="error-message text-danger"></span>
+                        </div>
+
+                        <p class="mb-1"><strong>Contact number: </strong><span id="phone">@VolInfo.phoneNum</span></p>
+                        <input type="text" id="phoneInput" class="form-control d-none" value="@VolInfo.phoneNum" required pattern="^09[0-9]{9}$" title="Phone number should start with 09 and contain 11 digits">
+                        <span class="error-message text-danger"></span>
+
+                        <p class="mb-1"><strong>Email: </strong><span id="email">@VolInfo.UserAccount.email</span></p>
+                        <input type="email" id="emailInput" class="form-control d-none" value="@VolInfo.UserAccount.email" required>
+                        <span class="error-message text-danger"></span>
+
+                        <p class="mb-1"><strong>Availability: </strong><span id="availability">@VolInfo.availability</span></p>
+                        <div id="availabilityInput" class="d-none">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="availability" id="fullTime" value="Full Time" @(VolInfo.availability == "Full Time" ? "checked" : "")>
+                                <label class="form-check-label" for="fullTime">Full Time</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="availability" id="partTime" value="Part Time" @(VolInfo.availability == "Part Time" ? "checked" : "")>
+                                <label class="form-check-label" for="partTime">Part Time</label>
+                            </div>
+                        </div>
+                    </div>
+                }
+                <div class="col-md-2 text-right">
+                    <button id="editButton" class="btn btn-outline-success" onclick="toggleEdit()">Edit</button>
+                    <button id="cancelButton" class="btn btn-outline-danger d-none" onclick="cancelEdit()">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card mt-3">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-5">
+                    <h5>About me</h5>
+                    @foreach (var aboutVolunteer in Model.volunteersInfo)
+                    {
+                        <p class="mb-1">
+                            <span id="aboutMe">
+                                @aboutVolunteer.aboutMe
+                            </span>
+                        </p>
+                        <textarea rows="5" id="aboutMeInput" class="form-control d-none">@aboutVolunteer.aboutMe</textarea>
+                    }
+                </div>
+                <div class="col-md-5">
+                    <h5>Skills</h5>
+                    <div id="skillsDisplay">
+                        @foreach (var UserSkill in Model.volunteersSkills)
+                        {
+                            <span class="badge badge-secondary skill-badge" data-skill-id="@UserSkill.skillId">
+                                @UserSkill.Skills.skillName
+                                <span class="remove-skill d-none" onclick="removeSkill(this)">x</span>
+                            </span>
+                        }
+                    </div>
+                    <select id="skillsDropdown" class="form-control d-none mt-2" onchange="addSkill()">
+                        <option value="" label="Select a skill"></option>
+                        @foreach (var Skills in Model.uniqueSkill)
+                        {
+                            <option value="@Skills.skillId">@Skills.skillName</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2 text-right">
+                    <button id="editButtonAboutMe" class="btn btn-outline-success" onclick="toggleEditAboutMe()">Edit</button>
+                    <button id="cancelButtonAboutMe" class="btn btn-outline-danger d-none" onclick="cancelEditAboutMe()">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card mt-3">
+        <div class="card-body">
+            <h5 class="text-center">Activity History</h5>
+            <div class="row">
+                <div class="col-md-4">
+                    <h6>Top 1 Activity</h6>
+                    <p>June 2019 - March 2020</p>
+                    <h6>Top 2 Activity</h6>
+                    <p>June 2019 - March 2020</p>
+                    <h6>Top 3 Activity</h6>
+                    <p>June 2019 - March 2020</p>
+                </div>
+                <div class="col-md-4">
+                    <h6>Top 4 Activity</h6>
+                    <p>June 2019 - March 2020</p>
+                    <h6>Top 5 Activity</h6>
+                    <p>June 2019 - March 2020</p>
+                    <h6>Top 6 Activity</h6>
+                    <p>June 2019 - March 2020</p>
+                </div>
+                <div class="col-md-4">
+                    <h6>Top 7 Activity</h6>
+                    <p>June 2019 - March 2020</p>
+                    <h6>Top 8 Activity</h6>
+                    <p>June 2019 - March 2020</p>
+                    <h6>Top 9 Activity</h6>
+                    <p>June 2019 - March 2020</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="~/Content/Js/profile.js"></script>
+
+

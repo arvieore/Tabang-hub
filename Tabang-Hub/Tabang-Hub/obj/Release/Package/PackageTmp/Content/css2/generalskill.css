@@ -1,0 +1,31 @@
+﻿﻿.card {
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-body {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Limit to 2 lines */
+    -webkit-box-orient: vertical;
+}
+
+.card-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 1; /* Limit to 1 line */
+    -webkit-box-orient: vertical;
+}
+
+.btn-primary {
+    align-self: flex-start;
+}

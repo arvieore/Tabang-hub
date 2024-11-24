@@ -1,0 +1,176 @@
+﻿﻿@{
+    ViewBag.Title = "Verify";
+    Layout = "~/Views/Shared/_Verify.cshtml";
+}
+
+<style>
+    body {
+        background-color: #F0F8FF; /* Light blue background */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        overflow: hidden; /* Prevent scrollbar from disappearing */
+    }
+
+    .otp-container {
+        background-color: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        max-width: 400px;
+        width: 100%;
+    }
+
+    .otp-title {
+        margin-bottom: 15px;
+        font-size: 24px;
+        font-weight: bold;
+    }
+
+    .otp-instructions {
+        margin-bottom: 20px;
+        color: #555;
+    }
+
+    .otp-inputs {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 25px;
+    }
+
+        .otp-inputs input {
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            text-align: center;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            outline: none;
+        }
+
+            .otp-inputs input:focus {
+                border-color: #007bff;
+                box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+            }
+
+    .btn-verify {
+        width: 100%;
+        background-color: #007bff;
+        border: none;
+        color: white;
+        padding: 10px;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+        .btn-verify:hover {
+            background-color: #0056b3;
+        }
+
+    .error-message {
+        color: red;
+        margin-top: 10px;
+        display: none;
+    }
+</style>
+
+<div class="otp-container">
+    <div class="otp-title">OTP Verification</div>
+    <div class="otp-instructions">Please enter the 4-digit code sent to your email.</div>
+    <form id="otpForm" action="@Url.Action("Verify", "Page")" method="post">
+        <div class="otp-inputs">
+            <input type="text" name="otp1" maxlength="1" id="otp1" oninput="moveToNext(this, 'otp2')" onkeydown="handleBackspace(event, 'otp1')" onkeypress="return isNumberKey(event)">
+            <input type="text" name="otp2" maxlength="1" id="otp2" oninput="moveToNext(this, 'otp3')" onkeydown="handleBackspace(event, 'otp1')" onkeypress="return isNumberKey(event)">
+            <input type="text" name="otp3" maxlength="1" id="otp3" oninput="moveToNext(this, 'otp4')" onkeydown="handleBackspace(event, 'otp2')" onkeypress="return isNumberKey(event)">
+            <input type="text" name="otp4" maxlength="1" id="otp4" oninput="moveToNext(this, '')" onkeydown="handleBackspace(event, 'otp3')" onkeypress="return isNumberKey(event)">
+        </div>
+        <button type="submit" class="btn-verify">Verify</button>
+    </form>
+    <div class="error-message" id="error-message">Please enter all 4 digits.</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function moveToNext(current, nextFieldID) {
+        if (current.value.length === 1) {
+            if (nextFieldID) {
+                document.getElementById(nextFieldID).focus();
+            }
+        }
+    }
+
+    function handleBackspace(event, previousFieldID) {
+        if (event.key === "Backspace" && event.target.value === "") {
+            if (previousFieldID) {
+                document.getElementById(previousFieldID).focus();
+            }
+        }
+    }
+
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode < 48 || charCode > 57)
+            return false;
+        return true;
+    }
+
+   document.getElementById('otpForm').addEventListener('submit', function (event) {
+    event.preventDefault(); // Prevent the form from submitting normally
+
+    let otp = '';
+    for (let i = 1; i <= 4; i++) {
+        otp += document.getElementById(`otp${i}`).value;
+    }
+
+    if (otp.length === 4) {
+        document.getElementById('error-message').style.display = 'none';
+
+        // Send the OTP to the server via AJAX
+        $.ajax({
+            url: '@Url.Action("Verify", "Page")',
+            type: 'POST',
+            data: { otp1: otp[0], otp2: otp[1], otp3: otp[2], otp4: otp[3] },
+            success: function (response) {
+                if (response.success) {
+                    Swal.fire({
+                        title: 'Success',
+                        text: response.message,
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        // Redirect to the URL provided by the server
+                        window.location.href = response.redirectUrl;
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error',
+                        text: response.message,
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            },
+            error: function () {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'An error occurred while verifying the OTP.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        });
+    } else {
+        Swal.fire({
+            title: 'Error',
+            text: 'Please enter all 4 digits.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+    }
+});
+</script>

@@ -1,0 +1,343 @@
+﻿@model Tabang_Hub.UserAccount
+
+@{
+    ViewBag.Title = "Register Organization";
+}
+<style>
+    body {
+        padding-top: 100px;
+    }
+</style>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10 col-sm-12">
+            <div class="card">
+                <div class="card-body">
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger">
+                            @TempData["ErrorMessage"]
+                        </div>
+                    }
+                    <div class="row align-items-center">
+                        <div class="col-md-4 text-center">
+                            <img src="~/Content/images/tabanghub3.png" alt="Tabang Hub Logo" class="img-fluid mb-3" style="max-width: 200px;">
+                        </div>
+                        <div class="col-md-8">
+                            <h2>Register Organization</h2>
+                            <p>Fill in the details to create an organization.</p>
+
+                            <form id="registrationForm" action="@Url.Action("RegisterOrg", "Page")" method="post" enctype="multipart/form-data">
+                                <!-- Step 1 -->
+                                <div id="step1">
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label">Email Address</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                            <input type="email" class="form-control" id="email" name="email" placeholder="Enter Your Email" required>
+                                        </div>
+                                        <small id="emailError" class="text-danger"></small> <!-- Error message for email -->
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="orgName" class="form-label">Organization Name</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-building"></i></span>
+                                            <input type="text" class="form-control" id="orgName" name="orgName" placeholder="Enter Organization Name" required>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="password" class="form-label">Password</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                            <input type="password" class="form-control" id="password" name="password" placeholder="Enter Password" required>
+                                        </div>
+                                        <small class="text-muted" id="password-requirements">
+                                            <span id="uppercase" class="text-danger">Uppercase</span>,
+                                            <span id="lowercase" class="text-danger">Lowercase</span>,
+                                            <span id="number" class="text-danger">Number</span>,
+                                            <span id="special" class="text-danger">Special</span>,
+                                            <span id="length" class="text-danger">8+ chars</span>
+                                        </small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="confirmPassword" class="form-label">Confirm Password</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                            <input type="password" class="form-control" id="confirmPassword" name="ConfirmPass" placeholder="Confirm Password" required>
+                                        </div>
+                                        <div class="mt-2">
+                                            <small class="text-danger" id="confirmPasswordError"></small>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="imageUpload1" class="form-label">Valid ID 1</label>
+                                        <input class="form-control" type="file" id="imageUpload1" name="picture1" accept="image/*" onchange="previewImage(event, 'imagePreview1')" required>
+                                        <img id="imagePreview1" class="img-fluid mt-3" src="#" alt="Image Preview 1" style="display:none; max-width: 200px;">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="imageUpload2" class="form-label">Valid ID 2</label>
+                                        <input class="form-control" type="file" id="imageUpload2" name="picture2" accept="image/*" onchange="previewImage(event, 'imagePreview2')" required>
+                                        <img id="imagePreview2" class="img-fluid mt-3" src="#" alt="Image Preview 2" style="display:none; max-width: 200px;">
+                                    </div>
+                                    <button class="btn btn-primary w-100" type="button" id="nextButton" disabled>Next</button>
+                                </div>
+
+                                <!-- Step 2 -->
+                                <div id="step2" style="display: none;">
+                                    <div class="mb-3">
+                                        <label for="orgDescription" class="form-label">Organization Description</label>
+                                        <textarea class="form-control" id="orgDescription" name="orgDescription" placeholder="Describe your organization" rows="3" required></textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="phoneNumber" class="form-label">Phone Number</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                            <input type="tel" class="form-control" id="phoneNum" name="phoneNum" placeholder="Enter Phone Number" required>
+                                        </div>
+                                        <small id="phoneError" class="text-danger"></small> <!-- Error message for phone -->
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="street" class="form-label">Street</label>
+                                        <input type="text" class="form-control" id="street" name="street" placeholder="Enter Street Address" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="city" class="form-label">City</label>
+                                        <input type="text" class="form-control" id="city" name="city" placeholder="Enter City" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="province" class="form-label">Province</label>
+                                        <input type="text" class="form-control" id="province" name="province" placeholder="Enter Province" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="zipcode" class="form-label">Zip Code</label>
+                                        <input type="text" class="form-control" id="zipCode" name="zipCode" placeholder="Enter Zip Code" required>
+                                        <small id="zipError" class="text-danger"></small> <!-- Error message for zip code -->
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <button class="btn btn-secondary" type="button" id="backButton">Back</button>
+                                        <button class="btn btn-danger" type="submit" id="submitButton">Register</button>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <p class="mt-3 text-center">Already have an account? <a href="~/Page/Login">Login here</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    function validateGmail() {
+    const email = document.getElementById('email').value.trim();
+    const gmailRegex = /^[a-zA-Z0-9._%+-]+@@gmail\.com$/;
+    const emailError = document.getElementById('emailError');
+
+    if (!gmailRegex.test(email)) {
+        emailError.innerText = 'Only Gmail addresses are allowed.';
+        return false;
+    } else {
+        emailError.innerText = '';
+        return true;
+    }
+}
+
+    // Password validation function
+    function validatePassword() {
+        const password = document.getElementById('password').value;
+        let isValid = true;
+
+        // Check for uppercase letter
+        if (/[A-Z]/.test(password)) {
+            document.getElementById('uppercase').classList.remove('text-danger');
+            document.getElementById('uppercase').classList.add('text-success');
+        } else {
+            document.getElementById('uppercase').classList.add('text-danger');
+            document.getElementById('uppercase').classList.remove('text-success');
+            isValid = false;
+        }
+
+        // Check for lowercase letter
+        if (/[a-z]/.test(password)) {
+            document.getElementById('lowercase').classList.remove('text-danger');
+            document.getElementById('lowercase').classList.add('text-success');
+        } else {
+            document.getElementById('lowercase').classList.add('text-danger');
+            document.getElementById('lowercase').classList.remove('text-success');
+            isValid = false;
+        }
+
+        // Check for number
+        if (/\d/.test(password)) {
+            document.getElementById('number').classList.remove('text-danger');
+            document.getElementById('number').classList.add('text-success');
+        } else {
+            document.getElementById('number').classList.add('text-danger');
+            document.getElementById('number').classList.remove('text-success');
+            isValid = false;
+        }
+
+        // Check for special character
+        if (/[^A-Za-z0-9]/.test(password)) {
+            document.getElementById('special').classList.remove('text-danger');
+            document.getElementById('special').classList.add('text-success');
+        } else {
+            document.getElementById('special').classList.remove('text-success');
+            document.getElementById('special').classList.add('text-danger');
+            isValid = false;
+        }
+
+        // Check for minimum length
+        if (password.length >= 8) {
+            document.getElementById('length').classList.remove('text-danger');
+            document.getElementById('length').classList.add('text-success');
+        } else {
+            document.getElementById('length').classList.add('text-danger');
+            document.getElementById('length').classList.remove('text-success');
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    // Confirm password validation function
+    function validateConfirmPassword() {
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+
+        if (confirmPassword !== '') {
+            if (password === confirmPassword) {
+                document.getElementById('confirmPasswordError').innerText = '';
+                return true;
+            } else {
+                document.getElementById('confirmPasswordError').innerText = 'Passwords do not match.';
+                return false;
+            }
+        } else {
+            document.getElementById('confirmPasswordError').innerText = '';
+            return false;
+        }
+    }
+
+    // Real-time validation function for phone number
+    function validatePhoneNumber() {
+        const phoneNum = document.getElementById('phoneNum').value;
+        const phoneError = document.getElementById('phoneError');
+        const phoneRegex = /^09\d{9}$/;
+
+        if (!phoneRegex.test(phoneNum)) {
+            phoneError.innerText = 'Phone number must start with "09" and be 11 digits long.';
+            return false;
+        } else {
+            phoneError.innerText = '';
+            return true;
+        }
+    }
+
+    // Real-time validation function for zip code
+    function validateZipCode() {
+        const zipCode = document.getElementById('zipCode').value;
+        const zipError = document.getElementById('zipError');
+        const zipCodeRegex = /^\d{4}$/;
+
+        if (!zipCodeRegex.test(zipCode)) {
+            zipError.innerText = 'Zip code must be exactly 4 digits.';
+            return false;
+        } else {
+            zipError.innerText = '';
+            return true;
+        }
+    }
+
+    // Real-time event listeners for phone number and zip code
+    document.getElementById('phoneNum').addEventListener('input', validatePhoneNumber);
+    document.getElementById('zipCode').addEventListener('input', validateZipCode);
+
+    // Event listener to check all validations on form submission
+    document.getElementById('registrationForm').addEventListener('submit', function (event) {
+        const isPhoneValid = validatePhoneNumber();
+        const isZipValid = validateZipCode();
+
+        if (!isPhoneValid || !isZipValid) {
+            event.preventDefault(); // Prevent form submission if validation fails
+        }
+    });
+
+    // Enable or disable Next button based on validations
+    function toggleNextButton() {
+        const isPasswordValid = validatePassword();
+        const isConfirmPasswordValid = validateConfirmPassword();
+        const email = document.getElementById('email').value.trim();
+        const orgName = document.getElementById('orgName').value.trim();
+        const imageUpload1 = document.getElementById('imageUpload1').value;
+        const imageUpload2 = document.getElementById('imageUpload2').value;
+
+        const isEmailValid = validateGmail();
+        const isFormValid = isPasswordValid && isConfirmPasswordValid && isEmailValid && email !== '' && orgName !== '' && imageUpload1 !== '' && imageUpload2 !== '';
+
+        document.getElementById('nextButton').disabled = !isFormValid;
+    }
+
+    // Event listeners for real-time validation
+    document.getElementById('email').addEventListener('input', toggleNextButton);
+    document.getElementById('orgName').addEventListener('input', toggleNextButton);
+    document.getElementById('password').addEventListener('input', () => {
+        validatePassword();
+        toggleNextButton();
+    });
+    document.getElementById('confirmPassword').addEventListener('input', () => {
+        validateConfirmPassword();
+        toggleNextButton();
+    });
+    document.getElementById('imageUpload1').addEventListener('change', toggleNextButton);
+    document.getElementById('imageUpload2').addEventListener('change', toggleNextButton);
+
+    // Image preview function
+    function previewImage(event, previewId) {
+        const reader = new FileReader();
+        reader.onload = function () {
+            const output = document.getElementById(previewId);
+            output.src = reader.result;
+            output.style.display = 'block';
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    }
+
+    // Navigation between steps
+    document.getElementById('nextButton').addEventListener('click', () => {
+        if (validateStep1()) {
+            document.getElementById('step1').style.display = 'none';
+            document.getElementById('step2').style.display = 'block';
+        }
+    });
+
+    document.getElementById('backButton').addEventListener('click', () => {
+        document.getElementById('step1').style.display = 'block';
+        document.getElementById('step2').style.display = 'none';
+    });
+
+    // Attach the email validation event listener
+    document.getElementById('email').addEventListener('input', () => {
+        validateGmail();
+        toggleNextButton();
+    });
+
+    function validateStep1() {
+        const email = document.getElementById('email').value.trim();
+        const orgName = document.getElementById('orgName').value.trim();
+        const password = document.getElementById('password').value.trim();
+        const confirmPassword = document.getElementById('confirmPassword').value.trim();
+        const imageUpload1 = document.getElementById('imageUpload1').value;
+        const imageUpload2 = document.getElementById('imageUpload2').value;
+
+        if (email !== '' && orgName !== '' && password !== '' && confirmPassword !== '' && imageUpload1 !== '' && imageUpload2 !== '' && validatePassword() && validateConfirmPassword()) {
+            return true;
+        } else {
+            alert("Please fill out all required fields and ensure passwords meet the requirements.");
+            return false;
+        }
+    }
+</script>

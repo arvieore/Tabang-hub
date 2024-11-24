@@ -1,0 +1,133 @@
+﻿@model Tabang_Hub.Utils.Lists
+
+@{
+    ViewBag.Title = "Admin Dashboard";
+    Layout = "~/Views/Shared/_Admin.cshtml"; <!-- Replace with actual layout path for admin if different -->
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Admin Dashboard</h2>
+
+    <!-- Overview Cards -->
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Total Organizations</h5>
+                    <p class="card-text fs-4">@Model.recentOrgAcc.Count()</p> <!-- Replace with dynamic count -->
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Total Volunteers</h5>
+                    <p class="card-text fs-4">@Model.volunteerAccounts.Count()</p> <!-- Replace with dynamic count -->
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Total Donations</h5>
+                    @{
+                        decimal totalDonation = 0.0m; // Initialize with a default value of 0
+
+                        foreach (var eventItem in Model.listofUserDonated)
+                        {
+                            totalDonation += eventItem.amount ?? 0; // Use the null-coalescing operator to add 0 if amount is null
+                        }
+                    }
+                    <p class="card-text fs-4">₱@totalDonation.ToString("N2")</p> <!-- Displays the total donation in pesos with 2 decimal places -->
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Pending Approvals</h5>
+                    <p class="card-text fs-4">@Model.pendingOrg.Count()</p> <!-- Replace with dynamic count -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Sections -->
+    <div class="row mt-4">
+        <!-- Donation Tracking Section -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-white">
+                    <h5>Recent Donations</h5>
+                </div>
+                <div class="card-body" style="min-height: 300px; max-height: 400px; overflow-y: auto;">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Donor Email</th>
+                                <th>Amount (₱)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.recentDonators.Any())
+                            {
+                                foreach (var donated in Model.recentDonators)
+                                {
+                                    <tr>
+                                        <td>@donated.UserAccount.email</td>
+                                        <td>₱@donated.amount</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="2" class="text-center">No recent donations.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Approvals Section -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-danger text-white">
+                    <h5>Pending Organization Approvals</h5>
+                </div>
+                <div class="card-body" style="min-height: 300px; max-height: 400px; overflow-y: auto;">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Organization Name</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.pendingOrg.Any())
+                            {
+                                foreach (var org in Model.pendingOrg)
+                                {
+                                    <tr>
+                                        <td>@org.email</td>
+                                        <td>
+                                            <a href="@Url.Action("ToConfirm", "Admin", new { userId = org.userId })" class="btn btn-sm btn-primary">View</a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="2" class="text-center">No pending approvals.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
