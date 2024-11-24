@@ -469,9 +469,29 @@
                 });
 
                 // Function to check ratings and log displayed volunteers
+
+                //ANG KARAAN
+
+                //function checkRating() {
+                //    $(document).on('change', '#ratings-checkbox', function () {
+                //        isRatingsChecked = $(this).is(':checked'); // Update the state of the Ratings checkbox
+                //        const selectedSkills = getSelectedSkills();
+                //        const selectedAvailability = $('#dropdownAvailability').val();
+                //        const eventId = document.getElementById('event-Id').value;
+
+                //        console.log("Ratings checkbox state:", isRatingsChecked);
+                //        fetchVolunteers(selectedSkills, eventId, selectedAvailability);
+                //    });
+
+                //}
+
                 function checkRating() {
                     $(document).on('change', '#ratings-checkbox', function () {
                         isRatingsChecked = $(this).is(':checked'); // Update the state of the Ratings checkbox
+
+                        // Uncheck the "Select All" checkbox
+                        $('#select-all-users').prop('checked', false);
+
                         const selectedSkills = getSelectedSkills();
                         const selectedAvailability = $('#dropdownAvailability').val();
                         const eventId = document.getElementById('event-Id').value;
@@ -479,15 +499,62 @@
                         console.log("Ratings checkbox state:", isRatingsChecked);
                         fetchVolunteers(selectedSkills, eventId, selectedAvailability);
                     });
-
                 }
 
+                //ANG KARAAN
+
+                //function fetchVolunteers(selectedSkills = [], eventId = null, selectedAvailability = "") {
+                //    let apiUrl = '/Organization/FilterSkill'; // Default to FilterSkill
+
+                //    // Determine API URL based on the selected filters
+                //    if (selectedAvailability && selectedSkills.length > 0 && isRatingsChecked) {
+                //        apiUrl = '/Organization/FilterByRateWithAvailabilityAndSkills'; // Ratings + Availability + Skills
+                //    } else if (selectedAvailability && isRatingsChecked) {
+                //        apiUrl = '/Organization/FilterByRatingsWithAvailability'; // Ratings + Availability
+                //    } else if (selectedAvailability && selectedSkills.length > 0) {
+                //        apiUrl = '/Organization/FilterByAvailabilityWithSkill'; // Availability + Skills
+                //    } else if (selectedAvailability) {
+                //        apiUrl = '/Organization/FilterByAvailability'; // Only Availability
+                //    } else if (isRatingsChecked) {
+                //        apiUrl = '/Organization/FilterRate'; // Only Ratings
+                //    } else if (selectedSkills.length > 0) {
+                //        apiUrl = '/Organization/FilterSkill'; // Only Skills
+                //    }
+
+                //    console.log(`Fetching from API: ${apiUrl}`);
+                //    console.log("Selected Skills:", selectedSkills);
+                //    console.log("Selected Availability:", selectedAvailability);
+                //    console.log("Event ID:", eventId);
+
+                //    // Perform AJAX request to fetch filtered volunteers
+                //    $.ajax({
+                //        url: apiUrl,
+                //        type: 'POST',
+                //        contentType: 'application/json',
+                //        data: JSON.stringify({ skillId: selectedSkills, eventId: eventId, availability: selectedAvailability }),
+                //        success: function (response) {
+                //            if (response.success) {
+                //                // Update the table with the filtered volunteers
+                //                updateVolunteerTable(response.volunteers);
+                //            } else {
+                //                console.error("Error fetching volunteers:", response.message);
+                //            }
+                //        },
+                //        error: function (error) {
+                //            console.error("Error in AJAX request:", error);
+                //        }
+                //    });
+                //}
+
                 function fetchVolunteers(selectedSkills = [], eventId = null, selectedAvailability = "") {
-                    let apiUrl = '/Organization/FilterSkill'; // Default to FilterSkill
+                    // Assume the entire list of volunteers is fetched and stored in a global variable
+                    let apiUrl = '/Organization/FilterSkill'; // Default API
 
                     // Determine API URL based on the selected filters
                     if (selectedAvailability && selectedSkills.length > 0 && isRatingsChecked) {
                         apiUrl = '/Organization/FilterByRateWithAvailabilityAndSkills'; // Ratings + Availability + Skills
+                    } else if (selectedSkills.length > 0 && isRatingsChecked) {
+                        apiUrl = '/Organization/FilterBySkillsAndRatings'; // Ratings + skill
                     } else if (selectedAvailability && isRatingsChecked) {
                         apiUrl = '/Organization/FilterByRatingsWithAvailability'; // Ratings + Availability
                     } else if (selectedAvailability && selectedSkills.length > 0) {
@@ -505,16 +572,21 @@
                     console.log("Selected Availability:", selectedAvailability);
                     console.log("Event ID:", eventId);
 
-                    // Perform AJAX request to fetch filtered volunteers
                     $.ajax({
                         url: apiUrl,
                         type: 'POST',
                         contentType: 'application/json',
-                        data: JSON.stringify({ skillId: selectedSkills, eventId: eventId, availability: selectedAvailability }),
+                        data: JSON.stringify({ skillId: selectedSkills, eventId: eventId }),
                         success: function (response) {
                             if (response.success) {
-                                // Update the table with the filtered volunteers
-                                updateVolunteerTable(response.volunteers);
+                                // Store fetched data globally
+                                window.volunteerData = response.volunteers;
+
+                                // Apply availability filter
+                                const filteredVolunteers = filterByAvailability(window.volunteerData, selectedAvailability);
+
+                                // Update the table with filtered volunteers
+                                updateVolunteerTable(filteredVolunteers);
                             } else {
                                 console.error("Error fetching volunteers:", response.message);
                             }
@@ -524,6 +596,41 @@
                         }
                     });
                 }
+
+                function filterByAvailability(volunteers, availability) {
+                    if (!availability) return volunteers; // If no availability filter is selected, return all volunteers
+
+                    return volunteers.filter(volunteer => volunteer.Availability === availability);
+                }
+
+                $(document).on('change', '#dropdownAvailability', function () {
+                    const selectedAvailability = $(this).val(); // Get the selected availability option
+                    const selectedSkills = getSelectedSkills(); // Get selected skills
+                    const eventId = document.getElementById('event-Id').value; // Get event ID
+
+                    console.log("Selected Availability:", selectedAvailability);
+
+                    // Filter the globally stored volunteer data
+                    let filteredVolunteers = window.volunteerData;
+
+                    // Apply availability filter
+                    filteredVolunteers = filterByAvailability(filteredVolunteers, selectedAvailability);
+
+                    // Apply skill filter
+                    if (selectedSkills.length > 0) {
+                        filteredVolunteers = filteredVolunteers.filter(volunteer =>
+                            selectedSkills.every(skillId => volunteer.Skills.includes(skillId))
+                        );
+                    }
+
+                    // Apply ratings filter
+                    if (isRatingsChecked) {
+                        filteredVolunteers = filteredVolunteers.sort((a, b) => b.OverallRating - a.OverallRating);
+                    }
+
+                    // Update the table with filtered volunteers
+                    updateVolunteerTable(filteredVolunteers);
+                });
 
 
                 // Function to update the table with volunteer data
@@ -634,28 +741,37 @@
                 let isAllSelected = false;
 
                 // Event listener for the "Select All" checkbox
-                document.getElementById("select-all-users").addEventListener("click", () => {
-                    const checkboxes = document.querySelectorAll(".user-checkbox");
-                    const selectAllCheckbox = document.getElementById("select-all-users");
 
-                    // If "Select All" is clicked, toggle all user checkboxes
-                    checkboxes.forEach((checkbox) => {
-                        checkbox.checked = !isAllSelected;
+                //ANG KARAAN
+
+                //document.getElementById("select-all-users").addEventListener("click", () => {
+                //    const checkboxes = document.querySelectorAll(".user-checkbox");
+                //    const selectAllCheckbox = document.getElementById("select-all-users");
+
+                //    // If "Select All" is clicked, toggle all user checkboxes
+                //    checkboxes.forEach((checkbox) => {
+                //        checkbox.checked = !isAllSelected;
+                //    });
+
+                //    // Update the "Select All" state
+                //    isAllSelected = !isAllSelected;
+
+                //    // Log the state and update button text
+                //    if (isAllSelected) {
+                //        console.log("All Volunteers Selected");
+                //        logSelectedVolunteers();
+                //    } else {
+                //        console.log("All Volunteers Unselected");
+                //    }
+
+                //    // Update the button text
+                //    selectAllCheckbox.textContent = isAllSelected ? "Unselect All" : "Select All";
+                //});
+                document.getElementById("select-all-users").addEventListener("change", function () {
+                    const isChecked = this.checked; // Check if "Select All" is checked
+                    document.querySelectorAll(".user-checkbox").forEach(checkbox => {
+                        checkbox.checked = isChecked; // Toggle all checkboxes
                     });
-
-                    // Update the "Select All" state
-                    isAllSelected = !isAllSelected;
-
-                    // Log the state and update button text
-                    if (isAllSelected) {
-                        console.log("All Volunteers Selected");
-                        logSelectedVolunteers();
-                    } else {
-                        console.log("All Volunteers Unselected");
-                    }
-
-                    // Update the button text
-                    selectAllCheckbox.textContent = isAllSelected ? "Unselect All" : "Select All";
                 });
 
                 // Function to log all currently selected volunteer IDs
@@ -677,22 +793,105 @@
                     updateSelectAllState(); // Update "Select All" checkbox state
                 });
 
+                //ANG KARAAN
+
                 // Update the "Select All" checkbox state based on individual checkboxes
+                //function updateSelectAllState() {
+                //    const checkboxes = document.querySelectorAll(".user-checkbox");
+                //    const selectAllCheckbox = document.getElementById("select-all-users");
+
+                //    // Check if all checkboxes are selected
+                //    const allChecked = Array.from(checkboxes).every((checkbox) => checkbox.checked);
+
+                //    // If all checkboxes are selected, check the "Select All" checkbox
+                //    selectAllCheckbox.checked = allChecked;
+
+                //    // If not all checkboxes are selected, update the "Select All" text
+                //    if (!allChecked) {
+                //        selectAllCheckbox.textContent = "Select All";
+                //    }
+                //}
+
                 function updateSelectAllState() {
                     const checkboxes = document.querySelectorAll(".user-checkbox");
                     const selectAllCheckbox = document.getElementById("select-all-users");
 
-                    // Check if all checkboxes are selected
-                    const allChecked = Array.from(checkboxes).every((checkbox) => checkbox.checked);
-
-                    // If all checkboxes are selected, check the "Select All" checkbox
+                    // Check if all individual checkboxes are checked
+                    const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+                    // Update the "Select All" checkbox state
                     selectAllCheckbox.checked = allChecked;
-
-                    // If not all checkboxes are selected, update the "Select All" text
-                    if (!allChecked) {
-                        selectAllCheckbox.textContent = "Select All";
-                    }
                 }
+
+                $(document).on('change', '.user-checkbox', function () {
+                    updateSelectAllState(); // Update "Select All" checkbox state when any individual checkbox changes
+                });
+
+                //ANG KARAAN
+
+                //const dropdownHeader = document.getElementById("dropdown-header");
+                //const dropdownList = document.getElementById("dropdown-list");
+                //const dropdownTags = document.getElementById("dropdown-tags");
+                //const selectAllOption = document.getElementById("select-all-option");
+                //const placeholder = document.querySelector(".placeholder");
+
+                //// Toggle dropdown list
+                //dropdownHeader.addEventListener("click", () => {
+                //    dropdownList.style.display = dropdownList.style.display === "block" ? "none" : "block";
+                //});
+
+                //// Update dropdown with selected options
+                //document.querySelectorAll("#dropdown-list input[type='checkbox']").forEach((checkbox) => {
+                //    checkbox.addEventListener("change", (e) => {
+                //        if (e.target.id === "select-all-option") {
+                //            handleSelectAll(e.target.checked);
+                //        } else {
+                //            updateTags();
+                //        }
+                //    });
+                //});
+
+                //function handleSelectAll(isChecked) {
+                //    document.querySelectorAll("#dropdown-list input[type='checkbox']").forEach((checkbox) => {
+                //        if (checkbox.id !== "select-all-option") {
+                //            checkbox.checked = isChecked;
+                //        }
+                //    });
+                //    updateTags();
+                //}
+
+                //function updateTags() {
+                //    const selectedValues = Array.from(
+                //        document.querySelectorAll("#dropdown-list input[type='checkbox']:checked")
+                //    )
+                //        .filter((checkbox) => checkbox.id !== "select-all-option") // Exclude "Select All" from tags
+                //        .map((checkbox) => checkbox.value);
+
+                //    // Show or hide placeholder based on selection
+                //    if (selectedValues.length === 0) {
+                //        placeholder.style.display = "inline"; // Show placeholder
+                //    } else {
+                //        placeholder.style.display = "none"; // Hide placeholder
+                //    }
+
+                //    // Clear existing tags
+                //    dropdownTags.querySelectorAll("span").forEach((tag) => tag.remove());
+
+                //    // Add selected skill tags
+                //    selectedValues.forEach((value) => {
+                //        const tag = document.createElement("span");
+                //        tag.innerHTML = `${value} <i class="remove-tag" data-value="${value}">x</i>`;
+                //        dropdownTags.appendChild(tag);
+                //    });
+
+                //    // Attach event listeners to remove tags
+                //    document.querySelectorAll(".remove-tag").forEach((removeBtn) => {
+                //        removeBtn.addEventListener("click", (e) => {
+                //            const value = e.target.getAttribute("data-value");
+                //            document.querySelector(`#dropdown-list input[value='${value}']`).checked = false;
+                //            updateTags();
+                //        });
+                //    });
+                //}
 
                 const dropdownHeader = document.getElementById("dropdown-header");
                 const dropdownList = document.getElementById("dropdown-list");
@@ -709,22 +908,36 @@
                 document.querySelectorAll("#dropdown-list input[type='checkbox']").forEach((checkbox) => {
                     checkbox.addEventListener("change", (e) => {
                         if (e.target.id === "select-all-option") {
-                            handleSelectAll(e.target.checked);
+                            handleSelectAll(e.target.checked); // Handle "Select All" behavior
                         } else {
                             updateTags();
+                            updateSelectAllState(); // Update "Select All" state if any individual checkbox changes
                         }
                     });
                 });
 
+                // Handle "Select All" functionality
                 function handleSelectAll(isChecked) {
                     document.querySelectorAll("#dropdown-list input[type='checkbox']").forEach((checkbox) => {
                         if (checkbox.id !== "select-all-option") {
-                            checkbox.checked = isChecked;
+                            checkbox.checked = isChecked; // Check or uncheck individual skill checkboxes
                         }
                     });
-                    updateTags();
+                    updateTags(); // Update the displayed tags
                 }
 
+                // Update the "Select All" checkbox state
+                function updateSelectAllState() {
+                    const allChecked = Array.from(
+                        document.querySelectorAll("#dropdown-list input[type='checkbox']")
+                    )
+                        .filter((checkbox) => checkbox.id !== "select-all-option") // Exclude "Select All" from the count
+                        .every((checkbox) => checkbox.checked); // Check if all individual checkboxes are checked
+
+                    selectAllOption.checked = allChecked; // Update "Select All" state
+                }
+
+                // Update tags based on selected options
                 function updateTags() {
                     const selectedValues = Array.from(
                         document.querySelectorAll("#dropdown-list input[type='checkbox']:checked")
@@ -753,11 +966,13 @@
                     document.querySelectorAll(".remove-tag").forEach((removeBtn) => {
                         removeBtn.addEventListener("click", (e) => {
                             const value = e.target.getAttribute("data-value");
-                            document.querySelector(`#dropdown-list input[value='${value}']`).checked = false;
-                            updateTags();
+                            document.querySelector(`#dropdown-list input[value='${value}']`).checked = false; // Uncheck the corresponding checkbox
+                            updateTags(); // Update tags after removal
+                            updateSelectAllState(); // Update "Select All" state
                         });
                     });
                 }
+
             </script>
 
             @{
