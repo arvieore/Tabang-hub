@@ -386,6 +386,7 @@
                                                         <th scope="col">Rating</th>
                                                         @*<th scope="col">Feedback</th>*@
                                                         <th scope="col">Availability</th>
+                                                        @*<th scope="col">Sentiment</th>*@
                                                         <th scope="col">Select</th>
                                                     </tr>
                                                 </thead>
@@ -418,7 +419,16 @@
                                                             <input type="checkbox" id="select-all-option"> Select All
                                                         </label>
                                                     </li>
-                                                     
+
+                                                    @foreach (var Reqskills in Model.detailsSkillRequirement)
+                                                    {
+                                                        <li>
+                                                            <label>
+                                                                <input class="skill-checkbox" type="checkbox" data-selectedid="@Reqskills.Skills.skillId" value="@Reqskills.Skills.skillName"> @Reqskills.Skills.skillName
+                                                            </label>
+                                                        </li>
+                                                    }
+
                                                 </ul>
                                             </div>
                                         </div>
@@ -582,14 +592,10 @@
                         success: function (response) {
                             if (response.success) {
                                 // Store fetched data globally
-                                window.volunteerData = response.volunteers;
+                                /*window.volunteerData = response.volunteers;*/
                                 console.log("Response: ", response.volunteers);
-                                // Apply availability filter
-                                //const filteredVolunteers = filterByAvailability(window.volunteerData, selectedAvailability);
 
-                                // Update the table with filtered volunteers
-                                //updateVolunteerTable(filteredVolunteers);
-                                updateVolunteerTable(window.volunteerData);
+                                updateVolunteerTable(response.volunteers);
                             } else {
                                 console.error("Error fetching volunteers:", response.message);
                             }
@@ -600,40 +606,40 @@
                     });
                 }
 
-                function filterByAvailability(volunteers, availability) {
-                    if (!availability) return volunteers; // If no availability filter is selected, return all volunteers
+                //function filterByAvailability(volunteers, availability) {
+                //    if (!availability) return volunteers; // If no availability filter is selected, return all volunteers
 
-                    return volunteers.filter(volunteer => volunteer.Availability === availability);
-                }
+                //    return volunteers.filter(volunteer => volunteer.Availability === availability);
+                //}
 
-                $(document).on('change', '#dropdownAvailability', function () {
-                    const selectedAvailability = $(this).val(); // Get the selected availability option
-                    const selectedSkills = getSelectedSkills(); // Get selected skills
-                    const eventId = document.getElementById('event-Id').value; // Get event ID
+                //$(document).on('change', '#dropdownAvailability', function () {
+                //    const selectedAvailability = $(this).val(); // Get the selected availability option
+                //    const selectedSkills = getSelectedSkills(); // Get selected skills
+                //    const eventId = document.getElementById('event-Id').value; // Get event ID
 
-                    console.log("Selected Availability:", selectedAvailability);
+                //    console.log("Selected Availability:", selectedAvailability);
 
-                    // Filter the globally stored volunteer data
-                    let filteredVolunteers = window.volunteerData;
+                //    // Filter the globally stored volunteer data
+                //    let filteredVolunteers = window.volunteerData;
 
-                    // Apply availability filter
-                    filteredVolunteers = filterByAvailability(filteredVolunteers, selectedAvailability);
+                //    // Apply availability filter
+                //    filteredVolunteers = filterByAvailability(filteredVolunteers, selectedAvailability);
 
-                    // Apply skill filter
-                    if (selectedSkills.length > 0) {
-                        filteredVolunteers = filteredVolunteers.filter(volunteer =>
-                            selectedSkills.every(skillId => volunteer.Skills.includes(skillId))
-                        );
-                    }
+                //    // Apply skill filter
+                //    if (selectedSkills.length > 0) {
+                //        filteredVolunteers = filteredVolunteers.filter(volunteer =>
+                //            selectedSkills.every(skillId => volunteer.Skills.includes(skillId))
+                //        );
+                //    }
 
-                    // Apply ratings filter
-                    if (isRatingsChecked) {
-                        filteredVolunteers = filteredVolunteers.sort((a, b) => b.OverallRating - a.OverallRating);
-                    }
+                //    // Apply ratings filter
+                //    if (isRatingsChecked) {
+                //        filteredVolunteers = filteredVolunteers.sort((a, b) => b.OverallRating - a.OverallRating);
+                //    }
 
-                    // Update the table with filtered volunteers
-                    updateVolunteerTable(filteredVolunteers);
-                });
+                //    // Update the table with filtered volunteers
+                //    updateVolunteerTable(filteredVolunteers);
+                //});
 
 
                 // Function to update the table with volunteer data
@@ -643,23 +649,27 @@
 
                     //For Sentiment Purposes ------ PLEASE DONT REMOVE THIS
                     //volunteers.forEach(volunteer => {
+                    //    const skills = volunteer.Skills.join(", ");
                     //    const row = `
-                    //    <tr>
-                    //        <td>${volunteer.FullName}</td>
-                    //        <td>${volunteer.OverallRating.toFixed(2)}</td>
-                    //        <td>${volunteer.Sentiment}</td>
-                    //        <td><input type="checkbox" class="user-checkbox" data-volunteerid="${volunteer.UserId}" value="${volunteer.UserId}"></td>
-                    //    </tr>
-                    //    `;
+                    //        <tr>
+                    //            <td>${volunteer.FullName}</td>
+                    //            <td>${skills}</td>
+                    //            <td>${volunteer.OverallRating.toFixed(2)}</td>
+                    //            <td>${volunteer.Availability}</td>
+                    //            <td>${volunteer.Sentiment}</td>
+                    //            <td><input type="checkbox" class="user-checkbox" data-volunteerid="${volunteer.UserId}" value="${volunteer.UserId}"></td>
+                    //        </tr>
+                    //        `;
                     //    tableBody.insertAdjacentHTML('beforeend', row);
                     //});
 
 
                     volunteers.forEach(volunteer => {
+                        const skills = volunteer.Skills.join(", ");
                         const row = `
                         <tr>
                             <td>${volunteer.FullName}</td>
-                            <td>${volunteer.skills}</td>
+                            <td>${skills}</td>
                             <td>${volunteer.OverallRating.toFixed(2)}</td>
                             <td>${volunteer.Availability}</td>
                             <td><input type="checkbox" class="user-checkbox" data-volunteerid="${volunteer.UserId}" value="${volunteer.UserId}"></td>
@@ -706,6 +716,12 @@
                     const selectedAvailability = $('#dropdownAvailability').val();
                     const eventId = document.getElementById('event-Id').value;
 
+                    if (selectedSkills.length > 0) {
+                        $('#dropdown-tags .placeholder').hide(); // Hide the placeholder
+                    } else {
+                        $('#dropdown-tags .placeholder').show(); // Show the placeholder
+                    }
+
                     fetchVolunteers(selectedSkills, eventId, selectedAvailability);
                 });
 
@@ -747,31 +763,6 @@
 
                 // Event listener for the "Select All" checkbox
 
-                //ANG KARAAN
-
-                //document.getElementById("select-all-users").addEventListener("click", () => {
-                //    const checkboxes = document.querySelectorAll(".user-checkbox");
-                //    const selectAllCheckbox = document.getElementById("select-all-users");
-
-                //    // If "Select All" is clicked, toggle all user checkboxes
-                //    checkboxes.forEach((checkbox) => {
-                //        checkbox.checked = !isAllSelected;
-                //    });
-
-                //    // Update the "Select All" state
-                //    isAllSelected = !isAllSelected;
-
-                //    // Log the state and update button text
-                //    if (isAllSelected) {
-                //        console.log("All Volunteers Selected");
-                //        logSelectedVolunteers();
-                //    } else {
-                //        console.log("All Volunteers Unselected");
-                //    }
-
-                //    // Update the button text
-                //    selectAllCheckbox.textContent = isAllSelected ? "Unselect All" : "Select All";
-                //});
                 document.getElementById("select-all-users").addEventListener("change", function () {
                     const isChecked = this.checked; // Check if "Select All" is checked
                     document.querySelectorAll(".user-checkbox").forEach(checkbox => {

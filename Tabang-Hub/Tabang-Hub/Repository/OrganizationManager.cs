@@ -740,7 +740,7 @@ namespace Tabang_Hub.Repository
 
             return recruitmentResult; // Return the list of recommended volunteers and any error message
         }
-        public async Task<List<VolunteerInvite>> ConvertFeedbackToSentiment()
+        public async Task<List<VolunteerInvite>> ConvertFeedbackToSentiment(int eventId)
         {
             string flaskApiUrl = "http://127.0.0.1:5000/classify_users_feedback";
 
@@ -757,7 +757,19 @@ namespace Tabang_Hub.Repository
                                  overallRating = rating.OverallRating ?? 0,
                                  feedback = rating.Feedback,
                                  availability = volunteer.availability
-                             }).ToList()
+                             }).ToList(),
+                // Collect volunteer skills
+                user_skills = db.VolunteerSkill
+                    .Select(m => new { userId = m.userId, skillId = m.skillId })
+                    .ToList(),
+
+                // Pass event data (e.g., ID and description)
+                event_data = _orgEvents.GetAll()
+                    .Where(m => m.eventId == eventId)
+                    .Select(m => new { eventId = m.eventId, eventDescription = m.eventDescription })
+                    .ToList(),
+
+                event_skills = db.OrgSkillRequirement.Where(es => es.eventId == eventId).Select(es => new { eventId = es.eventId, skillId = es.skillId }).ToList()
             };
             
             using (var client = new HttpClient())
@@ -948,7 +960,7 @@ namespace Tabang_Hub.Repository
                                  availability = volunteer.availability
                              }).ToList(),
                 user_skills = db.VolunteerSkill.Select(m => new { userId = m.userId, skillId = m.skillId }).ToList(),
-                event_skills = skillIds,
+                event_skills = skillIds ?? new List<int>(), // Default to empty list if null
                 sortBy = availability
             };
 
@@ -962,9 +974,19 @@ namespace Tabang_Hub.Repository
                 }
 
                 var jsonResponse = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<List<VolunteerInvite>>(jsonResponse);
+
+                // Deserialize the outer object
+                var responseObject = JsonConvert.DeserializeObject<dynamic>(jsonResponse);
+
+                // Extract the volunteers array
+                var volunteersJson = responseObject.volunteers.ToString();
+
+                // Deserialize volunteers into the expected type
+                return JsonConvert.DeserializeObject<List<VolunteerInvite>>(volunteersJson);
             }
         }
+
+
 
         public async Task<List<VolunteerInvite>> GetFilteredByAvailabilityWithSkill(List<int> skillIds, int eventId, string availability)
         {
@@ -985,7 +1007,7 @@ namespace Tabang_Hub.Repository
                                  availability = volunteer.availability
                              }).ToList(),
                 user_skills = db.VolunteerSkill.Select(m => new { userId = m.userId, skillId = m.skillId }).ToList(),
-                event_skills = skillIds,
+                event_skills = skillIds ?? new List<int>(), // Default to empty list if null
                 sortBy = availability
             };
 
@@ -999,9 +1021,18 @@ namespace Tabang_Hub.Repository
                 }
 
                 var jsonResponse = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<List<VolunteerInvite>>(jsonResponse);
+
+                // Deserialize the outer object
+                var responseObject = JsonConvert.DeserializeObject<dynamic>(jsonResponse);
+
+                // Extract the volunteers array
+                var volunteersJson = responseObject.volunteers.ToString();
+
+                // Deserialize volunteers into the expected type
+                return JsonConvert.DeserializeObject<List<VolunteerInvite>>(volunteersJson);
             }
         }
+
 
         public async Task<List<VolunteerInvite>> GetFilterByRatingsWithAvailability(List<int> skillIds, int eventId, string availability)
         {
@@ -1021,8 +1052,6 @@ namespace Tabang_Hub.Repository
                                  feedback = rating.Feedback,
                                  availability = volunteer.availability
                              }).ToList(),
-                user_skills = db.VolunteerSkill.Select(m => new { userId = m.userId, skillId = m.skillId }).ToList(),
-                event_skills = skillIds,
                 sortBy = availability
             };
 
@@ -1036,9 +1065,14 @@ namespace Tabang_Hub.Repository
                 }
 
                 var jsonResponse = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<List<VolunteerInvite>>(jsonResponse);
+
+                // Deserialize the response into a list of VolunteerInvite objects
+                var responseObject = JsonConvert.DeserializeObject<dynamic>(jsonResponse);
+                var volunteersJson = responseObject.volunteers.ToString();
+                return JsonConvert.DeserializeObject<List<VolunteerInvite>>(volunteersJson);
             }
         }
+
 
         public async Task<List<VolunteerInvite>> GetFilterByRateWithAvailabilityAndSkills(List<int> skillIds, int eventId, string availability)
         {
@@ -1059,7 +1093,7 @@ namespace Tabang_Hub.Repository
                                  availability = volunteer.availability
                              }).ToList(),
                 user_skills = db.VolunteerSkill.Select(m => new { userId = m.userId, skillId = m.skillId }).ToList(),
-                event_skills = skillIds,
+                event_skills = skillIds ?? new List<int>(), // Default to empty list if null
                 sortBy = availability
             };
 
@@ -1073,9 +1107,18 @@ namespace Tabang_Hub.Repository
                 }
 
                 var jsonResponse = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<List<VolunteerInvite>>(jsonResponse);
+
+                // Deserialize the outer object
+                var responseObject = JsonConvert.DeserializeObject<dynamic>(jsonResponse);
+
+                // Extract the volunteers array
+                var volunteersJson = responseObject.volunteers.ToString();
+
+                // Deserialize volunteers into the expected type
+                return JsonConvert.DeserializeObject<List<VolunteerInvite>>(volunteersJson);
             }
         }
+
 
         public ErrorCode TrasferToHisotry1(int eventId, List<VolunteerRatingData> volunteerRatings, ref string errMsg)
         {

@@ -358,3 +358,8 @@ feedback,sentiment
 "Hello, Arvie. This  from the Red cross team.
 We've notice that you haven't come from our event that was held last  Monday.  May we know the reasons?.
 I hope you're doing well.",Negative
+"You seem that your not interested",Negative
+"Your a bad volunteer",Negative
+"You have a bad performance",Negative
+"you aren't participating in any activities in the event",Negative
+"Thank you for your participation during the event. I noticed that you weren't involved in any specific activities during the event. In the future, please make sure to check in with the team or myself so we can assign you tasks or ensure you're fully engaged. We appreciate your willingness to help and hope to have you more actively involved next time!",Negative

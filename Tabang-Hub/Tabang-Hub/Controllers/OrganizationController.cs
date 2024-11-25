@@ -14,6 +14,7 @@ using Microsoft.AspNet.SignalR.Hubs;
 using System.Threading.Tasks;
 using Tabang_Hub.Hubs;
 using static Tabang_Hub.Utils.Lists;
+using System.Globalization;
 
 namespace Tabang_Hub.Controllers
 {
@@ -483,37 +484,46 @@ namespace Tabang_Hub.Controllers
                 // Check if no skills are selected
                 if (skillId == null || !skillId.Any())
                 {
-                    var vol = await _organizationManager.ConvertFeedbackToSentiment();
+                    var vol = await _organizationManager.ConvertFeedbackToSentiment(eventId);
 
-                    foreach (var sk in vol)
+                    var requiredSkillIds = _skillRequirement.GetAll()
+                    .Where(osr => osr.eventId == eventId)
+                    .Select(osr => osr.skillId)
+                    .ToList();
+
+                    var volunteerWithSkills = vol.Select(v => new
                     {
-                        var getUserSkill = db.VolunteerSkill.Where(m => m.userId == sk.UserId).ToList();
+                        v.UserId,
+                        v.FullName,
+                        v.OverallRating,
+                        v.Availability,
+                        v.Feedback,
+                        v.Sentiment,
+                        Skills = _volunteerSkills.GetAll()
+                        .Where(vs => vs.userId == v.UserId && requiredSkillIds.Contains(vs.skillId))
+                        .Select(vs => _skills.GetAll()
+                            .FirstOrDefault(s => s.skillId == vs.skillId)?.skillName)
+                        .Where(skillName => !string.IsNullOrEmpty(skillName))
+                        .ToList()
+                    }).ToList();
 
-                        var invite = new VolunteerInvite
-                        {
-                            UserId = sk.UserId,
-                            FullName = sk.FullName,
-                            OverallRating = sk.OverallRating,
-                            skills = getUserSkill, // Assign the entire list of VolunteerSkill
-                            SimilarityScore = sk.SimilarityScore,
-                            Feedback = sk.Feedback,
-                            Sentiment = sk.Sentiment,
-                            Availability = sk.Availability
-                        };
-                        volunteer.Add(invite);
-                    }
 
                     return Json(new
                     {
                         success = true,
                         message = "All volunteers retrieved successfully.",
-                        volunteers = volunteer
+                        volunteers = volunteerWithSkills
                     });
                 }
                 else
                 {
                     // Fetch volunteers matching the selected skills
                     var filteredVolunteers = await _organizationManager.GetVolunteerFilteredSkill(eventId, skillId);
+
+                    var requiredSkillIds = _skillRequirement.GetAll()
+                    .Where(osr => osr.eventId == eventId)
+                    .Select(osr => osr.skillId)
+                    .ToList();
 
                     var formattedVolunteers = filteredVolunteers
                         .Select(v => new
@@ -523,7 +533,13 @@ namespace Tabang_Hub.Controllers
                             UserId = v.UserId,
                             Feedback = v.Feedback,
                             Sentiment = v.Sentiment,
-                            Availability = v.Availability
+                            Availability = v.Availability,
+                            Skills = _volunteerSkills.GetAll()
+                            .Where(vs => vs.userId == v.UserId && requiredSkillIds.Contains(vs.skillId))
+                            .Select(vs => _skills.GetAll()
+                                .FirstOrDefault(s => s.skillId == vs.skillId)?.skillName)
+                            .Where(skillName => !string.IsNullOrEmpty(skillName))
+                            .ToList()
                         }).ToList();
 
                     return Json(new
@@ -544,9 +560,14 @@ namespace Tabang_Hub.Controllers
             }
         }
         [HttpPost]
-        public async Task<JsonResult> FilterRate()
+        public async Task<JsonResult> FilterRate(int eventId)
         {
             var filteredVolunteers = await _organizationManager.GetVolunteersByRating();
+
+            var requiredSkillIds = _skillRequirement.GetAll()
+                    .Where(osr => osr.eventId == eventId)
+                    .Select(osr => osr.skillId)
+                    .ToList();
 
             var formattedVolunteers = filteredVolunteers
                         .Select(v => new
@@ -556,7 +577,13 @@ namespace Tabang_Hub.Controllers
                             UserId = v.UserId,
                             Feedback = v.Feedback,
                             Sentiment = v.Sentiment,
-                            Availability = v.Availability
+                            Availability = v.Availability,
+                            Skills = _volunteerSkills.GetAll()
+                            .Where(vs => vs.userId == v.UserId && requiredSkillIds.Contains(vs.skillId))
+                            .Select(vs => _skills.GetAll()
+                                .FirstOrDefault(s => s.skillId == vs.skillId)?.skillName)
+                            .Where(skillName => !string.IsNullOrEmpty(skillName))
+                            .ToList()
                         }).ToList();
 
             return Json(new { success = true, volunteers = formattedVolunteers });
@@ -567,6 +594,11 @@ namespace Tabang_Hub.Controllers
         {
             var filteredVolunteers = await _organizationManager.GetVolunteersBySkillsAndRatings(skillId, eventId);
 
+            var requiredSkillIds = _skillRequirement.GetAll()
+                    .Where(osr => osr.eventId == eventId)
+                    .Select(osr => osr.skillId)
+                    .ToList();
+
             var formattedVolunteers = filteredVolunteers
                         .Select(v => new
                         {
@@ -575,7 +607,13 @@ namespace Tabang_Hub.Controllers
                             UserId = v.UserId,
                             Feedback = v.Feedback,
                             Sentiment = v.Sentiment,
-                            Availability = v.Availability
+                            Availability = v.Availability,
+                            Skills = _volunteerSkills.GetAll()
+                            .Where(vs => vs.userId == v.UserId && requiredSkillIds.Contains(vs.skillId))
+                            .Select(vs => _skills.GetAll()
+                                .FirstOrDefault(s => s.skillId == vs.skillId)?.skillName)
+                            .Where(skillName => !string.IsNullOrEmpty(skillName))
+                            .ToList()
                         }).ToList();
 
             return Json(new { success = true, volunteers = formattedVolunteers });
@@ -586,16 +624,27 @@ namespace Tabang_Hub.Controllers
         {
             var filteredVolunteers = await _organizationManager.GetFilterByRateWithAvailabilityAndSkills(skillId, eventId, availability);
 
+            var requiredSkillIds = _skillRequirement.GetAll()
+                    .Where(osr => osr.eventId == eventId)
+                    .Select(osr => osr.skillId)
+                    .ToList();
+
             var formattedVolunteers = filteredVolunteers
-                        .Select(v => new
-                        {
-                            FullName = v.FullName,
-                            OverallRating = v.OverallRating,
-                            UserId = v.UserId,
-                            Feedback = v.Feedback,
-                            Sentiment = v.Sentiment,
-                            Availability = v.Availability
-                        }).ToList();
+                    .Select(v => new
+                    {
+                        FullName = v.FullName,
+                        OverallRating = v.OverallRating,
+                        UserId = v.UserId,
+                        Feedback = v.Feedback,
+                        Sentiment = v.Sentiment,
+                        Availability = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(v.Availability.ToLower()),
+                        Skills = _volunteerSkills.GetAll()
+                            .Where(vs => vs.userId == v.UserId && requiredSkillIds.Contains(vs.skillId))
+                            .Select(vs => _skills.GetAll()
+                                .FirstOrDefault(s => s.skillId == vs.skillId)?.skillName)
+                            .Where(skillName => !string.IsNullOrEmpty(skillName))
+                            .ToList()
+                    }).ToList();
 
             return Json(new { success = true, volunteers = formattedVolunteers });
         }
@@ -603,36 +652,66 @@ namespace Tabang_Hub.Controllers
         [HttpPost]
         public async Task<JsonResult> FilterByRatingsWithAvailability(List<int> skillId, int eventId, string availability)
         {
-            var filteredVolunteers = await _organizationManager.GetFilterByRatingsWithAvailability(skillId, eventId, availability);
+            try
+            {
+                var filteredVolunteers = await _organizationManager.GetFilterByRatingsWithAvailability(skillId, eventId, availability);
 
-            var formattedVolunteers = filteredVolunteers
-                        .Select(v => new
-                        {
-                            FullName = v.FullName,
-                            OverallRating = v.OverallRating,
-                            UserId = v.UserId,
-                            Feedback = v.Feedback,
-                            Sentiment = v.Sentiment,
-                            Availability = v.Availability
-                        }).ToList();
+                var requiredSkillIds = _skillRequirement.GetAll()
+                    .Where(osr => osr.eventId == eventId)
+                    .Select(osr => osr.skillId)
+                    .ToList();
 
-            return Json(new { success = true, volunteers = formattedVolunteers });
+                var formattedVolunteers = filteredVolunteers
+                    .Select(v => new
+                    {
+                        FullName = v.FullName,
+                        OverallRating = v.OverallRating,
+                        UserId = v.UserId,
+                        Feedback = v.Feedback,
+                        Sentiment = v.Sentiment,
+                        Availability = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(v.Availability.ToLower()),
+                        Skills = _volunteerSkills.GetAll()
+                            .Where(vs => vs.userId == v.UserId && requiredSkillIds.Contains(vs.skillId))
+                            .Select(vs => _skills.GetAll()
+                                .FirstOrDefault(s => s.skillId == vs.skillId)?.skillName)
+                            .Where(skillName => !string.IsNullOrEmpty(skillName))
+                            .ToList()
+                    }).ToList();
+
+                return Json(new { success = true, volunteers = formattedVolunteers });
+            }
+            catch (Exception e)
+            {
+                return Json(new { success = false, message = e.Message });
+            }
         }
+
         [HttpPost]
         public async Task<JsonResult> FilterByAvailabilityWithSkill(List<int> skillId, int eventId, string availability)
         {
             var filteredVolunteers = await _organizationManager.GetFilteredByAvailabilityWithSkill(skillId, eventId, availability);
 
+            var requiredSkillIds = _skillRequirement.GetAll()
+                    .Where(osr => osr.eventId == eventId)
+                    .Select(osr => osr.skillId)
+                    .ToList();
+
             var formattedVolunteers = filteredVolunteers
-                        .Select(v => new
-                        {
-                            FullName = v.FullName,
-                            OverallRating = v.OverallRating,
-                            UserId = v.UserId,
-                            Feedback = v.Feedback,
-                            Sentiment = v.Sentiment,
-                            Availability = v.Availability
-                        }).ToList();
+                            .Select(v => new
+                            {
+                                FullName = v.FullName,
+                                OverallRating = v.OverallRating,
+                                UserId = v.UserId,
+                                Feedback = v.Feedback,
+                                Sentiment = v.Sentiment,
+                                Availability = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(v.Availability.ToLower()),
+                                Skills = _volunteerSkills.GetAll()
+                                .Where(vs => vs.userId == v.UserId && requiredSkillIds.Contains(vs.skillId))
+                                .Select(vs => _skills.GetAll()
+                                    .FirstOrDefault(s => s.skillId == vs.skillId)?.skillName)
+                                .Where(skillName => !string.IsNullOrEmpty(skillName))
+                                .ToList()
+                            }).ToList();
 
             return Json(new { success = true, volunteers = formattedVolunteers });
         }
@@ -643,6 +722,11 @@ namespace Tabang_Hub.Controllers
             {
                 var filteredVolunteers = await _organizationManager.GetFilteredVolunteerBasedOnAvailability(skillId, eventId, availability);
 
+                var requiredSkillIds = _skillRequirement.GetAll()
+                    .Where(osr => osr.eventId == eventId)
+                    .Select(osr => osr.skillId)
+                    .ToList();
+
                 var formattedVolunteers = filteredVolunteers
                             .Select(v => new
                             {
@@ -651,7 +735,13 @@ namespace Tabang_Hub.Controllers
                                 UserId = v.UserId,
                                 Feedback = v.Feedback,
                                 Sentiment = v.Sentiment,
-                                Availability = v.Availability
+                                Availability = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(v.Availability.ToLower()),
+                                Skills = _volunteerSkills.GetAll()
+                                .Where(vs => vs.userId == v.UserId && requiredSkillIds.Contains(vs.skillId))
+                                .Select(vs => _skills.GetAll()
+                                    .FirstOrDefault(s => s.skillId == vs.skillId)?.skillName)
+                                .Where(skillName => !string.IsNullOrEmpty(skillName))
+                                .ToList()
                             }).ToList();
 
                 return Json(new { success = true, volunteers = formattedVolunteers });
