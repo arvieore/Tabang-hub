@@ -16,7 +16,7 @@ namespace Tabang_Hub
     {
         public Nullable<int> userId { get; set; }
         public string FullName { get; set; }
-        public Nullable<int> OverallRating { get; set; }
+        public Nullable<decimal> OverallRating { get; set; }
         public string Feedback { get; set; }
         public string availability { get; set; }
     }

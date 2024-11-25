@@ -11,6 +11,7 @@ namespace Tabang_Hub.Utils
         public string FullName { get; set; }
         public double OverallRating { get; set; }
         public List<int> SkillIds { get; set; }
+        public List<VolunteerSkill> skills { get; set; }
         public double SimilarityScore { get; set; }
         public string Feedback { get; set; }
         public string Sentiment { get; set; }

@@ -89,7 +89,8 @@ namespace Tabang_Hub.Utils
         public class VolunteerRatingData
         {
             public int VolunteerId { get; set; }
-            public int Attendance { get; set; } // New property for attendance
+            public int Attendance { get; set; } // Process Attendance
+            public string Feedback { get; set; } // Add Feedback field
             public List<SkillRating> SkillRatings { get; set; }
         }
 

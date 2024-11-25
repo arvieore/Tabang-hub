@@ -17,7 +17,7 @@ namespace Tabang_Hub
         public int feedbackId { get; set; }
         public Nullable<int> userId { get; set; }
         public Nullable<int> eventId { get; set; }
-        public string feedback1 { get; set; }
+        public string feedback { get; set; }
     
         public virtual OrgEvents OrgEvents { get; set; }
         public virtual UserAccount UserAccount { get; set; }

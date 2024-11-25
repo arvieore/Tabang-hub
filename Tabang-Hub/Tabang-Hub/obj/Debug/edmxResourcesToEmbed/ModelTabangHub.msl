@@ -126,6 +126,16 @@
       </ResultMapping>
     </FunctionImportMapping>
     <FunctionImportMapping FunctionImportName="sp_RemoveVolunteer" FunctionName="TabangHubModel.Store.sp_RemoveVolunteer" />
+    <EntitySetMapping Name="Feedback">
+      <EntityTypeMapping TypeName="TabangHubModel.Feedback">
+        <MappingFragment StoreEntitySet="Feedback">
+          <ScalarProperty Name="feedback" ColumnName="feedback" />
+          <ScalarProperty Name="eventId" ColumnName="eventId" />
+          <ScalarProperty Name="userId" ColumnName="userId" />
+          <ScalarProperty Name="feedbackId" ColumnName="feedbackId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
     <EntitySetMapping Name="GroupChat">
       <EntityTypeMapping TypeName="TabangHubModel.GroupChat">
         <MappingFragment StoreEntitySet="GroupChat">
@@ -360,6 +370,17 @@
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
+    <EntitySetMapping Name="vw_AllVolunteers">
+      <EntityTypeMapping TypeName="TabangHubModel.vw_AllVolunteers">
+        <MappingFragment StoreEntitySet="vw_AllVolunteers">
+          <ScalarProperty Name="availability" ColumnName="availability" />
+          <ScalarProperty Name="Feedback" ColumnName="Feedback" />
+          <ScalarProperty Name="OverallRating" ColumnName="OverallRating" />
+          <ScalarProperty Name="FullName" ColumnName="FullName" />
+          <ScalarProperty Name="userId" ColumnName="userId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
     <EntitySetMapping Name="vw_ListOfEvent">
       <EntityTypeMapping TypeName="TabangHubModel.vw_ListOfEvent">
         <MappingFragment StoreEntitySet="vw_ListOfEvent">
@@ -375,6 +396,17 @@
           <ScalarProperty Name="Event_Name" ColumnName="Event_Name" />
           <ScalarProperty Name="User_Id" ColumnName="User_Id" />
           <ScalarProperty Name="Event_Id" ColumnName="Event_Id" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="vw_ListOfVolunteerToBeInvite">
+      <EntityTypeMapping TypeName="TabangHubModel.vw_ListOfVolunteerToBeInvite">
+        <MappingFragment StoreEntitySet="vw_ListOfVolunteerToBeInvite">
+          <ScalarProperty Name="availability" ColumnName="availability" />
+          <ScalarProperty Name="Feedback" ColumnName="Feedback" />
+          <ScalarProperty Name="OverallRating" ColumnName="OverallRating" />
+          <ScalarProperty Name="FullName" ColumnName="FullName" />
+          <ScalarProperty Name="userId" ColumnName="userId" />
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
@@ -437,38 +469,6 @@
           <ScalarProperty Name="skillId" ColumnName="skillId" />
           <ScalarProperty Name="userId" ColumnName="userId" />
           <ScalarProperty Name="volunteerSkillId" ColumnName="volunteerSkillId" />
-        </MappingFragment>
-      </EntityTypeMapping>
-    </EntitySetMapping>
-    <EntitySetMapping Name="vw_AllVolunteers">
-      <EntityTypeMapping TypeName="TabangHubModel.vw_AllVolunteers">
-        <MappingFragment StoreEntitySet="vw_AllVolunteers">
-          <ScalarProperty Name="availability" ColumnName="availability" />
-          <ScalarProperty Name="Feedback" ColumnName="Feedback" />
-          <ScalarProperty Name="OverallRating" ColumnName="OverallRating" />
-          <ScalarProperty Name="FullName" ColumnName="FullName" />
-          <ScalarProperty Name="userId" ColumnName="userId" />
-        </MappingFragment>
-      </EntityTypeMapping>
-    </EntitySetMapping>
-    <EntitySetMapping Name="Feedback">
-      <EntityTypeMapping TypeName="TabangHubModel.Feedback">
-        <MappingFragment StoreEntitySet="Feedback">
-          <ScalarProperty Name="feedback1" ColumnName="feedback" />
-          <ScalarProperty Name="eventId" ColumnName="eventId" />
-          <ScalarProperty Name="userId" ColumnName="userId" />
-          <ScalarProperty Name="feedbackId" ColumnName="feedbackId" />
-        </MappingFragment>
-      </EntityTypeMapping>
-    </EntitySetMapping>
-    <EntitySetMapping Name="vw_ListOfVolunteerToBeInvite">
-      <EntityTypeMapping TypeName="TabangHubModel.vw_ListOfVolunteerToBeInvite">
-        <MappingFragment StoreEntitySet="vw_ListOfVolunteerToBeInvite">
-          <ScalarProperty Name="availability" ColumnName="availability" />
-          <ScalarProperty Name="Feedback" ColumnName="Feedback" />
-          <ScalarProperty Name="OverallRating" ColumnName="OverallRating" />
-          <ScalarProperty Name="FullName" ColumnName="FullName" />
-          <ScalarProperty Name="userId" ColumnName="userId" />
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>

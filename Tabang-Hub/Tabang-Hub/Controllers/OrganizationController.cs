@@ -472,26 +472,42 @@ namespace Tabang_Hub.Controllers
                 }, JsonRequestBehavior.AllowGet);
             }
         }
-
+        //------------------------------------------------------------------------//------------------------------------------------------------------------
         private static List<int> SelectedSkills = new List<int>();
         [HttpPost]
         public async Task<JsonResult> FilterSkill(List<int> skillId, int eventId)
         {
             try
             {
+                List<VolunteerInvite> volunteer = new List<VolunteerInvite>();
                 // Check if no skills are selected
                 if (skillId == null || !skillId.Any())
                 {
-                    List<VolunteerInvite> volunteer = new List<VolunteerInvite>();
-
                     var vol = await _organizationManager.ConvertFeedbackToSentiment();
 
+                    foreach (var sk in vol)
+                    {
+                        var getUserSkill = db.VolunteerSkill.Where(m => m.userId == sk.UserId).ToList();
+
+                        var invite = new VolunteerInvite
+                        {
+                            UserId = sk.UserId,
+                            FullName = sk.FullName,
+                            OverallRating = sk.OverallRating,
+                            skills = getUserSkill, // Assign the entire list of VolunteerSkill
+                            SimilarityScore = sk.SimilarityScore,
+                            Feedback = sk.Feedback,
+                            Sentiment = sk.Sentiment,
+                            Availability = sk.Availability
+                        };
+                        volunteer.Add(invite);
+                    }
 
                     return Json(new
                     {
                         success = true,
                         message = "All volunteers retrieved successfully.",
-                        volunteers = vol
+                        volunteers = volunteer
                     });
                 }
                 else
@@ -566,25 +582,9 @@ namespace Tabang_Hub.Controllers
         }
 
         [HttpPost]
-        public JsonResult FilterByRateWithAvailabilityAndSkills(List<int> skillId, int eventId, string availability)
+        public async Task<JsonResult> FilterByRateWithAvailabilityAndSkills(List<int> skillId, int eventId, string availability)
         {
-            return Json(new { });
-        }
-
-        [HttpPost]
-        public JsonResult FilterByRatingsWithAvailability(List<int> skillId, int eventId, string availability)
-        {
-            return Json(new { });
-        }
-        [HttpPost]
-        public JsonResult FilterByAvailabilityWithSkill(List<int> skillId, int eventId, string availability)
-        {
-            return Json(new { });
-        }
-        [HttpPost]
-        public async Task<JsonResult> FilterByAvailability(List<int> skillId, int eventId, string availability)
-        {
-            var filteredVolunteers = await _organizationManager.GetFilteredVolunteerBasedOnAvailability(skillId, eventId, availability);
+            var filteredVolunteers = await _organizationManager.GetFilterByRateWithAvailabilityAndSkills(skillId, eventId, availability);
 
             var formattedVolunteers = filteredVolunteers
                         .Select(v => new
@@ -600,6 +600,68 @@ namespace Tabang_Hub.Controllers
             return Json(new { success = true, volunteers = formattedVolunteers });
         }
 
+        [HttpPost]
+        public async Task<JsonResult> FilterByRatingsWithAvailability(List<int> skillId, int eventId, string availability)
+        {
+            var filteredVolunteers = await _organizationManager.GetFilterByRatingsWithAvailability(skillId, eventId, availability);
+
+            var formattedVolunteers = filteredVolunteers
+                        .Select(v => new
+                        {
+                            FullName = v.FullName,
+                            OverallRating = v.OverallRating,
+                            UserId = v.UserId,
+                            Feedback = v.Feedback,
+                            Sentiment = v.Sentiment,
+                            Availability = v.Availability
+                        }).ToList();
+
+            return Json(new { success = true, volunteers = formattedVolunteers });
+        }
+        [HttpPost]
+        public async Task<JsonResult> FilterByAvailabilityWithSkill(List<int> skillId, int eventId, string availability)
+        {
+            var filteredVolunteers = await _organizationManager.GetFilteredByAvailabilityWithSkill(skillId, eventId, availability);
+
+            var formattedVolunteers = filteredVolunteers
+                        .Select(v => new
+                        {
+                            FullName = v.FullName,
+                            OverallRating = v.OverallRating,
+                            UserId = v.UserId,
+                            Feedback = v.Feedback,
+                            Sentiment = v.Sentiment,
+                            Availability = v.Availability
+                        }).ToList();
+
+            return Json(new { success = true, volunteers = formattedVolunteers });
+        }
+        [HttpPost]
+        public async Task<JsonResult> FilterByAvailability(List<int> skillId, int eventId, string availability)
+        {
+            try
+            {
+                var filteredVolunteers = await _organizationManager.GetFilteredVolunteerBasedOnAvailability(skillId, eventId, availability);
+
+                var formattedVolunteers = filteredVolunteers
+                            .Select(v => new
+                            {
+                                FullName = v.FullName,
+                                OverallRating = v.OverallRating,
+                                UserId = v.UserId,
+                                Feedback = v.Feedback,
+                                Sentiment = v.Sentiment,
+                                Availability = v.Availability
+                            }).ToList();
+
+                return Json(new { success = true, volunteers = formattedVolunteers });
+            }
+            catch (Exception e)
+            {
+                return Json(new { success = false, message = e.Message});
+            }
+        }
+        //------------------------------------------------------------------------
         [HttpPost]
         public JsonResult Invite(List<int> userId)
         {
@@ -1028,15 +1090,16 @@ namespace Tabang_Hub.Controllers
             foreach (var ratingData in volunteerRatings)
             {
                 var volunteerId = ratingData.VolunteerId;
-                var attendanceStatus = ratingData.Attendance; // Attendance is now passed and processed
+                var attendanceStatus = ratingData.Attendance; // Attendance is processed
+                var feedback = ratingData.Feedback; // Feedback is now included
 
                 foreach (var skillRating in ratingData.SkillRatings)
                 {
                     int skillId = skillRating.SkillId;
                     int rating = skillRating.Rating;
 
-                    // Save the rating and attendance
-                    var result = _organizationManager.SaveRating(eventId, attendanceStatus, volunteerId, skillId, rating, ref errMsg);
+                    // Save the rating, attendance, and feedback
+                    var result = _organizationManager.SaveRating(eventId, attendanceStatus, feedback, volunteerId, skillId, rating, ref errMsg);
                     if (result != ErrorCode.Success)
                     {
                         return Json(new { success = false, message = "Error saving rating: " + errMsg });
@@ -1061,14 +1124,14 @@ namespace Tabang_Hub.Controllers
                 db.Notification.Add(notification);
                 db.SaveChanges();
             }
-            
+
             var historyResult = _organizationManager.TrasferToHisotry1(eventId, volunteerRatings, ref errMsg);
             if (historyResult != ErrorCode.Success)
             {
                 return Json(new { success = false, message = "Error saving to history: " + errMsg });
             }
 
-            return Json(new { success = true, message = "All ratings and attendance submitted successfully." });
+            return Json(new { success = true, message = "All ratings, attendance, and feedback submitted successfully." });
         }
 
         [HttpPost]

@@ -342,9 +342,16 @@
                     <div class="col-md-12">
                         <div class="card">
                             <div class="card-header">
-                                <h5 class="card-title">Volunteer List</h5>
+                                <h1 class="card-title">@Model.eventDetails.eventTitle</h1>
+                                <label class="placeholder"><strong>Skills Required</strong></label>
+                                <div class="skills-container mt-2" id="skills-container">
+                                    @foreach (var skill in Model.detailsSkillRequirement)
+                                    {
+                                        <button type="button" class="skill-button" data-skill-id="@skill.skillRequirementId">@skill.Skills.skillName</button>
+                                    }
+                                </div>
                                 @*<button class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#inviteVolunteerModal" onclick="openInviteModal()">Invite Volunteers</button>*@
-                                <button class="btn btn-outline-success btn-sm" onclick="inviteVolunteer()">Invite Volunteers</button>
+                                
                             </div>
                             <div class="card-body">
                                 <div class="row">
@@ -352,7 +359,7 @@
                                     <div class="col-md-8">
                                         <div class="table-controls mb-3">
                                             <input type="text" class="search-box" placeholder="Search...">
-                                            <select class="form-select form-select-sm me-3" id="dropdownAvailability" aria-label="Availability">
+                                            <select class="form-select form-select-sm me-3 mt-2" id="dropdownAvailability" aria-label="Availability">
                                                 <option selected value="">Availability</option>
                                                 <option id="fulltime" value="Full Time">Full Time</option>
                                                 <option id="parttime" value="Part Time">Part Time</option>
@@ -363,8 +370,8 @@
                                             </label>
 
                                             @*<label>
-                                                <input type="checkbox" id="feedback-checkbox"> Feedback
-                                            </label>*@
+                    <input type="checkbox" id="feedback-checkbox"> Feedback
+                </label>*@
 
                                             <label>
                                                 <input type="checkbox" id="select-all-users"> Select All
@@ -375,6 +382,7 @@
                                                 <thead>
                                                     <tr>
                                                         <th scope="col">Name</th>
+                                                        <th scope="col">Skills</th>
                                                         <th scope="col">Rating</th>
                                                         @*<th scope="col">Feedback</th>*@
                                                         <th scope="col">Availability</th>
@@ -410,19 +418,12 @@
                                                             <input type="checkbox" id="select-all-option"> Select All
                                                         </label>
                                                     </li>
-                                                    @foreach (var Reqskills in Model.detailsSkillRequirement)
-                                                    {
-                                                        <li>
-                                                            <label>
-                                                                <input class="skill-checkbox" type="checkbox" data-selectedid="@Reqskills.Skills.skillId" value="@Reqskills.Skills.skillName"> @Reqskills.Skills.skillName
-                                                            </label>
-                                                        </li>
-                                                    }
+                                                     
                                                 </ul>
                                             </div>
                                         </div>
                                     </div>
-
+                                    <button class="btn btn-outline-success btn-sm" onclick="inviteVolunteer()">Invite Volunteers</button>
                                 </div>
                             </div>
                         </div>
@@ -432,6 +433,7 @@
             <script>
                 function inviteVolunteer() {
                     const selectedVolunteerIds = [];
+                    const eventId = @Model.eventDetails.eventId;
                     $('.user-checkbox:checked').each(function () {
                         const volunteerId = $(this).data('volunteerid');
                         if (volunteerId) {
@@ -439,9 +441,9 @@
                         }
                     });
                     $.ajax({
-                        url: '/Organization/Invite',
+                        url: '/Organization/InviteVolunteer',
                         type: 'POST',
-                        data: { userId: selectedVolunteerIds },
+                        data: { selectedVolunteers: selectedVolunteerIds, eventId: eventId },
                         success: function (response) {
 
                         },
@@ -576,17 +578,18 @@
                         url: apiUrl,
                         type: 'POST',
                         contentType: 'application/json',
-                        data: JSON.stringify({ skillId: selectedSkills, eventId: eventId }),
+                        data: JSON.stringify({ skillId: selectedSkills, eventId: eventId, availability: selectedAvailability }),
                         success: function (response) {
                             if (response.success) {
                                 // Store fetched data globally
                                 window.volunteerData = response.volunteers;
-
+                                console.log("Response: ", response.volunteers);
                                 // Apply availability filter
-                                const filteredVolunteers = filterByAvailability(window.volunteerData, selectedAvailability);
+                                //const filteredVolunteers = filterByAvailability(window.volunteerData, selectedAvailability);
 
                                 // Update the table with filtered volunteers
-                                updateVolunteerTable(filteredVolunteers);
+                                //updateVolunteerTable(filteredVolunteers);
+                                updateVolunteerTable(window.volunteerData);
                             } else {
                                 console.error("Error fetching volunteers:", response.message);
                             }
@@ -656,6 +659,7 @@
                         const row = `
                         <tr>
                             <td>${volunteer.FullName}</td>
+                            <td>${volunteer.skills}</td>
                             <td>${volunteer.OverallRating.toFixed(2)}</td>
                             <td>${volunteer.Availability}</td>
                             <td><input type="checkbox" class="user-checkbox" data-volunteerid="${volunteer.UserId}" value="${volunteer.UserId}"></td>
@@ -671,7 +675,7 @@
                 // Automatically load all volunteers when the page is ready
                 $(document).ready(function () {
                     const eventId = document.getElementById('event-Id').value;
-                    fetchVolunteers([], eventId); // No skills selected, fetch all volunteers
+                    fetchVolunteers([], eventId, ""); // No skills selected, fetch all volunteers
                 });
 
                 // Handle "Select All" checkbox changes
@@ -692,9 +696,9 @@
                     }
 
                     console.log("Selected Skills (Select All): ", selectedSkills);
-
+                    const selectedAvailability = $('#dropdownAvailability').val();
                     // Fetch volunteers based on the updated skill selection
-                    fetchVolunteers(selectedSkills, eventId);
+                    fetchVolunteers(selectedSkills, eventId, selectedAvailability);
                 });
 
                 $(document).on('change', '.skill-checkbox', function () {
@@ -728,9 +732,10 @@
                     const allChecked = $('.skill-checkbox').length === $('.skill-checkbox:checked').length;
                     $('#select-all-option').prop('checked', allChecked);
 
+                    const selectedAvailability = $('#dropdownAvailability').val();
                     // Update the selected skills
                     const selectedSkills = getSelectedSkills();
-                    fetchVolunteers(selectedSkills, eventId); // Fetch volunteers based on the updated skill selection
+                    fetchVolunteers(selectedSkills, eventId, selectedAvailability); // Fetch volunteers based on the updated skill selection
                 });
             </script>
 
@@ -1092,7 +1097,7 @@
                         <div class="modal-body">
                             <form id="edit-event-form" method="post" enctype="multipart/form-data" action="@Url.Action("EditEvent", "Organization")" onsubmit="validateEditForm(event)">
                                 <!-- Event ID -->
-                                <input type="hidden" name="eventId" value="@Model.eventDetails.eventId" />
+                                <input id="eventIdNi" type="hidden" name="eventId" value="@Model.eventDetails.eventId" />
 
                                 <!-- Event Title -->
                                 <div class="mb-3">
@@ -1479,6 +1484,7 @@ else
                                                 <th scope="col">Email</th>
                                                 <th scope="col">Skills</th>
                                                 <th scope="col">Ratings per Skill</th>
+                                                <th scope="col">Feedback</th>
                                                 <th scope="col">Attendance</th>
                                             </tr>
                                         </thead>
@@ -1526,6 +1532,11 @@ else
                                                                     }
                                                                 }
                                                             }
+                                                        </td>
+                                                        <td>
+                                                            <div class="form-group">
+                                                                <textarea class="form-control" name="feedback_@volunteer.userId" rows="2" placeholder="Enter feedback here..."></textarea>
+                                                            </div>
                                                         </td>
                                                         <td>
                                                             <div class="form-group d-flex align-items-center">

@@ -16,6 +16,7 @@ namespace Tabang_Hub
     {
         public UserAccount()
         {
+            this.Feedback = new HashSet<Feedback>();
             this.GroupMessages = new HashSet<GroupMessages>();
             this.OrgEvents = new HashSet<OrgEvents>();
             this.OrgInfo = new HashSet<OrgInfo>();
@@ -26,7 +27,6 @@ namespace Tabang_Hub
             this.VolunteerInfo = new HashSet<VolunteerInfo>();
             this.Volunteers = new HashSet<Volunteers>();
             this.VolunteersHistory = new HashSet<VolunteersHistory>();
-            this.Feedback = new HashSet<Feedback>();
         }
     
         public int userId { get; set; }
@@ -35,6 +35,7 @@ namespace Tabang_Hub
         public short status { get; set; }
         public int roleId { get; set; }
     
+        public virtual ICollection<Feedback> Feedback { get; set; }
         public virtual ICollection<GroupMessages> GroupMessages { get; set; }
         public virtual ICollection<OrgEvents> OrgEvents { get; set; }
         public virtual ICollection<OrgInfo> OrgInfo { get; set; }
@@ -45,6 +46,5 @@ namespace Tabang_Hub
         public virtual ICollection<VolunteerInfo> VolunteerInfo { get; set; }
         public virtual ICollection<Volunteers> Volunteers { get; set; }
         public virtual ICollection<VolunteersHistory> VolunteersHistory { get; set; }
-        public virtual ICollection<Feedback> Feedback { get; set; }
     }
 }

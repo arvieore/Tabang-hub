@@ -28,6 +28,7 @@ namespace Tabang_Hub
             throw new UnintentionalCodeFirstException();
         }
     
+        public DbSet<Feedback> Feedback { get; set; }
         public DbSet<GroupChat> GroupChat { get; set; }
         public DbSet<GroupMessages> GroupMessages { get; set; }
         public DbSet<LastRead> LastRead { get; set; }
@@ -48,14 +49,13 @@ namespace Tabang_Hub
         public DbSet<Volunteers> Volunteers { get; set; }
         public DbSet<VolunteersHistory> VolunteersHistory { get; set; }
         public DbSet<VolunteerSkill> VolunteerSkill { get; set; }
+        public DbSet<vw_AllVolunteers> vw_AllVolunteers { get; set; }
         public DbSet<vw_ListOfEvent> vw_ListOfEvent { get; set; }
+        public DbSet<vw_ListOfVolunteerToBeInvite> vw_ListOfVolunteerToBeInvite { get; set; }
         public DbSet<vw_OrganizationAccounts> vw_OrganizationAccounts { get; set; }
         public DbSet<vw_UserRoles> vw_UserRoles { get; set; }
         public DbSet<vw_VolunteerAccounts> vw_VolunteerAccounts { get; set; }
         public DbSet<vw_VolunteerSkills> vw_VolunteerSkills { get; set; }
-        public DbSet<vw_AllVolunteers> vw_AllVolunteers { get; set; }
-        public DbSet<Feedback> Feedback { get; set; }
-        public DbSet<vw_ListOfVolunteerToBeInvite> vw_ListOfVolunteerToBeInvite { get; set; }
     
         public virtual int sp_CancelRequest(Nullable<int> eventId, Nullable<int> userId)
         {

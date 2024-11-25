@@ -16,12 +16,12 @@ namespace Tabang_Hub
     {
         public OrgEvents()
         {
+            this.Feedback = new HashSet<Feedback>();
             this.GroupChat = new HashSet<GroupChat>();
             this.OrgEventImage = new HashSet<OrgEventImage>();
             this.OrgSkillRequirement = new HashSet<OrgSkillRequirement>();
             this.UserDonated = new HashSet<UserDonated>();
             this.Volunteers = new HashSet<Volunteers>();
-            this.Feedback = new HashSet<Feedback>();
         }
     
         public int eventId { get; set; }
@@ -36,12 +36,12 @@ namespace Tabang_Hub
         public string eventImage { get; set; }
         public Nullable<int> status { get; set; }
     
+        public virtual ICollection<Feedback> Feedback { get; set; }
         public virtual ICollection<GroupChat> GroupChat { get; set; }
         public virtual ICollection<OrgEventImage> OrgEventImage { get; set; }
         public virtual UserAccount UserAccount { get; set; }
         public virtual ICollection<OrgSkillRequirement> OrgSkillRequirement { get; set; }
         public virtual ICollection<UserDonated> UserDonated { get; set; }
         public virtual ICollection<Volunteers> Volunteers { get; set; }
-        public virtual ICollection<Feedback> Feedback { get; set; }
     }
 }

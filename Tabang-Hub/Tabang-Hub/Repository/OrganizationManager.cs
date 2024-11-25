@@ -35,6 +35,7 @@ namespace Tabang_Hub.Repository
         private BaseRepository<VolunteerInfo> _volunteerInfo;
         private BaseRepository<ProfilePicture> _profile;
         private BaseRepository<Notification> _notification;
+        private BaseRepository<Feedback> _feedback;
 
         public OrganizationManager()
         {
@@ -59,6 +60,7 @@ namespace Tabang_Hub.Repository
             _volunteerInfo = new BaseRepository<VolunteerInfo>();
             _profile = new BaseRepository<ProfilePicture>();
             _notification = new BaseRepository<Notification>();
+            _feedback = new BaseRepository<Feedback>();
         }
 
         public ErrorCode CreateEvents(OrgEvents orgEvents, List<string> imageFileNames, List<string> skills, ref string errMsg)
@@ -672,7 +674,7 @@ namespace Tabang_Hub.Repository
         public async Task<RecruitmentResult> GetMatchedVolunteers(int eventId)
         {
             //string flaskApiUrl = "https://tabangapi.as.r.appspot.com/recruit"; // Flask API URL
-            string flaskApiUrl = "http://127.0.0.1:5000/recruit"; // Flask API URL
+            string flaskApiUrl = "http://127.0.0.1:5000/recruitSortVolunteer"; // Flask API URL
 
             RecruitmentResult recruitmentResult = new RecruitmentResult();
             string errorMessage = null;
@@ -907,7 +909,7 @@ namespace Tabang_Hub.Repository
                                  lname = volunteer.lName,
                                  overallRating = rating.OverallRating,
                                  feedback = rating.Feedback,
-                                 avaiability = volunteer.availability
+                                 availability = volunteer.availability
                              }).ToList(),
                 user_skills = db.VolunteerSkill.Select(m => new { userId = m.userId, skillId = m.skillId }).ToList(),
                 event_skills = skillIds
@@ -930,6 +932,117 @@ namespace Tabang_Hub.Repository
         public async Task<List<VolunteerInvite>> GetFilteredVolunteerBasedOnAvailability(List<int> skillIds, int eventId, string availability)
         {
             string flaskApiUrl = "http://127.0.0.1:5000/filter_by_availability";
+
+            var datas = new
+            {
+                user_info = (from volunteer in _volunteerInfo.GetAll()
+                             join rating in db.vw_ListOfVolunteerToBeInvite
+                             on volunteer.userId equals rating.userId
+                             select new
+                             {
+                                 userId = volunteer.userId,
+                                 fname = volunteer.fName,
+                                 lname = volunteer.lName,
+                                 overallRating = rating.OverallRating,
+                                 feedback = rating.Feedback,
+                                 availability = volunteer.availability
+                             }).ToList(),
+                user_skills = db.VolunteerSkill.Select(m => new { userId = m.userId, skillId = m.skillId }).ToList(),
+                event_skills = skillIds,
+                sortBy = availability
+            };
+
+            using (var client = new HttpClient())
+            {
+                var response = await client.PostAsJsonAsync(flaskApiUrl, datas);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception("Error calling Flask API: " + response.ReasonPhrase);
+                }
+
+                var jsonResponse = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<List<VolunteerInvite>>(jsonResponse);
+            }
+        }
+
+        public async Task<List<VolunteerInvite>> GetFilteredByAvailabilityWithSkill(List<int> skillIds, int eventId, string availability)
+        {
+            string flaskApiUrl = "http://127.0.0.1:5000/filter_by_availability_with_skills";
+
+            var datas = new
+            {
+                user_info = (from volunteer in _volunteerInfo.GetAll()
+                             join rating in db.vw_ListOfVolunteerToBeInvite
+                             on volunteer.userId equals rating.userId
+                             select new
+                             {
+                                 userId = volunteer.userId,
+                                 fname = volunteer.fName,
+                                 lname = volunteer.lName,
+                                 overallRating = rating.OverallRating,
+                                 feedback = rating.Feedback,
+                                 availability = volunteer.availability
+                             }).ToList(),
+                user_skills = db.VolunteerSkill.Select(m => new { userId = m.userId, skillId = m.skillId }).ToList(),
+                event_skills = skillIds,
+                sortBy = availability
+            };
+
+            using (var client = new HttpClient())
+            {
+                var response = await client.PostAsJsonAsync(flaskApiUrl, datas);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception("Error calling Flask API: " + response.ReasonPhrase);
+                }
+
+                var jsonResponse = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<List<VolunteerInvite>>(jsonResponse);
+            }
+        }
+
+        public async Task<List<VolunteerInvite>> GetFilterByRatingsWithAvailability(List<int> skillIds, int eventId, string availability)
+        {
+            string flaskApiUrl = "http://127.0.0.1:5000/filter_by_ratings_with_availability";
+
+            var datas = new
+            {
+                user_info = (from volunteer in _volunteerInfo.GetAll()
+                             join rating in db.vw_ListOfVolunteerToBeInvite
+                             on volunteer.userId equals rating.userId
+                             select new
+                             {
+                                 userId = volunteer.userId,
+                                 fname = volunteer.fName,
+                                 lname = volunteer.lName,
+                                 overallRating = rating.OverallRating,
+                                 feedback = rating.Feedback,
+                                 availability = volunteer.availability
+                             }).ToList(),
+                user_skills = db.VolunteerSkill.Select(m => new { userId = m.userId, skillId = m.skillId }).ToList(),
+                event_skills = skillIds,
+                sortBy = availability
+            };
+
+            using (var client = new HttpClient())
+            {
+                var response = await client.PostAsJsonAsync(flaskApiUrl, datas);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception("Error calling Flask API: " + response.ReasonPhrase);
+                }
+
+                var jsonResponse = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<List<VolunteerInvite>>(jsonResponse);
+            }
+        }
+
+        public async Task<List<VolunteerInvite>> GetFilterByRateWithAvailabilityAndSkills(List<int> skillIds, int eventId, string availability)
+        {
+            string flaskApiUrl = "http://127.0.0.1:5000/filter_by_rate_availability_skills";
 
             var datas = new
             {
@@ -1001,7 +1114,7 @@ namespace Tabang_Hub.Repository
             }
             return ErrorCode.Success;
         }
-        public ErrorCode SaveRating(int eventId, int attended, int userId, int skillId, int rating, ref string errMsg)
+        public ErrorCode SaveRating(int eventId, int attended, string feedback, int userId, int skillId, int rating, ref string errMsg)
         {
             var skillId1 = GetSkillIdByEventIdAndUserId(eventId, userId);
             skillId1.attended = attended;
@@ -1010,8 +1123,15 @@ namespace Tabang_Hub.Repository
                 eventId = eventId,
                 userId = userId,
                 rate = rating,
-                skillId = skillId,
+                skillId = skillId,             
                 ratedAt = DateTime.Now,
+            };
+
+            var feedbck = new Feedback()
+            { 
+                userId = userId,
+                eventId = eventId,
+                feedback = feedback,
             };
 
             if (_volunteersHistory.Update(skillId1.applyVolunteerId, skillId1, out errMsg) != ErrorCode.Success)
@@ -1020,6 +1140,11 @@ namespace Tabang_Hub.Repository
             }
 
             if (_ratings.Create(ratings, out errMsg) != ErrorCode.Success)
+            {
+                return ErrorCode.Error;
+            }
+
+            if (_feedback.Create(feedbck, out errMsg) != ErrorCode.Success)
             {
                 return ErrorCode.Error;
             }
