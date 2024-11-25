@@ -129,7 +129,7 @@
     <EntitySetMapping Name="Feedback">
       <EntityTypeMapping TypeName="TabangHubModel.Feedback">
         <MappingFragment StoreEntitySet="Feedback">
-          <ScalarProperty Name="feedback" ColumnName="feedback" />
+          <ScalarProperty Name="feedback1" ColumnName="feedback" />
           <ScalarProperty Name="eventId" ColumnName="eventId" />
           <ScalarProperty Name="userId" ColumnName="userId" />
           <ScalarProperty Name="feedbackId" ColumnName="feedbackId" />

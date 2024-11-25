@@ -1172,9 +1172,14 @@ namespace Tabang_Hub.Controllers
 
                     db.sp_CancelRequest(eventId, UserId);
 
+                    if (_volunteerManager.DeleteNotification(UserId, eventId, ref ErrorMessage) != ErrorCode.Success)
+                    {
+                        return Json(new { success = false, message = "Error Deleting notificaiton" });
+                    }
+
                     if (_organizationManager.SentNotif(orga.userId, UserId, eventId, "Cancel Application", $"Volunteer {vol.email} canceled his application og event {evnt.eventTitle}!", 0, ref ErrorMessage) != ErrorCode.Success)
                     {
-                        return Json(new { success = false, message = "Raquest cancel failed" });
+                        return Json(new { success = false, message = "Request cancel failed" });
                     }
 
                     return Json(new { success = true, message = "Request Cancelled" });

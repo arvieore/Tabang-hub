@@ -2193,6 +2193,7 @@
     <Content Include="Views\Admin\OrgProfile.cshtml" />
     <Content Include="Views\Admin\VolunteerDetails.cshtml" />
     <Content Include="Views\Admin\History.cshtml" />
+    <Content Include="Views\Organization\HistoryDetails.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

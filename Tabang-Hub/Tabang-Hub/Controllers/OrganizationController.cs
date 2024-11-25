@@ -267,6 +267,10 @@ namespace Tabang_Hub.Controllers
         public async Task<ActionResult> Details(int id)
         {
             var events = _organizationManager.GetEventById(id);
+            if (events == null)
+            {
+                return RedirectToAction("EventsList");
+            }
             var listofImage = _organizationManager.listOfEventImage(id);
             var listOfSkills = _organizationManager.listOfSkillRequirement(id);
             var listofUserDonated = _organizationManager.ListOfUserDonated(id);
@@ -369,7 +373,7 @@ namespace Tabang_Hub.Controllers
             {
                 return View(indexModel);
             }
-            return RedirectToAction("EventsManagement");
+            return RedirectToAction("EventsList");
         }
 
         [HttpPost]
@@ -1156,6 +1160,22 @@ namespace Tabang_Hub.Controllers
 
             return File(fileBytes, "text/csv", "OrganizationDataExport.csv");
         }
+        public JsonResult RemoveVolunteer(int userId, int eventId)
+        {
+            var volunteer = _organizationManager.GetVolunteerByUserIdAndEventId(userId, eventId);
+            if (volunteer == null)
+            {
+                return Json(new { success = false, message = "Volunteer not found." });
+            }
+
+            var result = _organizationManager.RemoveVolunteer((int)volunteer.userId, eventId, ref ErrorMessage);
+            if (result != ErrorCode.Success)
+            {
+                return Json(new { success = false, message = "Failed to remove volunteer. Please try again later." });
+            }
+
+            return Json(new { success = true, message = "Volunteer removed successfully." });
+        }
         [HttpGet]
         public JsonResult GetUnreadNotifications()
         {
@@ -1254,6 +1274,65 @@ namespace Tabang_Hub.Controllers
                 // Return an error response
                 return Json(new { success = false, message = ex.Message });
             }
+        }
+        [Authorize]
+        public ActionResult HistoryDetails(int id)
+        {
+            var eventHistory = _organizationManager.GetEventByEventId(id);
+            var volHistory = _organizationManager.GetVolunteerHistoryByEventId(id);
+            var skillReq = _organizationManager.listOfSkillRequirement(id);
+            var listofImage = _organizationManager.listOfEventImage(id);
+            var listOfSkills = _organizationManager.listOfSkillRequirement(id);
+            var orgInfo = _organizationManager.GetOrgInfoByUserId(UserId);
+            var rating = new List<VolunteerRatingData>();
+            var listOfAcc = new List<UserAccount>();
+            var listOfProfile = new List<ProfilePicture>();
+
+            foreach (var item in volHistory)
+            {
+                var feedback = _organizationManager.GetFeedbackByEventIdAndUserId((int)item.userId, (int)item.eventId);
+                var rates = _organizationManager.GetEventVolunteerRatingByUserIdAndEventId((int)item.userId, (int)item.eventId);
+                var userAcc = _organizationManager.GetUserByUserId((int)item.userId);
+                var userProfile = _organizationManager.GetProfileByUserId1((int)item.userId);
+                listOfProfile.Add(userProfile);
+                listOfAcc.Add(userAcc);
+
+                var rateToAppend = new List<SkillRating>();
+
+                foreach (var rate in rates)
+                {
+                    var rt = new SkillRating()
+                    {
+                        SkillId = (int)rate.skillId,
+                        SkillName = rate.Skills.skillName,
+                        Rating = (int)rate.rate,
+                    };
+                    rateToAppend.Add(rt);
+                }
+
+                var toAppend = new VolunteerRatingData()
+                {
+                    VolunteerId = (int)item.userId,
+                    Attendance = (int)item.attended,
+                    Feedback = feedback.feedback1,
+                    SkillRatings = rateToAppend,
+                };
+                rating.Add(toAppend);
+            }
+
+            var indexModel = new Lists()
+            {
+                OrgInfo = orgInfo,
+                eventDetails = eventHistory,
+                skillRequirement1 = skillReq,
+                detailsSkillRequirement = listOfSkills,
+                volunteerRatings = rating,
+                userAccounts = listOfAcc,
+                detailsEventImage = listofImage,
+                profilePics = listOfProfile,
+            };
+
+            return View(indexModel);
         }
         private string GetRedirectUrlForNotification(Notification notification)
         {

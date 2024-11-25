@@ -260,7 +260,7 @@
     <Property Name="feedbackId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
     <Property Name="userId" Type="Int32" />
     <Property Name="eventId" Type="Int32" />
-    <Property Name="feedback" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+    <Property Name="feedback1" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
     <NavigationProperty Name="OrgEvents" Relationship="TabangHubModel.FK_Feedback_OrgEvents" FromRole="Feedback" ToRole="OrgEvents" />
     <NavigationProperty Name="UserAccount" Relationship="TabangHubModel.FK_Feedback_UserAccount" FromRole="Feedback" ToRole="UserAccount" />
   </EntityType>

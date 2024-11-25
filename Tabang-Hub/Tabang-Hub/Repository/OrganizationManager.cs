@@ -557,7 +557,22 @@ namespace Tabang_Hub.Repository
         {
             return _orgEvents._table.Where(m => m.userId == userId && m.status == 2).ToList();
         }
-
+        public List<VolunteersHistory> GetVolunteerHistoryByEventId(int eventId)
+        {
+            return _volunteersHistory._table.Where(m => m.eventId == eventId).ToList();
+        }
+        public Feedback GetFeedbackByEventIdAndUserId(int userId, int eventId)
+        {
+            return _feedback._table.Where(m => m.userId == userId && m.eventId == eventId).FirstOrDefault();
+        }
+        public ProfilePicture GetProfileByUserId1(int userId)
+        {
+            return _profile._table.Where(m => m.userId == userId).FirstOrDefault();
+        }
+        public List<Rating> GetEventVolunteerRatingByUserIdAndEventId(int userId, int eventId)
+        {
+            return _ratings._table.Where(m => m.userId == userId && m.eventId == eventId).ToList();
+        }
         public GroupChat GetGroupChatByEventId(int eventId)
         {
             return _groupChat._table.Where(m => m.eventId == eventId).FirstOrDefault();
@@ -569,6 +584,10 @@ namespace Tabang_Hub.Repository
         public VolunteersHistory GetSkillIdByEventIdAndUserId(int eventId, int userId)
         {
             return _volunteersHistory._table.Where(m => m.userId == userId && m.eventId == eventId).FirstOrDefault();
+        }
+        public Volunteers GetVolunteerByUserIdAndEventId(int userId, int eventId)
+        {
+            return _eventVolunteers._table.Where(m => m.userId == userId && m.eventId == eventId).FirstOrDefault();
         }
         public OrgEvents GetEventByEventId(int eventId)
         {
@@ -1174,7 +1193,7 @@ namespace Tabang_Hub.Repository
             { 
                 userId = userId,
                 eventId = eventId,
-                feedback = feedback,
+                feedback1 = feedback,
             };
 
             if (_volunteersHistory.Update(skillId1.applyVolunteerId, skillId1, out errMsg) != ErrorCode.Success)
@@ -1192,6 +1211,16 @@ namespace Tabang_Hub.Repository
                 return ErrorCode.Error;
             }
 
+            return ErrorCode.Success;
+        }
+        public ErrorCode RemoveVolunteer(int userId, int eventId, ref string errMsg)
+        {
+            var volunteer = GetVolunteerByUserIdAndEventId(userId, eventId);
+
+            if (_eventVolunteers.Delete(volunteer.applyVolunteerId) != ErrorCode.Success)
+            {
+                return ErrorCode.Error;
+            }
             return ErrorCode.Success;
         }
         public ErrorCode InviteVolunteer(int userId, int eventId, ref string errMsg)

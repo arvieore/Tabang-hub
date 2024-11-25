@@ -33,25 +33,6 @@
         margin-left: 10px;
     }
 
-    .navbar-nav .nav-link {
-        padding-left: 10px;
-        padding-right: 10px;
-        white-space: nowrap;
-        font-size: 14px;
-        position: relative;
-    }
-
-        .navbar-nav .nav-link.active::after {
-            content: "";
-            display: block;
-            width: 100%;
-            height: 2px;
-            background-color: #5BC1AC;
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-        }
-
     .content-section {
         display: none;
     }
@@ -176,7 +157,12 @@
                 <button class="nav-link active" id="organization-details-tab" data-bs-toggle="tab" data-bs-target="#organization-details" type="button" role="tab" aria-controls="organization-details" aria-selected="true">Details</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="volunteer-list-tab" data-bs-toggle="tab" data-bs-target="#volunteer-list" type="button" role="tab" aria-controls="volunteer-list" aria-selected="false">Volunteer List</button>
+                <button class="nav-link" id="volunteer-list-tab" data-bs-toggle="tab" data-bs-target="#volunteer-list" type="button" role="tab" aria-controls="volunteer-list" aria-selected="false">Invite Volunteer</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="invite-volunteer-tab" data-bs-toggle="tab" data-bs-target="#invite-volunteer" type="button" role="tab" aria-controls="invite-volunteer" aria-selected="false">
+                    Volunteer List
+                </button>
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="applied-volunteer-list-tab" data-bs-toggle="tab" data-bs-target="#applied-volunteer-list" type="button" role="tab" aria-controls="applied-volunteer-list" aria-selected="false">Applied Volunteer List</button>
@@ -350,33 +336,35 @@
                                         <button type="button" class="skill-button" data-skill-id="@skill.skillRequirementId">@skill.Skills.skillName</button>
                                     }
                                 </div>
-                                @*<button class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#inviteVolunteerModal" onclick="openInviteModal()">Invite Volunteers</button>*@
-                                
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <!-- Table Section -->
                                     <div class="col-md-8">
-                                        <div class="table-controls mb-3">
-                                            <input type="text" class="search-box" placeholder="Search...">
-                                            <select class="form-select form-select-sm me-3 mt-2" id="dropdownAvailability" aria-label="Availability">
+                                        <div class="table-controls mb-3 d-flex align-items-center gap-3">
+                                            <!-- Search Box -->
+                                            <input type="text" class="form-control form-control-sm search-box" placeholder="Search..." id="search-box">
+
+                                            <!-- Availability Dropdown -->
+                                            <select class="form-select form-select-sm" id="dropdownAvailability" aria-label="Availability">
                                                 <option selected value="">Availability</option>
                                                 <option id="fulltime" value="Full Time">Full Time</option>
                                                 <option id="parttime" value="Part Time">Part Time</option>
                                             </select>
 
-                                            <label>
-                                                <input type="checkbox" id="ratings-checkbox"> Ratings
-                                            </label>
+                                            <!-- Ratings Checkbox -->
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="checkbox" id="ratings-checkbox">
+                                                <label class="form-check-label" for="ratings-checkbox">Ratings</label>
+                                            </div>
 
-                                            @*<label>
-                    <input type="checkbox" id="feedback-checkbox"> Feedback
-                </label>*@
-
-                                            <label>
-                                                <input type="checkbox" id="select-all-users"> Select All
-                                            </label>
+                                            <!-- Select All Checkbox -->
+                                            <div class="form-check form-check-inline align-items-center">
+                                                <input class="form-check-input" type="checkbox" id="select-all-users">
+                                                <label class="form-check-label d-inline" for="select-all-users" style="font-size: 0.8rem; white-space: nowrap;">Select All</label>
+                                            </div>
                                         </div>
+
                                         <div class="table-responsive">
                                             <table class="table table-striped table-hover">
                                                 <thead>
@@ -384,9 +372,7 @@
                                                         <th scope="col">Name</th>
                                                         <th scope="col">Skills</th>
                                                         <th scope="col">Rating</th>
-                                                        @*<th scope="col">Feedback</th>*@
                                                         <th scope="col">Availability</th>
-                                                        @*<th scope="col">Sentiment</th>*@
                                                         <th scope="col">Select</th>
                                                     </tr>
                                                 </thead>
@@ -395,7 +381,6 @@
                                                 </tbody>
                                             </table>
                                         </div>
-
                                     </div>
 
                                     <!-- Skills Section -->
@@ -428,18 +413,20 @@
                                                             </label>
                                                         </li>
                                                     }
-
                                                 </ul>
                                             </div>
                                         </div>
                                     </div>
-                                    <button class="btn btn-outline-success btn-sm" onclick="inviteVolunteer()">Invite Volunteers</button>
+                                    <div class="text-end mt-4">
+                                        <button class="btn btn-success btn-sm" onclick="inviteVolunteer()">Invite Volunteers</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
             <script>
                 function inviteVolunteer() {
                     const selectedVolunteerIds = [];
@@ -463,6 +450,24 @@
                     });
 
                 }
+
+                // Search functionality
+                $(document).on('input', '#search-box', function () {
+                    const searchTerm = $(this).val().toLowerCase(); // Get the search term and convert to lowercase
+                    const tableRows = $('table tbody tr'); // Select all table rows
+
+                    tableRows.each(function () {
+                        const rowText = $(this).text().toLowerCase(); // Get the text content of the row and convert to lowercase
+
+                        if (rowText.includes(searchTerm)) {
+                            $(this).show(); // Show the row if it matches the search term
+                        } else {
+                            $(this).hide(); // Hide the row if it doesn't match the search term
+                        }
+                    });
+
+                    console.log("Search Term:", searchTerm); // Log the search term for debugging
+                });
             </script>
             <script>
                 document.addEventListener('DOMContentLoaded', function () {
@@ -667,14 +672,14 @@
                     volunteers.forEach(volunteer => {
                         const skills = volunteer.Skills.join(", ");
                         const row = `
-                        <tr>
-                            <td>${volunteer.FullName}</td>
-                            <td>${skills}</td>
-                            <td>${volunteer.OverallRating.toFixed(2)}</td>
-                            <td>${volunteer.Availability}</td>
-                            <td><input type="checkbox" class="user-checkbox" data-volunteerid="${volunteer.UserId}" value="${volunteer.UserId}"></td>
-                        </tr>
-                        `;
+                                                            <tr>
+                                                                <td>${volunteer.FullName}</td>
+                                                                <td>${skills}</td>
+                                                                <td>${volunteer.OverallRating.toFixed(2)}</td>
+                                                                <td>${volunteer.Availability}</td>
+                                                                <td><input type="checkbox" class="user-checkbox" data-volunteerid="${volunteer.UserId}" value="${volunteer.UserId}"></td>
+                                                            </tr>
+                                                            `;
                         tableBody.insertAdjacentHTML('beforeend', row);
                     });
 
@@ -1075,6 +1080,108 @@
                 </div>
             </div>
 
+            @{
+                var processedUsers3 = new HashSet<int>(); // To track processed user IDs
+            }
+
+            <div class="tab-pane fade" id="invite-volunteer" role="tabpanel" aria-labelledby="invite-volunteer-tab">
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">Volunteer List</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">Profile Image</th>
+                                                <th scope="col">Email</th>
+                                                <th scope="col">Skills</th>
+                                                <th scope="col">Ratings</th>
+                                                <th scope="col">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var volunteer in Model.listOfEventVolunteers)
+                                            {
+                                                if (volunteer.Status == 1 && !processedUsers3.Contains((int)volunteer.userId))
+                                                {
+                                                    processedUsers.Add((int)volunteer.userId); // Mark the user as processed
+
+                                                    // Prepare separate strings for skills and ratings
+                                                    var skillsHtml = new System.Text.StringBuilder();
+                                                    var ratingsHtml = new System.Text.StringBuilder();
+                                                    var userSkills = Model.volunteersSkills.Where(s => s.userId == volunteer.userId).ToList();
+
+                                                    foreach (var skill in userSkills)
+                                                    {
+                                                        foreach (var req in Model.eventDetails.OrgSkillRequirement)
+                                                        {
+                                                            if (skill.skillId == req.skillId)
+                                                            {
+                                                                // Calculate average rating for the skill
+                                                                List<int> avgRate = new List<int>();
+                                                                foreach (var rate in Model.listOfRatings)
+                                                                {
+                                                                    if (skill.userId == rate.userId && skill.skillId == rate.skillId)
+                                                                    {
+                                                                        avgRate.Add((int)rate.rate);
+                                                                    }
+                                                                }
+
+                                                                double averageRating = avgRate.Any() ? avgRate.Average() : 0;
+                                                                int fullStars = (int)averageRating;
+                                                                int halfStars = averageRating % 1 >= 0.5 ? 1 : 0;
+
+                                                                // Build star icons for the skill rating
+                                                                var starRatingHtml = new System.Text.StringBuilder();
+                                                                for (int i = 0; i < fullStars; i++)
+                                                                {
+                                                                    starRatingHtml.Append("<i class='bi bi-star-fill' style='color: gold;'></i>");
+                                                                }
+                                                                if (halfStars > 0)
+                                                                {
+                                                                    starRatingHtml.Append("<i class='bi bi-star-half' style='color: gold;'></i>");
+                                                                }
+                                                                for (int i = 0; i < 5 - (fullStars + halfStars); i++)
+                                                                {
+                                                                    starRatingHtml.Append("<i class='bi bi-star' style='color: gold;'></i>");
+                                                                }
+
+                                                                // Append the skill name and rating separately
+                                                                skillsHtml.Append($"<div>{skill.Skills.skillName}</div>");
+                                                                ratingsHtml.Append($"<div>{starRatingHtml.ToString()}</div>");
+                                                            }
+                                                        }
+                                                    }
+
+                                                    <tr>
+                                                        <td>
+                                                            <img src="@Url.Content("~/Content/images/organization.png")" class="profile-img" alt="Volunteer Image" style="width: 50px; height: 50px; border-radius: 50%;">
+                                                        </td>
+                                                        <td>@volunteer.UserAccount.email</td>
+                                                        <td>@Html.Raw(skillsHtml.ToString())</td>
+                                                        <td>@Html.Raw(ratingsHtml.ToString())</td>
+                                                        <td>
+                                                            <div class="d-flex gap-2">
+                                                                <a href="@Url.Action("VolunteerDetails", "Organization", new { userId = volunteer.userId, eventId = Model.eventDetails.eventId })" class="btn btn-outline-primary btn-sm">View</a>
+                                                                <button type="button" class="btn btn-outline-danger btn-sm remove-btn" data-id="@volunteer.userId" data-event-id="@Model.eventDetails.eventId">Remove</button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Edit Event Modal -->
             <div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true" data-bs-backdrop="static">
                 <div class="modal-dialog modal-lg">
@@ -1199,7 +1306,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
 
         <!-- Invite Volunteer Modal -->
@@ -1585,6 +1691,46 @@ else
             }
         });
     });
+
+    $(document).on('click', '.remove-btn', function () {
+        const volunteerId = $(this).data('id');
+        const eventId = $(this).data('event-id');
+        const row = $(this).closest('tr');
+
+        // Confirm removal with SweetAlert
+        Swal.fire({
+            title: "Are you sure?",
+            text: "This action will remove the volunteer from the event.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, remove them!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Proceed with AJAX call to remove volunteer
+                $.ajax({
+                    url: '/Organization/RemoveVolunteer',
+                    type: 'POST',
+                    data: { userId: volunteerId, eventId: eventId },
+                    success: function (response) {
+                        if (response.success) {
+                            // Display success message
+                            Swal.fire("Removed!", response.message, "success");
+                            row.remove(); // Remove the row from the table
+                        } else {
+                            // Display error message
+                            Swal.fire("Error!", response.message, "error");
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        // Handle AJAX errors
+                        Swal.fire("Error!", "An error occurred while processing the request.", "error");
+                    }
+                });
+            }
+        });
+    });
 </script>
 
 <script>
@@ -1827,10 +1973,14 @@ else
 document.getElementById('submitAllRatings').addEventListener('click', function () {
     let volunteerRatingsData = [];
     document.querySelectorAll('tbody tr').forEach(function (row) {
+        // Get Volunteer ID
         let volunteerId = row.querySelector('[name^="rating_"]').name.split('_')[1];
-        let attendance = row.querySelector(`input[name="attendance_${volunteerId}"]:checked`);
-        let skillRatings = [];
 
+        // Get Attendance
+        let attendance = row.querySelector(`input[name="attendance_${volunteerId}"]:checked`);
+
+        // Get Skill Ratings
+        let skillRatings = [];
         row.querySelectorAll('.form-check-input[name^="rating_"]:checked').forEach(function (ratingInput) {
             let skillId = ratingInput.name.split('_')[2];
             skillRatings.push({
@@ -1839,14 +1989,20 @@ document.getElementById('submitAllRatings').addEventListener('click', function (
             });
         });
 
+        // Get Feedback
+        let feedbackInput = row.querySelector(`textarea[name="feedback_${volunteerId}"]`);
+        let feedback = feedbackInput ? feedbackInput.value.trim() : null;
+
         console.log(`Volunteer ID: ${volunteerId}`);
         console.log(`Attendance selected:`, attendance ? attendance.value : 'None');
         console.log(`Skill ratings for this volunteer:`, skillRatings);
+        console.log(`Feedback:`, feedback);
 
-        if (skillRatings.length > 0 && attendance) {
+        if (skillRatings.length > 0 && attendance && feedback) {
             volunteerRatingsData.push({
                 VolunteerId: parseInt(volunteerId),
                 Attendance: parseInt(attendance.value),
+                Feedback: feedback,
                 SkillRatings: skillRatings
             });
         }
@@ -1868,7 +2024,7 @@ document.getElementById('submitAllRatings').addEventListener('click', function (
                     Swal.fire({
                         icon: 'success',
                         title: 'Success',
-                        text: 'All ratings and attendance submitted successfully.',
+                        text: 'All ratings, feedback, and attendance submitted successfully.',
                         confirmButtonText: 'OK'
                     }).then(() => {
                         window.location.href = '@Url.Action("EventsList", "Organization")';
@@ -1892,16 +2048,15 @@ document.getElementById('submitAllRatings').addEventListener('click', function (
             }
         });
     } else {
-        console.log('Incomplete data detected: Missing ratings or attendance for one or more volunteers.');
+        console.log('Incomplete data detected: Missing ratings, feedback, or attendance for one or more volunteers.');
         Swal.fire({
             icon: 'warning',
             title: 'Incomplete Data',
-            text: 'Please rate and select attendance for all volunteers before submitting.',
+            text: 'Please rate, provide feedback, and select attendance for all volunteers before submitting.',
             confirmButtonText: 'OK'
         });
     }
 });
-
 
     // Real-time validation for date and time inputs
     var editEventDateStart = document.getElementById('EditEvent_dateStart');

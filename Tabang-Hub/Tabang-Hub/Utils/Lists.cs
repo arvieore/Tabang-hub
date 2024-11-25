@@ -61,6 +61,8 @@ namespace Tabang_Hub.Utils
         public List<OrgEvents> getAllOrgEvent { get; set; } 
         public List<UserAccount> matchedSkills { get; set; }
         public List<UserAccount> volunteerAvail { get; set; }
+        public List<ProfilePicture> profilePics { get; set; }
+        public List<VolunteerRatingData> volunteerRatings { get; set; }
 
         public List<Rating> rating { get; set; }
 
@@ -97,6 +99,7 @@ namespace Tabang_Hub.Utils
         public class SkillRating
         {
             public int SkillId { get; set; }
+            public String SkillName { get; set; }
             public int Rating { get; set; }
         }
     }

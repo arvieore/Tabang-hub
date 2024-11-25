@@ -23,6 +23,7 @@ namespace Tabang_Hub.Repository
         public BaseRepository<Volunteers> _volunteers;
         public BaseRepository<VolunteersHistory> _volunteersHistory;
         public BaseRepository<OrgEvents> _orgEvents;
+        public BaseRepository<Notification> _notification;
 
         public BaseRepository<vw_ListOfEvent> _vw_listOfEvent;
 
@@ -36,6 +37,7 @@ namespace Tabang_Hub.Repository
             _userDonated = new BaseRepository<UserDonated>();
             _volunteers = new BaseRepository<Volunteers>();
             _orgEvents = new BaseRepository<OrgEvents>();
+            _notification = new BaseRepository<Notification>();
 
             _vw_listOfEvent = new BaseRepository<vw_ListOfEvent>();
 
@@ -86,6 +88,23 @@ namespace Tabang_Hub.Repository
                 }
             }
             return participate;
+        }
+        public List<Notification> GetNotificationByUserIdAndEventId(int userId, int relatedId)
+        {
+            return _notification._table.Where(m => m.senderUserId == userId && m.relatedId == relatedId).ToList();
+        }
+        public ErrorCode DeleteNotification(int userId, int evenId, ref String errMsg)
+        {
+            var notification = GetNotificationByUserIdAndEventId(userId, evenId);
+
+            foreach (var item in notification)
+            {
+                if (_notification.Delete(item.notificationId) != ErrorCode.Success)
+                {
+                    return ErrorCode.Error;
+                }
+            }
+            return ErrorCode.Success;
         }
         public void CheckVolunteerEventEndByUserId(int userId)
         {
