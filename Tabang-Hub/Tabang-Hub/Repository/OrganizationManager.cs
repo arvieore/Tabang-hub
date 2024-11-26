@@ -777,6 +777,12 @@ namespace Tabang_Hub.Repository
                                  feedback = rating.Feedback,
                                  availability = volunteer.availability
                              }).ToList(),
+                volunteer_status = db.Volunteers.Where(m => m.eventId == eventId).Select(m => new
+                {
+                    userId = m.userId,
+                    status = m.Status
+                }).ToList(),
+
                 // Collect volunteer skills
                 user_skills = db.VolunteerSkill
                     .Select(m => new { userId = m.userId, skillId = m.skillId })
@@ -790,7 +796,7 @@ namespace Tabang_Hub.Repository
 
                 event_skills = db.OrgSkillRequirement.Where(es => es.eventId == eventId).Select(es => new { eventId = es.eventId, skillId = es.skillId }).ToList()
             };
-            
+
             using (var client = new HttpClient())
             {
                 try
@@ -889,7 +895,7 @@ namespace Tabang_Hub.Repository
                 return JsonConvert.DeserializeObject<List<VolunteerInvite>>(jsonResponse);
             }
         }
-        public async Task<List<VolunteerInvite>> GetVolunteersByRating()
+        public async Task<List<VolunteerInvite>> GetVolunteersByRating(int eventId)
         {
             string flaskApiUrl = "http://127.0.0.1:5000/filter_rate";
 
@@ -907,7 +913,15 @@ namespace Tabang_Hub.Repository
                                  feedback = rating.Feedback,
                                  availability = volunteer.availability
                              }).ToList(),
-                user_skills = db.VolunteerSkill.Select(m => new { userId = m.userId, skillId = m.skillId }).ToList()
+                user_skills = db.VolunteerSkill.Select(m => new { userId = m.userId, skillId = m.skillId }).ToList(),
+
+                // Pass event data (e.g., ID and description)
+                event_data = _orgEvents.GetAll()
+                    .Where(m => m.eventId == eventId)
+                    .Select(m => new { eventId = m.eventId, eventDescription = m.eventDescription })
+                    .ToList(),
+
+                event_skills = db.OrgSkillRequirement.Where(es => es.eventId == eventId).Select(es => new { eventId = es.eventId, skillId = es.skillId }).ToList()
             };
 
             using (var client = new HttpClient())
@@ -920,7 +934,15 @@ namespace Tabang_Hub.Repository
                 }
 
                 var jsonResponse = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<List<VolunteerInvite>>(jsonResponse);
+
+                // Deserialize the outer object
+                var responseObject = JsonConvert.DeserializeObject<dynamic>(jsonResponse);
+
+                // Extract the volunteers array
+                var volunteersJson = responseObject.volunteers.ToString();
+
+                // Deserialize volunteers into the expected type
+                return JsonConvert.DeserializeObject<List<VolunteerInvite>>(volunteersJson);
             }
         }
 
@@ -979,7 +1001,15 @@ namespace Tabang_Hub.Repository
                                  availability = volunteer.availability
                              }).ToList(),
                 user_skills = db.VolunteerSkill.Select(m => new { userId = m.userId, skillId = m.skillId }).ToList(),
-                event_skills = skillIds ?? new List<int>(), // Default to empty list if null
+                event_skills_selected = skillIds ?? new List<int>(), // Default to empty list if null
+
+                event_data = _orgEvents.GetAll()
+                    .Where(m => m.eventId == eventId)
+                    .Select(m => new { eventId = m.eventId, eventDescription = m.eventDescription })
+                    .ToList(),
+
+                event_skills_required = db.OrgSkillRequirement.Where(es => es.eventId == eventId).Select(es => new { eventId = es.eventId, skillId = es.skillId }).ToList(),
+
                 sortBy = availability
             };
 
@@ -1027,6 +1057,13 @@ namespace Tabang_Hub.Repository
                              }).ToList(),
                 user_skills = db.VolunteerSkill.Select(m => new { userId = m.userId, skillId = m.skillId }).ToList(),
                 event_skills = skillIds ?? new List<int>(), // Default to empty list if null
+                event_data = _orgEvents.GetAll()
+                    .Where(m => m.eventId == eventId)
+                    .Select(m => new { eventId = m.eventId, eventDescription = m.eventDescription })
+                    .ToList(),
+
+                event_skills_required = db.OrgSkillRequirement.Where(es => es.eventId == eventId).Select(es => new { eventId = es.eventId, skillId = es.skillId }).ToList(),
+
                 sortBy = availability
             };
 
@@ -1071,8 +1108,16 @@ namespace Tabang_Hub.Repository
                                  feedback = rating.Feedback,
                                  availability = volunteer.availability
                              }).ToList(),
+                user_skills = db.VolunteerSkill
+                .Select(m => new { userId = m.userId, skillId = m.skillId })
+                .ToList(),
+                event_skills_required = db.OrgSkillRequirement
+                .Where(es => es.eventId == eventId)
+                .Select(es => new { eventId = es.eventId, skillId = es.skillId })
+                .ToList(),
                 sortBy = availability
             };
+
 
             using (var client = new HttpClient())
             {
@@ -1113,6 +1158,10 @@ namespace Tabang_Hub.Repository
                              }).ToList(),
                 user_skills = db.VolunteerSkill.Select(m => new { userId = m.userId, skillId = m.skillId }).ToList(),
                 event_skills = skillIds ?? new List<int>(), // Default to empty list if null
+                event_skills_required = db.OrgSkillRequirement
+                    .Where(es => es.eventId == eventId)
+                    .Select(es => new { eventId = es.eventId, skillId = es.skillId })
+                    .ToList(),
                 sortBy = availability
             };
 

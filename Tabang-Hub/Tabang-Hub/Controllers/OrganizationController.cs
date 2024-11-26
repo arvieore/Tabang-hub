@@ -500,7 +500,8 @@ namespace Tabang_Hub.Controllers
                         v.UserId,
                         v.FullName,
                         v.OverallRating,
-                        v.Availability,
+                        Availability = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(v.Availability.ToLower()),
+                        v.Status,
                         v.Feedback,
                         v.Sentiment,
                         Skills = _volunteerSkills.GetAll()
@@ -511,12 +512,15 @@ namespace Tabang_Hub.Controllers
                         .ToList()
                     }).ToList();
 
-
+                    var checkAcceptedVolunteer = _volunteers.GetAll()
+                    .Where(m => m.eventId == eventId && m.Status == 1)
+                    .Select(m => m.userId)
+                    .ToList();
                     return Json(new
                     {
                         success = true,
                         message = "All volunteers retrieved successfully.",
-                        volunteers = volunteerWithSkills
+                        volunteers = volunteerWithSkills.Where(m => !checkAcceptedVolunteer.Contains(m.UserId))
                     });
                 }
                 else
@@ -537,7 +541,7 @@ namespace Tabang_Hub.Controllers
                             UserId = v.UserId,
                             Feedback = v.Feedback,
                             Sentiment = v.Sentiment,
-                            Availability = v.Availability,
+                            Availability = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(v.Availability.ToLower()),
                             Skills = _volunteerSkills.GetAll()
                             .Where(vs => vs.userId == v.UserId && requiredSkillIds.Contains(vs.skillId))
                             .Select(vs => _skills.GetAll()
@@ -546,11 +550,16 @@ namespace Tabang_Hub.Controllers
                             .ToList()
                         }).ToList();
 
+                    var checkAcceptedVolunteer = _volunteers.GetAll()
+                    .Where(m => m.eventId == eventId && m.Status == 1)
+                    .Select(m => m.userId)
+                    .ToList();
+
                     return Json(new
                     {
                         success = true,
                         message = "Filtered volunteers retrieved successfully.",
-                        volunteers = formattedVolunteers
+                        volunteers = formattedVolunteers.Where(m => !checkAcceptedVolunteer.Contains(m.UserId))
                     });
                 }
             }
@@ -566,7 +575,7 @@ namespace Tabang_Hub.Controllers
         [HttpPost]
         public async Task<JsonResult> FilterRate(int eventId)
         {
-            var filteredVolunteers = await _organizationManager.GetVolunteersByRating();
+            var filteredVolunteers = await _organizationManager.GetVolunteersByRating(eventId);
 
             var requiredSkillIds = _skillRequirement.GetAll()
                     .Where(osr => osr.eventId == eventId)
@@ -581,7 +590,7 @@ namespace Tabang_Hub.Controllers
                             UserId = v.UserId,
                             Feedback = v.Feedback,
                             Sentiment = v.Sentiment,
-                            Availability = v.Availability,
+                            Availability = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(v.Availability.ToLower()),
                             Skills = _volunteerSkills.GetAll()
                             .Where(vs => vs.userId == v.UserId && requiredSkillIds.Contains(vs.skillId))
                             .Select(vs => _skills.GetAll()
@@ -590,7 +599,17 @@ namespace Tabang_Hub.Controllers
                             .ToList()
                         }).ToList();
 
-            return Json(new { success = true, volunteers = formattedVolunteers });
+            var checkAcceptedVolunteer = _volunteers.GetAll()
+                    .Where(m => m.eventId == eventId && m.Status == 1)
+                    .Select(m => m.userId)
+                    .ToList();
+
+            return Json(new
+            {
+                success = true,
+                message = "Filtered volunteers retrieved successfully.",
+                volunteers = formattedVolunteers.Where(m => !checkAcceptedVolunteer.Contains(m.UserId))
+            });
         }
 
         [HttpPost]
@@ -611,7 +630,7 @@ namespace Tabang_Hub.Controllers
                             UserId = v.UserId,
                             Feedback = v.Feedback,
                             Sentiment = v.Sentiment,
-                            Availability = v.Availability,
+                            Availability = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(v.Availability.ToLower()),
                             Skills = _volunteerSkills.GetAll()
                             .Where(vs => vs.userId == v.UserId && requiredSkillIds.Contains(vs.skillId))
                             .Select(vs => _skills.GetAll()
@@ -620,7 +639,17 @@ namespace Tabang_Hub.Controllers
                             .ToList()
                         }).ToList();
 
-            return Json(new { success = true, volunteers = formattedVolunteers });
+            var checkAcceptedVolunteer = _volunteers.GetAll()
+                    .Where(m => m.eventId == eventId && m.Status == 1)
+                    .Select(m => m.userId)
+                    .ToList();
+
+            return Json(new
+            {
+                success = true,
+                message = "Filtered volunteers retrieved successfully.",
+                volunteers = formattedVolunteers.Where(m => !checkAcceptedVolunteer.Contains(m.UserId))
+            });
         }
 
         [HttpPost]
@@ -650,7 +679,17 @@ namespace Tabang_Hub.Controllers
                             .ToList()
                     }).ToList();
 
-            return Json(new { success = true, volunteers = formattedVolunteers });
+            var checkAcceptedVolunteer = _volunteers.GetAll()
+                    .Where(m => m.eventId == eventId && m.Status == 1)
+                    .Select(m => m.userId)
+                    .ToList();
+
+            return Json(new
+            {
+                success = true,
+                message = "Filtered volunteers retrieved successfully.",
+                volunteers = formattedVolunteers.Where(m => !checkAcceptedVolunteer.Contains(m.UserId))
+            });
         }
 
         [HttpPost]
@@ -682,7 +721,17 @@ namespace Tabang_Hub.Controllers
                             .ToList()
                     }).ToList();
 
-                return Json(new { success = true, volunteers = formattedVolunteers });
+                var checkAcceptedVolunteer = _volunteers.GetAll()
+                    .Where(m => m.eventId == eventId && m.Status == 1)
+                    .Select(m => m.userId)
+                    .ToList();
+
+                return Json(new
+                {
+                    success = true,
+                    message = "Filtered volunteers retrieved successfully.",
+                    volunteers = formattedVolunteers.Where(m => !checkAcceptedVolunteer.Contains(m.UserId))
+                });
             }
             catch (Exception e)
             {
@@ -717,7 +766,17 @@ namespace Tabang_Hub.Controllers
                                 .ToList()
                             }).ToList();
 
-            return Json(new { success = true, volunteers = formattedVolunteers });
+            var checkAcceptedVolunteer = _volunteers.GetAll()
+                    .Where(m => m.eventId == eventId && m.Status == 1)
+                    .Select(m => m.userId)
+                    .ToList();
+
+            return Json(new
+            {
+                success = true,
+                message = "Filtered volunteers retrieved successfully.",
+                volunteers = formattedVolunteers.Where(m => !checkAcceptedVolunteer.Contains(m.UserId))
+            });
         }
         [HttpPost]
         public async Task<JsonResult> FilterByAvailability(List<int> skillId, int eventId, string availability)
@@ -748,11 +807,21 @@ namespace Tabang_Hub.Controllers
                                 .ToList()
                             }).ToList();
 
-                return Json(new { success = true, volunteers = formattedVolunteers });
+                var checkAcceptedVolunteer = _volunteers.GetAll()
+                    .Where(m => m.eventId == eventId && m.Status == 1)
+                    .Select(m => m.userId)
+                    .ToList();
+
+                return Json(new
+                {
+                    success = true,
+                    message = "Filtered volunteers retrieved successfully.",
+                    volunteers = formattedVolunteers.Where(m => !checkAcceptedVolunteer.Contains(m.UserId))
+                });
             }
             catch (Exception e)
             {
-                return Json(new { success = false, message = e.Message});
+                return Json(new { success = false, message = e.Message });
             }
         }
         //------------------------------------------------------------------------

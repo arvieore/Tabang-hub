@@ -317,10 +317,32 @@
                                             }
                                         </div>
                                         <span class="custom-btn btn" onclick="redirectToDetails(@evt.Event_Id)">View Details</span>
+                                        @*<span class="custom-btn btn" onclick="openConflictModal(@evt.Event_Id)">View Details</span>*@
                                     </div>
                                 </div>
                             </div>
                         }
+
+                        <!-- Bootstrap Modal -->
+                        <div class="modal fade" id="conflictModal" tabindex="-1" aria-labelledby="conflictModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="conflictModalLabel">Event Conflict</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        This event might conflict with one you've already joined. Would you like to proceed?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <button type="button" class="btn btn-primary" id="proceedButton">Proceed</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
                     </div>
                     <!-- Pagination Controls -->
                     <nav aria-label="Page navigation" class="mt-4" id="eventsContainer-pagination">
@@ -531,9 +553,26 @@
                 showPage('eventsContainer');
             });
 
+
         function redirectToDetails(eventId) {
             window.location.href = '@Url.Action("EventDetails", "Volunteer")' + '?eventId=' + eventId;
-            }
+        }
+
+
+        let selectedEventId = null; // Store the event ID temporarily
+
+        function openConflictModal(eventId) {
+            selectedEventId = eventId; // Save the event ID
+            const modal = new bootstrap.Modal(document.getElementById('conflictModal')); // Initialize the modal
+            modal.show(); // Show the modal
+        }
+
+        document.getElementById('proceedButton').addEventListener('click', function () {
+            // Redirect when the user clicks "Proceed"
+            window.location.href = '@Url.Action("EventDetails", "Volunteer")' + '?eventId=' + selectedEventId;
+        });
+
+
         </script>
     </div>
 </body>

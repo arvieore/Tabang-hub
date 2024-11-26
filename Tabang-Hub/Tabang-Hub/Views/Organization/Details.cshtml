@@ -373,6 +373,7 @@
                                                         <th scope="col">Skills</th>
                                                         <th scope="col">Rating</th>
                                                         <th scope="col">Availability</th>
+                                                        <th scope="col">Status</th>
                                                         <th scope="col">Select</th>
                                                     </tr>
                                                 </thead>
@@ -487,21 +488,6 @@
 
                 // Function to check ratings and log displayed volunteers
 
-                //ANG KARAAN
-
-                //function checkRating() {
-                //    $(document).on('change', '#ratings-checkbox', function () {
-                //        isRatingsChecked = $(this).is(':checked'); // Update the state of the Ratings checkbox
-                //        const selectedSkills = getSelectedSkills();
-                //        const selectedAvailability = $('#dropdownAvailability').val();
-                //        const eventId = document.getElementById('event-Id').value;
-
-                //        console.log("Ratings checkbox state:", isRatingsChecked);
-                //        fetchVolunteers(selectedSkills, eventId, selectedAvailability);
-                //    });
-
-                //}
-
                 function checkRating() {
                     $(document).on('change', '#ratings-checkbox', function () {
                         isRatingsChecked = $(this).is(':checked'); // Update the state of the Ratings checkbox
@@ -517,51 +503,6 @@
                         fetchVolunteers(selectedSkills, eventId, selectedAvailability);
                     });
                 }
-
-                //ANG KARAAN
-
-                //function fetchVolunteers(selectedSkills = [], eventId = null, selectedAvailability = "") {
-                //    let apiUrl = '/Organization/FilterSkill'; // Default to FilterSkill
-
-                //    // Determine API URL based on the selected filters
-                //    if (selectedAvailability && selectedSkills.length > 0 && isRatingsChecked) {
-                //        apiUrl = '/Organization/FilterByRateWithAvailabilityAndSkills'; // Ratings + Availability + Skills
-                //    } else if (selectedAvailability && isRatingsChecked) {
-                //        apiUrl = '/Organization/FilterByRatingsWithAvailability'; // Ratings + Availability
-                //    } else if (selectedAvailability && selectedSkills.length > 0) {
-                //        apiUrl = '/Organization/FilterByAvailabilityWithSkill'; // Availability + Skills
-                //    } else if (selectedAvailability) {
-                //        apiUrl = '/Organization/FilterByAvailability'; // Only Availability
-                //    } else if (isRatingsChecked) {
-                //        apiUrl = '/Organization/FilterRate'; // Only Ratings
-                //    } else if (selectedSkills.length > 0) {
-                //        apiUrl = '/Organization/FilterSkill'; // Only Skills
-                //    }
-
-                //    console.log(`Fetching from API: ${apiUrl}`);
-                //    console.log("Selected Skills:", selectedSkills);
-                //    console.log("Selected Availability:", selectedAvailability);
-                //    console.log("Event ID:", eventId);
-
-                //    // Perform AJAX request to fetch filtered volunteers
-                //    $.ajax({
-                //        url: apiUrl,
-                //        type: 'POST',
-                //        contentType: 'application/json',
-                //        data: JSON.stringify({ skillId: selectedSkills, eventId: eventId, availability: selectedAvailability }),
-                //        success: function (response) {
-                //            if (response.success) {
-                //                // Update the table with the filtered volunteers
-                //                updateVolunteerTable(response.volunteers);
-                //            } else {
-                //                console.error("Error fetching volunteers:", response.message);
-                //            }
-                //        },
-                //        error: function (error) {
-                //            console.error("Error in AJAX request:", error);
-                //        }
-                //    });
-                //}
 
                 function fetchVolunteers(selectedSkills = [], eventId = null, selectedAvailability = "") {
                     // Assume the entire list of volunteers is fetched and stored in a global variable
@@ -611,42 +552,6 @@
                     });
                 }
 
-                //function filterByAvailability(volunteers, availability) {
-                //    if (!availability) return volunteers; // If no availability filter is selected, return all volunteers
-
-                //    return volunteers.filter(volunteer => volunteer.Availability === availability);
-                //}
-
-                //$(document).on('change', '#dropdownAvailability', function () {
-                //    const selectedAvailability = $(this).val(); // Get the selected availability option
-                //    const selectedSkills = getSelectedSkills(); // Get selected skills
-                //    const eventId = document.getElementById('event-Id').value; // Get event ID
-
-                //    console.log("Selected Availability:", selectedAvailability);
-
-                //    // Filter the globally stored volunteer data
-                //    let filteredVolunteers = window.volunteerData;
-
-                //    // Apply availability filter
-                //    filteredVolunteers = filterByAvailability(filteredVolunteers, selectedAvailability);
-
-                //    // Apply skill filter
-                //    if (selectedSkills.length > 0) {
-                //        filteredVolunteers = filteredVolunteers.filter(volunteer =>
-                //            selectedSkills.every(skillId => volunteer.Skills.includes(skillId))
-                //        );
-                //    }
-
-                //    // Apply ratings filter
-                //    if (isRatingsChecked) {
-                //        filteredVolunteers = filteredVolunteers.sort((a, b) => b.OverallRating - a.OverallRating);
-                //    }
-
-                //    // Update the table with filtered volunteers
-                //    updateVolunteerTable(filteredVolunteers);
-                //});
-
-
                 // Function to update the table with volunteer data
                 function updateVolunteerTable(volunteers) {
                     const tableBody = document.querySelector('table tbody');
@@ -671,17 +576,24 @@
 
                     volunteers.forEach(volunteer => {
                         const skills = volunteer.Skills.join(", ");
+                        const rating = volunteer.OverallRating === 0
+                            ? "No Rate"
+                            : (volunteer.OverallRating % 1 === 0
+                                ? volunteer.OverallRating
+                                : volunteer.OverallRating.toFixed(2));
                         const row = `
-                                                            <tr>
-                                                                <td>${volunteer.FullName}</td>
-                                                                <td>${skills}</td>
-                                                                <td>${volunteer.OverallRating.toFixed(2)}</td>
-                                                                <td>${volunteer.Availability}</td>
-                                                                <td><input type="checkbox" class="user-checkbox" data-volunteerid="${volunteer.UserId}" value="${volunteer.UserId}"></td>
-                                                            </tr>
-                                                            `;
+                                    <tr>
+                                        <td>${volunteer.FullName}</td>
+                                        <td>${skills}</td>
+                                        <td>${rating}</td>
+                                        <td>${volunteer.Availability}</td>
+                                        <td>${volunteer.Status}</td>
+                                        <td><input type="checkbox" class="user-checkbox" data-volunteerid="${volunteer.UserId}" value="${volunteer.UserId}"></td>
+                                    </tr>
+                                `;
                         tableBody.insertAdjacentHTML('beforeend', row);
                     });
+
 
 
                     console.log("Table updated with volunteers.");

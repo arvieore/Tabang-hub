@@ -36,72 +36,112 @@ def filter_by_availability(user_info_data, availability):
     return user_info_data[user_info_data['availability'] == availability].copy()
 
 
-# Route: FilterRate (Filter volunteers by ratings)
 @app.route('/filter_rate', methods=['POST'])
 def filter_rate():
-    data = request.get_json()
+    try:
+        # Parse the incoming data
+        data = request.get_json()
 
-    # Convert data to Pandas DataFrames
-    user_info_data = pd.DataFrame(data['user_info'], columns=['userId', 'fname', 'lname', 'overallRating', 'feedback', 'availability'])
-    user_skills_data = pd.DataFrame(data['user_skills'], columns=['userId', 'skillId'])
+        # Convert data to Pandas DataFrames
+        user_info_data = pd.DataFrame(data['user_info'], columns=['userId', 'fname', 'lname', 'overallRating', 'feedback', 'availability'])
+        user_skills_data = pd.DataFrame(data['user_skills'], columns=['userId', 'skillId'])
+        event_skills = set(skill['skillId'] for skill in data['event_skills'])  # Event-required skills
 
-    # Create a fullName column
-    user_info_data['fullName'] = user_info_data['fname'] + ' ' + user_info_data['lname']
-    user_info_data['sentiment'] = user_info_data['feedback'].apply(classify_feedback)
-    # Filter and sort volunteers by rating
-    filtered_volunteers = user_info_data.sort_values(by='overallRating', ascending=False).to_dict(orient='records')
-    
-    # Add similarity score using Content-Based Filtering
-    for volunteer in filtered_volunteers:
-        volunteer_id = volunteer['userId']
-        volunteer_skills = user_skills_data[user_skills_data['userId'] == volunteer_id]['skillId'].tolist()
-        similarity_score = calculate_cbf_similarity(volunteer_skills, [])
-        volunteer['similarityScore'] = similarity_score
+        # Handle missing or null values in 'availability' and 'feedback'
+        user_info_data['availability'] = user_info_data['availability'].fillna('Unavailable').str.strip().str.lower()
+        user_info_data['feedback'] = user_info_data['feedback'].fillna('No feedback provided')
 
-    print('Filtered by rating: ', filtered_volunteers)
-    return jsonify(filtered_volunteers)
+        # Add sentiment analysis for feedback
+        user_info_data['sentiment'] = user_info_data['feedback'].apply(classify_feedback)
+        user_info_data['fullName'] = user_info_data['fname'] + " " + user_info_data['lname']
+
+        filtered_volunteers = []
+
+        # Filter volunteers based on skills matching with event skills
+        for user_id, group in user_skills_data.groupby('userId'):
+            volunteer_skills = set(group['skillId'].tolist())
+
+            # Check if at least one skill matches the event-required skills
+            similarity_score = calculate_partial_cbf_similarity(volunteer_skills, event_skills)
+            if similarity_score > 0:  # Include only if at least one skill matches
+                volunteer_info = user_info_data[user_info_data['userId'] == user_id]
+                if not volunteer_info.empty:
+                    filtered_volunteers.append({
+                        'userId': int(user_id),
+                        'fullName': volunteer_info.iloc[0]['fullName'],
+                        'overallRating': float(volunteer_info.iloc[0]['overallRating']),
+                        'feedback': volunteer_info.iloc[0]['feedback'],
+                        'sentiment': volunteer_info.iloc[0]['sentiment'],
+                        'availability': volunteer_info.iloc[0]['availability'],
+                        'similarityScore': similarity_score
+                    })
+
+        # Sort by rating (descending) and return results
+        filtered_volunteers = sorted(filtered_volunteers, key=lambda x: -x['overallRating'])
+
+        print('Filtered by rating and event skills: ', filtered_volunteers)
+        return jsonify({"success": True, "volunteers": filtered_volunteers})
+    except KeyError as ke:
+        print(f"KeyError in /filter_rate: {ke}")
+        return jsonify({"success": False, "message": f"Missing key: {ke}"}), 400
+    except ValueError as ve:
+        print(f"ValueError in /filter_rate: {ve}")
+        return jsonify({"success": False, "message": f"Invalid value: {ve}"}), 400
+    except Exception as e:
+        print("Error in /filter_rate:", e)
+        return jsonify({"success": False, "message": str(e)}), 500
 
 
-# Route: FilterBySkillsAndRatings (Filter volunteers by skills and ratings)
+
 @app.route('/filter_skills_and_ratings', methods=['POST'])
 def filter_skills_and_ratings():
-    data = request.get_json()
+    try:
+        data = request.get_json()
 
-    # Convert data to DataFrames
-    user_info_data = pd.DataFrame(data['user_info'], columns=['userId', 'fname', 'lname', 'overallRating', 'feedback', 'availability'])
-    user_skills_data = pd.DataFrame(data['user_skills'], columns=['userId', 'skillId'])
-    selected_skills = set(data['event_skills'])  # Required skills
+        # Convert data to DataFrames
+        user_info_data = pd.DataFrame(data['user_info'], columns=['userId', 'fname', 'lname', 'overallRating', 'feedback', 'availability'])
+        user_skills_data = pd.DataFrame(data['user_skills'], columns=['userId', 'skillId'])
+        selected_skills = set(data['event_skills'])  # Required skills
 
-    filtered_volunteers = []
+        # Handle missing or null values
+        user_info_data['feedback'] = user_info_data['feedback'].fillna("No feedback provided")  # Default feedback
+        user_info_data['availability'] = user_info_data['availability'].fillna("Unavailable")  # Default availability
 
-    # Filter volunteers based on skills
-    for user_id, group in user_skills_data.groupby('userId'):
-        volunteer_skills = set(group['skillId'].tolist())
-        if selected_skills.issubset(volunteer_skills):  # Check if all required skills are present
-            volunteer_info = user_info_data[user_info_data['userId'] == user_id]
-            if not volunteer_info.empty:
-                full_name = f"{volunteer_info.iloc[0]['fname']} {volunteer_info.iloc[0]['lname']}"
-                overall_rating = float(volunteer_info.iloc[0]['overallRating']) or 0.0  # Convert to float
-                feedback = volunteer_info.iloc[0]['feedback']  # Retrieve the feedback
-                availability = volunteer_info.iloc[0]['availability'] if pd.notna(volunteer_info.iloc[0]['availability']) else "Unavailable"
-                sentiment = classify_feedback(feedback)  # Predict sentiment
-                similarity_score = calculate_cbf_similarity(volunteer_skills, selected_skills)
+        filtered_volunteers = []
 
-                filtered_volunteers.append({
-                    'userId': int(user_id),  # Convert to int
-                    'fullName': full_name,
-                    'overallRating': overall_rating,  # Already a float
-                    'feedback': feedback,  # Include feedback
-                    'availability': availability,
-                    'sentiment': sentiment,  # Include sentiment
-                    'similarityScore': similarity_score  # Already a float
-                })
+        # Filter volunteers based on skills
+        for user_id, group in user_skills_data.groupby('userId'):
+            volunteer_skills = set(group['skillId'].tolist())
+            if selected_skills.issubset(volunteer_skills):  # Check if all required skills are present
+                volunteer_info = user_info_data[user_info_data['userId'] == user_id]
+                if not volunteer_info.empty:
+                    full_name = f"{volunteer_info.iloc[0]['fname']} {volunteer_info.iloc[0]['lname']}"
+                    overall_rating = float(volunteer_info.iloc[0]['overallRating']) or 0.0  # Convert to float
+                    feedback = volunteer_info.iloc[0]['feedback']  # Retrieve the feedback
+                    availability = volunteer_info.iloc[0]['availability'] if pd.notna(volunteer_info.iloc[0]['availability']) else "Unavailable"
+                    sentiment = classify_feedback(feedback)  # Predict sentiment
+                    similarity_score = calculate_cbf_similarity(volunteer_skills, selected_skills)
 
-    # Sort by rating and similarity score
-    filtered_volunteers = sorted(filtered_volunteers, key=lambda x: (-x['overallRating'], -x['similarityScore']))
-    print('Filtered Skill and Ratings: ', filtered_volunteers)
+                    filtered_volunteers.append({
+                        'userId': int(user_id),  # Convert to int
+                        'fullName': full_name,
+                        'overallRating': overall_rating,  # Already a float
+                        'feedback': feedback,  # Include feedback
+                        'availability': availability,
+                        'sentiment': sentiment,  # Include sentiment
+                        'similarityScore': similarity_score  # Already a float
+                    })
 
-    return jsonify(filtered_volunteers)
+        # Sort by rating and similarity score
+        filtered_volunteers = sorted(filtered_volunteers, key=lambda x: (-x['overallRating'], -x['similarityScore']))
+        print('Filtered Skill and Ratings: ', filtered_volunteers)
+
+        return jsonify(filtered_volunteers)
+
+    except Exception as e:
+        print("Error in /filter_skills_and_ratings:", e)
+        return jsonify({"success": False, "message": str(e)}), 500
+
 
 # Existing Route: Predict for Events
 @app.route('/predict', methods=['POST'])
@@ -261,6 +301,14 @@ def recruit_for_event():
 # Map sentiment labels back to their string values
 sentiment_map = {0: "Positive", 1: "Neutral", 2: "Negative"}
 
+# Define status mapping as a global constant
+STATUS_MAPPING = {
+    0: "Pending",
+    1: "Available",
+    2: "Invited"
+}
+
+
 # Function to classify feedback
 def classify_feedback(feedback_text):
     prediction = model_pipeline.predict([feedback_text])[0]
@@ -279,7 +327,6 @@ def calculate_partial_cbf_similarity(user_skills, event_skills):
     return similarity if has_match else 0  # Return 0 if no skills match
 
 
-# Route to classify feedback for multiple users
 @app.route('/classify_users_feedback', methods=['POST'])
 def classify_users_feedback():
     try:
@@ -289,13 +336,21 @@ def classify_users_feedback():
         # Extract user information
         user_info_data = pd.DataFrame(data['user_info'], columns=['userId', 'fname', 'lname', 'overallRating', 'feedback', 'availability'])
         user_skills_data = pd.DataFrame(data['user_skills'], columns=['userId', 'skillId'])
+        volunteer_status_data = pd.DataFrame(data['volunteer_status'], columns=['userId', 'status'])  # Include status
         event_skills = set([skill['skillId'] for skill in data['event_skills']])
+
+        # Handle missing or None values in 'feedback' and 'availability'
+        user_info_data['feedback'] = user_info_data['feedback'].fillna("No feedback provided")
+        user_info_data['availability'] = user_info_data['availability'].fillna("Unavailable").str.lower()
 
         # Classify feedback for each user
         user_info_data['sentiment'] = user_info_data['feedback'].apply(classify_feedback)
 
         # Create FullName column
         user_info_data['FullName'] = user_info_data['fname'] + " " + user_info_data['lname']
+
+        # Merge user information with volunteer status
+        user_info_data = user_info_data.merge(volunteer_status_data, on='userId', how='left')
 
         # Perform content-based filtering
         filtered_users = []
@@ -307,6 +362,9 @@ def classify_users_feedback():
             if similarity_score > 0:  # Only include users with at least one matching skill
                 volunteer_info = user_info_data[user_info_data['userId'] == user_id]
                 if not volunteer_info.empty:
+                    status_value = int(volunteer_info.iloc[0]['status']) if pd.notna(volunteer_info.iloc[0]['status']) else None
+                    status_string = STATUS_MAPPING.get(status_value, "Unknown")  # Call the global status mapping
+                    
                     filtered_users.append({
                         'userId': int(user_id),
                         'FullName': f"{volunteer_info.iloc[0]['fname']} {volunteer_info.iloc[0]['lname']}",
@@ -314,6 +372,7 @@ def classify_users_feedback():
                         'feedback': volunteer_info.iloc[0]['feedback'],
                         'sentiment': volunteer_info.iloc[0]['sentiment'],
                         'availability': volunteer_info.iloc[0]['availability'],
+                        'status': status_string,  # Return the string representation of the status
                         'similarityScore': similarity_score
                     })
 
@@ -321,7 +380,7 @@ def classify_users_feedback():
         return jsonify({"status": "success", "classified_feedback": filtered_users})
 
     except Exception as e:
-        print("Error:", e)
+        print("Error in /classify_users_feedback:", e)
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
@@ -332,33 +391,54 @@ def filter_by_availability_route():
         data = request.get_json()
 
         # Validate the sortBy parameter
-        sort_by_availability = data.get('sortBy', '').strip() if data.get('sortBy') else None
+        sort_by_availability = data.get('sortBy', '').strip().lower() if data.get('sortBy') else None
         if not sort_by_availability:
             raise ValueError("Missing or invalid 'sortBy' parameter in the request.")
 
-        # Extract user information
-        user_info_data = pd.DataFrame(data['user_info'])
+        # Extract user information and skills
+        user_info_data = pd.DataFrame(data['user_info'], columns=['userId', 'fname', 'lname', 'overallRating', 'feedback', 'availability'])
+        user_skills_data = pd.DataFrame(data['user_skills'], columns=['userId', 'skillId'])
+        
+        # Extract only the skill IDs from event_skills_required
+        event_skills = set(skill['skillId'] for skill in data['event_skills_required'])  # Extract skillId values
+
+        # Handle missing values in 'availability' and 'feedback'
+        user_info_data['availability'] = user_info_data['availability'].fillna("Unavailable").str.strip().str.lower()
+        user_info_data['feedback'] = user_info_data['feedback'].fillna("No feedback provided")
 
         # Filter users by availability
-        filtered_users = filter_by_availability(user_info_data, sort_by_availability)
+        filtered_users = user_info_data[user_info_data['availability'] == sort_by_availability].copy()
 
-        # Add a fullName column for convenience
-        filtered_users['sentiment'] = filtered_users['feedback'].apply(classify_feedback)
-        filtered_users['FullName'] = filtered_users['fname'] + ' ' + filtered_users['lname']
+        # Perform skill matching
+        filtered_users_with_skills = []
+        for user_id, group in user_skills_data.groupby('userId'):
+            volunteer_skills = set(group['skillId'].tolist())
 
-        # Convert filtered users to dictionary
-        filtered_users_dict = filtered_users.to_dict(orient='records')
-        print("dict: ", filtered_users_dict)
-        return jsonify({
-            "success": True,
-            "volunteers": filtered_users_dict
-        })
+            # Check if at least one skill matches the event-required skills
+            if volunteer_skills & event_skills:  # Intersection to check for matching skills
+                volunteer_info = filtered_users[filtered_users['userId'] == user_id]
+                if not volunteer_info.empty:
+                    filtered_users_with_skills.append({
+                        'userId': int(user_id),
+                        'fullName': f"{volunteer_info.iloc[0]['fname']} {volunteer_info.iloc[0]['lname']}",
+                        'overallRating': float(volunteer_info.iloc[0]['overallRating']),
+                        'feedback': volunteer_info.iloc[0]['feedback'],
+                        'sentiment': classify_feedback(volunteer_info.iloc[0]['feedback']),
+                        'availability': volunteer_info.iloc[0]['availability']
+                    })
+
+        # Convert to JSON response
+        print("Filtered Users with Skills: ", filtered_users_with_skills)
+        return jsonify({"success": True, "volunteers": filtered_users_with_skills})
+
     except ValueError as ve:
         print("Validation Error:", ve)
         return jsonify({"success": False, "message": str(ve)}), 400
     except Exception as e:
         print("Error in /filter_by_availability:", e)
         return jsonify({"success": False, "message": str(e)}), 500
+
+
 
     
     
@@ -431,7 +511,6 @@ def filter_by_availability_with_skills():
         return jsonify({"success": False, "message": str(e)}), 500
 
 
-
 @app.route('/filter_by_ratings_with_availability', methods=['POST'])
 def filter_by_ratings_with_availability():
     try:
@@ -441,42 +520,66 @@ def filter_by_ratings_with_availability():
         print("Received data:", data)
 
         # Extract and validate the 'sortBy' parameter
-        sort_by_availability = data.get('sortBy', '').strip().lower()
+        sort_by_availability = data.get('sortBy', '').strip().lower() if data.get('sortBy') else None
         if not sort_by_availability:
             raise ValueError("'sortBy' parameter is required.")
 
-        # Extract user information
+        # Convert input data to DataFrames
         user_info_data = pd.DataFrame(data['user_info'], columns=['userId', 'fname', 'lname', 'overallRating', 'feedback', 'availability'])
+        user_skills_data = pd.DataFrame(data['user_skills'], columns=['userId', 'skillId'])
+        event_skills_required = set(skill['skillId'] for skill in data['event_skills_required'])  # Event-required skills
 
-        # Normalize the 'availability' column
-        user_info_data['availability'] = user_info_data['availability'].str.strip().str.lower()
+        # Handle missing or null values in 'availability' and 'feedback'
+        user_info_data['availability'] = user_info_data['availability'].fillna('Unavailable').str.strip().str.lower()
+        user_info_data['feedback'] = user_info_data['feedback'].fillna('No feedback provided')
 
-        # Filter users based on availability
-        filtered_users = user_info_data[user_info_data['availability'] == sort_by_availability]
+        # Step 1: Filter by availability
+        filtered_users = user_info_data[user_info_data['availability'] == sort_by_availability].copy()
 
-        # If no users match, return an empty result
+        # If no users match the availability filter, return an empty list
         if filtered_users.empty:
             return jsonify({
                 "success": True,
                 "volunteers": []
             })
 
-        # Sort filtered users by 'overallRating' in descending order
-        filtered_users = filtered_users.sort_values(by='overallRating', ascending=False)
-
-        # Perform sentiment analysis on feedback
-        filtered_users['sentiment'] = filtered_users['feedback'].apply(classify_feedback)
+        # Step 2: Perform sentiment analysis on feedback
+        filtered_users.loc[:, 'sentiment'] = filtered_users['feedback'].apply(classify_feedback)
 
         # Add a 'FullName' column for convenience
-        filtered_users['FullName'] = filtered_users['fname'] + ' ' + filtered_users['lname']
+        filtered_users.loc[:, 'FullName'] = filtered_users['fname'] + ' ' + filtered_users['lname']
 
-        # Prepare the response
-        filtered_users_dict = filtered_users[['userId', 'FullName', 'overallRating', 'feedback', 'availability', 'sentiment']].to_dict(orient='records')
+        # Step 3: Match skills with event-required skills
+        matched_volunteers = []
+        for user_id, group in user_skills_data.groupby('userId'):
+            volunteer_skills = set(group['skillId'].tolist())
 
-        return jsonify({
-            "success": True,
-            "volunteers": filtered_users_dict
-        })
+            # Check if at least one skill matches the event-required skills
+            has_matching_skills = any(skill in event_skills_required for skill in volunteer_skills)
+            if not has_matching_skills:
+                continue
+
+            # Retrieve the user information
+            user_info = filtered_users[filtered_users['userId'] == user_id]
+            if user_info.empty:
+                continue
+
+            # Add volunteer to the matched list
+            matched_volunteers.append({
+                'userId': int(user_id),
+                'FullName': f"{user_info.iloc[0]['fname']} {user_info.iloc[0]['lname']}",
+                'overallRating': float(user_info.iloc[0]['overallRating']),
+                'feedback': user_info.iloc[0]['feedback'],
+                'sentiment': user_info.iloc[0]['sentiment'],
+                'availability': user_info.iloc[0]['availability'],
+                'matchedSkills': list(volunteer_skills & event_skills_required)  # Skills that matched
+            })
+
+        # Step 4: Sort by overallRating in descending order
+        matched_volunteers = sorted(matched_volunteers, key=lambda x: -x['overallRating'])
+
+        return jsonify({"success": True, "volunteers": matched_volunteers})
+
     except ValueError as ve:
         print("Validation Error:", ve)
         return jsonify({"success": False, "message": str(ve)}), 400
@@ -485,8 +588,6 @@ def filter_by_ratings_with_availability():
         return jsonify({"success": False, "message": str(e)}), 500
 
 
-
-# Route: Filter by Rate, Availability, and Skills
 @app.route('/filter_by_rate_availability_skills', methods=['POST'])
 def filter_by_rate_availability_and_skills():
     try:
@@ -495,50 +596,68 @@ def filter_by_rate_availability_and_skills():
         # Convert received JSON into DataFrames
         user_info_data = pd.DataFrame(data['user_info'])
         user_skills_data = pd.DataFrame(data['user_skills'], columns=['userId', 'skillId'])
-        event_skills = set(data['event_skills'])  # Required skills
-        sort_by_availability = data.get('sortBy', '').strip().lower()  # Normalize input
+        selected_event_skills = set(data['event_skills'])  # Skills selected by the organizer
+        required_event_skills = set(skill['skillId'] for skill in data['event_skills_required'])  # All required skills
+        sort_by_availability = data.get('sortBy', '').strip().lower()
+
+        # Handle missing or null values
+        user_info_data['availability'] = user_info_data['availability'].fillna('Unavailable').str.strip().str.lower()
+        user_info_data['feedback'] = user_info_data['feedback'].fillna('No feedback provided')
 
         # Step 1: Filter by Availability
-        user_info_data['availability'] = user_info_data['availability'].str.strip().str.lower()
         filtered_users_by_availability = user_info_data[user_info_data['availability'] == sort_by_availability]
 
-        filtered_users_by_availability['sentiment'] = filtered_users_by_availability['feedback'].apply(classify_feedback)
-        
+        # If no users match the availability filter, return an empty list
         if filtered_users_by_availability.empty:
             return jsonify({"success": True, "volunteers": []})
 
-        # Step 2: Filter by Skill Matching using CBF
-        filtered_with_skills = []
+        # Step 2: Filter volunteers matching at least one required skill (Partial CBF)
+        partially_matched_volunteers = []
         for user_id, group in user_skills_data.groupby('userId'):
             volunteer_skills = set(group['skillId'].tolist())
 
-            # Check if all required skills are present
-            if event_skills.issubset(volunteer_skills):
-                volunteer_info = filtered_users_by_availability[
-                    filtered_users_by_availability['userId'] == user_id
-                ]
-                if not volunteer_info.empty:
-                    similarity_score = calculate_cbf_similarity(volunteer_skills, event_skills)
-                    filtered_with_skills.append({
-                        'userId': int(user_id),
-                        'fullName': f"{volunteer_info.iloc[0]['fname']} {volunteer_info.iloc[0]['lname']}",
-                        'availability': volunteer_info.iloc[0]['availability'].title(),
-                        'overallRating': float(volunteer_info.iloc[0]['overallRating']),
-                        'sentiment': volunteer_info.iloc[0]['sentiment'],
-                        'similarityScore': similarity_score,
-                    })
+            # Check if the volunteer has at least one required skill
+            if not volunteer_skills & required_event_skills:
+                continue  # Skip if no required skills match
 
-        # Step 3: Sort by Rating and Similarity Score
-        filtered_with_skills = sorted(
-            filtered_with_skills,
-            key=lambda x: (-x['overallRating'], -x['similarityScore'])
+            volunteer_info = filtered_users_by_availability[filtered_users_by_availability['userId'] == user_id]
+            if not volunteer_info.empty:
+                partially_matched_volunteers.append({
+                    'userId': user_id,
+                    'volunteerSkills': volunteer_skills,
+                    'volunteerInfo': volunteer_info.iloc[0].to_dict()
+                })
+
+        # Step 3: Further filter by selected skills
+        fully_matched_volunteers = []
+        for volunteer in partially_matched_volunteers:
+            user_id = volunteer['userId']
+            volunteer_skills = volunteer['volunteerSkills']
+
+            # Check if the volunteer has all the selected skills
+            if selected_event_skills.issubset(volunteer_skills):
+                fully_matched_volunteers.append({
+                    'userId': user_id,
+                    'fullName': f"{volunteer['volunteerInfo']['fname']} {volunteer['volunteerInfo']['lname']}",
+                    'availability': volunteer['volunteerInfo']['availability'].title(),
+                    'overallRating': float(volunteer['volunteerInfo']['overallRating']),
+                    'feedback': volunteer['volunteerInfo']['feedback'],
+                    'sentiment': classify_feedback(volunteer['volunteerInfo']['feedback']),
+                })
+
+        # Step 4: Sort by overallRating in descending order
+        fully_matched_volunteers = sorted(
+            fully_matched_volunteers,
+            key=lambda x: -x['overallRating']
         )
 
-        return jsonify({"success": True, "volunteers": filtered_with_skills})
+        return jsonify({"success": True, "volunteers": fully_matched_volunteers})
 
     except Exception as e:
         print("Error in /filter_by_rate_availability_skills:", e)
         return jsonify({"success": False, "message": str(e)}), 500
+
+
 
 
 if __name__ == '__main__':

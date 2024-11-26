@@ -16,5 +16,6 @@ namespace Tabang_Hub.Utils
         public string Feedback { get; set; }
         public string Sentiment { get; set; }
         public string Availability {  get; set; }
+        public string Status { get; set; }
     }
 }

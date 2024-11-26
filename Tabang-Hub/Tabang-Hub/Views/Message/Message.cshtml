@@ -404,8 +404,9 @@ else
                                     <p class="member-added-info"><strong>Apply at</strong> ${member.appliedAt}</p>
                                 </div>
                             </div>
-
-                            <div class="member-options" onclick="toggleDropdownMenu(this)">
+                            @if (Model.userAccount != null && Model.userAccount.roleId == 2)
+                            {
+                                <div class="member-options" onclick="toggleDropdownMenu(this)">
                                 <i class="bi bi-three-dots"></i>
                                 <div class="dropdown-menu dm">
                                     <span onclick="VolunteerKick('${member.userId}')">
@@ -414,6 +415,7 @@ else
                                     <p>View profile</p>
                                 </div>
                             </div>
+                            }
                         </div>
                     `).join('');
                         document.getElementById('membersList').innerHTML = membersListHtml;
@@ -517,9 +519,7 @@ else
                 var messageHtml = '<div class="message-container ' + messageClass + '">';
                 if (messageClass === 'received') {
                     messageHtml += `
-                    <div class="member-profile">
-                        <img src="${profileImageUrl}" alt="Profile Picture" class="profile-pic">
-                    </div>
+                    
                     <strong class="user-name">${userName}</strong>`;
                 }
                 messageHtml += '<div class="message ' + messageClass + '"><span>' + htmlEncode(message) + '</span></div>';
@@ -547,9 +547,7 @@ else
                 var messageHtml = '<div class="message-container ' + messageClass + '">';
                 if (messageClass === 'received') {
                     messageHtml += `
-                    <div class="member-profile">
-                        <img src="${profileImageUrl}" alt="Profile Picture" class="member-profile-pic">
-                    </div>
+                    
                     <strong class="user-name">${message.userName}</strong>`;
                 }
                 messageHtml += '<div class="message ' + messageClass + '"><span>' + htmlEncode(message.message) + '</span></div>';

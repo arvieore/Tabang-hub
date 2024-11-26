@@ -541,18 +541,6 @@ warning 6002: The table/view 'TabangHub.dbo.vw_VolunteerSkills' does not have a 
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_UserDonated_UserDonated">
-          <End Role="OrgEvents" Type="Self.OrgEvents" Multiplicity="0..1" />
-          <End Role="UserDonated" Type="Self.UserDonated" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="OrgEvents">
-              <PropertyRef Name="eventId" />
-            </Principal>
-            <Dependent Role="UserDonated">
-              <PropertyRef Name="eventId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_UserRoles_UserAccount">
           <End Role="UserAccount" Type="Self.UserAccount" Multiplicity="1" />
           <End Role="UserRoles" Type="Self.UserRoles" Multiplicity="*" />
@@ -844,10 +832,6 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
           </AssociationSet>
           <AssociationSet Name="FK_UserDonated_UserAccount" Association="Self.FK_UserDonated_UserAccount">
             <End Role="UserAccount" EntitySet="UserAccount" />
-            <End Role="UserDonated" EntitySet="UserDonated" />
-          </AssociationSet>
-          <AssociationSet Name="FK_UserDonated_UserDonated" Association="Self.FK_UserDonated_UserDonated">
-            <End Role="OrgEvents" EntitySet="OrgEvents" />
             <End Role="UserDonated" EntitySet="UserDonated" />
           </AssociationSet>
           <AssociationSet Name="FK_UserRoles_UserAccount" Association="Self.FK_UserRoles_UserAccount">

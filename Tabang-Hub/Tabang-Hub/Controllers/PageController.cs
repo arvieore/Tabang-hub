@@ -55,11 +55,17 @@ namespace Tabang_Hub.Controllers
                             var recommendedEvents = await _volunteerManager.RunRecommendation(UserId);
 
                             var filteredEvent = new List<vw_ListOfEvent>();
+
                             foreach (var recommendedEvent in recommendedEvents)
                             {
-                                var matchedEvents = _listsOfEvent.GetAll().Where(m => m.Event_Id == recommendedEvent.EventID).ToList();
-                                filteredEvent.AddRange(matchedEvents);
+                                var isExcluded = _volunteers.GetAll().Any(v => v.eventId == recommendedEvent.EventID && v.Status == 1);
+                                if (!isExcluded)
+                                {
+                                    var matchedEvents = _listsOfEvent.GetAll().Where(m => m.Event_Id == recommendedEvent.EventID).ToList();
+                                    filteredEvent.AddRange(matchedEvents);
+                                }
                             }
+
 
                             var indexModel = new Lists()
                             {
