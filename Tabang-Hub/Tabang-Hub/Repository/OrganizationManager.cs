@@ -777,11 +777,6 @@ namespace Tabang_Hub.Repository
                                  feedback = rating.Feedback,
                                  availability = volunteer.availability
                              }).ToList(),
-                volunteer_status = db.Volunteers.Where(m => m.eventId == eventId).Select(m => new
-                {
-                    userId = m.userId,
-                    status = m.Status
-                }).ToList(),
 
                 // Collect volunteer skills
                 user_skills = db.VolunteerSkill

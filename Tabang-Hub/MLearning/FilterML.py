@@ -336,7 +336,6 @@ def classify_users_feedback():
         # Extract user information
         user_info_data = pd.DataFrame(data['user_info'], columns=['userId', 'fname', 'lname', 'overallRating', 'feedback', 'availability'])
         user_skills_data = pd.DataFrame(data['user_skills'], columns=['userId', 'skillId'])
-        volunteer_status_data = pd.DataFrame(data['volunteer_status'], columns=['userId', 'status'])  # Include status
         event_skills = set([skill['skillId'] for skill in data['event_skills']])
 
         # Handle missing or None values in 'feedback' and 'availability'
@@ -349,9 +348,6 @@ def classify_users_feedback():
         # Create FullName column
         user_info_data['FullName'] = user_info_data['fname'] + " " + user_info_data['lname']
 
-        # Merge user information with volunteer status
-        user_info_data = user_info_data.merge(volunteer_status_data, on='userId', how='left')
-
         # Perform content-based filtering
         filtered_users = []
         for user_id, group in user_skills_data.groupby('userId'):
@@ -362,9 +358,6 @@ def classify_users_feedback():
             if similarity_score > 0:  # Only include users with at least one matching skill
                 volunteer_info = user_info_data[user_info_data['userId'] == user_id]
                 if not volunteer_info.empty:
-                    status_value = int(volunteer_info.iloc[0]['status']) if pd.notna(volunteer_info.iloc[0]['status']) else None
-                    status_string = STATUS_MAPPING.get(status_value, "Unknown")  # Call the global status mapping
-                    
                     filtered_users.append({
                         'userId': int(user_id),
                         'FullName': f"{volunteer_info.iloc[0]['fname']} {volunteer_info.iloc[0]['lname']}",
@@ -372,7 +365,6 @@ def classify_users_feedback():
                         'feedback': volunteer_info.iloc[0]['feedback'],
                         'sentiment': volunteer_info.iloc[0]['sentiment'],
                         'availability': volunteer_info.iloc[0]['availability'],
-                        'status': status_string,  # Return the string representation of the status
                         'similarityScore': similarity_score
                     })
 
@@ -380,10 +372,9 @@ def classify_users_feedback():
         return jsonify({"status": "success", "classified_feedback": filtered_users})
 
     except Exception as e:
-        print("Error in /classify_users_feedback:", e)
+        print("Error:", e)
         return jsonify({"status": "error", "message": str(e)}), 500
-
-
+    
 
 @app.route('/filter_by_availability', methods=['POST'])
 def filter_by_availability_route():
@@ -441,7 +432,6 @@ def filter_by_availability_route():
 
 
     
-    
 @app.route('/filter_by_availability_with_skills', methods=['POST'])
 def filter_by_availability_with_skills():
     try:
@@ -458,20 +448,21 @@ def filter_by_availability_with_skills():
         event_skills = set(data['event_skills'])  # Required skills
         sort_by_availability = data.get('sortBy', '').strip().lower()
 
-        # Normalize the availability field for filtering
-        user_info_data['availability'] = user_info_data['availability'].str.strip().str.lower()
+        # Handle missing or None values in 'availability' and normalize the availability field for filtering
+        user_info_data['availability'] = user_info_data['availability'].fillna("Unavailable").str.strip().str.lower()
 
         # Step 1: Filter by availability
         filtered_users_by_availability = user_info_data[user_info_data['availability'] == sort_by_availability]
-
-        filtered_users_by_availability['sentiment'] = filtered_users_by_availability['feedback'].apply(classify_feedback)
-
 
         # If no users match the availability, return an empty list
         if filtered_users_by_availability.empty:
             return jsonify({"success": True, "volunteers": []})
 
-        # Step 2: Filter by skills using Content-Based Filtering
+        # Step 2: Perform sentiment analysis on feedback
+        filtered_users_by_availability['feedback'] = filtered_users_by_availability['feedback'].fillna("No feedback provided")
+        filtered_users_by_availability['sentiment'] = filtered_users_by_availability['feedback'].apply(classify_feedback)
+
+        # Step 3: Filter by skills using Content-Based Filtering
         filtered_with_skills = []
         for user_id, group in user_skills_data.groupby('userId'):
             volunteer_skills = set(group['skillId'].tolist())
@@ -494,7 +485,7 @@ def filter_by_availability_with_skills():
                         'similarityScore': similarity_score
                     })
 
-        # Step 3: Sort the filtered volunteers by similarity score (descending)
+        # Step 4: Sort the filtered volunteers by similarity score (descending)
         filtered_with_skills = sorted(filtered_with_skills, key=lambda x: -x['similarityScore'])
 
         # Return the filtered and sorted volunteers
@@ -509,6 +500,7 @@ def filter_by_availability_with_skills():
     except Exception as e:
         print("Error in /filter_by_availability_with_skills:", e)
         return jsonify({"success": False, "message": str(e)}), 500
+
 
 
 @app.route('/filter_by_ratings_with_availability', methods=['POST'])
