@@ -381,6 +381,7 @@ namespace Tabang_Hub.Controllers
 
             try
             {
+
                 List<string> validationErrors = new List<string>();
 
                 // Password validation
@@ -408,7 +409,7 @@ namespace Tabang_Hub.Controllers
                 if (_userManager.Register(u, v, r, ref ErrorMessage) != ErrorCode.Success)
                 {
                     TempData["ErrorMessage"] = ErrorMessage;
-                    return View(u);
+                    return View();
                 }
 
                 TempData["email"] = u.email;

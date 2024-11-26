@@ -1001,7 +1001,7 @@ namespace Tabang_Hub.Controllers
         [HttpPost]
         public ActionResult Delete(int eventId)
         {
-            var deleteEvent = _organizationManager.DeleteEvent(eventId);
+            var deleteEvent = _organizationManager.DeleteEvent(eventId, ref ErrorMessage);
             var volunteer = _organizationManager.GetVolunteersByEventId(eventId);
             var events = _organizationManager.GetEventByEventId(eventId);
 
@@ -1070,6 +1070,8 @@ namespace Tabang_Hub.Controllers
         {
             string errMsg = string.Empty;
 
+            var evnt = _organizationManager.GetEventByEventId(eventId);
+
             if (_organizationManager.DeclineApplicant(id, eventId) == ErrorCode.Success)
             {
                 // Create an instance of your NotificationHub and call SendNotification
@@ -1080,7 +1082,7 @@ namespace Tabang_Hub.Controllers
                     senderUserId: UserId, // The organization ID or admin ID who is sending the notification
                     relatedId: eventId,
                     type: "Declined",
-                    content: "You have been declined to participate in the event!"
+                    content: $"Your request to participate in the event {evnt.eventTitle} has been declined!"
                 );
 
                 // Return JSON response indicating success with redirect URL to event details page
@@ -1093,13 +1095,14 @@ namespace Tabang_Hub.Controllers
             }
         }
         [Authorize]
-        public ActionResult VolunteerDetails(int userId)
+        public ActionResult VolunteerDetails(int userId, int eventId)
         {
             var getUserAccount = db.UserAccount.Where(m => m.userId == userId).FirstOrDefault();
             var getVolunteerInfo = db.VolunteerInfo.Where(m => m.userId == userId).FirstOrDefault();
             var getVolunteerSkills = db.VolunteerSkill.Where(m => m.userId == userId).ToList();
             var getProfile = db.ProfilePicture.Where(m => m.userId == userId).ToList();
             var orgInfo = _organizationManager.GetOrgInfoByUserId(UserId);
+            var vol = _volunteerManager.GetVolunteerByUserIdAndEventId(userId, eventId);
 
             var getUniqueSkill = db.sp_GetSkills(userId).ToList();
             if (getProfile.Count() <= 0)
@@ -1115,6 +1118,7 @@ namespace Tabang_Hub.Controllers
             }
             var listModel = new Lists()
             {
+                volunteer = vol,
                 OrgInfo = orgInfo,
                 userAccount = getUserAccount,
                 volunteerInfo = getVolunteerInfo,
@@ -1415,7 +1419,7 @@ namespace Tabang_Hub.Controllers
         {
             // Logic to determine redirect URL based on notification type or content
             // For example:
-            if (notification.type == "New Application")
+            if (notification.type == "New Applicant")
             {
                 return Url.Action("Details", "Organization", new { id = notification.relatedId });
             }

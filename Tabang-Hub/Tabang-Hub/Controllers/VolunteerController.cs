@@ -1128,6 +1128,7 @@ namespace Tabang_Hub.Controllers
             {
                 var updateVol = _volunteers.GetAll().Where(m => m.userId == UserId && m.eventId == eventId).FirstOrDefault();
                 var events = _organizationManager.GetEventByEventId(eventId);
+                var volInfo = _volunteerManager.GetVolunteerInfoByUserId((int)updateVol.userId);
 
                 if (updateVol != null)
                 {
@@ -1140,7 +1141,7 @@ namespace Tabang_Hub.Controllers
                         senderUserId = UserId, // The user who donated
                         relatedId = eventId,
                         type = "Leave Event",
-                        content = $"{updateVol.UserAccount.email} Left {events.eventTitle} Event.",
+                        content = $"{volInfo.lName + ", " + volInfo.lName} Left {events.eventTitle} Event.",
                         broadcast = 0, // Not a broadcast
                         status = 0, // Assuming 1 is the status for a new notification
                         createdAt = DateTime.Now,

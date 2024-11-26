@@ -5,6 +5,58 @@
     <!-- SSDL content -->
     <edmx:StorageModels>
     <Schema Namespace="TabangHubModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'TabangHub.dbo.DeletedEvent' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="DeletedEvent">
+          <Key>
+            <PropertyRef Name="deletedEventId" />
+          </Key>
+          <Property Name="deletedEventId" Type="int" Nullable="false" />
+          <Property Name="userId" Type="int" />
+          <Property Name="eventTitle" Type="nvarchar" MaxLength="255" />
+          <Property Name="eventDescription" Type="text" />
+          <Property Name="targetAmount" Type="decimal" Precision="10" Scale="2" />
+          <Property Name="maxVolunteer" Type="int" />
+          <Property Name="dateStart" Type="datetime" />
+          <Property Name="dateEnd" Type="datetime" />
+          <Property Name="location" Type="nvarchar" MaxLength="255" />
+          <Property Name="eventImage" Type="nvarchar" MaxLength="255" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'TabangHub.dbo.DeletedEventImage' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="DeletedEventImage">
+          <Key>
+            <PropertyRef Name="deletedEventImageId" />
+          </Key>
+          <Property Name="deletedEventImageId" Type="int" Nullable="false" />
+          <Property Name="eventId" Type="int" />
+          <Property Name="eventImage" Type="nvarchar" MaxLength="255" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'TabangHub.dbo.DeletedOrgSkillRequirement' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="DeletedOrgSkillRequirement">
+          <Key>
+            <PropertyRef Name="deletedSkillRequirementId" />
+          </Key>
+          <Property Name="deletedSkillRequirementId" Type="int" Nullable="false" />
+          <Property Name="eventId" Type="int" />
+          <Property Name="skillId" Type="int" />
+          <Property Name="totalNeeded" Type="int" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'TabangHub.dbo.DeletedUserDonated' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="DeletedUserDonated">
+          <Key>
+            <PropertyRef Name="deletedOrgUserDonatedId" />
+          </Key>
+          <Property Name="deletedOrgUserDonatedId" Type="int" Nullable="false" />
+          <Property Name="referenceNum" Type="nvarchar" MaxLength="255" />
+          <Property Name="eventId" Type="int" />
+          <Property Name="userId" Type="int" />
+          <Property Name="amount" Type="decimal" Precision="10" Scale="2" />
+          <Property Name="Status" Type="int" />
+          <Property Name="donatedAt" Type="datetime" />
+        </EntityType>
         <EntityType Name="Feedback">
           <Key>
             <PropertyRef Name="feedbackId" />
@@ -682,6 +734,46 @@ warning 6002: The table/view 'TabangHub.dbo.vw_VolunteerSkills' does not have a 
           <EntitySet Name="Volunteers" EntityType="Self.Volunteers" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="VolunteersHistory" EntityType="Self.VolunteersHistory" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="VolunteerSkill" EntityType="Self.VolunteerSkill" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="DeletedEvent" EntityType="Self.DeletedEvent" store:Type="Tables" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+[DeletedEvent].[deletedEventId] AS [deletedEventId], 
+[DeletedEvent].[userId] AS [userId], 
+[DeletedEvent].[eventTitle] AS [eventTitle], 
+[DeletedEvent].[eventDescription] AS [eventDescription], 
+[DeletedEvent].[targetAmount] AS [targetAmount], 
+[DeletedEvent].[maxVolunteer] AS [maxVolunteer], 
+[DeletedEvent].[dateStart] AS [dateStart], 
+[DeletedEvent].[dateEnd] AS [dateEnd], 
+[DeletedEvent].[location] AS [location], 
+[DeletedEvent].[eventImage] AS [eventImage]
+FROM [dbo].[DeletedEvent] AS [DeletedEvent]</DefiningQuery>
+          </EntitySet>
+          <EntitySet Name="DeletedEventImage" EntityType="Self.DeletedEventImage" store:Type="Tables" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+[DeletedEventImage].[deletedEventImageId] AS [deletedEventImageId], 
+[DeletedEventImage].[eventId] AS [eventId], 
+[DeletedEventImage].[eventImage] AS [eventImage]
+FROM [dbo].[DeletedEventImage] AS [DeletedEventImage]</DefiningQuery>
+          </EntitySet>
+          <EntitySet Name="DeletedOrgSkillRequirement" EntityType="Self.DeletedOrgSkillRequirement" store:Type="Tables" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+[DeletedOrgSkillRequirement].[deletedSkillRequirementId] AS [deletedSkillRequirementId], 
+[DeletedOrgSkillRequirement].[eventId] AS [eventId], 
+[DeletedOrgSkillRequirement].[skillId] AS [skillId], 
+[DeletedOrgSkillRequirement].[totalNeeded] AS [totalNeeded]
+FROM [dbo].[DeletedOrgSkillRequirement] AS [DeletedOrgSkillRequirement]</DefiningQuery>
+          </EntitySet>
+          <EntitySet Name="DeletedUserDonated" EntityType="Self.DeletedUserDonated" store:Type="Tables" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+[DeletedUserDonated].[deletedOrgUserDonatedId] AS [deletedOrgUserDonatedId], 
+[DeletedUserDonated].[referenceNum] AS [referenceNum], 
+[DeletedUserDonated].[eventId] AS [eventId], 
+[DeletedUserDonated].[userId] AS [userId], 
+[DeletedUserDonated].[amount] AS [amount], 
+[DeletedUserDonated].[Status] AS [Status], 
+[DeletedUserDonated].[donatedAt] AS [donatedAt]
+FROM [dbo].[DeletedUserDonated] AS [DeletedUserDonated]</DefiningQuery>
+          </EntitySet>
           <EntitySet Name="vw_AllVolunteers" EntityType="Self.vw_AllVolunteers" store:Type="Views" store:Schema="dbo">
             <DefiningQuery>SELECT 
 [vw_AllVolunteers].[userId] AS [userId], 
@@ -1031,6 +1123,10 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
             <End Role="UserAccount" EntitySet="UserAccount" />
             <End Role="VolunteersHistory" EntitySet="VolunteersHistory" />
           </AssociationSet>
+          <EntitySet Name="DeletedEvent" EntityType="TabangHubModel.DeletedEvent" />
+          <EntitySet Name="DeletedEventImage" EntityType="TabangHubModel.DeletedEventImage" />
+          <EntitySet Name="DeletedOrgSkillRequirement" EntityType="TabangHubModel.DeletedOrgSkillRequirement" />
+          <EntitySet Name="DeletedUserDonated" EntityType="TabangHubModel.DeletedUserDonated" />
           </EntityContainer>
         <ComplexType Name="sp_GetAllMessage_Result">
           <Property Type="Int32" Name="groupChatId" Nullable="false" />
@@ -1768,6 +1864,50 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="DeletedEvent">
+          <Key>
+            <PropertyRef Name="deletedEventId" />
+          </Key>
+          <Property Name="deletedEventId" Type="Int32" Nullable="false" />
+          <Property Name="userId" Type="Int32" />
+          <Property Name="eventTitle" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="eventDescription" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="targetAmount" Type="Decimal" Precision="10" Scale="2" />
+          <Property Name="maxVolunteer" Type="Int32" />
+          <Property Name="dateStart" Type="DateTime" Precision="3" />
+          <Property Name="dateEnd" Type="DateTime" Precision="3" />
+          <Property Name="location" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="eventImage" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="DeletedEventImage">
+          <Key>
+            <PropertyRef Name="deletedEventImageId" />
+          </Key>
+          <Property Name="deletedEventImageId" Type="Int32" Nullable="false" />
+          <Property Name="eventId" Type="Int32" />
+          <Property Name="eventImage" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="DeletedOrgSkillRequirement">
+          <Key>
+            <PropertyRef Name="deletedSkillRequirementId" />
+          </Key>
+          <Property Name="deletedSkillRequirementId" Type="Int32" Nullable="false" />
+          <Property Name="eventId" Type="Int32" />
+          <Property Name="skillId" Type="Int32" />
+          <Property Name="totalNeeded" Type="Int32" />
+        </EntityType>
+        <EntityType Name="DeletedUserDonated">
+          <Key>
+            <PropertyRef Name="deletedOrgUserDonatedId" />
+          </Key>
+          <Property Name="deletedOrgUserDonatedId" Type="Int32" Nullable="false" />
+          <Property Name="referenceNum" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="eventId" Type="Int32" />
+          <Property Name="userId" Type="Int32" />
+          <Property Name="amount" Type="Decimal" Precision="10" Scale="2" />
+          <Property Name="Status" Type="Int32" />
+          <Property Name="donatedAt" Type="DateTime" Precision="3" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -2242,6 +2382,54 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
                 <ScalarProperty Name="skillId" ColumnName="skillId" />
                 <ScalarProperty Name="userId" ColumnName="userId" />
                 <ScalarProperty Name="volunteerSkillId" ColumnName="volunteerSkillId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="DeletedEvent">
+            <EntityTypeMapping TypeName="TabangHubModel.DeletedEvent">
+              <MappingFragment StoreEntitySet="DeletedEvent">
+                <ScalarProperty Name="eventImage" ColumnName="eventImage" />
+                <ScalarProperty Name="location" ColumnName="location" />
+                <ScalarProperty Name="dateEnd" ColumnName="dateEnd" />
+                <ScalarProperty Name="dateStart" ColumnName="dateStart" />
+                <ScalarProperty Name="maxVolunteer" ColumnName="maxVolunteer" />
+                <ScalarProperty Name="targetAmount" ColumnName="targetAmount" />
+                <ScalarProperty Name="eventDescription" ColumnName="eventDescription" />
+                <ScalarProperty Name="eventTitle" ColumnName="eventTitle" />
+                <ScalarProperty Name="userId" ColumnName="userId" />
+                <ScalarProperty Name="deletedEventId" ColumnName="deletedEventId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="DeletedEventImage">
+            <EntityTypeMapping TypeName="TabangHubModel.DeletedEventImage">
+              <MappingFragment StoreEntitySet="DeletedEventImage">
+                <ScalarProperty Name="eventImage" ColumnName="eventImage" />
+                <ScalarProperty Name="eventId" ColumnName="eventId" />
+                <ScalarProperty Name="deletedEventImageId" ColumnName="deletedEventImageId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="DeletedOrgSkillRequirement">
+            <EntityTypeMapping TypeName="TabangHubModel.DeletedOrgSkillRequirement">
+              <MappingFragment StoreEntitySet="DeletedOrgSkillRequirement">
+                <ScalarProperty Name="totalNeeded" ColumnName="totalNeeded" />
+                <ScalarProperty Name="skillId" ColumnName="skillId" />
+                <ScalarProperty Name="eventId" ColumnName="eventId" />
+                <ScalarProperty Name="deletedSkillRequirementId" ColumnName="deletedSkillRequirementId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="DeletedUserDonated">
+            <EntityTypeMapping TypeName="TabangHubModel.DeletedUserDonated">
+              <MappingFragment StoreEntitySet="DeletedUserDonated">
+                <ScalarProperty Name="donatedAt" ColumnName="donatedAt" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="amount" ColumnName="amount" />
+                <ScalarProperty Name="userId" ColumnName="userId" />
+                <ScalarProperty Name="eventId" ColumnName="eventId" />
+                <ScalarProperty Name="referenceNum" ColumnName="referenceNum" />
+                <ScalarProperty Name="deletedOrgUserDonatedId" ColumnName="deletedOrgUserDonatedId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

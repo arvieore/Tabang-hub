@@ -24,6 +24,7 @@ namespace Tabang_Hub.Repository
         public BaseRepository<VolunteersHistory> _volunteersHistory;
         public BaseRepository<OrgEvents> _orgEvents;
         public BaseRepository<Notification> _notification;
+        public BaseRepository<VolunteerInfo> _volunteerInfo;
 
         public BaseRepository<vw_ListOfEvent> _vw_listOfEvent;
 
@@ -38,6 +39,7 @@ namespace Tabang_Hub.Repository
             _volunteers = new BaseRepository<Volunteers>();
             _orgEvents = new BaseRepository<OrgEvents>();
             _notification = new BaseRepository<Notification>();
+            _volunteerInfo = new BaseRepository<VolunteerInfo>();
 
             _vw_listOfEvent = new BaseRepository<vw_ListOfEvent>();
 
@@ -74,6 +76,15 @@ namespace Tabang_Hub.Repository
             }
             return pendings;
         }
+        public Volunteers GetVolunteerByUserIdAndEventId(int userId, int eventId)
+        {
+            return _volunteers._table.Where(m => m.userId == userId && m.eventId == eventId && m.Status == 0).FirstOrDefault();
+        }
+        public VolunteerInfo GetVolunteerInfoByUserId(int userId)
+        {
+            return _volunteerInfo._table.Where(m => m.userId == userId).FirstOrDefault();
+        }
+
         public List<Volunteers> GetVolunteersEventParticipateByUserId(int userId)
         {
             var acceptedEvents = _volunteers.GetAll().Where(m => m.userId == userId && m.Status == 1).ToList();

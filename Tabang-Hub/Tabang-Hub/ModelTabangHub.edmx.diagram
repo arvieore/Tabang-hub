@@ -56,6 +56,10 @@
         <AssociationConnector Association="TabangHubModel.FK_VolunteerInfo_UserAccount" />
         <AssociationConnector Association="TabangHubModel.FK_Volunteers_UserAccount" />
         <AssociationConnector Association="TabangHubModel.FK_VolunteersHistory_UserAccount" />
+        <EntityTypeShape EntityType="TabangHubModel.DeletedEvent" Width="1.5" PointX="0.75" PointY="9.75" />
+        <EntityTypeShape EntityType="TabangHubModel.DeletedEventImage" Width="1.5" PointX="9.75" PointY="3.75" />
+        <EntityTypeShape EntityType="TabangHubModel.DeletedOrgSkillRequirement" Width="1.5" PointX="9.75" PointY="6.75" />
+        <EntityTypeShape EntityType="TabangHubModel.DeletedUserDonated" Width="1.5" PointX="9.75" PointY="9.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

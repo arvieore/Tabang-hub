@@ -2006,6 +2006,18 @@
     <Compile Include="Controllers\OrganizationController.cs" />
     <Compile Include="Controllers\PageController.cs" />
     <Compile Include="Controllers\VolunteerController.cs" />
+    <Compile Include="DeletedEvent.cs">
+      <DependentUpon>ModelTabangHub.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DeletedEventImage.cs">
+      <DependentUpon>ModelTabangHub.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DeletedOrgSkillRequirement.cs">
+      <DependentUpon>ModelTabangHub.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DeletedUserDonated.cs">
+      <DependentUpon>ModelTabangHub.tt</DependentUpon>
+    </Compile>
     <Compile Include="Feedback.cs">
       <DependentUpon>ModelTabangHub.tt</DependentUpon>
     </Compile>

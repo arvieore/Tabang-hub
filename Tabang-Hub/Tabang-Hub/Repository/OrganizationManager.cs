@@ -36,6 +36,10 @@ namespace Tabang_Hub.Repository
         private BaseRepository<ProfilePicture> _profile;
         private BaseRepository<Notification> _notification;
         private BaseRepository<Feedback> _feedback;
+        private BaseRepository<DeletedEvent> _deletedEvent;
+        private BaseRepository<DeletedEventImage> _deletedEventImage;
+        private BaseRepository<DeletedOrgSkillRequirement> _deletedOrgSkillReq;
+        private BaseRepository<DeletedUserDonated> _deletedUserDonated;
 
         public OrganizationManager()
         {
@@ -61,6 +65,10 @@ namespace Tabang_Hub.Repository
             _profile = new BaseRepository<ProfilePicture>();
             _notification = new BaseRepository<Notification>();
             _feedback = new BaseRepository<Feedback>();
+            _deletedEvent = new BaseRepository<DeletedEvent>();
+            _deletedEventImage = new BaseRepository<DeletedEventImage>();
+            _deletedOrgSkillReq = new BaseRepository<DeletedOrgSkillRequirement>();
+            _deletedUserDonated = new BaseRepository<DeletedUserDonated>();
         }
 
         public ErrorCode CreateEvents(OrgEvents orgEvents, List<string> imageFileNames, List<string> skills, ref string errMsg)
@@ -593,7 +601,7 @@ namespace Tabang_Hub.Repository
         {
             return _orgEvents._table.Where(m => m.eventId == eventId).FirstOrDefault();
         }
-        public ErrorCode DeleteEvent(int eventId)
+        public ErrorCode DeleteEvent(int eventId, ref string errMsg)
         {
             var skillsRequirement = listOfSkillRequirement(eventId);
             var eventImage = listOfEventImage(eventId);
@@ -629,6 +637,18 @@ namespace Tabang_Hub.Repository
                     {
                         return ErrorCode.Error;
                     }
+
+                    var deletedSkillReq = new DeletedOrgSkillRequirement()
+                    { 
+                        eventId = skillRequirement.eventId,
+                        skillId = skillRequirement.skillId,
+                        totalNeeded = skillRequirement.totalNeeded,
+                    };
+
+                    if (_deletedOrgSkillReq.Create(deletedSkillReq, out errMsg) != ErrorCode.Success)
+                    {
+                        return ErrorCode.Error;
+                    }
                 }
             }
 
@@ -638,6 +658,38 @@ namespace Tabang_Hub.Repository
                 {
                     var result = _orgEventsImage.Delete(eventImages.eventImageId);
                     if (result != ErrorCode.Success)
+                    {
+                        return ErrorCode.Error;
+                    }
+
+                    var deletedEventImage = new DeletedEventImage()
+                    { 
+                        eventId= eventImages.eventId,
+                        eventImage = eventImages.eventImage,
+                    };
+
+                    if (_deletedEventImage.Create(deletedEventImage, out errMsg) != ErrorCode.Success)
+                    {
+                        return ErrorCode.Error;
+                    }
+                }
+            }
+
+            if (userDonated != null)
+            {
+                foreach (var donated in userDonated)
+                {
+                    var deletedUserDonated = new DeletedUserDonated()
+                    {
+                        referenceNum = donated.referenceNum,
+                        eventId = donated.eventId,
+                        userId = donated.userId,
+                        amount = donated.amount,
+                        Status = donated.Status,
+                        donatedAt = donated.donatedAt,
+                    };
+
+                    if (_deletedUserDonated.Create(deletedUserDonated, out errMsg) != ErrorCode.Success)
                     {
                         return ErrorCode.Error;
                     }
@@ -653,6 +705,29 @@ namespace Tabang_Hub.Repository
                     {
                         return ErrorCode.Error;
                     }
+                }
+            }
+
+            var evnt = GetEventByEventId(eventId);
+
+            if (eventImage != null)
+            {
+                var deletedEvent = new DeletedEvent()
+                {
+                    userId = evnt.userId,
+                    eventTitle = evnt.eventTitle,
+                    eventDescription = evnt.eventDescription,
+                    targetAmount = evnt.targetAmount,
+                    maxVolunteer = evnt.maxVolunteer,
+                    dateStart = evnt.dateStart,
+                    dateEnd = evnt.dateEnd,
+                    location = evnt.location,
+                    eventImage = evnt.eventImage,
+                };
+
+                if (_deletedEvent.Create(deletedEvent, out errMsg) != ErrorCode.Success)
+                {
+                    return ErrorCode.Error;
                 }
             }
 

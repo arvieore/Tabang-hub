@@ -7,10 +7,10 @@
 
 <div class="container">
     <!-- Volunteer Profile Section -->
-    @if (ViewBag.EventId != null)
+    @if (Model.volunteer != null)
     {
-        <div class="d-flex justify-content-center mb-4">
-            <button id="acceptButton" class="btn btn-success me-2">Accept</button>
+        <div class="d-flex justify-content-center gap-3 mb-4">
+            <button id="acceptButton" class="btn btn-success">Accept</button>
             <button id="declineButton" class="btn btn-danger">Decline</button>
         </div>
     }
