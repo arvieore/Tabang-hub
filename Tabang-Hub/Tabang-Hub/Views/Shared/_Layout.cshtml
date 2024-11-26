@@ -24,6 +24,12 @@
     <link href="~/Content/css2/notif.css" rel="stylesheet" />
     <link href="~/Content/css2/Search.css" rel="stylesheet" />
     <style>
+        .unread-notification {
+            font-weight: bold;
+            background-color: #e6e6e6; /* Light gray background for unread notifications */
+            border-left: 5px solid #5BC1AC; /* Green border for emphasis */
+            padding-left: 10px; /* Align text properly */
+        }
         .navbar {
             position: fixed;
             top: 0;
@@ -310,84 +316,87 @@
     {
         <script>
             $(document).ready(function () {
-                fetchUnreadNotifications();
-                setInterval(fetchUnreadNotifications, 5000);
+    fetchUnreadNotifications();
+    setInterval(fetchUnreadNotifications, 5000);
 
-                function fetchUnreadNotifications() {
-                    $.ajax({
-                        url: '@Url.Action("GetUnreadNotifications", "Organization")',
-                        type: 'GET',
-                        success: function (data) {
-                            let unreadCount = data.length;
-                            updateNotificationCount(unreadCount);
+    function fetchUnreadNotifications() {
+        $.ajax({
+            url: '@Url.Action("GetUnreadNotifications", "Organization")',
+            type: 'GET',
+            success: function (data) {
+                let unreadCount = data.filter(notification => notification.status === 0).length;
+                updateNotificationCount(unreadCount);
 
-                            if (unreadCount > 0) {
-                                let notificationsHtml = '<li><h6 class="dropdown-header">Notifications</h6></li>';
-                                data.forEach(notification => {
-                                    notificationsHtml += `
-                                        <li>
-                                            <a href="#" class="dropdown-item notification-item" data-notification-id="${notification.notificationId}" style="white-space: normal;">
-                                                <div class="d-flex align-items-start">
-                                                    <div>
-                                                        ${notification.content}
-                                                    </div>
-                                                </div>
-                                            </a>
-                                        </li>`;
-                                });
-                                $('#notificationDropdown').html(notificationsHtml);
-                            } else {
-                                $('#notificationDropdown').html('<li><a class="dropdown-item">No new notifications</a></li>');
-                            }
-                        },
-                        error: function (xhr, status, error) {
-                            console.error("Error fetching unread notifications:", error);
-                        }
+                if (data.length > 0) {
+                    let notificationsHtml = '<li><h6 class="dropdown-header">Notifications</h6></li>';
+                    data.forEach(notification => {
+                        notificationsHtml += `
+                            <li>
+                                <a href="#"
+                                   class="dropdown-item notification-item ${notification.status === 0 ? 'unread-notification' : ''}"
+                                   data-notification-id="${notification.notificationId}"
+                                   style="white-space: normal;">
+                                    <div class="d-flex align-items-start">
+                                        <div>
+                                            ${notification.content}
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>`;
                     });
+                    $('#notificationDropdown').html(notificationsHtml);
+                } else {
+                    $('#notificationDropdown').html('<li><a class="dropdown-item">No new notifications</a></li>');
                 }
+            },
+            error: function () {
+                console.error("Error fetching unread notifications.");
+            }
+        });
+    }
 
-                function updateNotificationCount(count) {
-                    const notificationCountElement = $('#notificationCount');
-                    if (count > 0) {
-                        notificationCountElement.text(count).show();
-                    } else {
-                        notificationCountElement.hide();
+    function updateNotificationCount(count) {
+        const notificationCountElement = $('#notificationCount');
+        if (count > 0) {
+            notificationCountElement.text(count > 99 ? '99+' : count).show();
+        } else {
+            notificationCountElement.hide();
+        }
+    }
+
+    $(document).on('click', '.notification-item', function (e) {
+        e.preventDefault();
+        var notificationId = $(this).data('notification-id');
+        var token = $('input[name="__RequestVerificationToken"]').val();
+        var $notificationItem = $(this);
+
+        $.ajax({
+            url: '@Url.Action("OpenNotification", "Volunteer")',
+            type: 'POST',
+            headers: {
+                "RequestVerificationToken": token
+            },
+            data: {
+                notificationId: notificationId
+            },
+            success: function (response) {
+                if (response.success) {
+                    $notificationItem.closest('li').remove();
+                    fetchUnreadNotifications();
+
+                    if (response.redirectUrl) {
+                        window.location.href = response.redirectUrl;
                     }
+                } else {
+                    console.error('Failed to open notification:', response.message);
                 }
-
-                $(document).on('click', '.notification-item', function (e) {
-                    e.preventDefault();
-                    var notificationId = $(this).data('notification-id');
-                    var token = $('input[name="__RequestVerificationToken"]').val();
-                    var $notificationItem = $(this);
-
-                    $.ajax({
-                        url: '@Url.Action("OpenNotification", "Volunteer")',
-                        type: 'POST',
-                        headers: {
-                            "RequestVerificationToken": token
-                        },
-                        data: {
-                            notificationId: notificationId
-                        },
-                        success: function (response) {
-                            if (response.success) {
-                                $notificationItem.closest('li').remove();
-                                fetchUnreadNotifications();
-
-                                if (response.redirectUrl) {
-                                    window.location.href = response.redirectUrl;
-                                }
-                            } else {
-                                console.error('Failed to open notification:', response.message);
-                            }
-                        },
-                        error: function (xhr, status, error) {
-                            console.error('Error opening notification:', error);
-                        }
-                    });
-                });
-            });
+            },
+            error: function () {
+                console.error('Error opening notification.');
+            }
+        });
+    });
+});
 
 
             function toggleSidebar() {

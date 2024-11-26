@@ -144,12 +144,18 @@ namespace Tabang_Hub.Controllers
         [HttpGet]
         public JsonResult GetUnreadNotifications()
         {
-            int userId = UserId;
-
+            int organizationId = UserId;
             var notifications = db.Notification
-                .Where(n => n.userId == userId && n.status == 0)
-                .OrderByDescending(n => n.createdAt) // Assuming 'CreatedAt' is the date field
-                .Select(n => new { n.type, n.content })
+                .Where(n => n.userId == organizationId)
+                .OrderBy(n => n.status) // Unread (status = 0) first
+                .ThenByDescending(n => n.createdAt)
+                .Select(n => new
+                {
+                    n.notificationId,
+                    n.content,
+                    n.status, // 0 for unread, 1 for read
+                    n.createdAt
+                })
                 .ToList();
 
             return Json(notifications, JsonRequestBehavior.AllowGet);

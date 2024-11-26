@@ -41,12 +41,6 @@
             display: block;
         }
 
-    .navbar-center {
-        display: flex;
-        justify-content: center;
-        width: 100%;
-    }
-
     .fixed-size-img {
         width: 100%;
         max-height: 450px;
@@ -429,27 +423,68 @@
 
             <script>
                 function inviteVolunteer() {
-                    const selectedVolunteerIds = [];
-                    const eventId = @Model.eventDetails.eventId;
-                    $('.user-checkbox:checked').each(function () {
-                        const volunteerId = $(this).data('volunteerid');
-                        if (volunteerId) {
-                            selectedVolunteerIds.push(volunteerId);
-                        }
-                    });
-                    $.ajax({
-                        url: '/Organization/InviteVolunteer',
-                        type: 'POST',
-                        data: { selectedVolunteers: selectedVolunteerIds, eventId: eventId },
-                        success: function (response) {
+    const selectedVolunteerIds = [];
+    const eventId = @Model.eventDetails.eventId;
+    $('.user-checkbox:checked').each(function () {
+        const volunteerId = $(this).data('volunteerid');
+        if (volunteerId) {
+            selectedVolunteerIds.push(volunteerId);
+        }
+    });
 
-                        },
-                        error: function (error) {
+    if (selectedVolunteerIds.length === 0) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'No Volunteers Selected',
+            text: 'Please select at least one volunteer to invite.',
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
 
-                        }
-                    });
+    $.ajax({
+        url: '/Organization/InviteVolunteer',
+        type: 'POST',
+        data: { selectedVolunteers: selectedVolunteerIds, eventId: eventId },
+        success: function (response) {
+            if (response.success) {
+                const alreadyJoinedCount = response.alreadyJoinedUsers.length;
+                const alreadyInvitedCount = response.alreadyInvitedUsers.length;
+                const newlyInvitedCount = response.newlyInvitedUsers.length;
 
+                let message = `<p>${newlyInvitedCount} volunteer(s) have been successfully invited.</p>`;
+                if (alreadyJoinedCount > 0) {
+                    message += `<p>${alreadyJoinedCount} volunteer(s) have already joined this event.</p>`;
                 }
+                if (alreadyInvitedCount > 0) {
+                    message += `<p>${alreadyInvitedCount} volunteer(s) were already invited.</p>`;
+                }
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Invitation Results',
+                    html: message,
+                    confirmButtonText: 'OK'
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: response.message || 'An error occurred while processing invitations.',
+                    confirmButtonText: 'OK'
+                });
+            }
+        },
+        error: function (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'An unexpected error occurred. Please try again.',
+                confirmButtonText: 'OK'
+            });
+        }
+    });
+}
 
                 // Search functionality
                 $(document).on('input', '#search-box', function () {

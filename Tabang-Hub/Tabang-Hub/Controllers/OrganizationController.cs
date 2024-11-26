@@ -1095,7 +1095,7 @@ namespace Tabang_Hub.Controllers
         [Authorize]
         public ActionResult VolunteerDetails(int userId)
         {
-            var getUserAccount = db.UserAccount.Where(m => m.userId == userId).ToList();
+            var getUserAccount = db.UserAccount.Where(m => m.userId == userId).FirstOrDefault();
             var getVolunteerInfo = db.VolunteerInfo.Where(m => m.userId == userId).FirstOrDefault();
             var getVolunteerSkills = db.VolunteerSkill.Where(m => m.userId == userId).ToList();
             var getProfile = db.ProfilePicture.Where(m => m.userId == userId).ToList();
@@ -1116,7 +1116,7 @@ namespace Tabang_Hub.Controllers
             var listModel = new Lists()
             {
                 OrgInfo = orgInfo,
-                userAccounts = getUserAccount,
+                userAccount = getUserAccount,
                 volunteerInfo = getVolunteerInfo,
                 volunteersSkills = getVolunteerSkills,
                 uniqueSkill = getUniqueSkill,
@@ -1249,12 +1249,20 @@ namespace Tabang_Hub.Controllers
         public JsonResult GetUnreadNotifications()
         {
             int organizationId = UserId;
-            var unreadNotifications = db.Notification
-                .Where(n => n.userId == organizationId && n.status == 0)
-                .OrderByDescending(n => n.createdAt)
+             var notifications = db.Notification
+                .Where(n => n.userId == organizationId)
+                .OrderBy(n => n.status) // Unread (status = 0) first
+                .ThenByDescending(n => n.createdAt)
+                .Select(n => new
+                {
+                    n.notificationId,
+                    n.content,
+                    n.status, // 0 for unread, 1 for read
+                    n.createdAt
+                })
                 .ToList();
 
-            return Json(unreadNotifications, JsonRequestBehavior.AllowGet);
+            return Json(notifications, JsonRequestBehavior.AllowGet);
         }
         [HttpPost]
         public JsonResult SubmitRatings(int eventId, List<VolunteerRatingData> volunteerRatings)
