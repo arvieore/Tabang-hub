@@ -37,8 +37,6 @@ namespace Tabang_Hub.Controllers
             var getVolunteerSkills = db.VolunteerSkill.Where(m => m.userId == UserId).ToList();
             var getProfile = db.ProfilePicture.Where(m => m.userId == UserId).ToList();
 
-            
-
             var getUniqueSkill = db.sp_GetSkills(UserId).ToList();
             if (getProfile.Count() <= 0)
             {

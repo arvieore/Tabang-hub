@@ -155,19 +155,18 @@
                                     }
                                     else
                                     {
-                                        <div class="action-buttons mt-2">
-                                            <div class="d-flex justify-content-between">
+                                        @*<div class="action-buttons mt-2">
+                                            <div class="d-flex justify-content-between">*@
                                                 <!-- Accept Button -->
-                                                <button type="button" class="btn btn-success flex-fill me-1" onclick="acceptEvent('@orgDetails.eventId')" @*data-toggle="modal" data-target="#acceptEventModal"*@ data-event-id="@orgDetails.eventId" id="acceptButton">
+                                                <!--<button type="button" class="btn btn-success flex-fill me-1" onclick="acceptEvent('@orgDetails.eventId')"--> @*data-toggle="modal" data-target="#acceptEventModal"*@ <!--data-event-id="@orgDetails.eventId" id="acceptButton">
                                                     Accept Invitation
-                                                </button>
+                                                </button>-->
                                                 <!-- Decline Button -->
-                                                <button type="button" class="btn btn-danger flex-fill ms-1" onclick="declineInvite('@orgDetails.eventId')" data-event-id="@orgDetails.eventId" id="declineButton">
+                                                @*<button type="button" class="btn btn-danger flex-fill ms-1" onclick="declineInvite('@orgDetails.eventId')" data-event-id="@orgDetails.eventId" id="declineButton">
                                                     Decline Invitation
                                                 </button>
                                             </div>
-                                        </div>
-
+                                        </div>*@
                                     }
                                 }
                             }

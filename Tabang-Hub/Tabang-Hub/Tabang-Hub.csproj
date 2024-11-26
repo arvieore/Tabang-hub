@@ -291,7 +291,11 @@
     <Content Include="Content\images2\news\medium-shot-volunteers-with-clothing-donations.jpg" />
     <Content Include="Content\images2\organization.png" />
     <Content Include="Content\images2\portrait-volunteer-who-organized-donations-charity.jpg" />
+    <Content Include="Content\images2\slide\animal rescue.jpg" />
+    <Content Include="Content\images2\slide\army.jpg" />
+    <Content Include="Content\images2\slide\dagat.jpg" />
     <Content Include="Content\images2\slide\medium-shot-people-collecting-donations.jpg" />
+    <Content Include="Content\images2\slide\red cross.jpg" />
     <Content Include="Content\images2\slide\volunteer-helping-with-donation-box.jpg" />
     <Content Include="Content\images2\slide\volunteer-selecting-organizing-clothes-donations-charity.jpg" />
     <Content Include="Content\images2\smiling-casual-woman-dressed-volunteer-t-shirt-with-badge.jpg" />

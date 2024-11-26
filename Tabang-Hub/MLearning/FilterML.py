@@ -244,58 +244,68 @@ def recruit_for_event_volunteer():
 # Existing Route: Recruit for Event
 @app.route('/recruit', methods=['POST'])
 def recruit_for_event():
-    data = request.get_json()
+    try:
+        data = request.get_json()
 
-    # Convert received data to Pandas DataFrames
-    user_skills_data = pd.DataFrame(data['user_skills'], columns=['userId', 'skillId'])
-    event_skills_data = pd.DataFrame(data['event_skills'], columns=['eventId', 'skillId'])
-    user_info_data = pd.DataFrame(data['user_info'], columns=['userId', 'fname', 'lname', 'overallRating', 'feedback', 'availability'])
+        # Convert received data to Pandas DataFrames
+        user_skills_data = pd.DataFrame(data['user_skills'], columns=['userId', 'skillId'])
+        event_skills_data = pd.DataFrame(data['event_skills'], columns=['eventId', 'skillId'])
+        user_info_data = pd.DataFrame(data['user_info'], columns=['userId', 'fname', 'lname', 'overallRating', 'feedback', 'availability'])
 
-    filtered_volunteers = []
+        # Handle missing or None values in 'feedback' and 'availability'
+        user_info_data['feedback'] = user_info_data['feedback'].fillna("No feedback provided")
+        user_info_data['availability'] = user_info_data['availability'].fillna("Unavailable")
 
-    # Get the required skills for the event
-    selected_skills = set(event_skills_data['skillId'].tolist())
-    print(f"Selected Skills for Event: {selected_skills}")
+        filtered_volunteers = []
 
-    # Filter volunteers based on subset condition
-    for user_id, group in user_skills_data.groupby('userId'):
-        volunteer_skills = set(group['skillId'].tolist())
-        print(f"Volunteer {user_id} Skills: {volunteer_skills}")
+        # Get the required skills for the event
+        selected_skills = set(event_skills_data['skillId'].tolist())
+        print(f"Selected Skills for Event: {selected_skills}")
 
-        # Check if the selected skills are a subset of the volunteer's skills
-        if selected_skills.issubset(volunteer_skills):
-            # Calculate similarity score for ranking purposes
-            similarity_score = calculate_cbf_similarity(volunteer_skills, selected_skills)
+        # Filter volunteers based on subset condition
+        for user_id, group in user_skills_data.groupby('userId'):
+            volunteer_skills = set(group['skillId'].tolist())
+            print(f"Volunteer {user_id} Skills: {volunteer_skills}")
 
-            # Get the volunteer's details
-            user_info = user_info_data[user_info_data['userId'] == user_id]
-            if not user_info.empty:
-                full_name = f"{user_info.iloc[0]['fname']} {user_info.iloc[0]['lname']}"
-                overall_rating = int(user_info.iloc[0]['overallRating']) if not pd.isna(user_info.iloc[0]['overallRating']) else 0
-                feedback = user_info.iloc[0]['feedback']
-                availability = user_info.iloc[0]['availability']
-                sentiment = classify_feedback(feedback)  # Predict sentiment
-            else:
-                full_name = f"Volunteer {user_id}"
-                overall_rating = 0
-                feedback = "No feedback available"
-                availability = "N/A"
-                sentiment = "Neutral"  # Default sentiment if no feedback available
+            # Check if the selected skills are a subset of the volunteer's skills
+            if selected_skills.issubset(volunteer_skills):
+                # Calculate similarity score for ranking purposes
+                similarity_score = calculate_cbf_similarity(volunteer_skills, selected_skills)
 
-            # Add the volunteer to the filtered list
-            filtered_volunteers.append({
-                'userId': int(user_id),
-                'fullName': full_name,
-                'overallRating': overall_rating,
-                'skillIds': list(volunteer_skills),  # Include all skills of the volunteer
-                'similarityScore': similarity_score,
-                'feedback': feedback,  # Include feedback
-                'availability': availability,
-                'sentiment': sentiment,  # Include sentiment
-            })
+                # Get the volunteer's details
+                user_info = user_info_data[user_info_data['userId'] == user_id]
+                if not user_info.empty:
+                    full_name = f"{user_info.iloc[0]['fname']} {user_info.iloc[0]['lname']}"
+                    overall_rating = int(user_info.iloc[0]['overallRating']) if not pd.isna(user_info.iloc[0]['overallRating']) else 0
+                    feedback = user_info.iloc[0]['feedback']
+                    availability = user_info.iloc[0]['availability']
+                    sentiment = classify_feedback(feedback)  # Predict sentiment
+                else:
+                    full_name = f"Volunteer {user_id}"
+                    overall_rating = 0
+                    feedback = "No feedback available"
+                    availability = "N/A"
+                    sentiment = "Neutral"  # Default sentiment if no feedback available
 
-    print("Filtered Volunteers: ", filtered_volunteers)
-    return jsonify(filtered_volunteers)
+                # Add the volunteer to the filtered list
+                filtered_volunteers.append({
+                    'userId': int(user_id),
+                    'fullName': full_name,
+                    'overallRating': overall_rating,
+                    'skillIds': list(volunteer_skills),  # Include all skills of the volunteer
+                    'similarityScore': similarity_score,
+                    'feedback': feedback,  # Include feedback
+                    'availability': availability,
+                    'sentiment': sentiment,  # Include sentiment
+                })
+
+        print("Filtered Volunteers: ", filtered_volunteers)
+        return jsonify(filtered_volunteers)
+
+    except Exception as e:
+        print("Error in /recruit:", e)
+        return jsonify({"success": False, "message": str(e)}), 500
+
 
 
 # Map sentiment labels back to their string values
