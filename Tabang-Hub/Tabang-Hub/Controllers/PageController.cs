@@ -37,18 +37,15 @@ namespace Tabang_Hub.Controllers
                         var getVolunteerSkills = db.VolunteerSkill.Where(m => m.userId == UserId).ToList();
                         var getSkills = _skills.GetAll().ToList();
                         var getProfile = db.ProfilePicture.Where(m => m.userId == UserId).ToList();
-
                         var getOrgInfo = _orgInfo.GetAll().ToList();
-
                         _volunteerManager.CheckVolunteerEventEndByUserId(UserId);
                         var getVolunteers = _volunteers.GetAll().ToList();
-
                         var orgEventsSelectId = _orgEvents.GetAll().Where(m => m.dateEnd >= DateTime.Now).Select(m => m.eventId).ToList();
 
                         var getUserDonated = new List<UserDonated>();
                         foreach (var eventId in orgEventsSelectId)
                         {           
-                            getUserDonated = _userDonated.GetAll().Where(m => m.eventId == eventId).ToList();
+                            getUserDonated = _userDonated.GetAll().Where(m => m.eventId == eventId && m.userId == UserId).ToList();
                         }
                         if (getVolunteerSkills.Count() != 0)
                         {
@@ -77,7 +74,8 @@ namespace Tabang_Hub.Controllers
                                 volunteers = getVolunteers,
                                 orgInfos = getOrgInfo,
                                 listofUserDonated = getUserDonated,
-                                detailsEventImage = _eventImages.GetAll().ToList()
+                                detailsEventImage = _eventImages.GetAll().ToList(),
+                                listOfEventsSection = db.vw_ListOfEvent.Where(m => m.End_Date >= DateTime.Now).ToList()
                             };
                             return View(indexModel);
                         }
@@ -93,7 +91,8 @@ namespace Tabang_Hub.Controllers
                                 volunteers = getVolunteers,
                                 orgInfos = getOrgInfo,
                                 listofUserDonated = getUserDonated,
-                                detailsEventImage = _eventImages.GetAll().ToList()
+                                detailsEventImage = _eventImages.GetAll().ToList(),
+                                listOfEventsSection = db.vw_ListOfEvent.Where(m => m.End_Date >= DateTime.Now).ToList()
                             };
                             return View(indexModel);
                         }

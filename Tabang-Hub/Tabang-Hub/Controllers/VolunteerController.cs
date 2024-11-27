@@ -568,6 +568,10 @@ namespace Tabang_Hub.Controllers
                         {
                             return Json(new { success = false, message = "Conflict with another applied event" });
                         }
+                        else if (userEvent.Volunteer_Status == 2)
+                        {
+                            continue;
+                        }
                         else
                         {
                             return Json(new { success = false, message = "Conflict with another registered event" });

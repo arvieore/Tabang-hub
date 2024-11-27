@@ -78,7 +78,7 @@
                                 </span>
                             }
                         </div>
-                        <div style="margin-top: 50px; color: dimgray" class="org-info">
+                        <div style="margin-top: 25px; color: dimgray" class="org-info">
                             <div class="d-flex align-items-center mb-2">
                                 <i class="bi bi-calendar me-2" style="font-size:16px;"></i>
                                 <span>@formattedDateStart<strong>-</strong> @formattedDateEnd</span>
@@ -176,7 +176,7 @@
                                 foreach (var evnt in Model.listOfEventsOne)
                                 {
                                     <div class="donation-progress">
-                                        <label>Funds raised</label>
+                                        <label>Funds Donated</label>
                                         <div class="progress">
                                             @{
                                                 decimal? raisedAmount = 0;
@@ -189,7 +189,7 @@
                                                 var percentage = (raisedAmount / evnt.Target_Amount) * 100;
                                             }
                                             <div class="progress-bar" role="progressbar" style="width: @percentage%; background-color: mediumseagreen;" aria-valuenow="@raisedAmount" aria-valuemin="0" aria-valuemax="@evnt.Target_Amount"></div>
-                                            <div class="progress-label">@($"{raisedAmount:₱#,##0.00}") / @($"{evnt.Target_Amount:₱#,##0.00}")</div>
+                                            <div class="progress-label">@($"{raisedAmount:₱#,##0.00}") @*/ @($"{evnt.Target_Amount:₱#,##0.00}")*@</div>
                                         </div>
                                     </div>
                                     <div class="donate-button mt-2">
@@ -332,8 +332,6 @@ else
                         if (!Model.volunteersStatusEvent.Count().Equals(0))
                         {
                             var getVolStatus = Model.volunteersStatusEvent.Select(m => m.Status).FirstOrDefault();
-                            //foreach (var status in Model.volunteersStatusEvent)
-                            //{
 
                             if (orgDetails.dateStart <= DateTime.Now)
                             {
@@ -356,8 +354,6 @@ else
                                     Cancel application
                                 </button>
                             }
-                            
-                            //}
                         }
                         if (Model.volunteersStatusEvent.Count().Equals(0))
                         {
@@ -389,7 +385,7 @@ else
                             foreach (var evnt in Model.listOfEventsOne)
                             {
                                 <div class="donation-progress">
-                                    <label>Fund Raised</label>
+                                    <label>Funds Donated</label>
                                     <div class="progress">
                                         @{
                                             decimal? raisedAmount = 0;
@@ -402,7 +398,8 @@ else
                                             var percentage = (raisedAmount / evnt.Target_Amount) * 100;
                                         }
                                         <div class="progress-bar" role="progressbar" style="width: @percentage%; background-color: mediumseagreen;" aria-valuenow="@raisedAmount" aria-valuemin="0" aria-valuemax="@evnt.Target_Amount"></div>
-                                        <div class="progress-label">@($"{raisedAmount:₱#,##0.00}") / @($"{evnt.Target_Amount:₱#,##0.00}")</div>
+                                        @*<div class="progress-label">@($"{raisedAmount:₱#,##0.00}") / @($"{evnt.Target_Amount:₱#,##0.00}")</div>*@
+                                        <div class="progress-label">@($"{raisedAmount:₱#,##0.00}")</div>
                                     </div>
                                 </div>
                                 <div class="donate-button mt-2">

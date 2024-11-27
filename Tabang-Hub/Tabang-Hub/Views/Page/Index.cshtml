@@ -150,9 +150,6 @@
                     <div class="btn-container">
                         <button type="button" class="btn btn-primary btn-lg btn-block btn-disabled" id="nextButton" onclick="nextStep()" disabled>Next</button>
                     </div>
-                    @*<div class="step-indicator">
-                        <span class="step-number">1</span> of 2
-                    </div>*@
                 </div>
 
                 <!-- Second Step: Skill Selection -->
@@ -243,7 +240,11 @@
                     </div>
                 </div>
             </section>
-
+            <style>
+                .nav-tabs .nav-link.active {
+                    color: #5a6f80;
+                }
+            </style>
             <section class="section-padding">
                 <div class="container">
                     <div class="row" id="eventsContainer">
@@ -252,115 +253,254 @@
                             <h2 class="mb-5">Welcome to Tabang Hub Volunteering Community</h2>
                         </div>
 
-                        @foreach (var evt in Model.listOfEvents.Where(m => m.End_Date >= DateTime.Now))
-                        {
-                            <div class="col-lg-4 col-md-6 mt-2 col-12 mb-4 mb-lg-0 event-card">
-                                <div class="custom-block-wrap">
-                                    @*<img src="~/Content/images2/causes/Basak.jpg" class="custom-block-image img-fluid" alt="">*@
-                                    @{
-                                        var imgs = Model.detailsEventImage.Where(m => m.eventId == evt.Event_Id).Select(m => m.eventImage).FirstOrDefault();
-                                    }
-                                    <img src="@Url.Content("~/Content/Events/" + imgs)" class="custom-block-image img-fluid" alt="">
-                                    <div class="custom-block">
-                                        <div class="custom-block-body">
-                                            <h5 class="mb-3">@evt.Event_Name</h5>
-
-                                            <p>@evt.Description</p>
-                                            @{
-                                                int currentVolunteers = Model.volunteers.Where(m => m.Status == 1).Count();
-                                                int? maxVolunteers = evt.Maximum_Volunteer;
-                                                double? progressPercentage = (double)currentVolunteers / maxVolunteers * 100;
-                                                Console.WriteLine(progressPercentage);
-                                            }
-                                            <div class="progress-bar" role="progressbar"
-                                                 style="width: @progressPercentage%; background-color: mediumseagreen;"
-                                                 aria-valuenow="@currentVolunteers"
-                                                 aria-valuemin="0"
-                                                 aria-valuemax="@maxVolunteers">
-                                            </div>
-
-                                            <div class="d-flex align-items-center my-2">
-                                                <p class="mb-0">
-                                                    <strong>Number of volunteers joined:</strong>
-                                                    <!-- $18,500 -->
-                                                </p>
-
-                                                <p class="ms-auto mb-0">
-                                                    <!-- <strong>Goal:</strong> -->
-                                                    @Model.volunteers.Where(m => m.Status == 1 && m.eventId == evt.Event_Id).Count()/@evt.Maximum_Volunteer
-                                                </p>
-                                            </div>
-                                            @if (evt.Target_Amount != null)
-                                            {
-                                                <div class="progress mt-4">
-                                                    @{
-                                                        decimal? raisedAmount = evt.Total_Donation;
-
-                                                        //foreach (var donated in Model.listofUserDonated.Where(m => m.eventId == evt.Event_Id))
-                                                        //{
-                                                        //    raisedAmount += donated.amount;
-                                                        //}
-
-                                                        var percentage = (raisedAmount / evt.Target_Amount) * 100;
-                                                    }
-                                                    <div class="progress-bar" style="width: @percentage%" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
-                                                </div>
-                                                <div class="d-flex align-items-center my-2">
-                                                    <p class="mb-0">
-                                                        <strong>Fund Raised: </strong>
-                                                    </p>
-                                                    <p class="ms-auto mb-0">
-                                                        <!-- <strong>Goal:</strong> -->
-                                                        ₱@(evt.Total_Donation.Equals(null) ? "0 " : evt.Total_Donation.ToString()) / ₱@evt.Target_Amount
-                                                    </p>
-                                                </div>
-                                            }
-                                        </div>
-                                        <span class="custom-btn btn" onclick="redirectToDetails(@evt.Event_Id)">View Details</span>
-                                        @*<span class="custom-btn btn" onclick="openConflictModal(@evt.Event_Id)">View Details</span>*@
-                                    </div>
-                                </div>
-                            </div>
-                        }
-
-                        <!-- Bootstrap Modal -->
-                        <div class="modal fade" id="conflictModal" tabindex="-1" aria-labelledby="conflictModalLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="conflictModalLabel">Event Conflict</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        This event might conflict with one you've already joined. Would you like to proceed?
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                        <button type="button" class="btn btn-primary" id="proceedButton">Proceed</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-
-                    </div>
-                    <!-- Pagination Controls -->
-                    <nav aria-label="Page navigation" class="mt-4" id="eventsContainer-pagination">
-                        <ul class="pagination justify-content-center">
-                            <li class="page-item">
-                                <button class="page-link" onclick="prevPage('eventsContainer')" aria-label="Previous">
-                                    <span aria-hidden="true">&laquo;</span>
-                                </button>
+                        <ul class="nav nav-tabs justify-content-center mb-4" id="eventTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="recommended-tab" data-bs-toggle="tab" data-bs-target="#recommendedSection" type="button" role="tab" aria-controls="recommendedSection" aria-selected="true">Recommended Event</button>
                             </li>
-                            <li class="page-item">
-                                <button class="page-link" onclick="nextPage('eventsContainer')" aria-label="Next">
-                                    <span aria-hidden="true">&raquo;</span>
-                                </button>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="list-tab" data-bs-toggle="tab" data-bs-target="#listSection" type="button" role="tab" aria-controls="listSection" aria-selected="false">List of Events</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="donation-tab" data-bs-toggle="tab" data-bs-target="#donationSection" type="button" role="tab" aria-controls="donationSection" aria-selected="false">Donation Event</button>
                             </li>
                         </ul>
-                    </nav>
-                </div>
-            </section>
+
+                        <div class="tab-content" id="eventTabsContent">
+                            <!-- Recommended Event Tab -->
+                            <div class="tab-pane fade show active" id="recommendedSection" role="tabpanel" aria-labelledby="recommended-tab">
+                                <div class="row" id="recommendedContainer">
+                                    @foreach (var evt in Model.listOfEvents.Where(m => m.End_Date >= DateTime.Now))
+                                    {
+                                        <div class="col-lg-4 col-md-6 mt-2 col-12 mb-4 mb-lg-0 event-card">
+                                            <div class="custom-block-wrap">
+                                                @*<img src="~/Content/images2/causes/Basak.jpg" class="custom-block-image img-fluid" alt="">*@
+                                                @{
+                                                    var imgs = Model.detailsEventImage.Where(m => m.eventId == evt.Event_Id).Select(m => m.eventImage).FirstOrDefault();
+                                                }
+                                                <img src="@Url.Content("~/Content/Events/" + imgs)" class="custom-block-image img-fluid" alt="">
+                                                <div class="custom-block">
+                                                    <div class="custom-block-body">
+                                                        <h5 class="mb-3">@evt.Event_Name</h5>
+
+                                                        <p>@evt.Description</p>
+                                                        @{
+                                                            int currentVolunteers = Model.volunteers.Where(m => m.Status == 1).Count();
+                                                            int? maxVolunteers = evt.Maximum_Volunteer;
+                                                            double? progressPercentage = (double)currentVolunteers / maxVolunteers * 100;
+                                                            Console.WriteLine(progressPercentage);
+                                                        }
+                                                        <div class="progress mt-4">
+                                                            <div class="progress-bar" role="progressbar"
+                                                                 style="width: @progressPercentage%; background-color: mediumseagreen;"
+                                                                 aria-valuenow="@currentVolunteers"
+                                                                 aria-valuemin="0"
+                                                                 aria-valuemax="@maxVolunteers">
+                                                            </div>
+                                                            </div>
+                                                            <div class="d-flex align-items-center my-2">
+                                                                <p class="mb-0">
+                                                                    <strong>Number of volunteers joined:</strong>
+                                                                </p>
+
+                                                                <p class="ms-auto mb-0">
+                                                                    @Model.volunteers.Where(m => m.Status == 1 && m.eventId == evt.Event_Id).Count()/@evt.Maximum_Volunteer
+                                                                </p>
+                                                            </div>
+                                                            @if (evt.Target_Amount != null)
+                                                            {
+                                                                <div class="progress mt-4">
+                                                                    @{
+                                                                        decimal? raisedAmount = evt.Total_Donation;
+                                                                        var percentage = (raisedAmount / evt.Target_Amount) * 100;
+                                                                    }
+
+                                                                    <div class="progress-bar" style="width: @percentage%" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                                                                </div>
+                                                                <div class="d-flex align-items-center my-2">
+                                                                    <p class="mb-0">
+                                                                        <strong>Fund Donated: </strong>
+                                                                    </p>
+                                                                    <p class="ms-auto mb-0">
+                                                                        <!-- <strong>Goal:</strong> -->
+                                                                        ₱@(evt.Total_Donation.Equals(null) ? "0.00 " : evt.Total_Donation.ToString()) @*/ ₱@evt.Target_Amount*@
+                                                                    </p>
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                        <span class="custom-btn btn" onclick="redirectToDetails(@evt.Event_Id)">View Details</span>
+                                                        @*<span class="custom-btn btn" onclick="openConflictModal(@evt.Event_Id)">View Details</span>*@
+                                                    </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+
+                                <nav aria-label="Page navigation" class="mt-4" id="recommended-pagination">
+                                    <ul class="pagination justify-content-center">
+                                        <li class="page-item">
+                                            <button class="page-link" onclick="prevPage('recommendedContainer', 'recommended-pagination')" aria-label="Previous">
+                                                <span aria-hidden="true">&laquo;</span>
+                                            </button>
+                                        </li>
+                                        <li class="page-item">
+                                            <button class="page-link" onclick="nextPage('recommendedContainer', 'recommended-pagination')" aria-label="Next">
+                                                <span aria-hidden="true">&raquo;</span>
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </nav>
+
+                            </div>
+
+                            <!-- List of Events Tab -->
+                            <div class="tab-pane fade" id="listSection" role="tabpanel" aria-labelledby="list-tab">
+                                <div class="row" id="listContainer">
+                                    @foreach (var l_event in Model.listOfEventsSection)
+                                    {
+                                        <div class="col-lg-4 col-md-6 mt-2 col-12 mb-4 mb-lg-0 event-card">
+                                            <div class="custom-block-wrap">
+                                                @{
+                                                    var imgs = Model.detailsEventImage.Where(m => m.eventId == l_event.Event_Id).Select(m => m.eventImage).FirstOrDefault();
+                                                }
+                                                <img src="@Url.Content("~/Content/Events/" + imgs)" class="custom-block-image img-fluid" alt="">
+                                                <div class="custom-block">
+                                                    <div class="custom-block-body">
+                                                        <h5 class="mb-3">@l_event.Event_Name</h5>
+
+                                                        <p>@l_event.Description</p>
+                                                        @{
+                                                            int currentVolunteers = Model.volunteers.Where(m => m.Status == 1).Count();
+                                                            int? maxVolunteers = l_event.Maximum_Volunteer;
+                                                            double? progressPercentage = (double)currentVolunteers / maxVolunteers * 100;
+                                                            Console.WriteLine(progressPercentage);
+                                                        }
+                                                        <div class="progress-bar" role="progressbar"
+                                                             style="width: @progressPercentage%; background-color: mediumseagreen;"
+                                                             aria-valuenow="@currentVolunteers"
+                                                             aria-valuemin="0"
+                                                             aria-valuemax="@maxVolunteers">
+                                                        </div>
+
+                                                        <div class="d-flex align-items-center my-2">
+                                                            <p class="mb-0">
+                                                                <strong>Number of volunteers joined:</strong>
+                                                                <!-- $18,500 -->
+                                                            </p>
+
+                                                            <p class="ms-auto mb-0">
+                                                                <!-- <strong>Goal:</strong> -->
+                                                                @Model.volunteers.Where(m => m.Status == 1 && m.eventId == l_event.Event_Id).Count()/@l_event.Maximum_Volunteer
+                                                            </p>
+                                                        </div>
+                                                        @if (l_event.Target_Amount != null)
+                                                        {
+                                                            <div class="progress mt-4">
+                                                                @{
+                                                                    decimal? raisedAmount = l_event.Total_Donation;
+
+                                                                    var percentage = (raisedAmount / l_event.Target_Amount) * 100;
+                                                                }
+                                                                <div class="progress-bar" style="width: @percentage%" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                                                            </div>
+                                                            <div class="d-flex align-items-center my-2">
+                                                                <p class="mb-0">
+                                                                    <strong>Fund Donated: </strong>
+                                                                </p>
+                                                                <p class="ms-auto mb-0">
+                                                                    <!-- <strong>Goal:</strong> -->
+                                                                    ₱@(l_event.Total_Donation.Equals(null) ? "0.00 " : l_event.Total_Donation.ToString()) @*/ ₱@l_event.Target_Amount*@
+                                                                </p>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                    <span class="custom-btn btn" onclick="redirectToDetails(@l_event.Event_Id)">View Details</span>
+                                                    @*<span class="custom-btn btn" onclick="openConflictModal(@evt.Event_Id)">View Details</span>*@
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                                <!-- Pagination for List of Events -->
+                                <nav aria-label="Page navigation" class="mt-4" id="list-pagination">
+                                    <ul class="pagination justify-content-center">
+                                        <li class="page-item">
+                                            <button class="page-link" onclick="prevPage('listContainer', 'list-pagination')" aria-label="Previous">
+                                                <span aria-hidden="true">&laquo;</span>
+                                            </button>
+                                        </li>
+                                        <li class="page-item">
+                                            <button class="page-link" onclick="nextPage('listContainer', 'list-pagination')" aria-label="Next">
+                                                <span aria-hidden="true">&raquo;</span>
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+
+                            <!-- Donation Event Tab -->
+                            <div class="tab-pane fade" id="donationSection" role="tabpanel" aria-labelledby="donation-tab">
+                                <div class="row" id="donationContainer">
+                                    <p>Donation Events content goes here...</p>
+                                </div>
+
+                                <!-- Pagination for Donation Events -->
+                                <nav aria-label="Page navigation" class="mt-4" id="donation-pagination">
+                                    <ul class="pagination justify-content-center">
+                                        <li class="page-item">
+                                            <button class="page-link" onclick="prevPage('donationContainer', 'donation-pagination')" aria-label="Previous">
+                                                <span aria-hidden="true">&laquo;</span>
+                                            </button>
+                                        </li>
+                                        <li class="page-item">
+                                            <button class="page-link" onclick="nextPage('donationContainer', 'donation-pagination')" aria-label="Next">
+                                                <span aria-hidden="true">&raquo;</span>
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                            </div>
+
+
+
+                            <!-- Bootstrap Modal -->
+                            <div class="modal fade" id="conflictModal" tabindex="-1" aria-labelledby="conflictModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="conflictModalLabel">Event Conflict</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            This event might conflict with one you've already joined. Would you like to proceed?
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <button type="button" class="btn btn-primary" id="proceedButton">Proceed</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
+                        <!-- Pagination Controls -->
+                        @*<nav aria-label="Page navigation" class="mt-4" id="eventsContainer-pagination">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item">
+                                    <button class="page-link" onclick="prevPage('eventsContainer')" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </button>
+                                </li>
+                                <li class="page-item">
+                                    <button class="page-link" onclick="nextPage('eventsContainer')" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </button>
+                                </li>
+                            </ul>
+                        </nav>*@
+                    </div>
+</section>
 
             <section class="section-padding section-bg" id="section_2">
                 <div class="container">
@@ -510,11 +650,12 @@
         <script>
 
             const pageSize = 9; // Number of items per page
-            let currentPage = 1;
+            const currentPageMap = {}; // Store the current page for each section
 
-            function showPage(eventsContainerId) {
-                const cards = document.querySelectorAll(`#${eventsContainerId} .event-card`);
+            function showPage(containerId, paginationId) {
+                const cards = document.querySelectorAll(`#${containerId} .event-card`);
                 const totalPages = Math.ceil(cards.length / pageSize);
+                const currentPage = currentPageMap[containerId] || 1;
 
                 // Display only the events for the current page
                 cards.forEach((card, index) => {
@@ -522,36 +663,42 @@
                 });
 
                 // Toggle the disabled state of pagination buttons
-                const prevButton = document.querySelector(`#${eventsContainerId}-pagination .page-link[aria-label="Previous"]`).parentElement;
-                const nextButton = document.querySelector(`#${eventsContainerId}-pagination .page-link[aria-label="Next"]`).parentElement;
+                const prevButton = document.querySelector(`#${paginationId} .page-link[aria-label="Previous"]`).parentElement;
+                const nextButton = document.querySelector(`#${paginationId} .page-link[aria-label="Next"]`).parentElement;
 
                 prevButton.classList.toggle('disabled', currentPage === 1);
                 nextButton.classList.toggle('disabled', currentPage === totalPages);
             }
 
-            function nextPage(eventsContainerId) {
-                const cards = document.querySelectorAll(`#${eventsContainerId} .event-card`);
+            function nextPage(containerId, paginationId) {
+                const cards = document.querySelectorAll(`#${containerId} .event-card`);
                 const totalPages = Math.ceil(cards.length / pageSize);
+                const currentPage = currentPageMap[containerId] || 1;
+
                 if (currentPage < totalPages) {
-                    currentPage++;
-                    showPage(eventsContainerId);
-                    // Scroll to the events section only when the next button is clicked
-                    document.getElementById(eventsContainerId).scrollIntoView({ behavior: 'smooth' });
+                    currentPageMap[containerId] = currentPage + 1;
+                    showPage(containerId, paginationId);
+                    document.getElementById(containerId).scrollIntoView({ behavior: 'smooth' });
                 }
             }
 
-            function prevPage(eventsContainerId) {
+            function prevPage(containerId, paginationId) {
+                const currentPage = currentPageMap[containerId] || 1;
+
                 if (currentPage > 1) {
-                    currentPage--;
-                    showPage(eventsContainerId);
-                    // Scroll to the events section only when the prev button is clicked
-                    document.getElementById(eventsContainerId).scrollIntoView({ behavior: 'smooth' });
+                    currentPageMap[containerId] = currentPage - 1;
+                    showPage(containerId, paginationId);
+                    document.getElementById(containerId).scrollIntoView({ behavior: 'smooth' });
                 }
             }
 
             document.addEventListener('DOMContentLoaded', () => {
-                showPage('eventsContainer');
+                // Initialize pagination for each container
+                showPage('recommendedContainer', 'recommended-pagination');
+                showPage('listContainer', 'list-pagination');
+                showPage('donationContainer', 'donation-pagination');
             });
+
 
 
         function redirectToDetails(eventId) {

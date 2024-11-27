@@ -78,6 +78,7 @@ namespace Tabang_Hub.Utils
         public List<vw_ListOfEvent> listOfEvents { get; set; }
         public List<vw_ListOfEvent> listOfEventsOne {  get; set; }
         public List<vw_ListOfVolunteerToBeInvite> ListToBeInvite { get; set; }
+        public List<vw_ListOfEvent> listOfEventsSection { get; set; }
 
         public decimal totalDonation { get; set; }
         public int totalVolunteer { get; set; }
