@@ -168,6 +168,10 @@
       <End Role="UserAccount" EntitySet="UserAccount" />
       <End Role="VolunteersHistory" EntitySet="VolunteersHistory" />
     </AssociationSet>
+    <EntitySet Name="DeletedEvent" EntityType="TabangHubModel.DeletedEvent" />
+    <EntitySet Name="DeletedEventImage" EntityType="TabangHubModel.DeletedEventImage" />
+    <EntitySet Name="DeletedOrgSkillRequirement" EntityType="TabangHubModel.DeletedOrgSkillRequirement" />
+    <EntitySet Name="DeletedUserDonated" EntityType="TabangHubModel.DeletedUserDonated" />
   </EntityContainer>
   <ComplexType Name="sp_GetAllMessage_Result">
     <Property Type="Int32" Name="groupChatId" Nullable="false" />
@@ -905,4 +909,48 @@
       </Dependent>
     </ReferentialConstraint>
   </Association>
+  <EntityType Name="DeletedEvent">
+    <Key>
+      <PropertyRef Name="deletedEventId" />
+    </Key>
+    <Property Name="deletedEventId" Type="Int32" Nullable="false" />
+    <Property Name="userId" Type="Int32" />
+    <Property Name="eventTitle" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+    <Property Name="eventDescription" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+    <Property Name="targetAmount" Type="Decimal" Precision="10" Scale="2" />
+    <Property Name="maxVolunteer" Type="Int32" />
+    <Property Name="dateStart" Type="DateTime" Precision="3" />
+    <Property Name="dateEnd" Type="DateTime" Precision="3" />
+    <Property Name="location" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+    <Property Name="eventImage" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+  </EntityType>
+  <EntityType Name="DeletedEventImage">
+    <Key>
+      <PropertyRef Name="deletedEventImageId" />
+    </Key>
+    <Property Name="deletedEventImageId" Type="Int32" Nullable="false" />
+    <Property Name="eventId" Type="Int32" />
+    <Property Name="eventImage" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+  </EntityType>
+  <EntityType Name="DeletedOrgSkillRequirement">
+    <Key>
+      <PropertyRef Name="deletedSkillRequirementId" />
+    </Key>
+    <Property Name="deletedSkillRequirementId" Type="Int32" Nullable="false" />
+    <Property Name="eventId" Type="Int32" />
+    <Property Name="skillId" Type="Int32" />
+    <Property Name="totalNeeded" Type="Int32" />
+  </EntityType>
+  <EntityType Name="DeletedUserDonated">
+    <Key>
+      <PropertyRef Name="deletedOrgUserDonatedId" />
+    </Key>
+    <Property Name="deletedOrgUserDonatedId" Type="Int32" Nullable="false" />
+    <Property Name="referenceNum" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+    <Property Name="eventId" Type="Int32" />
+    <Property Name="userId" Type="Int32" />
+    <Property Name="amount" Type="Decimal" Precision="10" Scale="2" />
+    <Property Name="Status" Type="Int32" />
+    <Property Name="donatedAt" Type="DateTime" Precision="3" />
+  </EntityType>
 </Schema>

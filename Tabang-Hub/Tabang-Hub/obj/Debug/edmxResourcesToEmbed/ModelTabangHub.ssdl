@@ -1,5 +1,57 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Schema Namespace="TabangHubModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+  <!--Errors Found During Generation:
+warning 6002: The table/view 'TabangHub.dbo.DeletedEvent' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+  <EntityType Name="DeletedEvent">
+    <Key>
+      <PropertyRef Name="deletedEventId" />
+    </Key>
+    <Property Name="deletedEventId" Type="int" Nullable="false" />
+    <Property Name="userId" Type="int" />
+    <Property Name="eventTitle" Type="nvarchar" MaxLength="255" />
+    <Property Name="eventDescription" Type="text" />
+    <Property Name="targetAmount" Type="decimal" Precision="10" Scale="2" />
+    <Property Name="maxVolunteer" Type="int" />
+    <Property Name="dateStart" Type="datetime" />
+    <Property Name="dateEnd" Type="datetime" />
+    <Property Name="location" Type="nvarchar" MaxLength="255" />
+    <Property Name="eventImage" Type="nvarchar" MaxLength="255" />
+  </EntityType>
+  <!--Errors Found During Generation:
+warning 6002: The table/view 'TabangHub.dbo.DeletedEventImage' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+  <EntityType Name="DeletedEventImage">
+    <Key>
+      <PropertyRef Name="deletedEventImageId" />
+    </Key>
+    <Property Name="deletedEventImageId" Type="int" Nullable="false" />
+    <Property Name="eventId" Type="int" />
+    <Property Name="eventImage" Type="nvarchar" MaxLength="255" />
+  </EntityType>
+  <!--Errors Found During Generation:
+warning 6002: The table/view 'TabangHub.dbo.DeletedOrgSkillRequirement' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+  <EntityType Name="DeletedOrgSkillRequirement">
+    <Key>
+      <PropertyRef Name="deletedSkillRequirementId" />
+    </Key>
+    <Property Name="deletedSkillRequirementId" Type="int" Nullable="false" />
+    <Property Name="eventId" Type="int" />
+    <Property Name="skillId" Type="int" />
+    <Property Name="totalNeeded" Type="int" />
+  </EntityType>
+  <!--Errors Found During Generation:
+warning 6002: The table/view 'TabangHub.dbo.DeletedUserDonated' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+  <EntityType Name="DeletedUserDonated">
+    <Key>
+      <PropertyRef Name="deletedOrgUserDonatedId" />
+    </Key>
+    <Property Name="deletedOrgUserDonatedId" Type="int" Nullable="false" />
+    <Property Name="referenceNum" Type="nvarchar" MaxLength="255" />
+    <Property Name="eventId" Type="int" />
+    <Property Name="userId" Type="int" />
+    <Property Name="amount" Type="decimal" Precision="10" Scale="2" />
+    <Property Name="Status" Type="int" />
+    <Property Name="donatedAt" Type="datetime" />
+  </EntityType>
   <EntityType Name="Feedback">
     <Key>
       <PropertyRef Name="feedbackId" />
@@ -677,6 +729,46 @@ warning 6002: The table/view 'TabangHub.dbo.vw_VolunteerSkills' does not have a 
     <EntitySet Name="Volunteers" EntityType="Self.Volunteers" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="VolunteersHistory" EntityType="Self.VolunteersHistory" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="VolunteerSkill" EntityType="Self.VolunteerSkill" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="DeletedEvent" EntityType="Self.DeletedEvent" store:Type="Tables" store:Schema="dbo">
+      <DefiningQuery>SELECT 
+[DeletedEvent].[deletedEventId] AS [deletedEventId], 
+[DeletedEvent].[userId] AS [userId], 
+[DeletedEvent].[eventTitle] AS [eventTitle], 
+[DeletedEvent].[eventDescription] AS [eventDescription], 
+[DeletedEvent].[targetAmount] AS [targetAmount], 
+[DeletedEvent].[maxVolunteer] AS [maxVolunteer], 
+[DeletedEvent].[dateStart] AS [dateStart], 
+[DeletedEvent].[dateEnd] AS [dateEnd], 
+[DeletedEvent].[location] AS [location], 
+[DeletedEvent].[eventImage] AS [eventImage]
+FROM [dbo].[DeletedEvent] AS [DeletedEvent]</DefiningQuery>
+    </EntitySet>
+    <EntitySet Name="DeletedEventImage" EntityType="Self.DeletedEventImage" store:Type="Tables" store:Schema="dbo">
+      <DefiningQuery>SELECT 
+[DeletedEventImage].[deletedEventImageId] AS [deletedEventImageId], 
+[DeletedEventImage].[eventId] AS [eventId], 
+[DeletedEventImage].[eventImage] AS [eventImage]
+FROM [dbo].[DeletedEventImage] AS [DeletedEventImage]</DefiningQuery>
+    </EntitySet>
+    <EntitySet Name="DeletedOrgSkillRequirement" EntityType="Self.DeletedOrgSkillRequirement" store:Type="Tables" store:Schema="dbo">
+      <DefiningQuery>SELECT 
+[DeletedOrgSkillRequirement].[deletedSkillRequirementId] AS [deletedSkillRequirementId], 
+[DeletedOrgSkillRequirement].[eventId] AS [eventId], 
+[DeletedOrgSkillRequirement].[skillId] AS [skillId], 
+[DeletedOrgSkillRequirement].[totalNeeded] AS [totalNeeded]
+FROM [dbo].[DeletedOrgSkillRequirement] AS [DeletedOrgSkillRequirement]</DefiningQuery>
+    </EntitySet>
+    <EntitySet Name="DeletedUserDonated" EntityType="Self.DeletedUserDonated" store:Type="Tables" store:Schema="dbo">
+      <DefiningQuery>SELECT 
+[DeletedUserDonated].[deletedOrgUserDonatedId] AS [deletedOrgUserDonatedId], 
+[DeletedUserDonated].[referenceNum] AS [referenceNum], 
+[DeletedUserDonated].[eventId] AS [eventId], 
+[DeletedUserDonated].[userId] AS [userId], 
+[DeletedUserDonated].[amount] AS [amount], 
+[DeletedUserDonated].[Status] AS [Status], 
+[DeletedUserDonated].[donatedAt] AS [donatedAt]
+FROM [dbo].[DeletedUserDonated] AS [DeletedUserDonated]</DefiningQuery>
+    </EntitySet>
     <EntitySet Name="vw_AllVolunteers" EntityType="Self.vw_AllVolunteers" store:Type="Views" store:Schema="dbo">
       <DefiningQuery>SELECT 
 [vw_AllVolunteers].[userId] AS [userId], 

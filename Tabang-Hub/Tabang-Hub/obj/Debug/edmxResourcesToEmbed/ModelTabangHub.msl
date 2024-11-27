@@ -472,5 +472,53 @@
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
+    <EntitySetMapping Name="DeletedEvent">
+      <EntityTypeMapping TypeName="TabangHubModel.DeletedEvent">
+        <MappingFragment StoreEntitySet="DeletedEvent">
+          <ScalarProperty Name="eventImage" ColumnName="eventImage" />
+          <ScalarProperty Name="location" ColumnName="location" />
+          <ScalarProperty Name="dateEnd" ColumnName="dateEnd" />
+          <ScalarProperty Name="dateStart" ColumnName="dateStart" />
+          <ScalarProperty Name="maxVolunteer" ColumnName="maxVolunteer" />
+          <ScalarProperty Name="targetAmount" ColumnName="targetAmount" />
+          <ScalarProperty Name="eventDescription" ColumnName="eventDescription" />
+          <ScalarProperty Name="eventTitle" ColumnName="eventTitle" />
+          <ScalarProperty Name="userId" ColumnName="userId" />
+          <ScalarProperty Name="deletedEventId" ColumnName="deletedEventId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="DeletedEventImage">
+      <EntityTypeMapping TypeName="TabangHubModel.DeletedEventImage">
+        <MappingFragment StoreEntitySet="DeletedEventImage">
+          <ScalarProperty Name="eventImage" ColumnName="eventImage" />
+          <ScalarProperty Name="eventId" ColumnName="eventId" />
+          <ScalarProperty Name="deletedEventImageId" ColumnName="deletedEventImageId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="DeletedOrgSkillRequirement">
+      <EntityTypeMapping TypeName="TabangHubModel.DeletedOrgSkillRequirement">
+        <MappingFragment StoreEntitySet="DeletedOrgSkillRequirement">
+          <ScalarProperty Name="totalNeeded" ColumnName="totalNeeded" />
+          <ScalarProperty Name="skillId" ColumnName="skillId" />
+          <ScalarProperty Name="eventId" ColumnName="eventId" />
+          <ScalarProperty Name="deletedSkillRequirementId" ColumnName="deletedSkillRequirementId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="DeletedUserDonated">
+      <EntityTypeMapping TypeName="TabangHubModel.DeletedUserDonated">
+        <MappingFragment StoreEntitySet="DeletedUserDonated">
+          <ScalarProperty Name="donatedAt" ColumnName="donatedAt" />
+          <ScalarProperty Name="Status" ColumnName="Status" />
+          <ScalarProperty Name="amount" ColumnName="amount" />
+          <ScalarProperty Name="userId" ColumnName="userId" />
+          <ScalarProperty Name="eventId" ColumnName="eventId" />
+          <ScalarProperty Name="referenceNum" ColumnName="referenceNum" />
+          <ScalarProperty Name="deletedOrgUserDonatedId" ColumnName="deletedOrgUserDonatedId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
   </EntityContainerMapping>
 </Mapping>

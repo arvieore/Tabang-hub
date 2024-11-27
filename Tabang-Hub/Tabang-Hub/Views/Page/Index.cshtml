@@ -173,7 +173,7 @@
 
                     <div class="step-content">
                         <div class="grid-container" id="skillsGrid">
-                            @foreach (var skillImage in Model.skills)
+                            @foreach (var skillImage in Model.skills.OrderBy(m => m.skillName))
                             {
                                 <div class="grid-item" onclick="toggleSkill(this)" data-skill-name="@skillImage.skillName.ToLower()">
                                     <img src="@Url.Content("~/Content/SkillImages/" + skillImage.skillImage)" class="selectable" data-skill="@skillImage.skillName">
@@ -218,7 +218,7 @@
                                     </div>
 
                                     <div class="carousel-item">
-                                        <img src="~/Content/images2/slide/dagat.jpg"" class="carousel-image img-fluid" alt="...">
+                                        <img src="~/Content/images2/slide/dagat.jpg" class="carousel-image img-fluid" alt="...">
 
                                         <div class="carousel-caption d-flex flex-column justify-content-end">
                                             <h1>Humanity</h1>
