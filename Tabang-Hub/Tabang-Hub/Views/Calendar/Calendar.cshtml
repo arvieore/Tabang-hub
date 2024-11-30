@@ -1,0 +1,138 @@
+﻿@model Tabang_Hub.Utils.Lists
+@{
+    ViewBag.Title = "Calendar";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+<link href="~/Content/Css/Calendar.css" rel="stylesheet" />
+
+<body>
+    <div class="main-container">
+        <div class="calendar-container">
+            <h1>Tabang Hub Calendar</h1>
+            <div class="calendar-controls">
+                <button id="prevYear"><i class="fas fa-chevron-left"></i></button>
+                <button id="prevMonth"><i class="fas fa-chevron-left"></i></button>
+                <span id="currentDate"></span>
+                <button id="nextMonth"><i class="fas fa-chevron-right"></i></button>
+                <button id="nextYear"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div class="calendar" id="calendar"></div> <!-- Calendar content will be populated here -->
+        </div>
+
+        <!-- Tabs for Event Sections -->
+        <ul class="nav nav-tabs justify-content-center mb-4" id="eventTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="ongoingEvents-tab" data-bs-toggle="tab" data-bs-target="#ongoingEventsSection" type="button" role="tab" aria-controls="ongoingEventsSection" aria-selected="true">Ongoing Events</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="pendingRequest-tab" data-bs-toggle="tab" data-bs-target="#pendingRequestSection" type="button" role="tab" aria-controls="pendingRequestSection" aria-selected="false">Pending Requests</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="eventHistory-tab" data-bs-toggle="tab" data-bs-target="#eventHistorySection" type="button" role="tab" aria-controls="eventHistorySection" aria-selected="false">Event History</button>
+            </li>
+        </ul>
+
+        <!-- Tab content -->
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="ongoingEventsSection" role="tabpanel" aria-labelledby="ongoingEvents-tab">
+                <h3>List of Ongoing Events</h3>
+                
+                @foreach (var evt in Model.ongoingEvents.Where(m => m.Status != 2))
+                {
+                    <div class="card mb-3" style="max-width: 540px;">
+                        <div class="row g-0">
+                            <div class="col-md-4">
+                                @{
+                                    var imgs = Model.detailsEventImage.Where(m => m.eventId == evt.eventId).Select(m => m.eventImage).FirstOrDefault();
+                                }
+                                <img src="@Url.Content("~/Content/Events/" + imgs)" class="img-fluid rounded-start" alt="Event Image" />
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h5 class="card-title">@evt.Title</h5>
+                                    <p class="card-text">@evt.Details</p>
+                                    <button class="btn btn-primary" onclick="openEventModal(@Html.Raw(Json.Encode(evt)))">View Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+
+
+            </div>
+
+
+            <div class="tab-pane fade" id="pendingRequestSection" role="tabpanel" aria-labelledby="pendingRequest-tab">
+                <h3>List of Pending Requests</h3>
+                @foreach (var pendingOrg in Model.pendingEvents)
+                {
+                    <div class="card mb-3" style="">
+                        <div class="row g-0">
+                            <div class="col-md-4">
+                                @{
+                                    var imgs = Model.detailsEventImage.Where(m => m.eventId == pendingOrg.eventId).Select(m => m.eventImage).FirstOrDefault();
+                                }
+                                <img src="@Url.Content("~/Content/Events/" + imgs)" class="img-fluid rounded-start" alt="Event Image" />
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h5 class="card-title">@pendingOrg.Title</h5>
+                                    <p class="card-text">@pendingOrg.Details</p>
+                                    <button class="btn btn-primary" onclick="openEventModal(@Html.Raw(Json.Encode(pendingOrg)))">View Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="tab-pane fade" id="eventHistorySection" role="tabpanel" aria-labelledby="eventHistory-tab">
+                <h3>Event History</h3>
+                @foreach (var evt in Model.eventHistory)
+                {
+
+                        <div class="card mb-3" style="max-width: 540px;">
+                            <div class="row g-0">
+                                <div class="col-md-4">
+                                    @{
+                                        var imgs = Model.detailsEventImage.Where(m => m.eventId == evt.eventId).Select(m => m.eventImage).FirstOrDefault();
+                                    }
+                                    <img src="@Url.Content("~/Content/Events/" + imgs)" class="img-fluid rounded-start" alt="Event Image" />
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="card-body">
+                                        <h5 class="card-title">@evt.Title</h5>
+                                        <p class="card-text">@evt.Details</p>
+                                        <button class="btn btn-primary" onclick="openEventModal(@Html.Raw(Json.Encode(evt)))">View Details</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+            </div>
+        </div>
+    </div>
+
+    <!-- Event details modal -->
+    <div id="eventModal">
+        <div id="eventModalContent">
+            <span id="closeModal" class="close-btn">×</span>
+            <h2 id="eventTitle"></h2>
+            <p id="eventDetails"></p>
+            <img id="eventImage" src="" alt="Event Image">
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript">
+        const ongoingEvents = @Html.Raw(Json.Encode(Model.ongoingEvents));
+        const pendingEvents = @Html.Raw(Json.Encode(Model.pendingEvents));
+        const eventHistory = @Html.Raw(Json.Encode(Model.eventHistory));
+
+        console.log(ongoingEvents);
+        console.log(pendingEvents);
+        console.log(eventHistory);
+    </script>
+    <script src="~/Content/Js/Calendar.js"></script>
+</body>

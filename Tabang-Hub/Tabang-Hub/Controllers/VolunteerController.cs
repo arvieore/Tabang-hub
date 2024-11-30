@@ -183,28 +183,42 @@ namespace Tabang_Hub.Controllers
                         // Get the list of event IDs the user has joined
                         var joinedEvents = db.Volunteers
                             .Where(m => m.userId == UserId)
-                            .Select(m => m.eventId)
                             .ToList();
+
+                        // Get the list of event IDs the user has joined as a primitive list
+                        var joinedEventIds = joinedEvents.Select(v => v.eventId).ToList();
 
                         // Get the list of required skills for these events
                         var requiredSkills = db.OrgSkillRequirement
-                            .Where(m => joinedEvents.Contains(m.eventId))
-                            .Select(m => m.skillId)
+                            .Where(m => joinedEventIds.Contains(m.eventId))
                             .ToList();
 
                         // Find skills the user wants to remove
-                        var skillToRemove = db.VolunteerSkill
-                            .Where(m => !skills.Contains(m.skillId) && m.userId == UserId)
-                            .ToList();
+                        var skillsToRemove = db.VolunteerSkill
+                    .Where(m => !skills.Contains(m.skillId) && m.userId == UserId)
+                    .ToList();
 
-                        foreach (var removeSkill in skillToRemove)
+                        foreach (var skillToRemove in skillsToRemove)
                         {
-                            if (requiredSkills.Contains(removeSkill.skillId))
+
+                            var relatedEvents = joinedEvents
+                        .Where(e => requiredSkills.Any(rs => rs.skillId == skillToRemove.skillId && rs.eventId == e.eventId))
+                        .ToList();
+
+                            foreach (var eventInfo in relatedEvents)
                             {
-                                // Prevent removal if it's a required skill
-                                return Json(new { success = false, message = $"Skill {removeSkill.skillId} is required for a joined event and cannot be removed." });
+                                if (eventInfo.Status == 2)
+                                {
+                                    // Delete the event from Volunteers table
+                                    db.Volunteers.Remove(eventInfo);
+                                    db.VolunteerSkill.Remove(skillToRemove); // Remove the skill
+                                }
+                                else if (eventInfo.Status == 1)
+                                {
+                                    // Prevent removal if it's required for an active event
+                                    return Json(new { success = false, message = $"Skill {skillToRemove.skillId} is required for an active event (Status = 1) and cannot be removed." });
+                                }
                             }
-                            db.VolunteerSkill.Remove(removeSkill);
                         }
                     }
 

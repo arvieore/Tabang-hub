@@ -141,6 +141,7 @@
         right: 10px;
     }
 </style>
+<link href="~/Content/Css/ViewVolunteerModal.css" rel="stylesheet" />
 <link href="~/Content/Css/invitation.css" rel="stylesheet" />
 @if (Model.eventDetails.dateEnd > DateTime.Now)
 {
@@ -367,6 +368,7 @@
                                                         <th scope="col">Skills</th>
                                                         <th scope="col">Rating</th>
                                                         <th scope="col">Availability</th>
+                                                        <th scope="col">View details</th>
                                                         <th scope="col">Select</th>
                                                     </tr>
                                                 </thead>
@@ -420,6 +422,68 @@
                     </div>
                 </div>
             </div>
+
+            <div class="modal fade" id="detailsModal" tabindex="-1" role="dialog" aria-labelledby="detailsModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <!-- Header -->
+                        <div class="modal-header bg-primary text-white">
+                            <h5 class="modal-title" id="detailsModalLabel">Volunteer Profile</h5>
+                        </div>
+
+                        <!-- Body -->
+                        <div class="modal-body">
+                            <!-- Profile Section -->
+                            <div class="text-center mb-4">
+                                <div class="profile-container">
+                                    <img id="modalProfilePic" src="" alt="Profile Picture" class="rounded-circle img-thumbnail shadow" style="display: none;">
+                                    <i id="modalProfileIcon" class="bi bi-person-circle" style="font-size: 120px; color: #6c757d; display: none;"></i>
+                                </div>
+                                <h4 class="mt-3" id="modalFullName" style="font-weight: bold; color: #343a40;">Full Name</h4>
+                                <p class="text-muted mb-0" id="modalAvailability">Full Time</p>
+                            </div>
+
+                            <!-- Details Section -->
+                            <div class="info-section px-3 py-2">
+                                <div class="info-row">
+                                    <span class="info-label">Birthday:</span>
+                                    <span class="info-value" id="modalBirthDay">Not Available</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Phone Number:</span>
+                                    <span class="info-value" id="modalPhoneNum">Not Available</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Address:</span>
+                                    <span class="info-value" id="modalAddress">Not Available</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">About:</span>
+                                    <span class="info-value" id="modalAbout">Not Available</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Skills:</span>
+                                    <span id="modalSkills" class="badge-container"></span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Rating:</span>
+                                    <span class="info-value">
+                                        <span id="modalAverageRate">0.0</span>
+                                        <span id="modalStars" class="stars"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" id="modalCloseButton">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
 
             <script>
                 function inviteVolunteer() {
@@ -591,23 +655,6 @@
                     const tableBody = document.querySelector('table tbody');
                     tableBody.innerHTML = ''; // Clear existing rows
 
-                    //For Sentiment Purposes ------ PLEASE DONT REMOVE THIS
-                    //volunteers.forEach(volunteer => {
-                    //    const skills = volunteer.Skills.join(", ");
-                    //    const row = `
-                    //        <tr>
-                    //            <td>${volunteer.FullName}</td>
-                    //            <td>${skills}</td>
-                    //            <td>${volunteer.OverallRating.toFixed(2)}</td>
-                    //            <td>${volunteer.Availability}</td>
-                    //            <td>${volunteer.Sentiment}</td>
-                    //            <td><input type="checkbox" class="user-checkbox" data-volunteerid="${volunteer.UserId}" value="${volunteer.UserId}"></td>
-                    //        </tr>
-                    //        `;
-                    //    tableBody.insertAdjacentHTML('beforeend', row);
-                    //});
-
-
                     volunteers.forEach(volunteer => {
                         const skills = volunteer.Skills.join(", ");
                         const rating = volunteer.OverallRating === 0
@@ -616,21 +663,134 @@
                                 ? volunteer.OverallRating
                                 : volunteer.OverallRating.toFixed(2));
                         const row = `
-                                    <tr>
-                                        <td>${volunteer.FullName}</td>
-                                        <td>${skills}</td>
-                                        <td>${rating}</td>
-                                        <td>${volunteer.Availability}</td>
-                                        <td><input type="checkbox" class="user-checkbox" data-volunteerid="${volunteer.UserId}" value="${volunteer.UserId}"></td>
-                                    </tr>
-                                `;
+                                                                 <tr>
+                                                                     <td>${volunteer.FullName}</td>
+                                                                     <td>${skills}</td>
+                                                                     <td>${rating}</td>
+                                                                     <td>${volunteer.Availability}</td>
+                                                                     <td><button class="btn btn-outline-secondary view-button"
+                                                                         data-volunteerid="${volunteer.UserId}">View</button></td>
+
+                                                                     <td><input type="checkbox" class="user-checkbox"
+                                                                         data-volunteerid="${volunteer.UserId}"
+                                                                             value="${volunteer.UserId}"></td>
+                                                                 </tr>
+                                                             `;
                         tableBody.insertAdjacentHTML('beforeend', row);
                     });
-
-
-
                     console.log("Table updated with volunteers.");
                 }
+
+
+                document.addEventListener("click", (event) => {
+                    if (event.target.classList.contains("view-button")) {
+                        const userId = event.target.getAttribute("data-volunteerid");
+                        console.log("Fetching info for userId:", userId);
+                        const eventId = @Model.eventDetails.eventId;
+
+                        // AJAX request to retrieve volunteer info
+                        $.ajax({
+                            url: '/Organization/GetVolunteerInfo', // Adjust URL as needed
+                            type: 'POST',
+                            data: { userId: userId, eventId: eventId }, // Pass the userId to the backend
+                            success: function (response) {
+                                if (response.success) {
+                                    // Display volunteer data in the modal
+                                    console.log("Test");
+                                    displayModal(response.volunteer);
+                                } else {
+                                    // Handle cases where the volunteer is not found
+                                    alert(response.message || "Volunteer not found.");
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                console.error("AJAX Error:", error);
+                            }
+                        });
+                    }
+                });
+
+
+                function displayModal(volunteer) {
+                    const profilePicElement = document.getElementById("modalProfilePic");
+                    const profileIconElement = document.getElementById("modalProfileIcon");
+                    const modalSkillsContainer = document.getElementById("modalSkills");
+                    const modalStarsContainer = document.getElementById("modalStars");
+
+                    // Handle Profile Picture
+                    if (volunteer.ProfilePic) {
+                        profilePicElement.src = `/Content/UserProfile/${volunteer.ProfilePic}`;
+                        profilePicElement.style.display = "block";
+                        profileIconElement.style.display = "none";
+                    } else {
+                        profilePicElement.style.display = "none";
+                        profileIconElement.style.display = "block";
+                    }
+
+                    // Validate and Format Birthday
+                    let formattedBirthDay = "Not Available";
+                    if (volunteer.BirthDay) {
+                        try {
+                            const date = new Date(volunteer.BirthDay);
+                            if (!isNaN(date.getTime())) {
+                                formattedBirthDay = date.toLocaleDateString("en-US", {
+                                    year: "numeric",
+                                    month: "long",
+                                    day: "numeric",
+                                });
+                            }
+                        } catch (error) {
+                            console.error("Error parsing BirthDay:", error);
+                        }
+                    }
+
+                    // Populate Modal Fields
+                    document.getElementById("modalFullName").textContent = volunteer.FullName || "N/A";
+                    document.getElementById("modalBirthDay").textContent = formattedBirthDay;
+                    document.getElementById("modalPhoneNum").textContent = volunteer.PhoneNum || "Not Available";
+                    document.getElementById("modalAddress").textContent = `${volunteer.Street || ''}, ${volunteer.City || ''}, ${volunteer.Province || ''} ${volunteer.Zip || ''}`.trim() || "Not Available";
+                    document.getElementById("modalAbout").textContent = volunteer.About || "Not Available";
+                    document.getElementById("modalAverageRate").textContent = volunteer.AverageRate !== undefined ? volunteer.AverageRate.toFixed(1) : "0.0";
+                    document.getElementById("modalAvailability").textContent = volunteer.Availability || "Not Available";
+                    // Populate Skills as Badges
+                    modalSkillsContainer.innerHTML = "";
+                    if (volunteer.Skills && volunteer.Skills.length > 0) {
+                        volunteer.Skills.forEach(skill => {
+                            const skillBadge = document.createElement("span");
+                            skillBadge.className = "badge";
+                            skillBadge.textContent = skill;
+                            modalSkillsContainer.appendChild(skillBadge);
+                        });
+                    } else {
+                        modalSkillsContainer.textContent = "Not Available";
+                    }
+
+                    // Populate Rating as Stars
+                    modalStarsContainer.innerHTML = "";
+                    const fullStars = Math.floor(volunteer.AverageRate || 0); // Number of full stars
+                    const hasHalfStar = (volunteer.AverageRate || 0) % 1 >= 0.5; // Check if half-star is needed
+                    const totalStars = 5;
+
+                    for (let i = 0; i < totalStars; i++) {
+                        const star = document.createElement("i");
+                        if (i < fullStars) {
+                            star.className = "bi bi-star-fill"; // Full star
+                        } else if (i === fullStars && hasHalfStar) {
+                            star.className = "bi bi-star-half"; // Half star
+                        } else {
+                            star.className = "bi bi-star"; // Empty star
+                        }
+                        modalStarsContainer.appendChild(star);
+                    }
+
+                    // Show the modal
+                    $('#detailsModal').modal('show');
+                }
+
+                document.getElementById("modalCloseButton").addEventListener("click", function () {
+                    $('#detailsModal').modal('hide'); // Close the modal when clicking the Close button
+                });
+
 
                 // Automatically load all volunteers when the page is ready
                 $(document).ready(function () {
@@ -739,24 +899,7 @@
                     updateSelectAllState(); // Update "Select All" checkbox state
                 });
 
-                //ANG KARAAN
 
-                // Update the "Select All" checkbox state based on individual checkboxes
-                //function updateSelectAllState() {
-                //    const checkboxes = document.querySelectorAll(".user-checkbox");
-                //    const selectAllCheckbox = document.getElementById("select-all-users");
-
-                //    // Check if all checkboxes are selected
-                //    const allChecked = Array.from(checkboxes).every((checkbox) => checkbox.checked);
-
-                //    // If all checkboxes are selected, check the "Select All" checkbox
-                //    selectAllCheckbox.checked = allChecked;
-
-                //    // If not all checkboxes are selected, update the "Select All" text
-                //    if (!allChecked) {
-                //        selectAllCheckbox.textContent = "Select All";
-                //    }
-                //}
 
                 function updateSelectAllState() {
                     const checkboxes = document.querySelectorAll(".user-checkbox");
@@ -772,72 +915,6 @@
                     updateSelectAllState(); // Update "Select All" checkbox state when any individual checkbox changes
                 });
 
-                //ANG KARAAN
-
-                //const dropdownHeader = document.getElementById("dropdown-header");
-                //const dropdownList = document.getElementById("dropdown-list");
-                //const dropdownTags = document.getElementById("dropdown-tags");
-                //const selectAllOption = document.getElementById("select-all-option");
-                //const placeholder = document.querySelector(".placeholder");
-
-                //// Toggle dropdown list
-                //dropdownHeader.addEventListener("click", () => {
-                //    dropdownList.style.display = dropdownList.style.display === "block" ? "none" : "block";
-                //});
-
-                //// Update dropdown with selected options
-                //document.querySelectorAll("#dropdown-list input[type='checkbox']").forEach((checkbox) => {
-                //    checkbox.addEventListener("change", (e) => {
-                //        if (e.target.id === "select-all-option") {
-                //            handleSelectAll(e.target.checked);
-                //        } else {
-                //            updateTags();
-                //        }
-                //    });
-                //});
-
-                //function handleSelectAll(isChecked) {
-                //    document.querySelectorAll("#dropdown-list input[type='checkbox']").forEach((checkbox) => {
-                //        if (checkbox.id !== "select-all-option") {
-                //            checkbox.checked = isChecked;
-                //        }
-                //    });
-                //    updateTags();
-                //}
-
-                //function updateTags() {
-                //    const selectedValues = Array.from(
-                //        document.querySelectorAll("#dropdown-list input[type='checkbox']:checked")
-                //    )
-                //        .filter((checkbox) => checkbox.id !== "select-all-option") // Exclude "Select All" from tags
-                //        .map((checkbox) => checkbox.value);
-
-                //    // Show or hide placeholder based on selection
-                //    if (selectedValues.length === 0) {
-                //        placeholder.style.display = "inline"; // Show placeholder
-                //    } else {
-                //        placeholder.style.display = "none"; // Hide placeholder
-                //    }
-
-                //    // Clear existing tags
-                //    dropdownTags.querySelectorAll("span").forEach((tag) => tag.remove());
-
-                //    // Add selected skill tags
-                //    selectedValues.forEach((value) => {
-                //        const tag = document.createElement("span");
-                //        tag.innerHTML = `${value} <i class="remove-tag" data-value="${value}">x</i>`;
-                //        dropdownTags.appendChild(tag);
-                //    });
-
-                //    // Attach event listeners to remove tags
-                //    document.querySelectorAll(".remove-tag").forEach((removeBtn) => {
-                //        removeBtn.addEventListener("click", (e) => {
-                //            const value = e.target.getAttribute("data-value");
-                //            document.querySelector(`#dropdown-list input[value='${value}']`).checked = false;
-                //            updateTags();
-                //        });
-                //    });
-                //}
 
                 const dropdownHeader = document.getElementById("dropdown-header");
                 const dropdownList = document.getElementById("dropdown-list");

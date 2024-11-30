@@ -214,6 +214,7 @@
     <Content Include="Content\css2\Template-css\bootstrap-icons.css" />
     <Content Include="Content\css2\Template-css\bootstrap.min.css" />
     <Content Include="Content\css2\Template-css\templatemo-kind-heart-charity.css" />
+    <Content Include="Content\Css\Calendar.css" />
     <Content Include="Content\Css\CustomeStyle.css" />
     <Content Include="Content\Css\donationStyle.css" />
     <Content Include="Content\Css\generalskill.css" />
@@ -227,6 +228,7 @@
     <Content Include="Content\Css\progress.css" />
     <Content Include="Content\css2\Search.css" />
     <Content Include="Content\Css\Style.css" />
+    <Content Include="Content\Css\ViewVolunteerModal.css" />
     <Content Include="Content\IdPicture\cats dogs 3.jpg" />
     <Content Include="Content\IdPicture\cats dogs.jpg" />
     <Content Include="Content\IdPicture\cats dogs2.jpg" />
@@ -331,6 +333,7 @@
     <Content Include="Content\Js2\Template-js\jquery.min.js" />
     <Content Include="Content\Js2\Template-js\jquery.sticky.js" />
     <Content Include="Content\Js2\UserInfo.js" />
+    <Content Include="Content\Js\Calendar.js" />
     <Content Include="Content\Js\JavaScript.js" />
     <Content Include="Content\Js\popup.js" />
     <Content Include="Content\Js\profile.js" />
@@ -2002,6 +2005,7 @@
     <Compile Include="Contracts\IBaseRepository.cs" />
     <Compile Include="Controllers\AdminController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
+    <Compile Include="Controllers\CalendarController.cs" />
     <Compile Include="Controllers\MessageController.cs" />
     <Compile Include="Controllers\OrganizationController.cs" />
     <Compile Include="Controllers\PageController.cs" />
@@ -2078,6 +2082,7 @@
     </Compile>
     <Compile Include="Repository\AdminManager.cs" />
     <Compile Include="Repository\BaseRepository.cs" />
+    <Compile Include="Repository\CalendarManager.cs" />
     <Compile Include="Repository\MailManager.cs" />
     <Compile Include="Repository\MessageManager.cs" />
     <Compile Include="Repository\OrganizationManager.cs" />
@@ -2126,12 +2131,14 @@
     <Compile Include="UserRoles.cs">
       <DependentUpon>ModelTabangHub.tt</DependentUpon>
     </Compile>
+    <Compile Include="Utils\Event.cs" />
     <Compile Include="Utils\FilteredEvent.cs" />
     <Compile Include="Utils\FilteredVolunteer.cs" />
     <Compile Include="Utils\Lists.cs" />
     <Compile Include="Utils\RatingState.cs" />
     <Compile Include="Utils\RecruitmentResult.cs" />
     <Compile Include="Utils\Utilities.cs" />
+    <Compile Include="Utils\View_VolunteerInfo.cs" />
     <Compile Include="Utils\VolunteerInvite.cs" />
     <Compile Include="VolunteerInfo.cs">
       <DependentUpon>ModelTabangHub.tt</DependentUpon>
@@ -2210,6 +2217,7 @@
     <Content Include="Views\Admin\VolunteerDetails.cshtml" />
     <Content Include="Views\Admin\History.cshtml" />
     <Content Include="Views\Organization\HistoryDetails.cshtml" />
+    <Content Include="Views\Calendar\Calendar.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

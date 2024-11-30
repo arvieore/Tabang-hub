@@ -15,6 +15,7 @@ namespace Tabang_Hub.Controllers
         public VolunteerManager _volunteerManager;
         public AdminManager _adminManager;
         public MessageManager _messageManager;
+        public CalendarManager _calendarManager;
         public String ErrorMessage;
 
         public BaseRepository<Skills> _skills;
@@ -50,6 +51,7 @@ namespace Tabang_Hub.Controllers
             _volunteerManager = new VolunteerManager();
             _adminManager = new AdminManager();
             _messageManager = new MessageManager();
+            _calendarManager = new CalendarManager();
             ErrorMessage = String.Empty;
 
             _skills = new BaseRepository<Skills>();

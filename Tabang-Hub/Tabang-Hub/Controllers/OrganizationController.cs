@@ -477,6 +477,29 @@ namespace Tabang_Hub.Controllers
                 }, JsonRequestBehavior.AllowGet);
             }
         }
+        [HttpPost]
+        public JsonResult GetVolunteerInfo(int userId, int eventId)
+        {
+            try
+            {
+                var volunteer = _organizationManager.GetUserInfo(userId, eventId);
+
+                // If no data is found, return an appropriate response
+                if (volunteer == null)
+                {
+                    return Json(new { success = false, message = "Volunteer not found." });
+                }
+
+                // Return the data
+                return Json(new { success = true, volunteer });
+            }
+            catch (Exception ex)
+            {
+                // Log the error for debugging
+                Console.WriteLine($"Error: {ex.Message}");
+                return Json(new { success = false, message = "An error occurred while retrieving the volunteer information." });
+            }
+        }
         //------------------------------------------------------------------------//------------------------------------------------------------------------
         private static List<int> SelectedSkills = new List<int>();
         [HttpPost]

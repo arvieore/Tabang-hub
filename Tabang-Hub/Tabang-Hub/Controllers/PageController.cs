@@ -42,6 +42,19 @@ namespace Tabang_Hub.Controllers
                         var getVolunteers = _volunteers.GetAll().ToList();
                         var orgEventsSelectId = _orgEvents.GetAll().Where(m => m.dateEnd >= DateTime.Now).Select(m => m.eventId).ToList();
 
+                        if (getProfile.Count() <= 0)
+                        {
+                            var defaultPicture = new ProfilePicture
+                            {
+                                userId = UserId,
+                                profilePath = "default.jpg"
+                            };
+                            _profilePic.Create(defaultPicture);
+
+                            getProfile = db.ProfilePicture.Where(m => m.userId == UserId).ToList();
+                        }
+
+
                         var getUserDonated = new List<UserDonated>();
                         foreach (var eventId in orgEventsSelectId)
                         {           
@@ -63,7 +76,7 @@ namespace Tabang_Hub.Controllers
                                 }
                             }
 
-
+                            
                             var indexModel = new Lists()
                             {
                                 volunteersInfo = getInfo,

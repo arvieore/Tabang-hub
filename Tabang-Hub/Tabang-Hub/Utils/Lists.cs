@@ -88,6 +88,10 @@ namespace Tabang_Hub.Utils
         public List<FilteredVolunteer> filteredVolunteers { get; set; }
         public List<RecruitmentResult> recruitmentResults { get; set; }
 
+        public List<Event> events { get; set; }
+        public List<Event> ongoingEvents {  get; set; }
+        public List<Event> pendingEvents { get; set; }
+        public List<Event> eventHistory { get; set; }
 
         public class VolunteerRatingData
         {

@@ -1358,5 +1358,85 @@ namespace Tabang_Hub.Repository
 
             return ErrorCode.Success;
         }
+        public View_VolunteerInfo GetUserInfo(int userId, int eventId)
+        {
+            try
+            {
+                // Retrieve volunteer data
+                var volunteer = _volunteerInfo.GetAll()
+                    .Where(m => m.userId == userId)
+                    .Select(m => new
+                    {
+                        FullName = $"{m.fName} {m.lName}",
+                        BirthDay = m.bDay?.ToString("yyyy-MM-dd"),
+                        PhoneNum = m.phoneNum,
+                        Street = m.street,
+                        City = m.city,
+                        Province = m.province,
+                        Zip = m.zipCode,
+                        Availability = m.availability,
+                        About = m.aboutMe
+                    })
+                    .FirstOrDefault();
+
+                if (volunteer == null)
+                    return null;
+
+                var volProfile = _profilePic.GetAll()
+                    .Where(m => m.userId == userId)
+                    .Select(m => m.profilePath)
+                    .FirstOrDefault();
+
+                var volSkill = _volunteerSkills.GetAll()
+                    .Where(m => m.userId == userId)
+                    .Select(m => m.skillId)
+                    .ToList();
+
+                var getMatchSkill = _orgSkillRequirements.GetAll()
+                    .Where(m => volSkill.Contains(m.skillId) && m.eventId == eventId)
+                    .Select(m => m.skillId)
+                    .ToList();
+
+                var skills = _skills.GetAll()
+                    .Where(s => getMatchSkill.Contains(s.skillId))
+                    .Select(s => s.skillName)
+                    .ToList();
+
+                double totalRate = 0.0;
+                int rateCount = 0;
+
+                foreach (var skillId in volSkill)
+                {
+                    var getRate = _ratings.GetAll()
+                        .Where(r => r.skillId == skillId && r.userId == userId)
+                        .Select(r => r.rate);
+
+                    totalRate += getRate.Sum(rate => rate ?? 0);
+                    rateCount += getRate.Count();
+                }
+
+                double averageRate = rateCount > 0 ? totalRate / rateCount : 0.0;
+
+                return new View_VolunteerInfo
+                {
+                    FullName = volunteer.FullName,
+                    BirthDay = volunteer.BirthDay,
+                    PhoneNum = volunteer.PhoneNum,
+                    Street = volunteer.Street,
+                    City = volunteer.City,
+                    Province = volunteer.Province,
+                    Zip = volunteer.Zip,
+                    Availability = volunteer.Availability,
+                    About = volunteer.About,
+                    ProfilePic = volProfile,
+                    Skills = skills,
+                    AverageRate = averageRate
+                };
+            }
+            catch
+            {
+                return null; // Handle exceptions gracefully
+            }
+        }
     }
 }
