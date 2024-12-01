@@ -94,6 +94,13 @@ namespace Tabang_Hub.Utils
         public List<Event> pendingEvents { get; set; }
         public List<Event> eventHistory { get; set; }
 
+
+        public List<Donated> donateds { get; set; }
+        public List<DonationImage> donationImages { get; set; }
+        public List<DonationEvent> donationEvents { get; set; }
+        public List<DonationType> donationTypes { get; set; }
+
+
         public class VolunteerRatingData
         {
             public int VolunteerId { get; set; }

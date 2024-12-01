@@ -465,7 +465,7 @@
                                                                 <p>@donationEvent.donationDescription</p>
 
                                                             </div>
-                                                            <span class="custom-btn btn" onclick="redirectToDetails(@donationEvent.donationEventId)">View Details</span>
+                                                            <span class="custom-btn btn" onclick="redirectToDonationDetails(@donationEvent.donationEventId)">View Details</span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -742,6 +742,9 @@
             window.location.href = '@Url.Action("EventDetails", "Volunteer")' + '?eventId=' + eventId;
         }
 
+        function redirectToDonationDetails(donationEventId) {
+            window.location.href = '@Url.Action("DonationEventDetails", "Volunteer")' + '?donatioEventId=' + donationEventId;
+        }
 
         let selectedEventId = null; // Store the event ID temporarily
 

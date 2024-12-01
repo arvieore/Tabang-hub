@@ -452,9 +452,51 @@ namespace Tabang_Hub.Controllers
             }
         }
 
-        public ActionResult DonationEventDetails(int donatioEventId)
+        public async Task<ActionResult> DonationEventDetails(int donatioEventId)
         {
-            return View();
+            try
+            {
+                var getVolInfo = db.VolunteerInfo.Where(m => m.userId == UserId).ToList();
+                var getProfile = db.ProfilePicture.Where(m => m.userId == UserId).ToList();
+                var getOrgInfo = db.DonationEvent.Where(m => m.donationEventId == donatioEventId).FirstOrDefault();
+                var getInfo = _orgInfo.GetAll().Where(m => m.userId == getOrgInfo.userId).ToList();
+
+                var checkEventID = db.DonationEvent.Where(m => m.donationEventId == donatioEventId).FirstOrDefault();
+                if (checkEventID == null)
+                {
+                    return RedirectToAction("Index", "Page");
+                }
+                var recommendedEvents = await _volunteerManager.RunRecommendation(UserId);
+
+                var filteredEvent = new List<vw_ListOfEvent>();
+                foreach (var recommendedEvent in recommendedEvents)
+                {
+                    var matchedEvents = _listsOfEvent.GetAll().Where(m => m.Event_Id == recommendedEvent.EventID).ToList();
+                    filteredEvent.AddRange(matchedEvents);
+                }
+
+                var indexModel = new Lists()
+                {
+                    volunteersInfo = getVolInfo,
+                    picture = getProfile,
+                    donationEvents = db.DonationEvent.Where(m => m.donationEventId == donatioEventId && m.status == 1).ToList(),
+                    donationImages = db.DonationImage.Where(m => m.donationEventId == donatioEventId).ToList(),
+                    listOfEventsOne = _listsOfEvent.GetAll().Where(m => m.status != 3).ToList(),
+                    listOfEvents = filteredEvent.OrderByDescending(m => m.Event_Id).ToList(),
+
+                    detailsEventImageOne = _eventImages.GetAll().Where(m => m.eventId == donatioEventId).ToList(),
+                    detailsEventImage = _eventImages.GetAll().ToList(),
+
+                    orgInfos = getInfo
+                };
+
+                return View(indexModel);
+            }
+            catch (Exception)
+            {
+
+                return RedirectToAction("../Page/Index");
+            }
         }
         [HttpPost]
         public JsonResult AcceptInvite(int eventId/*, string skill*/)
