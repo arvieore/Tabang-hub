@@ -104,81 +104,149 @@
     <div class="row" id="table-head">
         <div class="col-12">
             <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <!-- Button to open the Create Event Modal -->
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createEventModal">
-                        Create Event
-                    </button>
-                    <!-- Search and sort controls -->
-                    <div class="d-flex gap-3 align-items-center">
-                        <input type="text" id="search-event" class="form-control" onkeyup="searchEvents()" placeholder="Search by event name..." style="max-width: 300px;">
-                        <select id="sort-events" class="form-select" onchange="sortEvents()" style="max-width: 200px;">
-                            <option value="all">All Events</option>
-                            <option value="newest">Newest to Oldest</option>
-                            <option value="oldest">Oldest to Newest</option>
-                            <option value="donation">Event with Donations</option>
-                            <option value="ended">To rate</option>
-                        </select>
-                    </div>
+                <!-- Navigation Tabs -->
+                <div class="card-header">
+                    <ul class="nav nav-tabs" id="eventTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="all-events-tab" data-bs-toggle="tab" data-bs-target="#all-events" type="button" role="tab" aria-controls="all-events" aria-selected="true">All Events</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="donations-tab" data-bs-toggle="tab" data-bs-target="#donations" type="button" role="tab" aria-controls="donations" aria-selected="false">Donations</button>
+                        </li>
+                    </ul>
                 </div>
-                <div class="card-content">
-                    <!-- table head dark -->
-                    <div class="table-responsive">
-                        <table class="table mb-0">
-                            <thead class="thead-dark">
-                                <tr>
-                                    <th>Event Name</th>
-                                    <th>Total Donations</th>
-                                    <th>Target Amount</th>
-                                    <th>Total Volunteers</th>
-                                    <th>Date Started</th>
-                                    <th>Date Ended</th>
-                                    <th>Location</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var list in Model.listOfEvents)
-                                {
-                                    <tr data-event-id="@list.Event_Id" style="cursor: pointer;" onclick="viewEventDetails(@list.Event_Id)">
-                                        <td class="text-bold-500">@list.Event_Name</td>
-                                        @if (list.Target_Amount != null && list.Target_Amount != 0)
+
+                <!-- Tab Content -->
+                <div class="tab-content" id="eventTabsContent">
+                    <!-- All Events Tab -->
+                    <div class="tab-pane fade show active" id="all-events" role="tabpanel" aria-labelledby="all-events-tab">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <!-- Button to open the Create Event Modal -->
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createEventModal">
+                                Create Event
+                            </button>
+                            <!-- Search and sort controls -->
+                            <div class="d-flex gap-3 align-items-center">
+                                <input type="text" id="search-event" class="form-control" onkeyup="searchEvents()" placeholder="Search by event name..." style="max-width: 300px;">
+                                <select id="sort-events" class="form-select" onchange="sortEvents()" style="max-width: 200px;">
+                                    <option value="all">All Events</option>
+                                    <option value="newest">Newest to Oldest</option>
+                                    <option value="oldest">Oldest to Newest</option>
+                                    <option value="donation">Event with Donations</option>
+                                    <option value="ended">To rate</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <!-- table head dark -->
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="thead-dark">
+                                        <tr>
+                                            <th>Event Name</th>
+                                            <th>Total Donations</th>
+                                            <th>Target Amount</th>
+                                            <th>Total Volunteers</th>
+                                            <th>Date Started</th>
+                                            <th>Date Ended</th>
+                                            <th>Location</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var list in Model.listOfEvents)
                                         {
-                                            if (list.Total_Donation != null && list.Total_Donation != 0)
+                                            <tr data-event-id="@list.Event_Id" style="cursor: pointer;" onclick="viewEventDetails(@list.Event_Id)">
+                                                <td class="text-bold-500">@list.Event_Name</td>
+                                                @if (list.Target_Amount != null && list.Target_Amount != 0)
+                                                {
+                                                    if (list.Total_Donation != null && list.Total_Donation != 0)
+                                                    {
+                                                        <td>₱@list.Total_Donation</td>
+                                                        <td>₱@list.Target_Amount</td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td></td>
+                                                        <td>₱@list.Target_Amount</td>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <td></td>
+                                                    <td></td>
+                                                }
+                                                <td>@list.Total_Volunteer</td>
+                                                <td>@(list.Start_Date.HasValue ? list.Start_Date.Value.ToString("MMMM dd, yyyy - h:mm tt") : "N/A")</td>
+                                                <td>@(list.End_Date.HasValue ? list.End_Date.Value.ToString("MMMM dd, yyyy - h:mm tt") : "N/A")</td>
+                                                <td>@list.location</td>
+                                                <td>
+                                                    <form class="delete-form" data-event-id="@list.Event_Id">
+                                                        <button type="button" class="btn btn-sm btn-danger delete-button">Delete</button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Donations Tab -->
+                    <div class="tab-pane fade" id="donations" role="tabpanel" aria-labelledby="donations-tab">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <!-- Button to open the Create Donation Modal -->
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createDonationModal">
+                                Create Donation
+                            </button>
+                        </div>
+                        <div class="card-content">
+                            <!-- table head dark -->
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="thead-dark">
+                                        <tr>
+                                            <th style="width: 20%;">Donation Name</th>
+                                            <th style="width: 20%;">Date Start</th>
+                                            <th style="width: 20%;">Date End</th>
+                                            <th style="width: 30%;">Location</th>
+                                            <th style="width: 10%;">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (Model.listOfDonationEvent != null && Model.listOfDonationEvent.Any())
+                                        {
+                                            foreach (var donation in Model.listOfDonationEvent)
                                             {
-                                                <td>₱@list.Total_Donation</td>
-                                                <td>₱@list.Target_Amount</td>
-                                            }
-                                            else
-                                            {
-                                                <td></td>
-                                                <td>₱@list.Target_Amount</td>
+                                                <tr>
+                                                    <td class="text-truncate" style="max-width: 150px;" title="@donation.donationEventName">@donation.donationEventName</td>
+                                                    <td>@(donation.dateStart.HasValue ? donation.dateStart.Value.ToString("MMMM dd, yyyy - h:mm tt") : "N/A")</td>
+                                                    <td>@(donation.dateEnd.HasValue ? donation.dateEnd.Value.ToString("MMMM dd, yyyy - h:mm tt") : "N/A")</td>
+                                                    <td class="text-truncate" style="max-width: 200px;" title="@donation.location">@donation.location</td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-sm btn-danger">Delete</button>
+                                                    </td>
+                                                </tr>
                                             }
                                         }
                                         else
                                         {
-                                            <td></td>
-                                            <td></td>
+                                            <tr>
+                                                <td colspan="5" class="text-center">No donations found.</td>
+                                            </tr>
                                         }
-                                        <td>@list.Total_Volunteer</td>
-                                        <td>@(list.Start_Date.HasValue ? list.Start_Date.Value.ToString("MMMM dd, yyyy - h:mm tt") : "N/A")</td>
-                                        <td>@(list.End_Date.HasValue ? list.End_Date.Value.ToString("MMMM dd, yyyy - h:mm tt") : "N/A")</td>
-                                        <td>@list.location</td>
-                                        <td>
-                                            <form class="delete-form" data-event-id="@list.Event_Id">
-                                                <button type="button" class="btn btn-sm btn-danger delete-button">Delete</button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
+
 
 <!-- Create Event Modal -->
 <div class="container mt-5">
@@ -272,7 +340,53 @@
     </div>
 </div>
 
-<!-- SweetAlert JS -->
+<!-- Create Donation Modal -->
+<div class="modal fade" id="createDonationModal" tabindex="-1" aria-labelledby="createDonationModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createDonationModalLabel">Create Donation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="create-donation-form" action="/Organization/CreateDonation" method="post" enctype="multipart/form-data" onsubmit="return validateDonationForm(event)">
+                    <div class="mb-3">
+                        <label for="donationName" class="form-label">Donation Name</label>
+                        <input type="text" class="form-control" id="donationEventName" name="donationEventName" placeholder="Enter donation name">
+                        <span class="error" id="donationNameError"></span>
+                    </div>
+                    <div class="mb-3 row">
+                        <div class="col">
+                            <label for="donationDateStart" class="form-label">Start Date</label>
+                            <input type="datetime-local" class="form-control" id="dateStart" name="dateStart">
+                            <span class="error" id="donationDateStartError"></span>
+                        </div>
+                        <div class="col">
+                            <label for="donationDateEnd" class="form-label">End Date</label>
+                            <input type="datetime-local" class="form-control" id="dateEnd" name="dateEnd">
+                            <span class="error" id="donationDateEndError"></span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div id="donationMap" style="height: 400px;"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="donationLocation" class="form-label">Location</label>
+                        <input type="text" class="form-control" id="location" name="location" placeholder="Enter location">
+                        <span class="error" id="donationLocationError"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label for="donationImage" class="form-label">Upload Image</label>
+                        <input type="file" class="form-control" id="donationImage" name="donationImage" onchange="previewDonationImage()" multiple>
+                        <span class="error" id="donationImageError"></span>
+                        <div class="preview-container" id="donationImagePreview"></div>
+                    </div>
+                    <button class="btn btn-primary" type="submit">Create Donation</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div><!-- SweetAlert JS -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="~/Content/js/bootstrap.bundle.min.js"></script>
@@ -707,4 +821,270 @@
         });
     }
 
+
+    $('#createDonationModal').on('shown.bs.modal', function () {
+        console.log('Donation modal shown. Initializing map.');
+
+        // Coordinates for Lapu-Lapu City
+        const lapuLapuCoords = [10.3140, 123.9495];
+
+        // Initialize the map centered on Lapu-Lapu City
+        window.donationLeafletMap = L.map('donationMap').setView(lapuLapuCoords, 13);
+
+        // Add OpenStreetMap tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: 'Map data © OpenStreetMap contributors'
+        }).addTo(window.donationLeafletMap);
+
+        // Variable to hold the current marker
+        let donationMarker;
+
+        // Add click event to the map to place a pin
+        window.donationLeafletMap.on('click', function (e) {
+            const latlng = e.latlng;
+            const lat = latlng.lat;
+            const lon = latlng.lng;
+
+            // If a marker already exists, move it; otherwise, create a new one
+            if (donationMarker) {
+                donationMarker.setLatLng(latlng);
+            } else {
+                donationMarker = L.marker(latlng).addTo(window.donationLeafletMap);
+            }
+
+            // Use reverse geocoding to get the address
+            const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const address = data.display_name;
+                    document.getElementById('location').value = address;
+                })
+                .catch(error => {
+                    console.error('Error in reverse geocoding:', error);
+                    document.getElementById('donationLocation').value = `${lat}, ${lon}`;
+                });
+        });
+    });
+
+    $('#createDonationModal').on('hidden.bs.modal', function () {
+        // Reset the form fields
+        document.getElementById('create-donation-form').reset();
+
+        // Clear any validation error messages
+        document.querySelectorAll('.error').forEach(e => e.innerText = '');
+
+        // Clear the preview container
+        document.getElementById('donationImagePreview').innerHTML = '';
+
+        // Remove the map if it exists
+        if (window.donationLeafletMap) {
+            console.log('Donation modal hidden. Removing map.');
+            window.donationLeafletMap.remove();
+            window.donationLeafletMap = null;
+        }
+    });
+
+    function previewDonationImage() {
+        const previewContainer = document.getElementById('donationImagePreview');
+        const files = document.getElementById('donationImage').files;
+
+        // Clear the existing preview
+        previewContainer.innerHTML = '';
+
+        // Loop through selected files and create an image element for each
+        Array.from(files).forEach(file => {
+            if (file.type.startsWith('image/')) {
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(file);
+                img.style.maxWidth = '100px';
+                img.style.marginRight = '10px';
+                img.style.marginBottom = '10px';
+                img.onload = () => URL.revokeObjectURL(img.src); // Free memory
+                previewContainer.appendChild(img);
+            } else {
+                // Display a warning for non-image files
+                const warning = document.createElement('div');
+                warning.textContent = `File "${file.name}" is not an image and cannot be previewed.`;
+                warning.style.color = 'red';
+                previewContainer.appendChild(warning);
+            }
+        });
+    }
+
+    // Real-Time Validation for Fields
+    document.getElementById('donationEventName').addEventListener('input', function () {
+        validateDonationName();
+    });
+
+    document.getElementById('dateStart').addEventListener('change', function () {
+        validateDonationDates();
+    });
+
+    document.getElementById('dateEnd').addEventListener('change', function () {
+        validateDonationDates();
+    });
+
+    // Validation Functions
+    function validateDonationName() {
+        const donationName = document.getElementById('donationEventName');
+        const errorElement = document.getElementById('donationNameError');
+
+        if (donationName.value.trim() === '') {
+            donationName.classList.add('is-invalid');
+            errorElement.innerText = 'Donation name is required.';
+            return false;
+        }
+
+        // Add logic to check for unique donation name via AJAX if needed
+        // Example (pseudo-code):
+        // checkUniqueDonationName(donationName.value).then(isUnique => {
+        //   if (!isUnique) {
+        //      donationName.classList.add('is-invalid');
+        //      errorElement.innerText = 'Donation name must be unique.';
+        //   } else {
+        //      donationName.classList.remove('is-invalid');
+        //      errorElement.innerText = '';
+        //   }
+        // });
+
+        donationName.classList.remove('is-invalid');
+        errorElement.innerText = '';
+        return true;
+    }
+
+    function validateDonationDates() {
+        const startDateInput = document.getElementById('dateStart');
+        const endDateInput = document.getElementById('dateEnd');
+        const startDate = new Date(startDateInput.value);
+        const endDate = new Date(endDateInput.value);
+        const now = new Date();
+
+        const startDateError = document.getElementById('donationDateStartError');
+        const endDateError = document.getElementById('donationDateEndError');
+        let isValid = true;
+
+        if (startDate < now) {
+            startDateInput.classList.add('is-invalid');
+            startDateError.innerText = 'Start date must be in the future.';
+            startDateInput.value = ''; // Clear the input value
+            isValid = false;
+        } else {
+            startDateInput.classList.remove('is-invalid');
+            startDateError.innerText = '';
+        }
+
+        if (endDate <= startDate) {
+            endDateInput.classList.add('is-invalid');
+            endDateError.innerText = 'End date must be after start date.';
+            endDateInput.value = ''; // Clear the input value
+            isValid = false;
+        } else {
+            endDateInput.classList.remove('is-invalid');
+            endDateError.innerText = '';
+        }
+
+        return isValid;
+    }
+
+    // Final Form Validation
+    function validateDonationForm(event) {
+        event.preventDefault(); // Prevent form submission
+        let isValid = true;
+
+        // Clear previous errors
+        document.querySelectorAll('.error').forEach(e => e.innerHTML = '');
+
+        // Validate donation name
+        const donationName = document.getElementById('donationEventName');
+        if (donationName.value.trim() === '') {
+            document.getElementById('donationNameError').innerText = 'Donation name is required.';
+            isValid = false;
+        } else {
+            document.getElementById('donationNameError').innerText = '';
+        }
+
+        // Validate donation dates
+        const startDateInput = document.getElementById('dateStart');
+        const endDateInput = document.getElementById('dateEnd');
+        const startDate = new Date(startDateInput.value);
+        const endDate = new Date(endDateInput.value);
+        const now = new Date();
+
+        if (startDate < now) {
+            startDateInput.classList.add('is-invalid');
+            document.getElementById('donationDateStartError').innerText = 'Start date must be in the future.';
+            isValid = false;
+        } else {
+            startDateInput.classList.remove('is-invalid');
+            document.getElementById('donationDateStartError').innerText = '';
+        }
+
+        if (endDate <= startDate) {
+            endDateInput.classList.add('is-invalid');
+            document.getElementById('donationDateEndError').innerText = 'End date must be after the start date.';
+            isValid = false;
+        } else {
+            endDateInput.classList.remove('is-invalid');
+            document.getElementById('donationDateEndError').innerText = '';
+        }
+
+        // Validate location
+        const location = document.getElementById('location');
+        if (location.value.trim() === '') {
+            document.getElementById('donationLocationError').innerText = 'Location is required.';
+            isValid = false;
+        } else {
+            document.getElementById('donationLocationError').innerText = '';
+        }
+
+        // Validate at least one image is uploaded
+        const images = document.getElementById('donationImage').files;
+        if (images.length === 0) {
+            document.getElementById('donationImageError').innerText = 'At least one image is required.';
+            isValid = false;
+        } else {
+            document.getElementById('donationImageError').innerText = ''; // Clear error if images are uploaded
+        }
+
+        // Proceed only if all validations pass
+        if (isValid) {
+            const formData = new FormData(document.getElementById('create-donation-form'));
+
+            fetch('/Organization/CreateDonation', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: data.message,
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            window.location.reload(); // Reload or redirect to the donations list
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: data.message,
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'An unexpected error occurred. Please try again later.',
+                        confirmButtonText: 'OK'
+                    });
+                });
+        }
+    }
 </script>

@@ -446,7 +446,38 @@
                             <!-- Donation Event Tab -->
                             <div class="tab-pane fade" id="donationSection" role="tabpanel" aria-labelledby="donation-tab">
                                 <div class="row" id="donationContainer">
-                                    <p>Donation Events content goes here...</p>
+                                    @if (Model.ListOfDonationEvents != null && Model.ListOfDonationEvents.Any())
+                                    {
+                                        foreach (var donationItem in Model.ListOfDonationEvents)
+                                        {
+                                            var donationEvent = donationItem.Event.FirstOrDefault();
+                                            var donationImages = donationItem.Image;
+
+                                            if (donationEvent != null)
+                                            {
+                                                var imgPath = donationImages.FirstOrDefault()?.imagePath ?? "default.jpg";
+                                                <div class="col-lg-4 col-md-6 mt-2 col-12 mb-4 mb-lg-0 event-card">
+                                                    <div class="custom-block-wrap">
+                                                        <img src="@Url.Content("~/Content/Events/" + imgPath)" class="custom-block-image img-fluid" alt="">
+                                                        <div class="custom-block">
+                                                            <div class="custom-block-body">
+                                                                <h5 class="mb-3">@donationEvent.donationEventName</h5>
+                                                                <p>@donationEvent.donationDescription</p>
+
+                                                            </div>
+                                                            <span class="custom-btn btn" onclick="redirectToDetails(@donationEvent.donationEventId)">View Details</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div class="col-12 text-center">
+                                            <p>No donation events available.</p>
+                                        </div>
+                                    }
                                 </div>
 
                                 <!-- Pagination for Donation Events -->
@@ -465,7 +496,7 @@
                                     </ul>
                                 </nav>
                             </div>
-                            </div>
+                        </div>
 
 
 

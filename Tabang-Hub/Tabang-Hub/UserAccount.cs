@@ -16,6 +16,7 @@ namespace Tabang_Hub
     {
         public UserAccount()
         {
+            this.Donated = new HashSet<Donated>();
             this.Feedback = new HashSet<Feedback>();
             this.GroupMessages = new HashSet<GroupMessages>();
             this.OrgEvents = new HashSet<OrgEvents>();
@@ -35,6 +36,7 @@ namespace Tabang_Hub
         public short status { get; set; }
         public int roleId { get; set; }
     
+        public virtual ICollection<Donated> Donated { get; set; }
         public virtual ICollection<Feedback> Feedback { get; set; }
         public virtual ICollection<GroupMessages> GroupMessages { get; set; }
         public virtual ICollection<OrgEvents> OrgEvents { get; set; }

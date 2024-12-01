@@ -126,6 +126,48 @@
       </ResultMapping>
     </FunctionImportMapping>
     <FunctionImportMapping FunctionImportName="sp_RemoveVolunteer" FunctionName="TabangHubModel.Store.sp_RemoveVolunteer" />
+    <EntitySetMapping Name="Donated">
+      <EntityTypeMapping TypeName="TabangHubModel.Donated">
+        <MappingFragment StoreEntitySet="Donated">
+          <ScalarProperty Name="donationQuantity" ColumnName="donationQuantity" />
+          <ScalarProperty Name="donationType" ColumnName="donationType" />
+          <ScalarProperty Name="userId" ColumnName="userId" />
+          <ScalarProperty Name="donationEventId" ColumnName="donationEventId" />
+          <ScalarProperty Name="donateId" ColumnName="donateId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="DonationEvent">
+      <EntityTypeMapping TypeName="TabangHubModel.DonationEvent">
+        <MappingFragment StoreEntitySet="DonationEvent">
+          <ScalarProperty Name="status" ColumnName="status" />
+          <ScalarProperty Name="location" ColumnName="location" />
+          <ScalarProperty Name="dateEnd" ColumnName="dateEnd" />
+          <ScalarProperty Name="dateStart" ColumnName="dateStart" />
+          <ScalarProperty Name="donationDescription" ColumnName="donationDescription" />
+          <ScalarProperty Name="donationEventName" ColumnName="donationEventName" />
+          <ScalarProperty Name="userId" ColumnName="userId" />
+          <ScalarProperty Name="donationEventId" ColumnName="donationEventId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="DonationImage">
+      <EntityTypeMapping TypeName="TabangHubModel.DonationImage">
+        <MappingFragment StoreEntitySet="DonationImage">
+          <ScalarProperty Name="imagePath" ColumnName="imagePath" />
+          <ScalarProperty Name="donationEventId" ColumnName="donationEventId" />
+          <ScalarProperty Name="donationImageId" ColumnName="donationImageId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="DonationType">
+      <EntityTypeMapping TypeName="TabangHubModel.DonationType">
+        <MappingFragment StoreEntitySet="DonationType">
+          <ScalarProperty Name="donationTypeName" ColumnName="donationTypeName" />
+          <ScalarProperty Name="donationTypeId" ColumnName="donationTypeId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
     <EntitySetMapping Name="Feedback">
       <EntityTypeMapping TypeName="TabangHubModel.Feedback">
         <MappingFragment StoreEntitySet="Feedback">
@@ -469,54 +511,6 @@
           <ScalarProperty Name="skillId" ColumnName="skillId" />
           <ScalarProperty Name="userId" ColumnName="userId" />
           <ScalarProperty Name="volunteerSkillId" ColumnName="volunteerSkillId" />
-        </MappingFragment>
-      </EntityTypeMapping>
-    </EntitySetMapping>
-    <EntitySetMapping Name="DeletedEvent">
-      <EntityTypeMapping TypeName="TabangHubModel.DeletedEvent">
-        <MappingFragment StoreEntitySet="DeletedEvent">
-          <ScalarProperty Name="eventImage" ColumnName="eventImage" />
-          <ScalarProperty Name="location" ColumnName="location" />
-          <ScalarProperty Name="dateEnd" ColumnName="dateEnd" />
-          <ScalarProperty Name="dateStart" ColumnName="dateStart" />
-          <ScalarProperty Name="maxVolunteer" ColumnName="maxVolunteer" />
-          <ScalarProperty Name="targetAmount" ColumnName="targetAmount" />
-          <ScalarProperty Name="eventDescription" ColumnName="eventDescription" />
-          <ScalarProperty Name="eventTitle" ColumnName="eventTitle" />
-          <ScalarProperty Name="userId" ColumnName="userId" />
-          <ScalarProperty Name="deletedEventId" ColumnName="deletedEventId" />
-        </MappingFragment>
-      </EntityTypeMapping>
-    </EntitySetMapping>
-    <EntitySetMapping Name="DeletedEventImage">
-      <EntityTypeMapping TypeName="TabangHubModel.DeletedEventImage">
-        <MappingFragment StoreEntitySet="DeletedEventImage">
-          <ScalarProperty Name="eventImage" ColumnName="eventImage" />
-          <ScalarProperty Name="eventId" ColumnName="eventId" />
-          <ScalarProperty Name="deletedEventImageId" ColumnName="deletedEventImageId" />
-        </MappingFragment>
-      </EntityTypeMapping>
-    </EntitySetMapping>
-    <EntitySetMapping Name="DeletedOrgSkillRequirement">
-      <EntityTypeMapping TypeName="TabangHubModel.DeletedOrgSkillRequirement">
-        <MappingFragment StoreEntitySet="DeletedOrgSkillRequirement">
-          <ScalarProperty Name="totalNeeded" ColumnName="totalNeeded" />
-          <ScalarProperty Name="skillId" ColumnName="skillId" />
-          <ScalarProperty Name="eventId" ColumnName="eventId" />
-          <ScalarProperty Name="deletedSkillRequirementId" ColumnName="deletedSkillRequirementId" />
-        </MappingFragment>
-      </EntityTypeMapping>
-    </EntitySetMapping>
-    <EntitySetMapping Name="DeletedUserDonated">
-      <EntityTypeMapping TypeName="TabangHubModel.DeletedUserDonated">
-        <MappingFragment StoreEntitySet="DeletedUserDonated">
-          <ScalarProperty Name="donatedAt" ColumnName="donatedAt" />
-          <ScalarProperty Name="Status" ColumnName="Status" />
-          <ScalarProperty Name="amount" ColumnName="amount" />
-          <ScalarProperty Name="userId" ColumnName="userId" />
-          <ScalarProperty Name="eventId" ColumnName="eventId" />
-          <ScalarProperty Name="referenceNum" ColumnName="referenceNum" />
-          <ScalarProperty Name="deletedOrgUserDonatedId" ColumnName="deletedOrgUserDonatedId" />
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>

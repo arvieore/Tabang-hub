@@ -63,6 +63,7 @@ namespace Tabang_Hub.Utils
         public List<UserAccount> volunteerAvail { get; set; }
         public List<ProfilePicture> profilePics { get; set; }
         public List<VolunteerRatingData> volunteerRatings { get; set; }
+        public List<DonationEvent> listOfDonationEvent { get; set; }
 
         public List<Rating> rating { get; set; }
 
@@ -106,6 +107,43 @@ namespace Tabang_Hub.Utils
             public int SkillId { get; set; }
             public String SkillName { get; set; }
             public int Rating { get; set; }
+        }
+
+        public List<TopVolunteer> topVolunteers { get; set; }
+
+        public class TopVolunteer
+        {
+            public int VolunteerId { get; set; }
+            public List<int> EventIds { get; set; } = new List<int>(); // Store multiple event IDs
+            public List<string> EventImages { get; set; } = new List<string>(); // Store multiple event images
+            public string Name { get; set; }
+            public int TotalEventsParticipated { get; set; }
+        }
+
+        public List<TopDonators> topDonators { get; set; }
+
+        public class TopDonators
+        {
+            public int donatorsId { get; set; }
+            public string Name { get; set; }
+            public decimal totalAmountDonated { get; set; }
+            public List<EventDonation> EventDonations { get; set; } = new List<EventDonation>(); // Store donations for each event
+        }
+
+        public class EventDonation
+        {
+            public int EventId { get; set; }
+            public string EventName { get; set; }
+            public string EventImage { get; set; }
+            public decimal AmountDonated { get; set; }
+        }
+
+        public List<Donation> ListOfDonationEvents { get; set; }
+
+        public class Donation
+        { 
+            public List<DonationEvent> Event { get; set; }
+            public List<DonationImage> Image { get; set; }
         }
     }
 }

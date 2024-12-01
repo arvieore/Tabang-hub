@@ -18,6 +18,9 @@ namespace Tabang_Hub.Repository
         private BaseRepository<Skills> _volunteerSkills;
         private BaseRepository<ProfilePicture> _profilePic;
         private BaseRepository<UserRoles> _userRoles;
+        public BaseRepository<DonationEvent> _donationEvent;
+        public BaseRepository<DonationImage> _donationImage;
+        public BaseRepository<DonationType> _donationType;
         public UserManager() 
         {
             _userAcc = new BaseRepository<UserAccount>();
@@ -27,12 +30,27 @@ namespace Tabang_Hub.Repository
             _volunteerSkills = new BaseRepository<Skills>();
             _profilePic = new BaseRepository<ProfilePicture>();
             _userRoles = new BaseRepository<UserRoles>();
+            _donationEvent = new BaseRepository<DonationEvent>();
+            _donationImage = new BaseRepository<DonationImage>();
+            _donationType = new BaseRepository<DonationType>();
 
         }
 
         public UserAccount GetUserByEmail(String email)
         {
             return _userAcc._table.Where(m => m.email == email).FirstOrDefault();
+        }
+        public List<DonationEvent> ListOfOngoinDonationEvent()
+        {
+            return _donationEvent._table.Where(m => m.status == 1).ToList();
+        }
+        public List<DonationImage> GetDonationEventImageByEventId(int eventId)
+        { 
+            return _donationImage._table.Where(m => m.donationEventId == eventId).ToList();
+        }
+        public List<DonationType> ListOfDonationType()
+        { 
+            return _donationType.GetAll();
         }
         public List<UserAccount> ListOfAdmin()
         {

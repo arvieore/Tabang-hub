@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -36,11 +37,8 @@ namespace Tabang_Hub.Repository
         private BaseRepository<ProfilePicture> _profile;
         private BaseRepository<Notification> _notification;
         private BaseRepository<Feedback> _feedback;
-        private BaseRepository<DeletedEvent> _deletedEvent;
-        private BaseRepository<DeletedEventImage> _deletedEventImage;
-        private BaseRepository<DeletedOrgSkillRequirement> _deletedOrgSkillReq;
-        private BaseRepository<DeletedUserDonated> _deletedUserDonated;
-
+        private BaseRepository<DonationEvent> _donationEvent;
+        private BaseRepository<DonationImage> _donationImage;
         public OrganizationManager()
         {
             db = new TabangHubEntities();
@@ -65,10 +63,8 @@ namespace Tabang_Hub.Repository
             _profile = new BaseRepository<ProfilePicture>();
             _notification = new BaseRepository<Notification>();
             _feedback = new BaseRepository<Feedback>();
-            _deletedEvent = new BaseRepository<DeletedEvent>();
-            _deletedEventImage = new BaseRepository<DeletedEventImage>();
-            _deletedOrgSkillReq = new BaseRepository<DeletedOrgSkillRequirement>();
-            _deletedUserDonated = new BaseRepository<DeletedUserDonated>();
+            _donationEvent = new BaseRepository<DonationEvent>();
+            _donationImage = new BaseRepository<DonationImage>();
         }
 
         public ErrorCode CreateEvents(OrgEvents orgEvents, List<string> imageFileNames, List<string> skills, ref string errMsg)
@@ -601,6 +597,10 @@ namespace Tabang_Hub.Repository
         {
             return _orgEvents._table.Where(m => m.eventId == eventId).FirstOrDefault();
         }
+        public List<DonationEvent> GetListOfDonationEventByUserId(int userId)
+        { 
+            return _donationEvent._table.Where(m => m.userId == userId).ToList();
+        }
         public ErrorCode DeleteEvent(int eventId, ref string errMsg)
         {
             var skillsRequirement = listOfSkillRequirement(eventId);
@@ -610,129 +610,135 @@ namespace Tabang_Hub.Repository
             var groupChat = GetGroupChatByEventId(eventId);
 
 
-            if (groupChat != null)
-            {
-                var groupMessage = GetGroupMessagesByGroupChatId(groupChat.groupChatId);
+            //if (groupChat != null)
+            //{
+            //    var groupMessage = GetGroupMessagesByGroupChatId(groupChat.groupChatId);
 
-                foreach (var message in groupMessage)
-                {
-                    if (_groupMessages.Delete(message.messageId) != ErrorCode.Success)
-                    {
-                        return ErrorCode.Error;
-                    }
-                }
+            //    foreach (var message in groupMessage)
+            //    {
+            //        if (_groupMessages.Delete(message.messageId) != ErrorCode.Success)
+            //        {
+            //            return ErrorCode.Error;
+            //        }
+            //    }
 
-                if (_groupChat.Delete(groupChat.groupChatId) != ErrorCode.Success)
-                {
-                    return ErrorCode.Error;
-                }
-            }
+            //    if (_groupChat.Delete(groupChat.groupChatId) != ErrorCode.Success)
+            //    {
+            //        return ErrorCode.Error;
+            //    }
+            //}
 
-            if (skillsRequirement != null)
-            {
-                foreach (var skillRequirement in skillsRequirement)
-                {
-                    var result = _orgSkillRequirements.Delete(skillRequirement.skillRequirementId);
-                    if (result != ErrorCode.Success)
-                    {
-                        return ErrorCode.Error;
-                    }
+            //if (skillsRequirement != null)
+            //{
+            //    foreach (var skillRequirement in skillsRequirement)
+            //    {
+            //        var result = _orgSkillRequirements.Delete(skillRequirement.skillRequirementId);
+            //        if (result != ErrorCode.Success)
+            //        {
+            //            return ErrorCode.Error;
+            //        }
 
-                    var deletedSkillReq = new DeletedOrgSkillRequirement()
-                    { 
-                        eventId = skillRequirement.eventId,
-                        skillId = skillRequirement.skillId,
-                        totalNeeded = skillRequirement.totalNeeded,
-                    };
+            //        var deletedSkillReq = new DeletedOrgSkillRequirement()
+            //        { 
+            //            eventId = skillRequirement.eventId,
+            //            skillId = skillRequirement.skillId,
+            //            totalNeeded = skillRequirement.totalNeeded,
+            //        };
 
-                    if (_deletedOrgSkillReq.Create(deletedSkillReq, out errMsg) != ErrorCode.Success)
-                    {
-                        return ErrorCode.Error;
-                    }
-                }
-            }
+            //        if (_deletedOrgSkillReq.Create(deletedSkillReq, out errMsg) != ErrorCode.Success)
+            //        {
+            //            return ErrorCode.Error;
+            //        }
+            //    }
+            //}
 
-            if (eventImage != null)
-            {
-                foreach (var eventImages in eventImage)
-                {
-                    var result = _orgEventsImage.Delete(eventImages.eventImageId);
-                    if (result != ErrorCode.Success)
-                    {
-                        return ErrorCode.Error;
-                    }
+            //if (eventImage != null)
+            //{
+            //    foreach (var eventImages in eventImage)
+            //    {
+            //        var result = _orgEventsImage.Delete(eventImages.eventImageId);
+            //        if (result != ErrorCode.Success)
+            //        {
+            //            return ErrorCode.Error;
+            //        }
 
-                    var deletedEventImage = new DeletedEventImage()
-                    { 
-                        eventId= eventImages.eventId,
-                        eventImage = eventImages.eventImage,
-                    };
+            //        var deletedEventImage = new DeletedEventImage()
+            //        { 
+            //            eventId= eventImages.eventId,
+            //            eventImage = eventImages.eventImage,
+            //        };
 
-                    if (_deletedEventImage.Create(deletedEventImage, out errMsg) != ErrorCode.Success)
-                    {
-                        return ErrorCode.Error;
-                    }
-                }
-            }
+            //        if (_deletedEventImage.Create(deletedEventImage, out errMsg) != ErrorCode.Success)
+            //        {
+            //            return ErrorCode.Error;
+            //        }
+            //    }
+            //}
 
-            if (userDonated != null)
-            {
-                foreach (var donated in userDonated)
-                {
-                    var deletedUserDonated = new DeletedUserDonated()
-                    {
-                        referenceNum = donated.referenceNum,
-                        eventId = donated.eventId,
-                        userId = donated.userId,
-                        amount = donated.amount,
-                        Status = donated.Status,
-                        donatedAt = donated.donatedAt,
-                    };
+            //if (userDonated != null)
+            //{
+            //    foreach (var donated in userDonated)
+            //    {
+            //        var deletedUserDonated = new DeletedUserDonated()
+            //        {
+            //            referenceNum = donated.referenceNum,
+            //            eventId = donated.eventId,
+            //            userId = donated.userId,
+            //            amount = donated.amount,
+            //            Status = donated.Status,
+            //            donatedAt = donated.donatedAt,
+            //        };
 
-                    if (_deletedUserDonated.Create(deletedUserDonated, out errMsg) != ErrorCode.Success)
-                    {
-                        return ErrorCode.Error;
-                    }
-                }
-            }
+            //        if (_deletedUserDonated.Create(deletedUserDonated, out errMsg) != ErrorCode.Success)
+            //        {
+            //            return ErrorCode.Error;
+            //        }
+            //    }
+            //}
 
-            if (eventVolunteers != null)
-            {
-                foreach (var eventVolunteer in eventVolunteers)
-                {
-                    var result = _eventVolunteers.Delete(eventVolunteer.applyVolunteerId);
-                    if (result != ErrorCode.Success)
-                    {
-                        return ErrorCode.Error;
-                    }
-                }
-            }
+            //if (eventVolunteers != null)
+            //{
+            //    foreach (var eventVolunteer in eventVolunteers)
+            //    {
+            //        var result = _eventVolunteers.Delete(eventVolunteer.applyVolunteerId);
+            //        if (result != ErrorCode.Success)
+            //        {
+            //            return ErrorCode.Error;
+            //        }
+            //    }
+            //}
 
             var evnt = GetEventByEventId(eventId);
 
-            if (eventImage != null)
-            {
-                var deletedEvent = new DeletedEvent()
-                {
-                    userId = evnt.userId,
-                    eventTitle = evnt.eventTitle,
-                    eventDescription = evnt.eventDescription,
-                    targetAmount = evnt.targetAmount,
-                    maxVolunteer = evnt.maxVolunteer,
-                    dateStart = evnt.dateStart,
-                    dateEnd = evnt.dateEnd,
-                    location = evnt.location,
-                    eventImage = evnt.eventImage,
-                };
+            //if (eventImage != null)
+            //{
+            //    var deletedEvent = new DeletedEvent()
+            //    {
+            //        userId = evnt.userId,
+            //        eventTitle = evnt.eventTitle,
+            //        eventDescription = evnt.eventDescription,
+            //        targetAmount = evnt.targetAmount,
+            //        maxVolunteer = evnt.maxVolunteer,
+            //        dateStart = evnt.dateStart,
+            //        dateEnd = evnt.dateEnd,
+            //        location = evnt.location,
+            //        eventImage = evnt.eventImage,
+            //    };
 
-                if (_deletedEvent.Create(deletedEvent, out errMsg) != ErrorCode.Success)
-                {
-                    return ErrorCode.Error;
-                }
-            }
+            //    if (_deletedEvent.Create(deletedEvent, out errMsg) != ErrorCode.Success)
+            //    {
+            //        return ErrorCode.Error;
+            //    }
+            //}
 
-            var deleteEventResult = _orgEvents.Delete(eventId);
-            if (deleteEventResult != ErrorCode.Success)
+            evnt.status = 3;
+            //var deleteEventResult = _orgEvents.Delete(eventId);
+            //if (deleteEventResult != ErrorCode.Success)
+            //{
+            //    return ErrorCode.Error;
+            //}
+
+            if (_orgEvents.Update(evnt.eventId, evnt, out errMsg) != ErrorCode.Success)
             {
                 return ErrorCode.Error;
             }
@@ -1437,6 +1443,46 @@ namespace Tabang_Hub.Repository
             {
                 return null; // Handle exceptions gracefully
             }
+        }
+
+        public ErrorCode CreateDonation(DonationEvent donation, List<String> images, ref string errMsg) 
+        {
+            donation.status = 1;
+
+            if (donation != null)
+            {
+                if (images != null)
+                {
+                    if (_donationEvent.Create(donation, out errMsg) != ErrorCode.Success)
+                    {
+                        return ErrorCode.Error;
+                    }
+
+                    foreach (var image in images)
+                    {
+                        var dntnImage = new DonationImage
+                        {
+                            donationEventId = donation.donationEventId,
+                            imagePath = image,
+                        };
+
+                        if (_donationImage.Create(dntnImage, out errMsg) != ErrorCode.Success)
+                        {
+                            return ErrorCode.Error;
+                        }
+                    };
+                }
+                else
+                {
+                    errMsg = "Please Select Image!";
+                }
+            }
+            else 
+            {
+                errMsg = "Please fill in the form!";
+            }
+
+            return ErrorCode.Success;
         }
     }
 }

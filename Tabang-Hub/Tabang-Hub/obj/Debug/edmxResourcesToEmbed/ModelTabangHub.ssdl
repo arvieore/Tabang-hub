@@ -1,56 +1,42 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Schema Namespace="TabangHubModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
-  <!--Errors Found During Generation:
-warning 6002: The table/view 'TabangHub.dbo.DeletedEvent' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
-  <EntityType Name="DeletedEvent">
+  <EntityType Name="Donated">
     <Key>
-      <PropertyRef Name="deletedEventId" />
+      <PropertyRef Name="donateId" />
     </Key>
-    <Property Name="deletedEventId" Type="int" Nullable="false" />
+    <Property Name="donateId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="donationEventId" Type="int" />
     <Property Name="userId" Type="int" />
-    <Property Name="eventTitle" Type="nvarchar" MaxLength="255" />
-    <Property Name="eventDescription" Type="text" />
-    <Property Name="targetAmount" Type="decimal" Precision="10" Scale="2" />
-    <Property Name="maxVolunteer" Type="int" />
+    <Property Name="donationType" Type="int" />
+    <Property Name="donationQuantity" Type="decimal" Precision="10" Scale="2" />
+  </EntityType>
+  <EntityType Name="DonationEvent">
+    <Key>
+      <PropertyRef Name="donationEventId" />
+    </Key>
+    <Property Name="donationEventId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="userId" Type="int" />
+    <Property Name="donationEventName" Type="nvarchar" MaxLength="255" />
+    <Property Name="donationDescription" Type="text" />
     <Property Name="dateStart" Type="datetime" />
     <Property Name="dateEnd" Type="datetime" />
     <Property Name="location" Type="nvarchar" MaxLength="255" />
-    <Property Name="eventImage" Type="nvarchar" MaxLength="255" />
+    <Property Name="status" Type="int" />
   </EntityType>
-  <!--Errors Found During Generation:
-warning 6002: The table/view 'TabangHub.dbo.DeletedEventImage' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
-  <EntityType Name="DeletedEventImage">
+  <EntityType Name="DonationImage">
     <Key>
-      <PropertyRef Name="deletedEventImageId" />
+      <PropertyRef Name="donationImageId" />
     </Key>
-    <Property Name="deletedEventImageId" Type="int" Nullable="false" />
-    <Property Name="eventId" Type="int" />
-    <Property Name="eventImage" Type="nvarchar" MaxLength="255" />
+    <Property Name="donationImageId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="donationEventId" Type="int" />
+    <Property Name="imagePath" Type="nvarchar" MaxLength="255" />
   </EntityType>
-  <!--Errors Found During Generation:
-warning 6002: The table/view 'TabangHub.dbo.DeletedOrgSkillRequirement' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
-  <EntityType Name="DeletedOrgSkillRequirement">
+  <EntityType Name="DonationType">
     <Key>
-      <PropertyRef Name="deletedSkillRequirementId" />
+      <PropertyRef Name="donationTypeId" />
     </Key>
-    <Property Name="deletedSkillRequirementId" Type="int" Nullable="false" />
-    <Property Name="eventId" Type="int" />
-    <Property Name="skillId" Type="int" />
-    <Property Name="totalNeeded" Type="int" />
-  </EntityType>
-  <!--Errors Found During Generation:
-warning 6002: The table/view 'TabangHub.dbo.DeletedUserDonated' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
-  <EntityType Name="DeletedUserDonated">
-    <Key>
-      <PropertyRef Name="deletedOrgUserDonatedId" />
-    </Key>
-    <Property Name="deletedOrgUserDonatedId" Type="int" Nullable="false" />
-    <Property Name="referenceNum" Type="nvarchar" MaxLength="255" />
-    <Property Name="eventId" Type="int" />
-    <Property Name="userId" Type="int" />
-    <Property Name="amount" Type="decimal" Precision="10" Scale="2" />
-    <Property Name="Status" Type="int" />
-    <Property Name="donatedAt" Type="datetime" />
+    <Property Name="donationTypeId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="donationTypeName" Type="nvarchar" MaxLength="255" />
   </EntityType>
   <EntityType Name="Feedback">
     <Key>
@@ -396,6 +382,30 @@ warning 6002: The table/view 'TabangHub.dbo.vw_VolunteerSkills' does not have a 
     <Property Name="skillId" Type="int" />
     <Property Name="rate" Type="int" Nullable="false" />
   </EntityType>
+  <Association Name="FK_Donated_DonationEvent">
+    <End Role="DonationEvent" Type="Self.DonationEvent" Multiplicity="0..1" />
+    <End Role="Donated" Type="Self.Donated" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="DonationEvent">
+        <PropertyRef Name="donationEventId" />
+      </Principal>
+      <Dependent Role="Donated">
+        <PropertyRef Name="donationEventId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Donated_UserAccount">
+    <End Role="UserAccount" Type="Self.UserAccount" Multiplicity="0..1" />
+    <End Role="Donated" Type="Self.Donated" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="UserAccount">
+        <PropertyRef Name="userId" />
+      </Principal>
+      <Dependent Role="Donated">
+        <PropertyRef Name="userId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
   <Association Name="FK_Feedback_OrgEvents">
     <End Role="OrgEvents" Type="Self.OrgEvents" Multiplicity="0..1" />
     <End Role="Feedback" Type="Self.Feedback" Multiplicity="*" />
@@ -576,6 +586,18 @@ warning 6002: The table/view 'TabangHub.dbo.vw_VolunteerSkills' does not have a 
       </Dependent>
     </ReferentialConstraint>
   </Association>
+  <Association Name="FK_UserDonated_OrgEvents">
+    <End Role="OrgEvents" Type="Self.OrgEvents" Multiplicity="0..1" />
+    <End Role="UserDonated" Type="Self.UserDonated" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="OrgEvents">
+        <PropertyRef Name="eventId" />
+      </Principal>
+      <Dependent Role="UserDonated">
+        <PropertyRef Name="eventId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
   <Association Name="FK_UserDonated_UserAccount">
     <End Role="UserAccount" Type="Self.UserAccount" Multiplicity="0..1" />
     <End Role="UserDonated" Type="Self.UserDonated" Multiplicity="*" />
@@ -708,6 +730,10 @@ warning 6002: The table/view 'TabangHub.dbo.vw_VolunteerSkills' does not have a 
     <Parameter Name="userId" Type="int" Mode="In" />
   </Function>
   <EntityContainer Name="TabangHubModelStoreContainer">
+    <EntitySet Name="Donated" EntityType="Self.Donated" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="DonationEvent" EntityType="Self.DonationEvent" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="DonationImage" EntityType="Self.DonationImage" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="DonationType" EntityType="Self.DonationType" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="Feedback" EntityType="Self.Feedback" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="GroupChat" EntityType="Self.GroupChat" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="GroupMessages" EntityType="Self.GroupMessages" Schema="dbo" store:Type="Tables" />
@@ -729,46 +755,6 @@ warning 6002: The table/view 'TabangHub.dbo.vw_VolunteerSkills' does not have a 
     <EntitySet Name="Volunteers" EntityType="Self.Volunteers" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="VolunteersHistory" EntityType="Self.VolunteersHistory" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="VolunteerSkill" EntityType="Self.VolunteerSkill" Schema="dbo" store:Type="Tables" />
-    <EntitySet Name="DeletedEvent" EntityType="Self.DeletedEvent" store:Type="Tables" store:Schema="dbo">
-      <DefiningQuery>SELECT 
-[DeletedEvent].[deletedEventId] AS [deletedEventId], 
-[DeletedEvent].[userId] AS [userId], 
-[DeletedEvent].[eventTitle] AS [eventTitle], 
-[DeletedEvent].[eventDescription] AS [eventDescription], 
-[DeletedEvent].[targetAmount] AS [targetAmount], 
-[DeletedEvent].[maxVolunteer] AS [maxVolunteer], 
-[DeletedEvent].[dateStart] AS [dateStart], 
-[DeletedEvent].[dateEnd] AS [dateEnd], 
-[DeletedEvent].[location] AS [location], 
-[DeletedEvent].[eventImage] AS [eventImage]
-FROM [dbo].[DeletedEvent] AS [DeletedEvent]</DefiningQuery>
-    </EntitySet>
-    <EntitySet Name="DeletedEventImage" EntityType="Self.DeletedEventImage" store:Type="Tables" store:Schema="dbo">
-      <DefiningQuery>SELECT 
-[DeletedEventImage].[deletedEventImageId] AS [deletedEventImageId], 
-[DeletedEventImage].[eventId] AS [eventId], 
-[DeletedEventImage].[eventImage] AS [eventImage]
-FROM [dbo].[DeletedEventImage] AS [DeletedEventImage]</DefiningQuery>
-    </EntitySet>
-    <EntitySet Name="DeletedOrgSkillRequirement" EntityType="Self.DeletedOrgSkillRequirement" store:Type="Tables" store:Schema="dbo">
-      <DefiningQuery>SELECT 
-[DeletedOrgSkillRequirement].[deletedSkillRequirementId] AS [deletedSkillRequirementId], 
-[DeletedOrgSkillRequirement].[eventId] AS [eventId], 
-[DeletedOrgSkillRequirement].[skillId] AS [skillId], 
-[DeletedOrgSkillRequirement].[totalNeeded] AS [totalNeeded]
-FROM [dbo].[DeletedOrgSkillRequirement] AS [DeletedOrgSkillRequirement]</DefiningQuery>
-    </EntitySet>
-    <EntitySet Name="DeletedUserDonated" EntityType="Self.DeletedUserDonated" store:Type="Tables" store:Schema="dbo">
-      <DefiningQuery>SELECT 
-[DeletedUserDonated].[deletedOrgUserDonatedId] AS [deletedOrgUserDonatedId], 
-[DeletedUserDonated].[referenceNum] AS [referenceNum], 
-[DeletedUserDonated].[eventId] AS [eventId], 
-[DeletedUserDonated].[userId] AS [userId], 
-[DeletedUserDonated].[amount] AS [amount], 
-[DeletedUserDonated].[Status] AS [Status], 
-[DeletedUserDonated].[donatedAt] AS [donatedAt]
-FROM [dbo].[DeletedUserDonated] AS [DeletedUserDonated]</DefiningQuery>
-    </EntitySet>
     <EntitySet Name="vw_AllVolunteers" EntityType="Self.vw_AllVolunteers" store:Type="Views" store:Schema="dbo">
       <DefiningQuery>SELECT 
 [vw_AllVolunteers].[userId] AS [userId], 
@@ -857,6 +843,14 @@ FROM [dbo].[vw_VolunteerAccounts] AS [vw_VolunteerAccounts]</DefiningQuery>
 [vw_VolunteerSkills].[rate] AS [rate]
 FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
     </EntitySet>
+    <AssociationSet Name="FK_Donated_DonationEvent" Association="Self.FK_Donated_DonationEvent">
+      <End Role="DonationEvent" EntitySet="DonationEvent" />
+      <End Role="Donated" EntitySet="Donated" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Donated_UserAccount" Association="Self.FK_Donated_UserAccount">
+      <End Role="UserAccount" EntitySet="UserAccount" />
+      <End Role="Donated" EntitySet="Donated" />
+    </AssociationSet>
     <AssociationSet Name="FK_Feedback_OrgEvents" Association="Self.FK_Feedback_OrgEvents">
       <End Role="OrgEvents" EntitySet="OrgEvents" />
       <End Role="Feedback" EntitySet="Feedback" />
@@ -916,6 +910,10 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
     <AssociationSet Name="FK_Skills_UserAccount" Association="Self.FK_Skills_UserAccount">
       <End Role="Skills" EntitySet="Skills" />
       <End Role="VolunteerSkill" EntitySet="VolunteerSkill" />
+    </AssociationSet>
+    <AssociationSet Name="FK_UserDonated_OrgEvents" Association="Self.FK_UserDonated_OrgEvents">
+      <End Role="OrgEvents" EntitySet="OrgEvents" />
+      <End Role="UserDonated" EntitySet="UserDonated" />
     </AssociationSet>
     <AssociationSet Name="FK_UserDonated_UserAccount" Association="Self.FK_UserDonated_UserAccount">
       <End Role="UserAccount" EntitySet="UserAccount" />

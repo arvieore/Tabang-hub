@@ -28,6 +28,10 @@ namespace Tabang_Hub
             throw new UnintentionalCodeFirstException();
         }
     
+        public DbSet<Donated> Donated { get; set; }
+        public DbSet<DonationEvent> DonationEvent { get; set; }
+        public DbSet<DonationImage> DonationImage { get; set; }
+        public DbSet<DonationType> DonationType { get; set; }
         public DbSet<Feedback> Feedback { get; set; }
         public DbSet<GroupChat> GroupChat { get; set; }
         public DbSet<GroupMessages> GroupMessages { get; set; }
@@ -56,10 +60,6 @@ namespace Tabang_Hub
         public DbSet<vw_UserRoles> vw_UserRoles { get; set; }
         public DbSet<vw_VolunteerAccounts> vw_VolunteerAccounts { get; set; }
         public DbSet<vw_VolunteerSkills> vw_VolunteerSkills { get; set; }
-        public DbSet<DeletedEvent> DeletedEvent { get; set; }
-        public DbSet<DeletedEventImage> DeletedEventImage { get; set; }
-        public DbSet<DeletedOrgSkillRequirement> DeletedOrgSkillRequirement { get; set; }
-        public DbSet<DeletedUserDonated> DeletedUserDonated { get; set; }
     
         public virtual int sp_CancelRequest(Nullable<int> eventId, Nullable<int> userId)
         {

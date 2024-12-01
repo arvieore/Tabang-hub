@@ -451,6 +451,11 @@ namespace Tabang_Hub.Controllers
                 return RedirectToAction("../Page/Index"); //Error
             }
         }
+
+        public ActionResult DonationEventDetails(int donatioEventId)
+        {
+            return View();
+        }
         [HttpPost]
         public JsonResult AcceptInvite(int eventId/*, string skill*/)
         {

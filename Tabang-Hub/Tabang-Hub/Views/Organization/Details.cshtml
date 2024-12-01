@@ -1034,48 +1034,49 @@
                                                     var ratingsHtml = new System.Text.StringBuilder();
                                                     var userSkills = Model.volunteersSkills.Where(s => s.userId == volunteer.userId).ToList();
 
+                                                    // List to hold all ratings for calculating the volunteer's overall average rating
+                                                    List<double> allRatings = new List<double>();
+
                                                     foreach (var skill in userSkills)
                                                     {
                                                         foreach (var req in Model.eventDetails.OrgSkillRequirement)
                                                         {
                                                             if (skill.skillId == req.skillId)
                                                             {
-                                                                // Calculate average rating for the skill
-                                                                List<int> avgRate = new List<int>();
-                                                                foreach (var rate in Model.listOfRatings)
-                                                                {
-                                                                    if (skill.userId == rate.userId && skill.skillId == rate.skillId)
-                                                                    {
-                                                                        avgRate.Add((int)rate.rate);
-                                                                    }
-                                                                }
+                                                                // Collect ratings for this skill
+                                                                var skillRatings = Model.listOfRatings
+                                                                    .Where(rate => rate.userId == skill.userId)
+                                                                    .Select(rate => (double)rate.rate)
+                                                                    .ToList();
 
-                                                                double averageRating = avgRate.Any() ? avgRate.Average() : 0;
-                                                                int fullStars = (int)averageRating;
-                                                                int halfStars = averageRating % 1 >= 0.5 ? 1 : 0;
+                                                                allRatings.AddRange(skillRatings);
 
-                                                                // Build star icons for the skill rating
-                                                                var starRatingHtml = new System.Text.StringBuilder();
-                                                                for (int i = 0; i < fullStars; i++)
-                                                                {
-                                                                    starRatingHtml.Append("<i class='bi bi-star-fill' style='color: gold;'></i>");
-                                                                }
-                                                                if (halfStars > 0)
-                                                                {
-                                                                    starRatingHtml.Append("<i class='bi bi-star-half' style='color: gold;'></i>");
-                                                                }
-                                                                for (int i = 0; i < 5 - (fullStars + halfStars); i++)
-                                                                {
-                                                                    starRatingHtml.Append("<i class='bi bi-star' style='color: gold;'></i>");
-                                                                }
-
-                                                                // Append the skill name and rating separately
+                                                                // Append the skill name
                                                                 skillsHtml.Append($"<div>{skill.Skills.skillName}</div>");
-                                                                ratingsHtml.Append($"<div>{starRatingHtml.ToString()}</div>");
                                                             }
                                                         }
                                                     }
 
+                                                    // Calculate the average rating across all collected ratings
+                                                    double averageRating = allRatings.Any() ? allRatings.Average() : 0;
+                                                    int fullStars = (int)averageRating;
+                                                    int halfStars = averageRating % 1 >= 0.5 ? 1 : 0;
+
+                                                    // Build star icons for the overall average rating
+                                                    for (int i = 0; i < fullStars; i++)
+                                                    {
+                                                        ratingsHtml.Append("<i class='bi bi-star-fill' style='color: gold;'></i>");
+                                                    }
+                                                    if (halfStars > 0)
+                                                    {
+                                                        ratingsHtml.Append("<i class='bi bi-star-half' style='color: gold;'></i>");
+                                                    }
+                                                    for (int i = 0; i < 5 - (fullStars + halfStars); i++)
+                                                    {
+                                                        ratingsHtml.Append("<i class='bi bi-star' style='color: gold;'></i>");
+                                                    }
+
+                                                    // Render the table row with volunteer details, matched skills, and their rating
                                                     <tr>
                                                         <td>
                                                             <img src="@Url.Content("~/Content/images/organization.png")" class="profile-img" alt="Volunteer Image" style="width: 50px; height: 50px; border-radius: 50%;">
@@ -1130,12 +1131,15 @@
                                             {
                                                 if (volunteer.Status == 1 && !processedUsers3.Contains((int)volunteer.userId))
                                                 {
-                                                    processedUsers.Add((int)volunteer.userId); // Mark the user as processed
+                                                    processedUsers3.Add((int)volunteer.userId); // Mark the user as processed
 
                                                     // Prepare separate strings for skills and ratings
                                                     var skillsHtml = new System.Text.StringBuilder();
                                                     var ratingsHtml = new System.Text.StringBuilder();
                                                     var userSkills = Model.volunteersSkills.Where(s => s.userId == volunteer.userId).ToList();
+
+                                                    // List to hold all ratings for calculating the volunteer's overall average rating
+                                                    List<int> allRatings = new List<int>();
 
                                                     foreach (var skill in userSkills)
                                                     {
@@ -1143,42 +1147,40 @@
                                                         {
                                                             if (skill.skillId == req.skillId)
                                                             {
-                                                                // Calculate average rating for the skill
-                                                                List<int> avgRate = new List<int>();
-                                                                foreach (var rate in Model.listOfRatings)
-                                                                {
-                                                                    if (skill.userId == rate.userId && skill.skillId == rate.skillId)
-                                                                    {
-                                                                        avgRate.Add((int)rate.rate);
-                                                                    }
-                                                                }
+                                                                // Collect ratings for this skill
+                                                                var skillRatings = Model.listOfRatings
+                                                                    .Where(rate => rate.userId == skill.userId && rate.skillId == skill.skillId)
+                                                                    .Select(rate => (int)rate.rate)
+                                                                    .ToList();
 
-                                                                double averageRating = avgRate.Any() ? avgRate.Average() : 0;
-                                                                int fullStars = (int)averageRating;
-                                                                int halfStars = averageRating % 1 >= 0.5 ? 1 : 0;
+                                                                allRatings.AddRange(skillRatings);
 
-                                                                // Build star icons for the skill rating
-                                                                var starRatingHtml = new System.Text.StringBuilder();
-                                                                for (int i = 0; i < fullStars; i++)
-                                                                {
-                                                                    starRatingHtml.Append("<i class='bi bi-star-fill' style='color: gold;'></i>");
-                                                                }
-                                                                if (halfStars > 0)
-                                                                {
-                                                                    starRatingHtml.Append("<i class='bi bi-star-half' style='color: gold;'></i>");
-                                                                }
-                                                                for (int i = 0; i < 5 - (fullStars + halfStars); i++)
-                                                                {
-                                                                    starRatingHtml.Append("<i class='bi bi-star' style='color: gold;'></i>");
-                                                                }
-
-                                                                // Append the skill name and rating separately
+                                                                // Append the skill name
                                                                 skillsHtml.Append($"<div>{skill.Skills.skillName}</div>");
-                                                                ratingsHtml.Append($"<div>{starRatingHtml.ToString()}</div>");
                                                             }
                                                         }
                                                     }
 
+                                                    // Calculate the average rating across all collected ratings
+                                                    double averageRating = allRatings.Any() ? allRatings.Average() : 0;
+                                                    int fullStars = (int)averageRating;
+                                                    int halfStars = averageRating % 1 >= 0.5 ? 1 : 0;
+
+                                                    // Build star icons for the overall average rating
+                                                    for (int i = 0; i < fullStars; i++)
+                                                    {
+                                                        ratingsHtml.Append("<i class='bi bi-star-fill' style='color: gold;'></i>");
+                                                    }
+                                                    if (halfStars > 0)
+                                                    {
+                                                        ratingsHtml.Append("<i class='bi bi-star-half' style='color: gold;'></i>");
+                                                    }
+                                                    for (int i = 0; i < 5 - (fullStars + halfStars); i++)
+                                                    {
+                                                        ratingsHtml.Append("<i class='bi bi-star' style='color: gold;'></i>");
+                                                    }
+
+                                                    // Render the table row with volunteer details, matched skills, and their rating
                                                     <tr>
                                                         <td>
                                                             <img src="@Url.Content("~/Content/images/organization.png")" class="profile-img" alt="Volunteer Image" style="width: 50px; height: 50px; border-radius: 50%;">

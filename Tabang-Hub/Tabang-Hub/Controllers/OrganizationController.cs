@@ -154,6 +154,7 @@ namespace Tabang_Hub.Controllers
             var listOfSkill = _organizationManager.ListOfSkills();
             var listofUserDonated = _organizationManager.ListOfUserDonated(UserId);
             var orgInfo = _organizationManager.GetOrgInfoByUserId(UserId);
+            var donationList = _organizationManager.GetListOfDonationEventByUserId(UserId);
             //var profile = _organizationManager.GetProfileByProfileId(orgInfo.profileId);
 
             var indexModel = new Lists()
@@ -162,6 +163,7 @@ namespace Tabang_Hub.Controllers
                 listOfSkills = listOfSkill,
                 listofUserDonated = listofUserDonated,
                 OrgInfo = orgInfo,
+                listOfDonationEvent = donationList,
                 //profilePic = profile,
             };
 
@@ -262,6 +264,69 @@ namespace Tabang_Hub.Controllers
 
             TempData["Success"] = true;
             return RedirectToAction("EventsList");
+        }
+        [HttpPost]
+        public JsonResult CreateDonation(DonationEvent donation, HttpPostedFileBase[] donationImage)
+        {
+            try
+            {
+                // Validate the donation details
+                if (string.IsNullOrEmpty(donation.donationEventName))
+                {
+                    return Json(new { success = false, message = "Donation name is required." });
+                }
+
+                if (donation.dateStart < DateTime.Now)
+                {
+                    return Json(new { success = false, message = "Start date must be in the future." });
+                }
+
+                if (donation.dateEnd <= donation.dateStart)
+                {
+                    return Json(new { success = false, message = "End date must be after start date." });
+                }
+
+                if (string.IsNullOrEmpty(donation.location))
+                {
+                    return Json(new { success = false, message = "Location is required." });
+                }
+
+                if (donationImage == null || donationImage.Length == 0)
+                {
+                    return Json(new { success = false, message = "At least one image is required." });
+                }
+
+                List<string> uploadedFiles = new List<string>();
+
+                // Image processing
+                if (donationImage != null && donationImage.Length > 0)
+                {
+                    var imagePath = Server.MapPath("~/Content/Events");
+                    Directory.CreateDirectory(imagePath); // Create directory if it doesn't exist
+
+                    foreach (var image in donationImage)
+                    {
+                        if (image != null && image.ContentLength > 0)
+                        {
+                            var fileName = Path.GetFileName(image.FileName);
+                            var filePath = Path.Combine(imagePath, fileName);
+                            image.SaveAs(filePath);
+                            uploadedFiles.Add(fileName);
+                        }
+                    }
+                }
+
+                if (_organizationManager.CreateDonation(donation, uploadedFiles, ref ErrorMessage) != ErrorCode.Success)
+                {
+                    return Json(new { success = false, message = ErrorMessage });
+                }
+
+                return Json(new { success = true, message = "Donation created successfully!" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"An error occurred: {ex.Message}" });
+            }
         }
         [Authorize]
         public async Task<ActionResult> Details(int id)
@@ -1169,8 +1234,109 @@ namespace Tabang_Hub.Controllers
             var recentEvents = _organizationManager.GetRecentOngoingEventsByUserId(UserId);
             var totalSkills = _organizationManager.GetAllVolunteerSkills(UserId);
             var userDonated = _organizationManager.GetRecentUserDonationsByUserId(UserId);
+            var eventHistory = _organizationManager.GetEventHistoryByUserId(UserId);
+            var listOfvlntr = new List<Volunteers>();
 
-            var indexModdel = new Lists()
+            // Dictionary to accumulate volunteer participation stats
+            var volunteerStats = new Dictionary<int, TopVolunteer>();
+            var donatorStats = new Dictionary<int, TopDonators>();
+
+            foreach (var evnt in events)
+            {
+                var volunteers = _organizationManager.GetVolunteersByEventId(evnt.Event_Id);
+                var evntImg = _organizationManager.GetEventImageByEventId(evnt.Event_Id);
+                var userDntd = _organizationManager.ListOfUserDonated(evnt.Event_Id);
+                listOfvlntr.AddRange(volunteers);
+
+                foreach (var vlntr in volunteers)
+                {
+                    if (vlntr.Status != 0)
+                    {
+                        if (volunteerStats.ContainsKey((int)vlntr.userId))
+                        {
+                            // Increment participation count if volunteer exists
+                            volunteerStats[(int)vlntr.userId].TotalEventsParticipated++;
+                            volunteerStats[(int)vlntr.userId].EventIds.Add(evnt.Event_Id); // Add event ID
+                            volunteerStats[(int)vlntr.userId].EventImages.Add(evntImg.eventImage); // Add event image
+                        }
+                        else
+                        {
+                            var volName = _organizationManager.GetVolunteerInfoByUserId((int)vlntr.userId);
+                            // Add new volunteer to the dictionary
+                            volunteerStats[(int)vlntr.userId] = new TopVolunteer
+                            {
+                                VolunteerId = (int)vlntr.userId,
+                                EventIds = new List<int> { evnt.Event_Id }, // Initialize with first event ID
+                                EventImages = new List<string> { evntImg.eventImage }, // Initialize with first event image
+                                Name = volName.lName + ", " + volName.fName,
+                                TotalEventsParticipated = 1
+                            };
+                        }
+                    }
+                }
+
+                foreach (var dnt in userDntd)
+                {
+                    if (donatorStats.ContainsKey((int)dnt.userId))
+                    {
+                        donatorStats[(int)dnt.userId].totalAmountDonated += (decimal)dnt.amount;
+
+                        // Update donation for the specific event
+                        var existingEventDonation = donatorStats[(int)dnt.userId].EventDonations
+                            .FirstOrDefault(ed => ed.EventId == evnt.Event_Id);
+
+                        if (existingEventDonation != null)
+                        {
+                            existingEventDonation.AmountDonated += (decimal)dnt.amount;
+                        }
+                        else
+                        {
+                            donatorStats[(int)dnt.userId].EventDonations.Add(new EventDonation
+                            {
+                                EventId = evnt.Event_Id,
+                                EventName = evnt.Event_Name,
+                                EventImage = evntImg.eventImage,
+                                AmountDonated = (decimal)dnt.amount
+                            });
+                        }
+                    }
+                    else
+                    {
+                        var volName = _organizationManager.GetVolunteerInfoByUserId((int)dnt.userId);
+
+                        donatorStats[(int)dnt.userId] = new TopDonators
+                        {
+                            donatorsId = (int)dnt.userId,
+                            Name = volName.lName + ", " + volName.fName,
+                            totalAmountDonated = (decimal)dnt.amount,
+                            EventDonations = new List<EventDonation>
+                            {
+                                new EventDonation
+                                {
+                                    EventId = evnt.Event_Id,
+                                    EventName = evnt.Event_Name,
+                                    EventImage = evntImg.eventImage,
+                                    AmountDonated = (decimal)dnt.amount
+                                }
+                            }
+                        };
+                    }
+                }
+            }
+
+            // Get top 5 volunteers by total events participated
+            var topVolunteersList = volunteerStats.Values
+                .OrderByDescending(v => v.TotalEventsParticipated)
+                .Take(5)
+                .ToList();
+
+            // Get top 5 volunteers by total events participated
+            var topDonators = donatorStats.Values
+                .OrderByDescending(v => v.totalAmountDonated)
+                .Take(5)
+                .ToList();
+
+            var indexModel = new Lists()
             {
                 OrgInfo = orgInfo,
                 listOfEvents = events,
@@ -1179,28 +1345,16 @@ namespace Tabang_Hub.Controllers
                 eventSummary = eventSummary,
                 recentEvents = recentEvents,
                 totalSkills = totalSkills,
-                recentDonators = userDonated,
-                //profilePic = profile,
-            };
-            return View(indexModdel);
-        }
-        [Authorize]
-        public ActionResult History()
-        {
-            var orgInfo = _organizationManager.GetOrgInfoByUserId(UserId);
-            //var profile = _organizationManager.GetProfileByProfileId(orgInfo.profileId);
-            var eventHistory = _organizationManager.GetEventHistoryByUserId(UserId);
-
-
-            var indexModdel = new Lists()
-            {
-                OrgInfo = orgInfo,
-                //profilePic = profile,
                 orgEventHistory = eventHistory,
+                recentDonators = userDonated,
+                topVolunteers = topVolunteersList, // Assign the top volunteers list here
+                volunteers = listOfvlntr,
+                topDonators = topDonators,
             };
-            return View(indexModdel);
+
+            return View(indexModel);
         }
-       
+
         [HttpPost]
         public ActionResult ExportData()
         {

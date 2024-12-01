@@ -16,6 +16,7 @@ using Tabang_Hub.Repository;
 using Tabang_Hub.Utils;
 using System.Collections.ObjectModel;
 using System.Data.Entity;
+using static Tabang_Hub.Utils.Lists;
 
 namespace Tabang_Hub.Controllers
 {
@@ -41,6 +42,23 @@ namespace Tabang_Hub.Controllers
                         _volunteerManager.CheckVolunteerEventEndByUserId(UserId);
                         var getVolunteers = _volunteers.GetAll().ToList();
                         var orgEventsSelectId = _orgEvents.GetAll().Where(m => m.dateEnd >= DateTime.Now).Select(m => m.eventId).ToList();
+
+                        var donationEvents = _userManager.ListOfOngoinDonationEvent();
+                        var donationList = new List<Donation>();
+
+                        foreach (var donationEvent in donationEvents)
+                        {
+                            var donationImages = _userManager.GetDonationEventImageByEventId(donationEvent.donationEventId);
+                            foreach (var donationImage in donationImages)
+                            {
+                                donationList.Add(new Donation
+                                {
+                                    Event = new List<DonationEvent> { donationEvent },
+                                    Image = donationImages
+                                });
+                            }
+                        }
+
 
                         if (getProfile.Count() <= 0)
                         {
@@ -88,7 +106,8 @@ namespace Tabang_Hub.Controllers
                                 orgInfos = getOrgInfo,
                                 listofUserDonated = getUserDonated,
                                 detailsEventImage = _eventImages.GetAll().ToList(),
-                                listOfEventsSection = db.vw_ListOfEvent.Where(m => m.End_Date >= DateTime.Now).ToList()
+                                listOfEventsSection = db.vw_ListOfEvent.Where(m => m.End_Date >= DateTime.Now).ToList(),
+                                ListOfDonationEvents = donationList,
                             };
                             return View(indexModel);
                         }
