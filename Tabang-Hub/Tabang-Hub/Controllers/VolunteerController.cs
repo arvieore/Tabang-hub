@@ -451,15 +451,17 @@ namespace Tabang_Hub.Controllers
                 return RedirectToAction("../Page/Index"); //Error
             }
         }
-
+        [Authorize]
         public async Task<ActionResult> DonationEventDetails(int donatioEventId)
         {
             try
             {
                 var getVolInfo = db.VolunteerInfo.Where(m => m.userId == UserId).ToList();
+                var getVolInfos = db.VolunteerInfo.Where(m => m.userId == UserId).FirstOrDefault();
                 var getProfile = db.ProfilePicture.Where(m => m.userId == UserId).ToList();
                 var getOrgInfo = db.DonationEvent.Where(m => m.donationEventId == donatioEventId).FirstOrDefault();
                 var getInfo = _orgInfo.GetAll().Where(m => m.userId == getOrgInfo.userId).ToList();
+                var myDonations = _volunteerManager.MyDonation(UserId, donatioEventId);
 
                 var checkEventID = db.DonationEvent.Where(m => m.donationEventId == donatioEventId).FirstOrDefault();
                 if (checkEventID == null)
@@ -477,8 +479,11 @@ namespace Tabang_Hub.Controllers
 
                 var indexModel = new Lists()
                 {
+                    MyDonations = myDonations,
                     volunteersInfo = getVolInfo,
+                    volunteerInfo = getVolInfos,
                     picture = getProfile,
+                    donationEvent = db.DonationEvent.Where(m => m.donationEventId == donatioEventId && m.status == 1).FirstOrDefault(),
                     donationEvents = db.DonationEvent.Where(m => m.donationEventId == donatioEventId && m.status == 1).ToList(),
                     donationImages = db.DonationImage.Where(m => m.donationEventId == donatioEventId).ToList(),
                     listOfEventsOne = _listsOfEvent.GetAll().Where(m => m.status != 3).ToList(),
@@ -496,6 +501,31 @@ namespace Tabang_Hub.Controllers
             {
 
                 return RedirectToAction("../Page/Index");
+            }
+        }
+        [HttpPost]
+        public ActionResult SubmitDonation(List<Donated> donated)
+        {
+            try
+            {
+                if (donated == null || !donated.Any())
+                {
+                    return Json(new { success = false, message = "No donations provided." });
+                }
+
+                foreach (var donatedItems in donated)
+                {
+                    if (_volunteerManager.SubmitDonation(donatedItems, ref ErrorMessage) != ErrorCode.Success)
+                    {
+                        return Json(new { success = false, message = "No donations provided." });
+                    }
+                }
+
+                return Json(new { success = true, message = "Donations submitted successfully." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "An error occurred while processing donations.", error = ex.Message });
             }
         }
         [HttpPost]

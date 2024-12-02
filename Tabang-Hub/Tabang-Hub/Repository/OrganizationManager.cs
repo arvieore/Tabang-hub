@@ -39,6 +39,7 @@ namespace Tabang_Hub.Repository
         private BaseRepository<Feedback> _feedback;
         private BaseRepository<DonationEvent> _donationEvent;
         private BaseRepository<DonationImage> _donationImage;
+        private BaseRepository<Donated> _donated;
         public OrganizationManager()
         {
             db = new TabangHubEntities();
@@ -65,6 +66,7 @@ namespace Tabang_Hub.Repository
             _feedback = new BaseRepository<Feedback>();
             _donationEvent = new BaseRepository<DonationEvent>();
             _donationImage = new BaseRepository<DonationImage>();
+            _donated = new BaseRepository<Donated>();
         }
 
         public ErrorCode CreateEvents(OrgEvents orgEvents, List<string> imageFileNames, List<string> skills, ref string errMsg)
@@ -122,7 +124,34 @@ namespace Tabang_Hub.Repository
             }
             return ErrorCode.Success;
         }
+        public DonationEvent GetDonationEventByDonationEventId(int donationEventId)
+        {
+            return _donationEvent._table.Where(m => m.donationEventId == donationEventId).FirstOrDefault();
+        }
+        public List<DonationImage> GetDonationEventImageByDonationEventId(int donationEventId)
+        {
+            return _donationImage._table.Where(m => m.donationEventId == donationEventId).ToList();
+        }
+        public List<Donated> ListOfDonatedByDonationEventId(int donationEventId)
+        {
+            return _donated._table.Where(m => m.donationEventId == donationEventId).ToList();
+        }
+        public Donated GetDonateByDonateId(int donateId)
+        {
+            return _donated._table.Where(m => m.donateId == donateId).FirstOrDefault();
+        }
+        public ErrorCode MarkAsReceived(int donateId, ref string errMsg)
+        {
+            var donate = GetDonateByDonateId(donateId);
+            donate.status = 1;
 
+            if (_donated.Update(donate.donateId, donate, out errMsg) != ErrorCode.Success)
+            {
+                return ErrorCode.Error;
+            }
+
+            return ErrorCode.Success;
+        }
 
         public ErrorCode EditOrgInfo(OrgInfo orgInformation, int id, ref string errMsg)
         {

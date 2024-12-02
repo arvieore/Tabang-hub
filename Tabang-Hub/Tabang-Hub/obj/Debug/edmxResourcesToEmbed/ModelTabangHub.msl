@@ -129,7 +129,9 @@
     <EntitySetMapping Name="Donated">
       <EntityTypeMapping TypeName="TabangHubModel.Donated">
         <MappingFragment StoreEntitySet="Donated">
+          <ScalarProperty Name="status" ColumnName="status" />
           <ScalarProperty Name="donationQuantity" ColumnName="donationQuantity" />
+          <ScalarProperty Name="donationUnit" ColumnName="donationUnit" />
           <ScalarProperty Name="donationType" ColumnName="donationType" />
           <ScalarProperty Name="userId" ColumnName="userId" />
           <ScalarProperty Name="donationEventId" ColumnName="donationEventId" />

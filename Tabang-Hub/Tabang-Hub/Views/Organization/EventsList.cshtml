@@ -219,7 +219,7 @@
                                         {
                                             foreach (var donation in Model.listOfDonationEvent)
                                             {
-                                                <tr>
+                                                <tr style="cursor: pointer;" onclick="window.location.href='@Url.Action("DonationDetails", "Organization", new { donationEventId = donation.donationEventId })'">
                                                     <td class="text-truncate" style="max-width: 150px;" title="@donation.donationEventName">@donation.donationEventName</td>
                                                     <td>@(donation.dateStart.HasValue ? donation.dateStart.Value.ToString("MMMM dd, yyyy - h:mm tt") : "N/A")</td>
                                                     <td>@(donation.dateEnd.HasValue ? donation.dateEnd.Value.ToString("MMMM dd, yyyy - h:mm tt") : "N/A")</td>

@@ -12,8 +12,10 @@
           <Property Name="donateId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="donationEventId" Type="int" />
           <Property Name="userId" Type="int" />
-          <Property Name="donationType" Type="int" />
+          <Property Name="donationType" Type="nvarchar" MaxLength="50" />
+          <Property Name="donationUnit" Type="nvarchar" MaxLength="50" />
           <Property Name="donationQuantity" Type="decimal" Precision="10" Scale="2" />
+          <Property Name="status" Type="int" />
         </EntityType>
         <EntityType Name="DonationEvent">
           <Key>
@@ -1225,8 +1227,10 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
           <Property Name="donateId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="donationEventId" Type="Int32" />
           <Property Name="userId" Type="Int32" />
-          <Property Name="donationType" Type="Int32" />
+          <Property Name="donationType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="donationUnit" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="donationQuantity" Type="Decimal" Precision="10" Scale="2" />
+          <Property Name="status" Type="Int32" />
           <NavigationProperty Name="DonationEvent" Relationship="TabangHubModel.FK_Donated_DonationEvent" FromRole="Donated" ToRole="DonationEvent" />
           <NavigationProperty Name="UserAccount" Relationship="TabangHubModel.FK_Donated_UserAccount" FromRole="Donated" ToRole="UserAccount" />
         </EntityType>
@@ -2070,7 +2074,9 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
           <EntitySetMapping Name="Donated">
             <EntityTypeMapping TypeName="TabangHubModel.Donated">
               <MappingFragment StoreEntitySet="Donated">
+                <ScalarProperty Name="status" ColumnName="status" />
                 <ScalarProperty Name="donationQuantity" ColumnName="donationQuantity" />
+                <ScalarProperty Name="donationUnit" ColumnName="donationUnit" />
                 <ScalarProperty Name="donationType" ColumnName="donationType" />
                 <ScalarProperty Name="userId" ColumnName="userId" />
                 <ScalarProperty Name="donationEventId" ColumnName="donationEventId" />

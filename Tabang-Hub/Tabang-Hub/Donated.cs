@@ -17,8 +17,10 @@ namespace Tabang_Hub
         public int donateId { get; set; }
         public Nullable<int> donationEventId { get; set; }
         public Nullable<int> userId { get; set; }
-        public Nullable<int> donationType { get; set; }
+        public string donationType { get; set; }
+        public string donationUnit { get; set; }
         public Nullable<decimal> donationQuantity { get; set; }
+        public Nullable<int> status { get; set; }
     
         public virtual DonationEvent DonationEvent { get; set; }
         public virtual UserAccount UserAccount { get; set; }

@@ -7,8 +7,10 @@
     <Property Name="donateId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
     <Property Name="donationEventId" Type="int" />
     <Property Name="userId" Type="int" />
-    <Property Name="donationType" Type="int" />
+    <Property Name="donationType" Type="nvarchar" MaxLength="50" />
+    <Property Name="donationUnit" Type="nvarchar" MaxLength="50" />
     <Property Name="donationQuantity" Type="decimal" Precision="10" Scale="2" />
+    <Property Name="status" Type="int" />
   </EntityType>
   <EntityType Name="DonationEvent">
     <Key>

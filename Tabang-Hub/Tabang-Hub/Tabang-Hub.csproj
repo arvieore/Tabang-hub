@@ -2219,6 +2219,7 @@
     <Content Include="Views\Organization\HistoryDetails.cshtml" />
     <Content Include="Views\Calendar\Calendar.cshtml" />
     <Content Include="Views\Volunteer\DonationEventDetails.cshtml" />
+    <Content Include="Views\Organization\DonationDetails.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

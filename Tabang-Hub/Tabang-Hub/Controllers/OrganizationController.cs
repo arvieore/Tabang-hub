@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using Tabang_Hub.Hubs;
 using static Tabang_Hub.Utils.Lists;
 using System.Globalization;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Tabang_Hub.Controllers
 {
@@ -439,6 +440,107 @@ namespace Tabang_Hub.Controllers
                 return View(indexModel);
             }
             return RedirectToAction("EventsList");
+        }
+        [Authorize]
+        public ActionResult DonationDetails(int donationEventId)
+        {
+            var orgInfo = _organizationManager.GetOrgInfoByUserId(UserId);
+            var donationEvent = _organizationManager.GetDonationEventByDonationEventId(donationEventId);
+            var donationImage = _organizationManager.GetDonationEventImageByDonationEventId(donationEventId);
+            var listOfDonated = _organizationManager.ListOfDonatedByDonationEventId(donationEventId);
+
+            // Group donations by userId and calculate the count of donations and status
+            var groupedDonations = listOfDonated
+                .GroupBy(d => d.userId)
+                .Select(g => new
+                {
+                    UserId = g.Key,
+                    DonationCount = g.Count(), // Count the number of donations for each donor
+                    Status = g.Any(d => d.status == 0) ? 0 : 1, // If any donation is pending, mark as pending; otherwise, successful
+                    Donations = g.ToList(),
+                }).ToList();
+
+            var donators = new List<Donators>();
+
+            foreach (var group in groupedDonations)
+            {
+                var volInfo = _organizationManager.GetVolunteerInfoByUserId((int)group.UserId);
+
+                if (volInfo != null)
+                {
+                    var donatorsToAppend = new Donators()
+                    {
+                        userId = (int)group.UserId,
+                        donationEventId = donationEventId,
+                        donorName = volInfo.lName + ", " + volInfo.fName,
+                        donationQuantity = group.DonationCount, // Use the count of donations
+                        status = group.Status,
+                    };
+
+                    donators.Add(donatorsToAppend);
+                }
+            }
+
+            var indexModel = new Lists()
+            {
+                OrgInfo = orgInfo,
+                DonationEvent = donationEvent,
+                DonationImages = donationImage,
+                donators = donators
+            };
+
+            return View(indexModel);
+        }
+
+        [HttpGet]
+        public JsonResult MyDonation(int userId, int eventId)
+        {
+            try
+            {
+                var myDonations = _volunteerManager.MyDonation(userId, eventId)
+                    .Select(d => new
+                    {
+                        donationId = d.donateId,
+                        donationEventId = d.donationEventId,
+                        donationQuantity = d.donationQuantity,
+                        donationType = d.donationType,
+                        donationUnit = d.donationUnit,
+                        status = d.status,
+                        userId = d.userId
+                    }).ToList();
+
+                return Json(new { success = true, data = myDonations }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                // Log exception for debugging
+                Console.WriteLine(ex.Message);
+                return Json(new { success = false, message = "Error fetching donations." }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        [HttpPost]
+        public JsonResult Received(int userId, int eventId)
+        {
+            try
+            {
+                var myDonations = _volunteerManager.MyDonation(userId, eventId);
+
+                foreach (var item in myDonations)
+                {
+                    if (_organizationManager.MarkAsReceived(item.donateId, ref ErrorMessage) != ErrorCode.Success)
+                    {
+                        return Json(new { success = false, message = "Failed to mark the donation as received." });
+                    }
+                }
+                return Json(new { success = true, message = "Successfully Received." });
+
+            }
+            catch (Exception ex)
+            {
+                // Log the error for debugging
+                Console.WriteLine(ex.Message);
+                return Json(new { success = false, message = "An error occurred while processing your request." });
+            }
         }
 
         [HttpPost]

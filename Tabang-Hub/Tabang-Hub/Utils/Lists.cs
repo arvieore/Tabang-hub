@@ -16,6 +16,7 @@ namespace Tabang_Hub.Utils
         public OrgValidation orgValidation { get; set; }
         public Volunteers volunteer { get; set; }
         public VolunteerInfo volunteerInfo { get; set; }
+        public DonationEvent DonationEvent { get; set; }
 
         //Tables List
         //public List<UserAccount> userAccounts { get; set; }
@@ -24,6 +25,7 @@ namespace Tabang_Hub.Utils
         //public List<Skills> skills { get; set; }
         //public List<ProfilePicture> picture { get; set; }
         public List<vw_VolunteerAccounts> volunteerAccounts { get; set; }
+        public List<DonationImage> DonationImages { get; set; }
         public List<OrgInfo> recentOrgAcc {  get; set; }
         public List<Skills> allSkill { get; set; }
         public List<UserAccount> pendingOrg {  get; set; }
@@ -33,6 +35,7 @@ namespace Tabang_Hub.Utils
         public List<OrgEventImage> detailsEventImageOne { get; set; }
         public List<OrgEventImage> detailsEventImage { get; set; }
         public List<OrgSkillRequirement> detailsSkillRequirement { get; set; }
+        public List<Donated> MyDonations { get; set; }
         public List<UserAccount> userAccounts { get; set; }
         public List<VolunteerInfo> volunteersInfo { get; set; }
         public List<VolunteerSkill> volunteersSkills { get; set; }
@@ -64,6 +67,7 @@ namespace Tabang_Hub.Utils
         public List<ProfilePicture> profilePics { get; set; }
         public List<VolunteerRatingData> volunteerRatings { get; set; }
         public List<DonationEvent> listOfDonationEvent { get; set; }
+        public List<Donated> listOfDonated { get; set; }
 
         public List<Rating> rating { get; set; }
 
@@ -98,6 +102,7 @@ namespace Tabang_Hub.Utils
         public List<Donated> donateds { get; set; }
         public List<DonationImage> donationImages { get; set; }
         public List<DonationEvent> donationEvents { get; set; }
+        public DonationEvent donationEvent { get; set; }
         public List<DonationType> donationTypes { get; set; }
 
 
@@ -151,6 +156,16 @@ namespace Tabang_Hub.Utils
         { 
             public List<DonationEvent> Event { get; set; }
             public List<DonationImage> Image { get; set; }
+        }
+
+        public List<Donators> donators { get; set; }
+        public class Donators
+        { 
+            public int userId { get; set; }
+            public int donationEventId { get; set; }
+            public string donorName { get; set; }
+            public int donationQuantity { get; set; }
+            public int status { get; set; }
         }
     }
 }

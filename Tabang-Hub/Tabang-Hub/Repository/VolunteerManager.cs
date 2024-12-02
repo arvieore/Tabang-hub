@@ -25,6 +25,7 @@ namespace Tabang_Hub.Repository
         public BaseRepository<OrgEvents> _orgEvents;
         public BaseRepository<Notification> _notification;
         public BaseRepository<VolunteerInfo> _volunteerInfo;
+        public BaseRepository<Donated> _donated;
 
         public BaseRepository<vw_ListOfEvent> _vw_listOfEvent;
 
@@ -40,6 +41,7 @@ namespace Tabang_Hub.Repository
             _orgEvents = new BaseRepository<OrgEvents>();
             _notification = new BaseRepository<Notification>();
             _volunteerInfo = new BaseRepository<VolunteerInfo>();
+            _donated = new BaseRepository<Donated>();
 
             _vw_listOfEvent = new BaseRepository<vw_ListOfEvent>();
 
@@ -56,6 +58,20 @@ namespace Tabang_Hub.Repository
                 return ErrorCode.Error;
             }
             return ErrorCode.Success;
+        }
+        public ErrorCode SubmitDonation(Donated donated, ref String errMsg)
+        {
+            donated.status = 0;
+
+            if (_donated.Create(donated, out errMsg) != ErrorCode.Success)
+            {
+                return ErrorCode.Error;
+            }
+            return ErrorCode.Success;
+        }
+        public List<Donated> MyDonation(int userId, int eventId)
+        { 
+            return _donated._table.Where(m => m.userId == userId && m.donationEventId == eventId).ToList();
         }
         public Volunteers GetVolunteerByUserId(int userId, int eventId)
         {
