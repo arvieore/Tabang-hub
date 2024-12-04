@@ -180,6 +180,9 @@
       <End Role="UserAccount" EntitySet="UserAccount" />
       <End Role="VolunteersHistory" EntitySet="VolunteersHistory" />
     </AssociationSet>
+    <FunctionImport Name="sp_GetUserDonated" ReturnType="Collection(TabangHubModel.sp_GetUserDonated_Result)">
+      <Parameter Name="userId" Mode="In" Type="Int32" />
+    </FunctionImport>
   </EntityContainer>
   <ComplexType Name="sp_GetAllMessage_Result">
     <Property Type="Int32" Name="groupChatId" Nullable="false" />
@@ -278,6 +281,8 @@
     <Property Name="status" Type="Int32" />
     <NavigationProperty Name="DonationEvent" Relationship="TabangHubModel.FK_Donated_DonationEvent" FromRole="Donated" ToRole="DonationEvent" />
     <NavigationProperty Name="UserAccount" Relationship="TabangHubModel.FK_Donated_UserAccount" FromRole="Donated" ToRole="UserAccount" />
+    <Property Name="referenceNum" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+    <Property Name="donatedAt" Type="DateTime" Precision="3" />
   </EntityType>
   <EntityType Name="DonationEvent">
     <Key>
@@ -985,4 +990,16 @@
       </Dependent>
     </ReferentialConstraint>
   </Association>
+  <ComplexType Name="sp_GetUserDonated_Result">
+    <Property Type="String" Name="donationEventId" Nullable="true" MaxLength="30" />
+    <Property Type="String" Name="eventId" Nullable="true" MaxLength="30" />
+    <Property Type="String" Name="RefNumber" Nullable="true" MaxLength="255" />
+    <Property Type="DateTime" Name="DateDonated" Nullable="true" Precision="23" />
+    <Property Type="String" Name="Type" Nullable="false" MaxLength="12" />
+    <Property Type="String" Name="AmountOrDescription" Nullable="true" MaxLength="4000" />
+    <Property Type="String" Name="EventName" Nullable="true" MaxLength="255" />
+    <Property Type="String" Name="DonationDescription" Nullable="true" />
+    <Property Type="String" Name="EventDescription" Nullable="true" />
+    <Property Type="String" Name="EventImage" Nullable="true" MaxLength="255" />
+  </ComplexType>
 </Schema>

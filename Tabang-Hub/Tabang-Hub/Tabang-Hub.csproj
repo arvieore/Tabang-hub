@@ -216,6 +216,7 @@
     <Content Include="Content\css2\Template-css\templatemo-kind-heart-charity.css" />
     <Content Include="Content\Css\Calendar.css" />
     <Content Include="Content\Css\CustomeStyle.css" />
+    <Content Include="Content\Css\donationHistory.css" />
     <Content Include="Content\Css\donationStyle.css" />
     <Content Include="Content\Css\generalskill.css" />
     <Content Include="Content\Css\generalStyle.css" />
@@ -2104,6 +2105,9 @@
       <DependentUpon>ModelTabangHub.tt</DependentUpon>
     </Compile>
     <Compile Include="sp_GetUserDonatedInformations_Result.cs">
+      <DependentUpon>ModelTabangHub.tt</DependentUpon>
+    </Compile>
+    <Compile Include="sp_GetUserDonated_Result.cs">
       <DependentUpon>ModelTabangHub.tt</DependentUpon>
     </Compile>
     <Compile Include="sp_ListOfGc_Result.cs">

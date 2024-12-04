@@ -21,6 +21,8 @@ namespace Tabang_Hub
         public string donationUnit { get; set; }
         public Nullable<decimal> donationQuantity { get; set; }
         public Nullable<int> status { get; set; }
+        public string referenceNum { get; set; }
+        public Nullable<System.DateTime> donatedAt { get; set; }
     
         public virtual DonationEvent DonationEvent { get; set; }
         public virtual UserAccount UserAccount { get; set; }

@@ -512,9 +512,15 @@ namespace Tabang_Hub.Controllers
                 {
                     return Json(new { success = false, message = "No donations provided." });
                 }
+                // Generate a single reference number for the entire transaction
+                string referenceNumber = $"REF-{DateTime.Now.Ticks}-{new Random().Next(1000, 9999)}";
+                DateTime dateTime = DateTime.Now;
 
                 foreach (var donatedItems in donated)
                 {
+                    donatedItems.referenceNum = referenceNumber;
+                    donatedItems.donatedAt = dateTime;
+
                     if (_volunteerManager.SubmitDonation(donatedItems, ref ErrorMessage) != ErrorCode.Success)
                     {
                         return Json(new { success = false, message = "No donations provided." });
@@ -1098,13 +1104,13 @@ namespace Tabang_Hub.Controllers
         public async Task<ActionResult> DonationHistory()
         {
 
-            var orgEvents = new List<OrgEvents>();
-            foreach (var ev in _userDonated.GetAll())
-            {
-                var evnt = db.OrgEvents.Where(m => m.eventId == ev.eventId);
+            //var orgEvents = new List<OrgEvents>();
+            //foreach (var ev in _userDonated.GetAll())
+            //{
+            //    var evnt = db.OrgEvents.Where(m => m.eventId == ev.eventId);
 
-                orgEvents.AddRange(evnt);
-            }
+            //    orgEvents.AddRange(evnt);
+            //}
             var getVolunteerSkills = db.VolunteerSkill.Where(m => m.userId == UserId).ToList();
             if (getVolunteerSkills.Count() != 0)
             {
@@ -1121,9 +1127,13 @@ namespace Tabang_Hub.Controllers
                 {
                     picture = db.ProfilePicture.Where(m => m.userId == UserId).ToList(),
                     volunteersInfo = db.VolunteerInfo.Where(m => m.userId == UserId).ToList(),
-                    listofUserDonated = db.UserDonated.Where(m => m.userId == UserId).ToList(),
-                    orgEvents = orgEvents,
-                    userDonatedInformations = db.sp_GetUserDonatedInformations(UserId).ToList(),
+
+                    //listofUserDonated = db.UserDonated.Where(m => m.userId == UserId).ToList(),
+                    //orgEvents = orgEvents,
+                    //userDonatedInformations = db.sp_GetUserDonatedInformations(UserId).ToList(),
+
+                    sp_GetUserDonated = db.sp_GetUserDonated(UserId).ToList(),
+
                     listOfEvents = filteredEvent.OrderByDescending(m => m.Event_Id).ToList(),
                     detailsEventImage = _eventImages.GetAll().ToList()
                 };
@@ -1136,7 +1146,7 @@ namespace Tabang_Hub.Controllers
                     picture = db.ProfilePicture.Where(m => m.userId == UserId).ToList(),
                     volunteersInfo = db.VolunteerInfo.Where(m => m.userId == UserId).ToList(),
                     listofUserDonated = db.UserDonated.Where(m => m.userId == UserId).ToList(),
-                    orgEvents = orgEvents,
+                    //orgEvents = orgEvents,
                     userDonatedInformations = db.sp_GetUserDonatedInformations(UserId).ToList(),
                     listOfEvents = db.vw_ListOfEvent.OrderByDescending(m => m.Event_Id).ToList(),
                     detailsEventImage = _eventImages.GetAll().ToList()

@@ -12,9 +12,11 @@
           <Property Name="donateId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="donationEventId" Type="int" />
           <Property Name="userId" Type="int" />
+          <Property Name="referenceNum" Type="nvarchar" MaxLength="255" />
           <Property Name="donationType" Type="nvarchar" MaxLength="50" />
           <Property Name="donationUnit" Type="nvarchar" MaxLength="50" />
           <Property Name="donationQuantity" Type="decimal" Precision="10" Scale="2" />
+          <Property Name="donatedAt" Type="datetime" />
           <Property Name="status" Type="int" />
         </EntityType>
         <EntityType Name="DonationEvent">
@@ -706,6 +708,9 @@ warning 6002: The table/view 'TabangHub.dbo.vw_VolunteerSkills' does not have a 
         <Function Name="sp_GetSkills" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="userId" Type="int" Mode="In" />
         </Function>
+        <Function Name="sp_GetUserDonated" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="userId" Type="int" Mode="In" />
+        </Function>
         <Function Name="sp_GetUserDonatedInformations" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="userId" Type="int" Mode="In" />
         </Function>
@@ -1135,6 +1140,9 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
             <End Role="UserAccount" EntitySet="UserAccount" />
             <End Role="VolunteersHistory" EntitySet="VolunteersHistory" />
           </AssociationSet>
+          <FunctionImport Name="sp_GetUserDonated" ReturnType="Collection(TabangHubModel.sp_GetUserDonated_Result)">
+            <Parameter Name="userId" Mode="In" Type="Int32" />
+          </FunctionImport>
           </EntityContainer>
         <ComplexType Name="sp_GetAllMessage_Result">
           <Property Type="Int32" Name="groupChatId" Nullable="false" />
@@ -1233,6 +1241,8 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
           <Property Name="status" Type="Int32" />
           <NavigationProperty Name="DonationEvent" Relationship="TabangHubModel.FK_Donated_DonationEvent" FromRole="Donated" ToRole="DonationEvent" />
           <NavigationProperty Name="UserAccount" Relationship="TabangHubModel.FK_Donated_UserAccount" FromRole="Donated" ToRole="UserAccount" />
+          <Property Name="referenceNum" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="donatedAt" Type="DateTime" Precision="3" />
         </EntityType>
         <EntityType Name="DonationEvent">
           <Key>
@@ -1940,6 +1950,18 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <ComplexType Name="sp_GetUserDonated_Result">
+          <Property Type="String" Name="donationEventId" Nullable="true" MaxLength="30" />
+          <Property Type="String" Name="eventId" Nullable="true" MaxLength="30" />
+          <Property Type="String" Name="RefNumber" Nullable="true" MaxLength="255" />
+          <Property Type="DateTime" Name="DateDonated" Nullable="true" Precision="23" />
+          <Property Type="String" Name="Type" Nullable="false" MaxLength="12" />
+          <Property Type="String" Name="AmountOrDescription" Nullable="true" MaxLength="4000" />
+          <Property Type="String" Name="EventName" Nullable="true" MaxLength="255" />
+          <Property Type="String" Name="DonationDescription" Nullable="true" />
+          <Property Type="String" Name="EventDescription" Nullable="true" />
+          <Property Type="String" Name="EventImage" Nullable="true" MaxLength="255" />
+        </ComplexType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -2074,6 +2096,8 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
           <EntitySetMapping Name="Donated">
             <EntityTypeMapping TypeName="TabangHubModel.Donated">
               <MappingFragment StoreEntitySet="Donated">
+                <ScalarProperty Name="donatedAt" ColumnName="donatedAt" />
+                <ScalarProperty Name="referenceNum" ColumnName="referenceNum" />
                 <ScalarProperty Name="status" ColumnName="status" />
                 <ScalarProperty Name="donationQuantity" ColumnName="donationQuantity" />
                 <ScalarProperty Name="donationUnit" ColumnName="donationUnit" />
@@ -2461,6 +2485,22 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="sp_GetUserDonated" FunctionName="TabangHubModel.Store.sp_GetUserDonated">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="TabangHubModel.sp_GetUserDonated_Result">
+                <ScalarProperty Name="donationEventId" ColumnName="donationEventId" />
+                <ScalarProperty Name="eventId" ColumnName="eventId" />
+                <ScalarProperty Name="RefNumber" ColumnName="RefNumber" />
+                <ScalarProperty Name="DateDonated" ColumnName="DateDonated" />
+                <ScalarProperty Name="Type" ColumnName="Type" />
+                <ScalarProperty Name="AmountOrDescription" ColumnName="AmountOrDescription" />
+                <ScalarProperty Name="EventName" ColumnName="EventName" />
+                <ScalarProperty Name="DonationDescription" ColumnName="DonationDescription" />
+                <ScalarProperty Name="EventDescription" ColumnName="EventDescription" />
+                <ScalarProperty Name="EventImage" ColumnName="EventImage" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
           </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

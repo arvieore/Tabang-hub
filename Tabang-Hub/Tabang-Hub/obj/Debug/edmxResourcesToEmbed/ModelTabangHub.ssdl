@@ -7,9 +7,11 @@
     <Property Name="donateId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
     <Property Name="donationEventId" Type="int" />
     <Property Name="userId" Type="int" />
+    <Property Name="referenceNum" Type="nvarchar" MaxLength="255" />
     <Property Name="donationType" Type="nvarchar" MaxLength="50" />
     <Property Name="donationUnit" Type="nvarchar" MaxLength="50" />
     <Property Name="donationQuantity" Type="decimal" Precision="10" Scale="2" />
+    <Property Name="donatedAt" Type="datetime" />
     <Property Name="status" Type="int" />
   </EntityType>
   <EntityType Name="DonationEvent">
@@ -699,6 +701,9 @@ warning 6002: The table/view 'TabangHub.dbo.vw_VolunteerSkills' does not have a 
     <Parameter Name="groupChatId" Type="int" Mode="In" />
   </Function>
   <Function Name="sp_GetSkills" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+    <Parameter Name="userId" Type="int" Mode="In" />
+  </Function>
+  <Function Name="sp_GetUserDonated" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
     <Parameter Name="userId" Type="int" Mode="In" />
   </Function>
   <Function Name="sp_GetUserDonatedInformations" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
