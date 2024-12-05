@@ -421,13 +421,16 @@
                                                     {
                                                         if (listUserEvents.Volunteer_Status == 0)
                                                         {
-                                                            <span class="badge bg-danger position-absolute top-0 end-0 m-2">Conflict applied event</span>
+                                                            <span class="badge bg-danger position-absolute top-0 end-0 m-2 p-2">Conflict applied event</span>
                                                         }
-                                                        else if (listUserEvents.Volunteer_Status == 1)
+                                                        else if (listUserEvents.Volunteer_Status == 1 && listUserEvents.eventId != l_event.Event_Id)
                                                         {
-                                                            <span class="badge bg-danger position-absolute top-0 end-0 m-2">Conflict registered event</span>
+                                                            <span class="badge bg-danger position-absolute top-0 end-0 m-2 p-2">Conflict registered event</span>
                                                         }
-
+                                                        else if (listUserEvents.eventId == l_event.Event_Id)
+                                                        {
+                                                            <span class="badge bg-success position-absolute top-0 end-0 m-2 p-2">Registered event</span>
+                                                        }
                                                     }
                                                 }
 
