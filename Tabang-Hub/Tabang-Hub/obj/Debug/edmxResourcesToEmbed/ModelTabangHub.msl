@@ -544,5 +544,15 @@
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
+    <FunctionImportMapping FunctionImportName="sp_checkMatchByUserId" FunctionName="TabangHubModel.Store.sp_checkMatchByUserId">
+      <ResultMapping>
+        <ComplexTypeMapping TypeName="TabangHubModel.sp_checkMatchByUserId_Result">
+          <ScalarProperty Name="eventId" ColumnName="eventId" />
+          <ScalarProperty Name="skillId" ColumnName="skillId" />
+          <ScalarProperty Name="userId" ColumnName="userId" />
+          <ScalarProperty Name="skillName" ColumnName="skillName" />
+        </ComplexTypeMapping>
+      </ResultMapping>
+    </FunctionImportMapping>
   </EntityContainerMapping>
 </Mapping>

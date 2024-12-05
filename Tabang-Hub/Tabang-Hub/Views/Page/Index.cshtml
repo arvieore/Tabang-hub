@@ -302,7 +302,7 @@
                                                     var checkDateOrgEvents = Model.orgEvents.Where(m => m.eventId == evt.Event_Id && m.status == 1).FirstOrDefault();
                                                 }
 
-                                                @if (checkDateOrgEvents != null)
+                                                @if (checkDateOrgEvents != null && listUserEvents != null)
                                                 {
                                                     if (!(checkDateOrgEvents.dateEnd < listUserEvents.dateStart || checkDateOrgEvents.dateStart > listUserEvents.dateEnd))
                                                     {
@@ -413,9 +413,17 @@
                                                 @{
                                                     var listUserEvents = Model.sp_userListEvent.Where(m => m.eventId == l_event.Event_Id && m.Event_Status == 1).FirstOrDefault();
                                                     var checkDateOrgEvents = Model.orgEvents.Where(m => m.eventId == l_event.Event_Id && m.status == 1).FirstOrDefault();
+
+                                                    var volSkill = Model.volunteersSkills.Select(v => v.skillId).ToList().ToList();
+                                                    var eventSkills = Model.skillRequirement1
+                                                                    .Where(m => m.eventId == l_event.Event_Id)
+                                                                    .Select(m => m.skillId)
+                                                                    .ToList();
+                                                    // Check if all event skills are in the volunteer's skills
+                                                    var isSkillMatched = eventSkills.All(skill => volSkill.Contains(skill));
                                                 }
 
-                                                @if (checkDateOrgEvents != null)
+                                                @if (checkDateOrgEvents != null && listUserEvents != null)
                                                 {
                                                     if (!(checkDateOrgEvents.dateEnd < listUserEvents.dateStart || checkDateOrgEvents.dateStart > listUserEvents.dateEnd))
                                                     {
@@ -431,6 +439,10 @@
                                                         {
                                                             <span class="badge bg-success position-absolute top-0 end-0 m-2 p-2">Registered event</span>
                                                         }
+                                                        @*else if (isSkillMatched)
+                                                        {
+                                                            <span class="badge bg-success position-absolute top-0 end-0 m-2 p-2">Recommended event</span>
+                                                        }*@
                                                     }
                                                 }
 

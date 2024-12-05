@@ -94,7 +94,7 @@ namespace Tabang_Hub.Controllers
                                 }
                             }
 
-                            
+
                             var indexModel = new Lists()
                             {
                                 volunteersInfo = getInfo,
@@ -109,6 +109,8 @@ namespace Tabang_Hub.Controllers
                                 listOfEventsSection = db.vw_ListOfEvent.Where(m => m.End_Date >= DateTime.Now && m.status != 3).ToList(),
                                 ListOfDonationEvents = donationList,
 
+                                skillRequirement1 = db.OrgSkillRequirement.Where(m => m.eventId != 3).ToList(),
+                                matchSkillByUserId = db.sp_checkMatchByUserId(UserId).ToList(),
                                 volunteersStatusEvent = _volunteers.GetAll().Where(m => m.userId == UserId).ToList(),
                                 sp_userListEvent = db.sp_UserListEvent(UserId).ToList(),
                                 orgEvents = _orgEvents.GetAll().Where(m => m.status == 1).ToList()

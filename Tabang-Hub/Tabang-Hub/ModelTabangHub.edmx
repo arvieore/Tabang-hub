@@ -684,6 +684,9 @@ warning 6002: The table/view 'TabangHub.dbo.vw_VolunteerSkills' does not have a 
           <Parameter Name="eventId" Type="int" Mode="In" />
           <Parameter Name="userId" Type="int" Mode="In" />
         </Function>
+        <Function Name="sp_checkMatchByUserId" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="userId" Type="int" Mode="In" />
+        </Function>
         <Function Name="sp_GetAllMessage" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="groupChatId" Type="int" Mode="In" />
         </Function>
@@ -1117,6 +1120,9 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
             <End Role="UserAccount" EntitySet="UserAccount" />
             <End Role="VolunteersHistory" EntitySet="VolunteersHistory" />
           </AssociationSet>
+          <FunctionImport Name="sp_checkMatchByUserId" ReturnType="Collection(TabangHubModel.sp_checkMatchByUserId_Result)">
+            <Parameter Name="userId" Mode="In" Type="Int32" />
+          </FunctionImport>
           </EntityContainer>
         <ComplexType Name="sp_GetAllMessage_Result">
           <Property Type="Int32" Name="groupChatId" Nullable="false" />
@@ -1929,6 +1935,12 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <ComplexType Name="sp_checkMatchByUserId_Result">
+          <Property Type="Int32" Name="eventId" Nullable="true" />
+          <Property Type="Int32" Name="skillId" Nullable="true" />
+          <Property Type="Int32" Name="userId" Nullable="true" />
+          <Property Type="String" Name="skillName" Nullable="true" MaxLength="255" />
+        </ComplexType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -2478,6 +2490,16 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="sp_checkMatchByUserId" FunctionName="TabangHubModel.Store.sp_checkMatchByUserId">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="TabangHubModel.sp_checkMatchByUserId_Result">
+                <ScalarProperty Name="eventId" ColumnName="eventId" />
+                <ScalarProperty Name="skillId" ColumnName="skillId" />
+                <ScalarProperty Name="userId" ColumnName="userId" />
+                <ScalarProperty Name="skillName" ColumnName="skillName" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
           </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

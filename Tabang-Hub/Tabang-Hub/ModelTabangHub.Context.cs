@@ -225,5 +225,14 @@ namespace Tabang_Hub
     
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<sp_GetUserDonated1_Result>("sp_GetUserDonated1", userIdParameter);
         }
+    
+        public virtual ObjectResult<sp_checkMatchByUserId_Result> sp_checkMatchByUserId(Nullable<int> userId)
+        {
+            var userIdParameter = userId.HasValue ?
+                new ObjectParameter("userId", userId) :
+                new ObjectParameter("userId", typeof(int));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<sp_checkMatchByUserId_Result>("sp_checkMatchByUserId", userIdParameter);
+        }
     }
 }
