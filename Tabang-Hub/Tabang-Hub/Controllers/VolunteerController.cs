@@ -72,7 +72,7 @@ namespace Tabang_Hub.Controllers
                     volunteersHistories = _volunteerManager.GetVolunteersHistoryByUserId(UserId),
                     rating = db.Rating.Where(m => m.userId == UserId).ToList(),
                     orgEventHistory = db.OrgEvents.Where(m => m.userId == UserId && m.status == 2).ToList(),
-                    listOfEvents = filteredEvent.OrderByDescending(m => m.Event_Id).ToList(),
+                    listOfEvents = filteredEvent.Where(m => m.status != 3).OrderByDescending(m => m.Event_Id).ToList(),
                     detailsEventImage = _eventImages.GetAll().ToList()
                 };
                 return View(indexModel);
@@ -90,7 +90,7 @@ namespace Tabang_Hub.Controllers
                     volunteersHistories = _volunteerManager.GetVolunteersHistoryByUserId(UserId),
                     rating = db.Rating.Where(m => m.userId == UserId).ToList(),
                     orgEventHistory = db.OrgEvents.Where(m => m.userId == UserId && m.status == 2).ToList(),
-                    listOfEvents = db.vw_ListOfEvent.OrderByDescending(m => m.Event_Id).ToList(),
+                    listOfEvents = db.vw_ListOfEvent.Where(m => m.status != 3).OrderByDescending(m => m.Event_Id).ToList(),
                     detailsEventImage = _eventImages.GetAll().ToList()
                 };
                 return View(indexModel);
@@ -375,7 +375,7 @@ namespace Tabang_Hub.Controllers
                     var getSkillRequirmenet = _skillRequirement.GetAll().Where(m => m.eventId == getOrgInfo.eventId).ToList();
                     var getEvent = _orgEvents.GetAll().Where(m => m.eventId == getOrgInfo.eventId).ToList();
                     var getOrgOtherEvent = db.sp_OtherEvent(getOrgInfo.userId).ToList();
-                    var getEvents = _listsOfEvent.GetAll().Where(m => m.Event_Id == getOrgInfo.eventId).ToList();
+                    var getEvents = _listsOfEvent.GetAll().Where(m => m.Event_Id == getOrgInfo.eventId && m.status != 3).ToList();
                     var getVolunteers = _volunteers.GetAll().Where(m => m.eventId == eventId).ToList();
                     var listofUserDonated = db.UserDonated.Where(m => m.eventId == eventId).ToList();
                     var volunteerStatusEvent = _volunteersStatusEvent.GetAll().Where(m => m.userId == UserId && m.eventId == eventId).ToList();
@@ -437,7 +437,7 @@ namespace Tabang_Hub.Controllers
                             orgEvents = getEvent,
                             orgOtherEvent = getOrgOtherEvent,
                             listOfEventsOne = getEvents,
-                            listOfEvents = db.vw_ListOfEvent.OrderByDescending(m => m.Event_Id).ToList(),
+                            listOfEvents = db.vw_ListOfEvent.Where(m => m.status != 3).OrderByDescending(m => m.Event_Id).ToList(),
                             volunteers = getVolunteers,
                             listofUserDonated = listofUserDonated,
                             volunteersStatusEvent = _volunteers.GetAll().Where(m => m.eventId == eventId).ToList(),
@@ -1148,7 +1148,7 @@ namespace Tabang_Hub.Controllers
                     picture = getProfile,
                     CreateEvents = events,
                     skills = _skills.GetAll().ToList(),
-                    listOfEvents = db.vw_ListOfEvent.OrderByDescending(m => m.Event_Id).ToList(),
+                    listOfEvents = db.vw_ListOfEvent.Where(m => m.status != 3).OrderByDescending(m => m.Event_Id).ToList(),
                     detailsEventImage = _eventImages.GetAll().ToList()
                 };
                 return View(indexModel);
@@ -1230,7 +1230,7 @@ namespace Tabang_Hub.Controllers
                     CreateEvents = events,
                     picture = getProfile,
                     skills = _skills.GetAll().ToList(),
-                    listOfEvents = db.vw_ListOfEvent.OrderByDescending(m => m.Event_Id).ToList(),
+                    listOfEvents = db.vw_ListOfEvent.Where(m => m.status != 3).OrderByDescending(m => m.Event_Id).ToList(),
                     detailsEventImage = _eventImages.GetAll().ToList()
                 };
                 return View(indexModel);
@@ -1284,7 +1284,7 @@ namespace Tabang_Hub.Controllers
                     listofUserDonated = db.UserDonated.Where(m => m.userId == UserId).ToList(),
                     //orgEvents = orgEvents,
                     userDonatedInformations = db.sp_GetUserDonatedInformations(UserId).ToList(),
-                    listOfEvents = db.vw_ListOfEvent.OrderByDescending(m => m.Event_Id).ToList(),
+                    listOfEvents = db.vw_ListOfEvent.Where(m => m.status != 3).OrderByDescending(m => m.Event_Id).ToList(),
                     detailsEventImage = _eventImages.GetAll().ToList()
                 };
                 return View(indexModel);
@@ -1332,7 +1332,7 @@ namespace Tabang_Hub.Controllers
                 volunteersInfo = db.VolunteerInfo.Where(m => m.userId == UserId).ToList(),
                 listofUserDonated = db.UserDonated.Where(m => m.userId == UserId).ToList(),
                 userDonatedInformations = db.sp_GetUserDonatedInformations(UserId).ToList(),
-                listOfEvents = db.vw_ListOfEvent.OrderByDescending(m => m.Event_Id).ToList(),
+                listOfEvents = db.vw_ListOfEvent.Where(m => m.status != 3).OrderByDescending(m => m.Event_Id).ToList(),
                 detailsEventImage = _eventImages.GetAll().ToList()
             };
 
@@ -1421,7 +1421,7 @@ namespace Tabang_Hub.Controllers
                         volunteersHistories = db.sp_VolunteerHistory(UserId).ToList(),
                         rating = db.Rating.Where(m => m.userId == UserId).ToList(),
                         detailsEventImage = getOrgImages,
-                        listOfEvents = db.vw_ListOfEvent.OrderByDescending(m => m.Event_Id).ToList(),
+                        listOfEvents = db.vw_ListOfEvent.Where(m => m.status != 3).OrderByDescending(m => m.Event_Id).ToList(),
                         detailsSkillRequirement = _skillRequirement.GetAll(),
                         allSkill = db.Skills.ToList()
                     };
@@ -1549,7 +1549,7 @@ namespace Tabang_Hub.Controllers
                     OrgInfo = getOrgInfo,
                     detailsEventImage = orgImage,
                     getAllOrgEvent = orgEvents,
-                    listOfEvents = filteredEvent.OrderByDescending(m => m.Event_Id).ToList(),
+                    listOfEvents = filteredEvent.Where(m => m.status != 3).OrderByDescending(m => m.Event_Id).ToList(),
                 };
                 return View(indexModel);
             }
@@ -1562,7 +1562,7 @@ namespace Tabang_Hub.Controllers
                     OrgInfo = getOrgInfo,
                     detailsEventImage = orgImage,
                     getAllOrgEvent = orgEvents,
-                    listOfEvents = db.vw_ListOfEvent.OrderByDescending(m => m.Event_Id).ToList(),
+                    listOfEvents = db.vw_ListOfEvent.Where(m => m.status != 3).OrderByDescending(m => m.Event_Id).ToList(),
                 };
                 return View(indexModel);
             }

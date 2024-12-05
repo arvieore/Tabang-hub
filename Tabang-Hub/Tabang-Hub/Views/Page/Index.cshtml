@@ -296,6 +296,28 @@
                                                     var imgs = Model.detailsEventImage.Where(m => m.eventId == evt.Event_Id).Select(m => m.eventImage).FirstOrDefault();
                                                 }
                                                 <img src="@Url.Content("~/Content/Events/" + imgs)" class="custom-block-image img-fluid" alt="">
+
+                                                @{
+                                                    var listUserEvents = Model.sp_userListEvent.Where(m => m.eventId == evt.Event_Id && m.Event_Status == 1).FirstOrDefault();
+                                                    var checkDateOrgEvents = Model.orgEvents.Where(m => m.eventId == evt.Event_Id && m.status == 1).FirstOrDefault();
+                                                }
+
+                                                @if (checkDateOrgEvents != null)
+                                                {
+                                                    if (!(checkDateOrgEvents.dateEnd < listUserEvents.dateStart || checkDateOrgEvents.dateStart > listUserEvents.dateEnd))
+                                                    {
+                                                        if (listUserEvents.Volunteer_Status == 0)
+                                                        {
+                                                            <span class="badge bg-danger position-absolute top-0 end-0 m-2">Conflict applied event</span>
+                                                        }
+                                                        else if (listUserEvents.Volunteer_Status == 1)
+                                                        {
+                                                            <span class="badge bg-danger position-absolute top-0 end-0 m-2">Conflict registered event</span>
+                                                        }
+
+                                                    }
+                                                }
+
                                                 <div class="custom-block">
                                                     <div class="custom-block-body">
                                                         <h5 class="mb-3">@evt.Event_Name</h5>
@@ -387,6 +409,28 @@
                                                     var imgs = Model.detailsEventImage.Where(m => m.eventId == l_event.Event_Id).Select(m => m.eventImage).FirstOrDefault();
                                                 }
                                                 <img src="@Url.Content("~/Content/Events/" + imgs)" class="custom-block-image img-fluid" alt="">
+
+                                                @{
+                                                    var listUserEvents = Model.sp_userListEvent.Where(m => m.eventId == l_event.Event_Id && m.Event_Status == 1).FirstOrDefault();
+                                                    var checkDateOrgEvents = Model.orgEvents.Where(m => m.eventId == l_event.Event_Id && m.status == 1).FirstOrDefault();
+                                                }
+
+                                                @if (checkDateOrgEvents != null)
+                                                {
+                                                    if (!(checkDateOrgEvents.dateEnd < listUserEvents.dateStart || checkDateOrgEvents.dateStart > listUserEvents.dateEnd))
+                                                    {
+                                                        if (listUserEvents.Volunteer_Status == 0)
+                                                        {
+                                                            <span class="badge bg-danger position-absolute top-0 end-0 m-2">Conflict applied event</span>
+                                                        }
+                                                        else if (listUserEvents.Volunteer_Status == 1)
+                                                        {
+                                                            <span class="badge bg-danger position-absolute top-0 end-0 m-2">Conflict registered event</span>
+                                                        }
+
+                                                    }
+                                                }
+
                                                 <div class="custom-block">
                                                     <div class="custom-block-body">
                                                         <h5 class="mb-3">@l_event.Event_Name</h5>

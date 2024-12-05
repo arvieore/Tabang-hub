@@ -106,8 +106,11 @@ namespace Tabang_Hub.Controllers
                                 orgInfos = getOrgInfo,
                                 listofUserDonated = getUserDonated,
                                 detailsEventImage = _eventImages.GetAll().ToList(),
-                                listOfEventsSection = db.vw_ListOfEvent.Where(m => m.End_Date >= DateTime.Now).ToList(),
+                                listOfEventsSection = db.vw_ListOfEvent.Where(m => m.End_Date >= DateTime.Now && m.status != 3).ToList(),
                                 ListOfDonationEvents = donationList,
+
+                                sp_userListEvent = db.sp_UserListEvent(UserId).ToList(),
+                                orgEvents = _orgEvents.GetAll().Where(m => m.status == 1).ToList()
                             };
                             return View(indexModel);
                         }
@@ -124,7 +127,10 @@ namespace Tabang_Hub.Controllers
                                 orgInfos = getOrgInfo,
                                 listofUserDonated = getUserDonated,
                                 detailsEventImage = _eventImages.GetAll().ToList(),
-                                listOfEventsSection = db.vw_ListOfEvent.Where(m => m.End_Date >= DateTime.Now).ToList()
+                                listOfEventsSection = db.vw_ListOfEvent.Where(m => m.End_Date >= DateTime.Now & m.status != 3).ToList(),
+
+                                sp_userListEvent = db.sp_UserListEvent(UserId).ToList(),
+                                orgEvents = _orgEvents.GetAll().Where(m => m.status == 1).ToList()
                             };
                             return View(indexModel);
                         }

@@ -217,7 +217,7 @@ namespace Tabang_Hub.Repository
             var datas = new
             {
                 user_skills = db.VolunteerSkill.Where(m => m.userId == UserId).Select(m => new { userId = m.userId, skillId = m.skillId }).ToList(),
-                event_data = _orgEvents.GetAll().Where(m => m.dateEnd >= DateTime.Now).Select(m => new { eventId = m.eventId, eventDescription = m.eventDescription }).ToList(),
+                event_data = _orgEvents.GetAll().Where(m => m.dateEnd >= DateTime.Now && m.status != 3).Select(m => new { eventId = m.eventId, eventDescription = m.eventDescription }).ToList(),
                 event_skills = db.OrgSkillRequirement.Select(es => new { eventId = es.eventId, skillId = es.skillId }).ToList()
                 //volunteer_history = db.VolunteersHistory.Where(vh => vh.userId == UserId).Select(vh => new { eventId = vh.eventId, attended = vh.attended }).ToList()
             };

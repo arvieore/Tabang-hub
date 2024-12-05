@@ -21,7 +21,7 @@ namespace Tabang_Hub.Controllers
             var getProfile = db.ProfilePicture.Where(m => m.userId == UserId).ToList();
             var getOrgInfo = _orgInfo.GetAll().ToList();
             var getVolunteers = _volunteers.GetAll().ToList();
-            var orgEventsSelectId = _orgEvents.GetAll().Where(m => m.dateEnd >= DateTime.Now).Select(m => m.eventId).ToList();
+            var orgEventsSelectId = _orgEvents.GetAll().Where(m => m.dateEnd >= DateTime.Now && m.status != 3).Select(m => m.eventId).ToList();
             List<Volunteers> pendings = _volunteerManager.GetVolunteersEventPendingByUserId(UserId);
             List<Volunteers> accepted = _volunteerManager.GetVolunteersEventParticipateByUserId(UserId);
 
@@ -29,7 +29,7 @@ namespace Tabang_Hub.Controllers
 
             var indexModel = new Lists()
             {
-                orgEvents = accepted.OrderByDescending(m => m.applyVolunteerId).Select(e => _orgEvents.GetAll().FirstOrDefault(o => o.eventId == e.eventId)).ToList(),
+                orgEvents = accepted.OrderByDescending(m => m.applyVolunteerId).Select(e => _orgEvents.GetAll().Where(m => m.status != 3).FirstOrDefault(o => o.eventId == e.eventId)).ToList(),
                 detailsEventImage = _eventImages.GetAll().ToList(),
                 volunteersHistories = db.sp_VolunteerHistory(UserId).ToList(),
                 pendingOrgDetails = pendings.OrderByDescending(m => m.applyVolunteerId).Select(e => _pendingOrgDetails.GetAll().FirstOrDefault(p => p.eventId == e.eventId)).ToList(),
@@ -42,10 +42,10 @@ namespace Tabang_Hub.Controllers
                 volunteersSkills = getVolunteerSkills,
                 skills = getSkills,
                 picture = getProfile,
-                listOfEvents = db.vw_ListOfEvent.OrderByDescending(m => m.Event_Id).ToList(),
+                listOfEvents = db.vw_ListOfEvent.Where(m => m.status != 3).OrderByDescending(m => m.Event_Id).ToList(),
                 volunteers = getVolunteers,
                 orgInfos = getOrgInfo,
-                listOfEventsSection = db.vw_ListOfEvent.Where(m => m.End_Date >= DateTime.Now).ToList()
+                listOfEventsSection = db.vw_ListOfEvent.Where(m => m.End_Date >= DateTime.Now && m.status != 3).ToList()
             };
 
             ViewBag.SectionToShow = section;
