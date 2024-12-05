@@ -223,6 +223,7 @@
     <Content Include="Content\Css\groupChatInfo.css" />
     <Content Include="Content\Css\invitation.css" />
     <Content Include="Content\Css\message.css" />
+    <Content Include="Content\Css\MessageModalProfile.css" />
     <Content Include="Content\Css\opportunityCarousel.css" />
     <Content Include="Content\Css\Participate.css" />
     <Content Include="Content\Css\popup.css" />

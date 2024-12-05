@@ -13,6 +13,11 @@ else
 <link href="~/Content/Css/groupChatInfo.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+@if (Model.userAccount.roleId == 2)
+{
+    <link href="~/Content/Css/MessageModalProfile.css" rel="stylesheet" />
+}
+
 <style>
     .info-section {
         padding: 20px;
@@ -166,7 +171,8 @@ else
                             <input class="form-check-input" type="radio" name="kickReason" id="others" value="Others">
                             <label class="form-check-label" for="others">Others</label>
                         </div>
-                        <textarea id="otherReasonInput" class="form-control mt-2" placeholder="Specify reason" style="display:none; height: 100px; width: 100%; resize: none;"></textarea>                    </form>
+                        <textarea id="otherReasonInput" class="form-control mt-2" placeholder="Specify reason" style="display:none; height: 100px; width: 100%; resize: none;"></textarea>
+                    </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" onclick="submitKickReason()">Submit</button>
@@ -175,6 +181,72 @@ else
             </div>
         </div>
     </div>
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="detailsModal" tabindex="-1" role="dialog" aria-labelledby="detailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <!-- Header -->
+                <div class="modal-header text-white" style="background-color: mediumseagreen;">
+                    <h5 class="modal-title" id="detailsModalLabel">Volunteer Profile</h5>
+                </div>
+
+                <!-- Body -->
+                <div class="modal-body">
+                    <!-- Profile Section -->
+                    <div class="text-center mb-4">
+                        <div class="profile-container">
+                            <img id="modalProfilePic" src="https://via.placeholder.com/120" alt="Profile Picture" class="rounded-circle img-thumbnail shadow">
+                        </div>
+                        <h4 class="mt-3" id="modalFullName" style="font-weight: bold; color: #343a40;">Full Name</h4>
+                        <p class="text-muted mb-0" id="modalAvailability">Full Time</p>
+                    </div>
+
+                    <!-- Details Section -->
+                    <div class="info-section px-3 py-2">
+                        <div class="info-row">
+                            <span class="info-label">Birthday:</span>
+                            <span class="info-value" id="modalBirthDay">Not Available</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Phone Number:</span>
+                            <span class="info-value" id="modalPhoneNum">Not Available</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Address:</span>
+                            <span class="info-value" id="modalAddress">Not Available</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">About:</span>
+                            <span class="info-value" id="modalAbout">Not Available</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Skills:</span>
+                            <span id="modalSkills" class="badge-container">
+                                <span class="badge text-white" style="background-color: mediumseagreen">Painting</span>
+                            </span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Rating:</span>
+                            <span class="info-value">
+                                <span id="modalAverageRate">1.5</span>
+                                <span id="modalStars" class="stars">
+                                    ★☆☆☆☆
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="modalCloseButton">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
 
 </div>
@@ -188,6 +260,85 @@ else
     function closeKickReasonModal() {
         $('#kickVolunteerModal').modal('hide');
     }
+
+    document.getElementById("modalCloseButton").addEventListener("click", function () {
+        $('#detailsModal').modal('hide'); // Close the modal when clicking the Close button
+    });
+
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return new Intl.DateTimeFormat("en-US", {
+            month: "long",
+            day: "2-digit",
+            year: "numeric",
+        }).format(date);
+    };
+
+    function ViewProfile(userId) {
+        $('#detailsModal').modal('show'); // Show modal
+
+
+        $.ajax({
+            url: '/Message/GetVolunteerProfile', // Controller endpoint
+            type: 'GET',
+            data: { userId: userId, selectedGcID: selectedGcID }, // Send necessary parameters
+            success: function (response) {
+                if (response) {
+                    // Populate modal fields
+                    $('#modalFullName').text(response.FullName || "Not Available");
+                    $('#modalAvailability').text(response.Availability || "Not Available");
+                    $('#modalBirthDay').text(formatDate(response.BirthDay) || "Not Available");
+                    $('#modalPhoneNum').text(response.PhoneNum || "Not Available");
+                    
+                    // Combine address components
+                    const fullAddress = `${response.Street || ""}, ${response.City || ""}, ${response.Province || ""}, ${response.Zip || ""}`;
+                    $('#modalAddress').text(fullAddress.trim() || "Not Available");
+
+                    $('#modalAbout').text(response.About || "Not Available");
+
+                    // Skills
+                    const skillsContainer = $('#modalSkills');
+                    skillsContainer.empty(); // Clear existing skills
+                    if (response.Skills && response.Skills.length > 0) {
+                        response.Skills.forEach(skill => {
+                            skillsContainer.append(`<span class="badge text-white bg-success" style="background-color: mediumseagreen;">${skill}</span>`);
+                        });
+                    } else {
+                        skillsContainer.append('<span class="text-muted">Not Available</span>');
+                    }
+
+                    // Rating
+                    $('#modalAverageRate').text(response.AverageRate.toFixed(1) || "0.0");
+                    const starsContainer = $('#modalStars');
+                    starsContainer.empty();
+                    const fullStars = Math.floor(response.AverageRate);
+                    const halfStar = response.AverageRate % 1 >= 0.5 ? 1 : 0;
+
+                    for (let i = 0; i < 5; i++) {
+                        if (i < fullStars) {
+                            starsContainer.append('<i class="fas fa-star"></i>'); // Full star
+                        } else if (i === fullStars && halfStar) {
+                            starsContainer.append('<i class="fas fa-star-half-alt"></i>'); // Half star
+                        } else {
+                            starsContainer.append('<i class="far fa-star"></i>'); // Empty star
+                        }
+                    }
+
+                    // Profile Picture
+                    const profilePic = response.ProfilePic
+                        ? `/Content/UserProfile/${response.ProfilePic}`
+                        : "https://via.placeholder.com/120";
+                    $('#modalProfilePic').attr("src", profilePic);
+                } else {
+                    alert("Volunteer profile not found.");
+                }
+            },
+            error: function () {
+                alert("An error occurred while fetching the volunteer profile. Please try again.");
+            }
+        });
+    }
+
 
     document.querySelectorAll('input[name="kickReason"]').forEach((radio) => {
         radio.addEventListener('change', function () {
@@ -394,7 +545,7 @@ else
                 data: { groupId: groupId },
                 success: function (members) {
                     if (members && members.length > 0) {
-                        var basePath = '/UserProfile/'; // Base path for profile images
+                        var basePath = '/Content/UserProfile/'; // Base path for profile images
                         var membersListHtml = members.map(member => `
                         <div class="member-item">
                             <div class="member-profile">
@@ -412,7 +563,9 @@ else
                                     <span onclick="VolunteerKick('${member.userId}')">
                                         <p>Kick</p>
                                     </span>
-                                    <p>View profile</p>
+                                    <span onclick="ViewProfile('${member.userId}')">
+                                        <p>View profile</p>
+                                    </span>
                                 </div>
                             </div>
                             }
@@ -519,7 +672,7 @@ else
                 var messageHtml = '<div class="message-container ' + messageClass + '">';
                 if (messageClass === 'received') {
                     messageHtml += `
-                    
+
                     <strong class="user-name">${userName}</strong>`;
                 }
                 messageHtml += '<div class="message ' + messageClass + '"><span>' + htmlEncode(message) + '</span></div>';
@@ -547,7 +700,7 @@ else
                 var messageHtml = '<div class="message-container ' + messageClass + '">';
                 if (messageClass === 'received') {
                     messageHtml += `
-                    
+
                     <strong class="user-name">${message.userName}</strong>`;
                 }
                 messageHtml += '<div class="message ' + messageClass + '"><span>' + htmlEncode(message.message) + '</span></div>';

@@ -186,5 +186,35 @@ namespace Tabang_Hub.Controllers
                 return Json(new { success = false, message = "An error occurred while kicking the volunteer." });
             }
         }
+        [HttpGet]
+        public JsonResult GetVolunteerProfile(int userId, int selectedGcID)
+        {
+            try
+            {
+                var eventId = db.GroupChat
+                    .Where(m => m.groupChatId == selectedGcID)
+                    .Select(m => m.eventId)
+                    .FirstOrDefault();
+
+                if (eventId == null)
+                {
+                    return Json(new { success = false, message = "Event not found." }, JsonRequestBehavior.AllowGet);
+                }
+
+                var volunteer = _organizationManager.GetUserInfo(userId, (int)eventId);
+
+                if (volunteer == null)
+                {
+                    return Json(new { success = false, message = "Volunteer not found." }, JsonRequestBehavior.AllowGet);
+                }
+
+                return Json(volunteer, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
     }
 }

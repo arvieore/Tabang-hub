@@ -201,6 +201,12 @@
                                             <h1>Tabang Heart</h1>
 
                                             <p>Bringing help to where it's needed.</p>
+
+                                            <div class="">
+                                                @*<a href="#" class="me-4">Make a donation</a>*@
+
+                                                <a href="#sectionevent" class="custom-btn btn smoothscroll">Become a volunteer</a>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -208,9 +214,15 @@
                                         <img src="~/Content/images2/slide/red cross.jpg" class="carousel-image img-fluid" alt="...">
 
                                         <div class="carousel-caption d-flex flex-column justify-content-end">
-                                            <h1>Join Our Mission</h1>
+                                            <h1>Join Us</h1>
 
                                             <p>Help us empower more communities.</p>
+
+                                            <div class="">
+                                                @*<a href="#" class="me-4">Make a donation</a>*@
+
+                                                <a href="#sectionevent" class="custom-btn btn smoothscroll">Become a volunteer</a>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -221,6 +233,12 @@
                                             <h1>Humanity</h1>
 
                                             <p>Please tell your friends about our website</p>
+
+                                            <div class="">
+                                                @*<a href="#" class="me-4">Make a donation</a>*@
+
+                                                <a href="#sectionevent" class="custom-btn btn smoothscroll">Become a volunteer</a>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -245,7 +263,7 @@
                     color: #5a6f80;
                 }
             </style>
-            <section class="section-padding">
+            <section class="section-padding" id="sectionevent">
                 <div class="container">
                     <div class="row" id="eventsContainer">
 
@@ -303,39 +321,39 @@
                                                                  aria-valuemax="@maxVolunteers">
                                                             </div>
                                                         </div>
+                                                        <div class="d-flex align-items-center my-2">
+                                                            <p class="mb-0">
+                                                                <strong>Number of volunteers joined:</strong>
+                                                            </p>
+
+                                                            <p class="ms-auto mb-0">
+                                                                @Model.volunteers.Where(m => m.Status == 1 && m.eventId == evt.Event_Id).Count()/@evt.Maximum_Volunteer
+                                                            </p>
+                                                        </div>
+                                                        @if (evt.Target_Amount != null)
+                                                        {
+                                                            <div class="progress mt-4">
+                                                                @{
+                                                                    decimal? raisedAmount = evt.Total_Donation;
+                                                                    var percentage = (raisedAmount / evt.Target_Amount) * 100;
+                                                                }
+
+                                                                <div class="progress-bar" style="width: @percentage%" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                                                            </div>
                                                             <div class="d-flex align-items-center my-2">
                                                                 <p class="mb-0">
-                                                                    <strong>Number of volunteers joined:</strong>
+                                                                    <strong>Fund Donated: </strong>
                                                                 </p>
-
                                                                 <p class="ms-auto mb-0">
-                                                                    @Model.volunteers.Where(m => m.Status == 1 && m.eventId == evt.Event_Id).Count()/@evt.Maximum_Volunteer
+                                                                    <!-- <strong>Goal:</strong> -->
+                                                                    ₱@(evt.Total_Donation.Equals(null) ? "0.00 " : evt.Total_Donation.ToString()) @*/ ₱@evt.Target_Amount*@
                                                                 </p>
                                                             </div>
-                                                            @if (evt.Target_Amount != null)
-                                                            {
-                                                                <div class="progress mt-4">
-                                                                    @{
-                                                                        decimal? raisedAmount = evt.Total_Donation;
-                                                                        var percentage = (raisedAmount / evt.Target_Amount) * 100;
-                                                                    }
-
-                                                                    <div class="progress-bar" style="width: @percentage%" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
-                                                                </div>
-                                                                <div class="d-flex align-items-center my-2">
-                                                                    <p class="mb-0">
-                                                                        <strong>Fund Donated: </strong>
-                                                                    </p>
-                                                                    <p class="ms-auto mb-0">
-                                                                        <!-- <strong>Goal:</strong> -->
-                                                                        ₱@(evt.Total_Donation.Equals(null) ? "0.00 " : evt.Total_Donation.ToString()) @*/ ₱@evt.Target_Amount*@
-                                                                    </p>
-                                                                </div>
-                                                            }
-                                                        </div>
-                                                        <span class="custom-btn btn" onclick="redirectToDetails(@evt.Event_Id)">View Details</span>
-                                                        @*<span class="custom-btn btn" onclick="openConflictModal(@evt.Event_Id)">View Details</span>*@
+                                                        }
                                                     </div>
+                                                    <span class="custom-btn btn" onclick="redirectToDetails(@evt.Event_Id)">View Details</span>
+                                                    @*<span class="custom-btn btn" onclick="openConflictModal(@evt.Event_Id)">View Details</span>*@
+                                                </div>
                                             </div>
                                         </div>
                                     }
@@ -500,29 +518,29 @@
 
 
 
-                            <!-- Bootstrap Modal -->
-                            <div class="modal fade" id="conflictModal" tabindex="-1" aria-labelledby="conflictModalLabel" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="conflictModalLabel">Event Conflict</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            This event might conflict with one you've already joined. Would you like to proceed?
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                            <button type="button" class="btn btn-primary" id="proceedButton">Proceed</button>
-                                        </div>
+                        <!-- Bootstrap Modal -->
+                        <div class="modal fade" id="conflictModal" tabindex="-1" aria-labelledby="conflictModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="conflictModalLabel">Event Conflict</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        This event might conflict with one you've already joined. Would you like to proceed?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <button type="button" class="btn btn-primary" id="proceedButton">Proceed</button>
                                     </div>
                                 </div>
                             </div>
-
-
                         </div>
-                        <!-- Pagination Controls -->
-                        @*<nav aria-label="Page navigation" class="mt-4" id="eventsContainer-pagination">
+
+
+                    </div>
+                    <!-- Pagination Controls -->
+                    @*<nav aria-label="Page navigation" class="mt-4" id="eventsContainer-pagination">
                             <ul class="pagination justify-content-center">
                                 <li class="page-item">
                                     <button class="page-link" onclick="prevPage('eventsContainer')" aria-label="Previous">
@@ -536,8 +554,8 @@
                                 </li>
                             </ul>
                         </nav>*@
-                    </div>
-</section>
+                </div>
+            </section>
 
             <section class="section-padding section-bg" id="section_2">
                 <div class="container">
@@ -621,7 +639,7 @@
                         <div class="col-lg-5 col-12">
                             @*<a href="#" class="me-4">Make a donation</a>*@
 
-                            <a href="#section_1" class="custom-btn btn smoothscroll">Become a volunteer</a>
+                            <a href="#sectionevent" class="custom-btn btn smoothscroll">Become a volunteer</a>
                         </div>
 
                     </div>

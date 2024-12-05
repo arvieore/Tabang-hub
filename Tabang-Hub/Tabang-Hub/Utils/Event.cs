@@ -13,6 +13,9 @@ namespace Tabang_Hub.Utils
         public string Start_Date { get; set; }
         public string End_Date { get; set; }
         public int? Status { get; set; }
-        public string Image {  get; set; }
+        public string Image { get; set; }
+        public string Location { get; set; }
+        public List<string> SkillName { get; set; }
+        public List<int?> Rating { get; set; }
     }
 }

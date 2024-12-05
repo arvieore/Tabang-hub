@@ -45,6 +45,7 @@ namespace Tabang_Hub.Repository
             List<Event> ongoingEvents = new List<Event>();
             var accepted = _volunteerManager.GetVolunteersEventParticipateByUserId(userId);
             var acce = accepted.OrderByDescending(m => m.applyVolunteerId).Select(e => _orgEvents.GetAll().FirstOrDefault(o => o.eventId == e.eventId)).ToList();
+
             foreach (var a in acce)
             {
                 Event e = new Event
@@ -54,7 +55,17 @@ namespace Tabang_Hub.Repository
                     Details = a.eventDescription,
                     Start_Date = a.dateStart.Value.ToString("yyyy-MM-dd"),
                     End_Date = a.dateEnd.Value.ToString("yyyy-MM-dd"),
-                    Image = _orgEventImage.GetAll().Where(m => m.eventId == a.eventId).Select(m => m.eventImage).FirstOrDefault()
+                    Location = a.location,
+                    Image = _orgEventImage.GetAll().Where(m => m.eventId == a.eventId).Select(m => m.eventImage).FirstOrDefault(),
+                    SkillName = db.OrgSkillRequirement
+                                            .Where(ds => ds.eventId == a.eventId)
+                                            .Select(ds => db.Skills
+                                                .Where(r => r.skillId == ds.skillId
+                                                && db.VolunteerSkill.Where(m => m.userId == userId).Any(vs => vs.skillId == r.skillId))
+                                                .Select(r => r.skillName)
+                                                .FirstOrDefault())
+                                            .Where(skill => skill != null)
+                                            .ToList()
                 };
                 ongoingEvents.Add(e);
             }
@@ -71,8 +82,18 @@ namespace Tabang_Hub.Repository
                     Details = getEvent.eventDescription,
                     Start_Date = getEvent.dateStart.Value.ToString("yyyy-MM-dd"),
                     End_Date = getEvent.dateEnd.Value.ToString("yyyy-MM-dd"),
-                    Status= getEvent.status,
-                    Image = _orgEventImage.GetAll().Where(m => m.eventId == p.eventId).Select(m => m.eventImage).FirstOrDefault()
+                    Location = getEvent.location,
+                    Status = getEvent.status,
+                    Image = _orgEventImage.GetAll().Where(m => m.eventId == p.eventId).Select(m => m.eventImage).FirstOrDefault(),
+                    SkillName = db.OrgSkillRequirement
+                                            .Where(ds => ds.eventId == p.eventId)
+                                            .Select(ds => db.Skills
+                                                .Where(r => r.skillId == ds.skillId
+                                                && db.VolunteerSkill.Where(m => m.userId == userId).Any(vs => vs.skillId == r.skillId))
+                                                .Select(r => r.skillName)
+                                                .FirstOrDefault())
+                                            .Where(skill => skill != null)
+                                            .ToList()
                 };
                 pendingEvents.Add(e);
             }
@@ -88,10 +109,29 @@ namespace Tabang_Hub.Repository
                     Details = h.eventDescription,
                     Start_Date = h.dateStart.Value.ToString("yyyy-MM-dd"),
                     End_Date = h.dateEnd.Value.ToString("yyyy-MM-dd"),
+                    Location = h.location,
                     Status = h.status,
-                    Image = _orgEventImage.GetAll().Where(m => m.eventId == h.eventId).Select(m => m.eventImage).FirstOrDefault()
+                    Image = _orgEventImage.GetAll().Where(m => m.eventId == h.eventId).Select(m => m.eventImage).FirstOrDefault(),
+                    SkillName = db.OrgSkillRequirement
+                                            .Where(ds => ds.eventId == h.eventId)
+                                            .Select(ds => db.Skills
+                                                .Where(r => r.skillId == ds.skillId
+                                                && db.VolunteerSkill.Where(m => m.userId == userId).Any(vs => vs.skillId == r.skillId))
+                                                .Select(r => r.skillName)
+                                                .FirstOrDefault())
+                                            .Where(skill => skill != null)
+                                            .ToList(),
+                    Rating = db.sp_VolunteerHistory(userId)
+                                            .Where(vh => vh.eventId == h.eventId)
+                                            .Select(vh => db.Rating
+                                                .Where(m => m.userId == vh.userId && db.VolunteerSkill.Where(vs => vs.userId == userId).Any(vs => vs.skillId == vh.skillId)
+                                                && m.eventId == vh.eventId)
+                                                .Select(m => m.rate)
+                                                .FirstOrDefault())
+                                            .Where(rating => rating != null)
+                                            .ToList()
                 };
-                if(!eventHistory.Any(m => m.eventId == e.eventId) && h.status == 2)
+                if (!eventHistory.Any(m => m.eventId == e.eventId) && h.status == 2)
                 {
                     eventHistory.Add(e);
                 }
