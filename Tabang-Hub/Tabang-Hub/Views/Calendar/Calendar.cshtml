@@ -2,6 +2,8 @@
 @{
     ViewBag.Title = "Calendar";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    //string activeSection = Request.QueryString["section"] ?? "ongoingEventsSection";
 }
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 <link href="~/Content/Css/Calendar.css" rel="stylesheet" />
@@ -40,7 +42,7 @@
                 
                 @foreach (var evt in Model.ongoingEvents.Where(m => m.Status != 2))
                 {
-                    <div class="card mb-3" style="max-width: 540px;">
+                    <div class="card mb-3">
                         <div class="row g-0">
                             <div class="col-md-4">
                                 @{
@@ -52,7 +54,9 @@
                                 <div class="card-body">
                                     <h5 class="card-title">@evt.Title</h5>
                                     <p class="card-text">@evt.Details</p>
-                                    <button class="btn btn-primary" onclick="openEventModal(@Html.Raw(Json.Encode(evt)))">View Details</button>
+                                    @*<button class="btn btn-primary" onclick="openEventModal(@Html.Raw(Json.Encode(evt)))">View Details</button>*@
+                                    <button id="btnview" class="btn btn-primary" data-event='@Html.Raw(Json.Encode(evt))'>View Details</button>
+                                    <button class="btn btn-outline-danger" onclick="LeaveBtn('@evt.eventId')">Leave Event</button>
                                 </div>
                             </div>
                         </div>
@@ -68,7 +72,7 @@
                 <h3>List of Pending Requests</h3>
                 @foreach (var pendingOrg in Model.pendingEvents)
                 {
-                    <div class="card mb-3" style="">
+                    <div class="card mb-3">
                         <div class="row g-0">
                             <div class="col-md-4">
                                 @{
@@ -80,7 +84,9 @@
                                 <div class="card-body">
                                     <h5 class="card-title">@pendingOrg.Title</h5>
                                     <p class="card-text">@pendingOrg.Details</p>
-                                    <button class="btn btn-primary" onclick="openEventModal(@Html.Raw(Json.Encode(pendingOrg)))">View Details</button>
+                                    @*<button class="btn btn-primary" onclick="openEventModal(@Html.Raw(Json.Encode(pendingOrg)))">View Details</button>*@
+                                    <button id="btnview" class="btn btn-primary" data-event='@Html.Raw(Json.Encode(pendingOrg))'>View Details</button>
+                                    <button class="btn btn-outline-danger" onclick="cancelRequest('@pendingOrg.eventId')">Cancel Request</button>
                                 </div>
                             </div>
                         </div>
@@ -92,7 +98,7 @@
                 @foreach (var evt in Model.eventHistory)
                 {
 
-                        <div class="card mb-3" style="max-width: 540px;">
+                        <div class="card mb-3">
                             <div class="row g-0">
                                 <div class="col-md-4">
                                     @{
@@ -104,7 +110,10 @@
                                     <div class="card-body">
                                         <h5 class="card-title">@evt.Title</h5>
                                         <p class="card-text">@evt.Details</p>
-                                        <button class="btn btn-primary" onclick="openEventModal(@Html.Raw(Json.Encode(evt)))">View Details</button>
+                                        <div>
+                                            @*<button class="btn btn-primary" onclick="openEventModal(@Html.Raw(Json.Encode(evt)))">View Details</button>*@
+                                            <button class="btn btn-primary" data-event='@Html.Raw(Json.Encode(evt))'>View Details</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -133,6 +142,84 @@
         console.log(ongoingEvents);
         console.log(pendingEvents);
         console.log(eventHistory);
+
+        function cancelRequest(eventId) {
+            Swal.fire({
+                title: 'Confirm Cancel',
+                text: 'Are you sure you want to cancel this request?',
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'No'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '@Url.Action("CancelRequest", "Calendar")',
+                        type: 'POST',
+                        data: { eventId: eventId },
+                        success: function (response) {
+                            if (response.success) {
+                                Swal.fire({
+                                    title: response.message,
+                                    text: '',
+                                    icon: 'success',
+                                    confirmButtonText: 'OK'
+                                }).then(() => {
+                                    window.location.href = '@Url.Action("Calendar", "Calendar")';
+                                });
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            Swal.fire({
+                                title: 'Error',
+                                text: 'An error occurred. Please try again.',
+                                icon: 'error',
+                                confirmButtonText: 'Ok'
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        function LeaveBtn(eventId) {
+            Swal.fire({
+                title: 'Confirm Leave',
+                text: 'Are you sure you want to leave this event?',
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'No'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '@Url.Action("LeaveEvent", "Calendar")',
+                        type: 'POST',
+                        data: { eventId: eventId },
+                        success: function (response) {
+                            if (response.success) {
+                                Swal.fire({
+                                    title: response.message,
+                                    text: '',
+                                    icon: 'success',
+                                    confirmButtonText: 'OK'
+                                }).then(() => {
+                                    window.location.href = '@Url.Action("Calendar", "Calendar")';
+                                });
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            Swal.fire({
+                                title: 'Error',
+                                text: 'An error occurred. Please try again.',
+                                icon: 'error',
+                                confirmButtonText: 'Ok'
+                            });
+                        }
+                    });
+                }
+            });
+        }
     </script>
     <script src="~/Content/Js/Calendar.js"></script>
 </body>

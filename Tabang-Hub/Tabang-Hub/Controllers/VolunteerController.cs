@@ -204,7 +204,10 @@ namespace Tabang_Hub.Controllers
                             var relatedEvents = joinedEvents
                         .Where(e => requiredSkills.Any(rs => rs.skillId == skillToRemove.skillId && rs.eventId == e.eventId))
                         .ToList();
-
+                            if(relatedEvents.Count.Equals(0))
+                            {
+                                db.VolunteerSkill.Remove(skillToRemove); // Remove the skill
+                            }
                             foreach (var eventInfo in relatedEvents)
                             {
                                 if (eventInfo.Status == 2)
@@ -212,6 +215,10 @@ namespace Tabang_Hub.Controllers
                                     // Delete the event from Volunteers table
                                     db.Volunteers.Remove(eventInfo);
                                     db.VolunteerSkill.Remove(skillToRemove); // Remove the skill
+                                }
+                                else if (eventInfo.Status == 0)
+                                {
+                                    return Json(new { success = false });
                                 }
                                 else if (eventInfo.Status == 1)
                                 {

@@ -184,7 +184,16 @@
 .card {
     width: 100%;
     margin-bottom: 15px;
+
+    display: flex;
+    border-radius: 8px;
+    overflow: hidden; /* Ensure the content doesn't overflow the card */
 }
+
+    .card .col-md-8 {
+        flex: 2; /* Ensures the text section takes up 2/3rds of the card */
+        /*padding: 15px;*/
+    }
 
 .card .row {
     display: flex;
@@ -192,7 +201,7 @@
 }
 
 .card .card-body {
-    padding: 15px;
+    padding: 5px;
 }
 
 .card .card-title {
@@ -203,23 +212,32 @@
 .card .card-text {
     font-size: 1rem;
     color: #555;
+    /* Limiting text height and adding ellipsis for overflow */
+    max-height: 80px; /* You can adjust this height as per your needs */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* Limiting to 3 lines of text */
+    -webkit-box-orient: vertical;
 }
 
 .card img {
     max-width: 100%;
     height: auto;
     border-radius: 8px;
+
+    object-fit: cover; /* Ensures the image is scaled properly */
 }
 
-.card .btn {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 5px;
-    cursor: pointer;
-}
+    .card #btnview {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
 
-.card .btn:hover {
-    background-color: #0056b3;
-}
+        .card #btnview:hover {
+            background-color: #0056b3;
+        }

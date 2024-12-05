@@ -11,7 +11,8 @@ namespace Tabang_Hub.Controllers
     public class CalendarController : BaseController
     {
         // GET: Calendar
-        public ActionResult Calendar()
+        [Authorize]
+        public ActionResult Calendar(string section = "ongoingEventsSection")
         {
 
             var getInfo = db.VolunteerInfo.Where(m => m.userId == UserId).ToList();
@@ -46,7 +47,87 @@ namespace Tabang_Hub.Controllers
                 orgInfos = getOrgInfo,
                 listOfEventsSection = db.vw_ListOfEvent.Where(m => m.End_Date >= DateTime.Now).ToList()
             };
+
+            ViewBag.SectionToShow = section;
             return View(indexModel);
+        }
+
+        [HttpPost]
+        public ActionResult CancelRequest(int eventId)
+        {
+            try
+            {
+                var evnt = _organizationManager.GetEventByEventId(eventId);
+                var vol = _organizationManager.GetUserByUserId(UserId);
+
+                if (evnt != null)
+                {
+                    var orga = _organizationManager.GetUserByUserId((int)evnt.userId);
+
+                    db.sp_CancelRequest(eventId, UserId);
+
+                    if (_volunteerManager.DeleteNotification(UserId, eventId, ref ErrorMessage) != ErrorCode.Success)
+                    {
+                        return Json(new { success = false, message = "Error Deleting notificaiton" });
+                    }
+
+                    if (_organizationManager.SentNotif(orga.userId, UserId, eventId, "Cancel Application", $"Volunteer {vol.email} canceled his application og event {evnt.eventTitle}!", 0, ref ErrorMessage) != ErrorCode.Success)
+                    {
+                        return Json(new { success = false, message = "Request cancel failed" });
+                    }
+
+                    return Json(new { success = true, message = "Request Cancelled" });
+                }
+
+                return Json(new { success = true, message = "Request Cancelled" });
+
+            }
+            catch (Exception)
+            {
+                return Json(new { success = false, message = "error message" });
+            }
+        }
+        [HttpPost]
+        public ActionResult LeaveEvent(int eventId)
+        {
+            try
+            {
+                var updateVol = _volunteers.GetAll().Where(m => m.userId == UserId && m.eventId == eventId).FirstOrDefault();
+                var events = _organizationManager.GetEventByEventId(eventId);
+                var volInfo = _volunteerManager.GetVolunteerInfoByUserId((int)updateVol.userId);
+
+                if (updateVol != null)
+                {
+                    db.sp_LeaveEvent(updateVol.eventId, updateVol.userId);
+
+                    // Save the notification for the organization
+                    var notification = new Notification
+                    {
+                        userId = events.userId, // Notify the organization
+                        senderUserId = UserId, // The user who donated
+                        relatedId = eventId,
+                        type = "Leave Event",
+                        content = $"{volInfo.lName + ", " + volInfo.lName} Left {events.eventTitle} Event.",
+                        broadcast = 0, // Not a broadcast
+                        status = 0, // Assuming 1 is the status for a new notification
+                        createdAt = DateTime.Now,
+                        readAt = null // Initially unread
+                    };
+
+                    db.Notification.Add(notification);
+                    db.SaveChanges(); // Save the notification
+
+                    return Json(new { success = true, message = "Left Successfully!" });
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Error" });
+                }
+            }
+            catch (Exception)
+            {
+                return Json(new { success = false, message = "error message" });
+            }
         }
     }
 }

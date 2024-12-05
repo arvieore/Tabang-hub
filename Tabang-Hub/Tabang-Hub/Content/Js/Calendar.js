@@ -38,11 +38,14 @@ function updateCalendar() {
 
         // Check if there are scheduled events for this day
         let hasScheduledEvent = false;
+        let eventDetails = null;  // To store the event details for the clicked day
 
         currentEvents.forEach(event => {
             if (isDateInRange(dateKey, event.Start_Date, event.End_Date)) {
                 hasScheduledEvent = true;
-                // Apply color based on tab section
+                eventDetails = event; // Store the event details
+
+                // Apply color based on the active tab section
                 if (event.Status === 0) {
                     dayCell.classList.add("event-scheduled");
                 }
@@ -59,6 +62,13 @@ function updateCalendar() {
             } else if (activeTab === "eventHistory-tab") {
                 dayCell.style.backgroundColor = "#ffd8bd"; // Light orange for event history
             }
+
+            // Add click event listener to open the modal with event details
+            dayCell.addEventListener("click", () => {
+                if (eventDetails) {
+                    openEventModal(eventDetails); // Open modal with event details
+                }
+            });
         }
 
         // Highlight today's date
@@ -83,10 +93,11 @@ function isDateInRange(date, start, end) {
 
 // Function to open the modal and populate it with event details
 function openEventModal(event) {
+    // Populate modal content with event details
     document.getElementById("eventTitle").textContent = event.Title;
     document.getElementById("eventDetails").textContent = event.Details;
 
-    const eventImage = event.Image ? "/Content/Events/" + event.Image : "https://via.placeholder.com/400x200?text=Event+Image"; // Fallback image if no image
+    const eventImage = event.Image ? "/Content/Events/" + event.Image : "https://via.placeholder.com/400x200?text=Event+Image";
     document.getElementById("eventImage").src = eventImage;
 
     // Show the modal
@@ -147,4 +158,12 @@ document.getElementById("prevYear").addEventListener("click", () => {
 updateCalendar();
 
 // Ensure the modal is hidden on page load
-document.getElementById("eventModal").style.display = "none"; 
+document.getElementById("eventModal").style.display = "none";
+
+// Add click event for View Details button in the card
+document.querySelectorAll('.card .btn-primary').forEach(button => {
+    button.addEventListener('click', function () {
+        const eventDetails = JSON.parse(this.getAttribute('data-event').replace(/&quot;/g, '"'));  // Handle escaping issues
+        openEventModal(eventDetails); // Open the modal with event details
+    });
+});
