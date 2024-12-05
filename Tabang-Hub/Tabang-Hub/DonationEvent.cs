@@ -14,11 +14,6 @@ namespace Tabang_Hub
     
     public partial class DonationEvent
     {
-        public DonationEvent()
-        {
-            this.Donated = new HashSet<Donated>();
-        }
-    
         public int donationEventId { get; set; }
         public Nullable<int> userId { get; set; }
         public string donationEventName { get; set; }
@@ -27,7 +22,5 @@ namespace Tabang_Hub
         public Nullable<System.DateTime> dateEnd { get; set; }
         public string location { get; set; }
         public Nullable<int> status { get; set; }
-    
-        public virtual ICollection<Donated> Donated { get; set; }
     }
 }

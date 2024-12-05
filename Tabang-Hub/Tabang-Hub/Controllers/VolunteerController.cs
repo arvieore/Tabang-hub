@@ -204,7 +204,7 @@ namespace Tabang_Hub.Controllers
                             var relatedEvents = joinedEvents
                         .Where(e => requiredSkills.Any(rs => rs.skillId == skillToRemove.skillId && rs.eventId == e.eventId))
                         .ToList();
-                            if(relatedEvents.Count.Equals(0))
+                            if (relatedEvents.Count.Equals(0))
                             {
                                 db.VolunteerSkill.Remove(skillToRemove); // Remove the skill
                             }
@@ -364,7 +364,7 @@ namespace Tabang_Hub.Controllers
                 {
                     return RedirectToAction("Index", "Page");
                 }
-                
+
                 var checkEventID = _listsOfEvent.Get(eventId);
                 if (checkEventID != null)
                 {
@@ -463,30 +463,39 @@ namespace Tabang_Hub.Controllers
         {
             try
             {
+                // Fetch user information and event details
                 var getVolInfo = db.VolunteerInfo.Where(m => m.userId == UserId).ToList();
                 var getVolInfos = db.VolunteerInfo.Where(m => m.userId == UserId).FirstOrDefault();
                 var getProfile = db.ProfilePicture.Where(m => m.userId == UserId).ToList();
                 var getOrgInfo = db.DonationEvent.Where(m => m.donationEventId == donatioEventId).FirstOrDefault();
                 var getInfo = _orgInfo.GetAll().Where(m => m.userId == getOrgInfo.userId).ToList();
-                var myDonations = _volunteerManager.MyDonation(UserId, donatioEventId);
 
+                // Check if the donation event exists
                 var checkEventID = db.DonationEvent.Where(m => m.donationEventId == donatioEventId).FirstOrDefault();
                 if (checkEventID == null)
                 {
                     return RedirectToAction("Index", "Page");
                 }
-                var recommendedEvents = await _volunteerManager.RunRecommendation(UserId);
 
+                // Handle donation data
+                var myDonates = _volunteerManager.DonatesExist(UserId, donatioEventId);
+                var myDonation = myDonates != null ? _volunteerManager.MyDonation(myDonates.donatesId) : null;
+
+                // Get recommended events
+                var recommendedEvents = await _volunteerManager.RunRecommendation(UserId);
                 var filteredEvent = new List<vw_ListOfEvent>();
+
                 foreach (var recommendedEvent in recommendedEvents)
                 {
                     var matchedEvents = _listsOfEvent.GetAll().Where(m => m.Event_Id == recommendedEvent.EventID).ToList();
                     filteredEvent.AddRange(matchedEvents);
                 }
 
+                // Prepare the model
                 var indexModel = new Lists()
                 {
-                    MyDonations = myDonations,
+                    MyDonations = myDonation,
+                    donates = myDonates,
                     volunteersInfo = getVolInfo,
                     volunteerInfo = getVolInfos,
                     picture = getProfile,
@@ -495,10 +504,8 @@ namespace Tabang_Hub.Controllers
                     donationImages = db.DonationImage.Where(m => m.donationEventId == donatioEventId).ToList(),
                     listOfEventsOne = _listsOfEvent.GetAll().Where(m => m.status != 3).ToList(),
                     listOfEvents = filteredEvent.OrderByDescending(m => m.Event_Id).ToList(),
-
                     detailsEventImageOne = _eventImages.GetAll().Where(m => m.eventId == donatioEventId).ToList(),
                     detailsEventImage = _eventImages.GetAll().ToList(),
-
                     orgInfos = getInfo
                 };
 
@@ -506,12 +513,11 @@ namespace Tabang_Hub.Controllers
             }
             catch (Exception)
             {
-
                 return RedirectToAction("../Page/Index");
             }
         }
         [HttpPost]
-        public ActionResult SubmitDonation(List<Donated> donated)
+        public async Task<JsonResult> SubmitDonation(List<Donated> donated, int donationEventId)
         {
             try
             {
@@ -519,26 +525,105 @@ namespace Tabang_Hub.Controllers
                 {
                     return Json(new { success = false, message = "No donations provided." });
                 }
-                // Generate a single reference number for the entire transaction
-                string referenceNumber = $"REF-{DateTime.Now.Ticks}-{new Random().Next(1000, 9999)}";
-                DateTime dateTime = DateTime.Now;
 
-                foreach (var donatedItems in donated)
+                var referenceNumber = Guid.NewGuid().ToString();
+                var monetaryDonations = new Donated();
+
+                // Check for monetary donations and add them to the array
+                foreach (var donation in donated)
                 {
-                    donatedItems.referenceNum = referenceNumber;
-                    donatedItems.donatedAt = dateTime;
-
-                    if (_volunteerManager.SubmitDonation(donatedItems, ref ErrorMessage) != ErrorCode.Success)
+                    if (donation.donationType?.Equals("Money", StringComparison.OrdinalIgnoreCase) == true)
                     {
-                        return Json(new { success = false, message = "No donations provided." });
+                        monetaryDonations = donation;
                     }
                 }
 
+                foreach (Donated donation in donated)
+                {
+                    if (!donation.donationType?.Equals("Money", StringComparison.OrdinalIgnoreCase) == true)
+                    {
+                        if (_volunteerManager.SubmitDonation(donation, donationEventId, referenceNumber, UserId, ref ErrorMessage) != ErrorCode.Success)
+                        {
+                            return Json(new { success = false, message = "There is problem upon submitting the donation, try again later!." });
+                        }
+                    }
+                }
+                if (monetaryDonations.donationQuantity != null)
+                {
+                    var donationEvent = _organizationManager.GetDonationEventByDonationEventId(donationEventId);
+                    var checkoutUrl = await CreatePayMongoCheckoutSession1((decimal)monetaryDonations.donationQuantity, "Donation for event name: " + donationEvent.donationEventName + " - Reference No: " + referenceNumber, 2, donationEventId, referenceNumber);
+
+
+                    if (checkoutUrl != null)
+                    {
+                        return Json(new { success = true, checkoutUrl = checkoutUrl });
+                    }
+                    else
+                    {
+                        return Json(new { success = false, message = "Failed to create checkout session. Please try again." });
+                    }
+                }
                 return Json(new { success = true, message = "Donations submitted successfully." });
             }
             catch (Exception ex)
             {
                 return Json(new { success = false, message = "An error occurred while processing donations.", error = ex.Message });
+            }
+        }
+        private async Task<string> CreatePayMongoCheckoutSession1(decimal amount, string description, int donationType, int eventId, string referencereferenceNumber)
+        {
+            var client = new RestClient("https://api.paymongo.com/v1/checkout_sessions");
+            var request = new RestRequest();
+            request.Method = Method.Post;
+
+            var secretKey = "sk_test_gvQ3WTM1Acco8AGhp35zT1b1"; // Replace with your actual secret key
+            var encodedSecretKey = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{secretKey}:"));
+            request.AddHeader("Authorization", $"Basic {encodedSecretKey}");
+            request.AddHeader("Content-Type", "application/json");
+
+            var body = new
+            {
+                data = new
+                {
+                    attributes = new
+                    {
+                        line_items = new[]
+                        {
+                    new
+                    {
+                        amount = (int)(amount * 100), // Amount in centavos
+                        currency = "PHP",
+                        name = "Donation",
+                        description = description,
+                        quantity = 1
+                    }
+                },
+                        payment_method_types = new[] { "card", "gcash", "grab_pay" },
+                        send_email_receipt = false,
+                        show_description = true,
+                        description = description,
+                        cancel_url = Url.Action("PaymentFailed", "Volunteer", new { eventId = eventId, donationType = donationType, amount = amount }, Request.Url.Scheme),
+                        success_url = Url.Action("PaymentSuccess", "Volunteer", new { eventId = eventId, donationType = donationType, amount = amount, referenceNumber = referencereferenceNumber }, Request.Url.Scheme) // Passing eventId and amount                       
+                    }
+                }
+            };
+
+            request.AddJsonBody(body);
+
+            var response = await client.ExecuteAsync(request);
+
+            if (response.IsSuccessful)
+            {
+                var responseData = JsonConvert.DeserializeObject<dynamic>(response.Content);
+                string checkoutUrl = responseData.data.attributes.checkout_url;
+                return checkoutUrl;
+            }
+            else
+            {
+                // Log the error for debugging
+                var errorContent = response.Content;
+                System.Diagnostics.Debug.WriteLine($"PayMongo Error Response: {errorContent}");
+                return null;
             }
         }
         [HttpPost]
@@ -726,7 +811,7 @@ namespace Tabang_Hub.Controllers
                     var organizationId = checkDateOrgEvents.userId;
                     _volunteers.Create(apply);
 
-                    _organizationManager.SentNotif((int)organizationId, UserId, eventId, "New Applicant", $"A new volunteer has applied for your event (Event Name: {checkDateOrgEvents.eventTitle}).", 0,  ref ErrorMessage );
+                    _organizationManager.SentNotif((int)organizationId, UserId, eventId, "New Applicant", $"A new volunteer has applied for your event (Event Name: {checkDateOrgEvents.eventTitle}).", 0, ref ErrorMessage);
 
                     return Json(new { success = true, message = "Application sent!" });
                 }
@@ -795,7 +880,7 @@ namespace Tabang_Hub.Controllers
             }
         }
         private async Task<string> CreatePayMongoCheckoutSession(decimal amount, string description, int eventId, string referencereferenceNumber)
-        {          
+        {
             var client = new RestClient("https://api.paymongo.com/v1/checkout_sessions");
             var request = new RestRequest();
             request.Method = Method.Post;
@@ -814,7 +899,7 @@ namespace Tabang_Hub.Controllers
                         line_items = new[]
                         {
                     new
-                    {                       
+                    {
                         amount = (int)(amount * 100), // Amount in centavos
                         currency = "PHP",
                         name = "Donation",
@@ -926,45 +1011,85 @@ namespace Tabang_Hub.Controllers
             }
             return false; // Signature is invalid
         }
-        public async Task<ActionResult> PaymentSuccess(int eventId, decimal amount, string referenceNumber)
+        [Authorize]
+        public async Task<ActionResult> PaymentSuccess(int eventId, decimal amount, int donationType, string referenceNumber)
         {
-            // Save the donation to the database
-            var donation = new UserDonated
+            var exist = _volunteerManager.DonatesExist(UserId, eventId);
+            ViewBag.DonationType = donationType;
+            ViewBag.EventId = eventId;
+
+            if (exist != null)
             {
-                referenceNum = referenceNumber,
-                userId = UserId, // User who made the donation
-                eventId = eventId,
-                amount = amount,
-                donatedAt = DateTime.Now,
-                Status = 1
-            };
+                if (exist.eventType == 2)
+                {
+                    var monetaryDonation = new Donated
+                    {
+                        donatesId = exist.donatesId,
+                        donationType = "Money",
+                        donationQuantity = amount,
+                    };
 
-            db.UserDonated.Add(donation);
-            db.SaveChanges(); // Save the donation to the database
+                    db.Donated.Add(monetaryDonation);
+                    db.SaveChanges();
 
-            // Find the organization associated with the event
-            var organization = db.OrgEvents
-                                 .Where(o => o.eventId == eventId)
+                    var org = db.DonationEvent
+                                 .Where(o => o.donationEventId == eventId)
                                  .FirstOrDefault();
 
-            if (organization != null)
+                    var donationEvent = _organizationManager.GetDonationEventByDonationEventId(eventId);
+                    var sendNotif = _organizationManager.SentNotif((int)org.userId, UserId, eventId, "Donation", $"You have recieve donation for event name {donationEvent.donationEventName}", 0, ref ErrorMessage);
+
+                }
+            }
+            else
             {
-                // Save the notification for the organization
-                var notification = new Notification
+                var donates = new Donates
                 {
-                    userId = organization.userId, // Notify the organization
-                    senderUserId = UserId, // The user who donated
-                    relatedId = eventId,
-                    type = "Donation",
-                    content = $"You have received a donation of {donation.amount} for event #{eventId}.",
-                    broadcast = 0, // Not a broadcast
-                    status = 0, // Assuming 1 is the status for a new notification
-                    createdAt = DateTime.Now,
-                    readAt = null // Initially unread
+                    referenceNum = referenceNumber,
+                    eventType = donationType,
+                    userId = UserId,
+                    eventId = eventId,
+                    donatedAt = DateTime.Now,
+                    status = 0,
                 };
 
-                db.Notification.Add(notification);
-                db.SaveChanges(); // Save the notification
+                db.Donates.Add(donates);
+                db.SaveChanges();
+
+                var donation = new Donated
+                {
+                    donatesId = donates.donatesId,
+                    donationType = "Money",
+                    donationQuantity = amount,
+                };
+
+                db.Donated.Add(donation);
+                db.SaveChanges(); // Save the donation to the database
+
+                // Find the organization associated with the event
+                var organization = db.OrgEvents
+                                     .Where(o => o.eventId == eventId)
+                                     .FirstOrDefault();
+
+                if (organization != null)
+                {
+                    // Save the notification for the organization
+                    var notification = new Notification
+                    {
+                        userId = organization.userId, // Notify the organization
+                        senderUserId = UserId, // The user who donated
+                        relatedId = eventId,
+                        type = "Donation",
+                        content = $"You have received a donation of {donation.donationQuantity} for event #{eventId}.",
+                        broadcast = 0, // Not a broadcast
+                        status = 0, // Assuming 1 is the status for a new notification
+                        createdAt = DateTime.Now,
+                        readAt = null // Initially unread
+                    };
+
+                    db.Notification.Add(notification);
+                    db.SaveChanges(); // Save the notification
+                }
             }
 
             // Now proceed with loading the user's profile information
@@ -1031,8 +1156,11 @@ namespace Tabang_Hub.Controllers
         }
 
         // Payment failed handler
-        public async Task<ActionResult> PaymentFailed(int eventId, decimal amount)
+        [Authorize]
+        public async Task<ActionResult> PaymentFailed(int eventId, int donationType, decimal amount)
         {
+            ViewBag.DonationType = donationType;
+            ViewBag.EventId = eventId;
             // Save the donation to the database
             var donation = new UserDonated
             {
@@ -1042,6 +1170,7 @@ namespace Tabang_Hub.Controllers
                 donatedAt = DateTime.Now,
                 Status = 0
             };
+
 
             db.UserDonated.Add(donation);
             db.SaveChanges(); // Save the donation to the database
@@ -1159,6 +1288,80 @@ namespace Tabang_Hub.Controllers
                     detailsEventImage = _eventImages.GetAll().ToList()
                 };
                 return View(indexModel);
+            }
+        }
+        [Authorize]
+        public ActionResult DonationsHistory()
+        {
+            var myDonates = db.Donates.Where(m => m.userId == UserId && m.status == 1).ToList();
+
+            // Initialize the list of donation history
+            var donationHistories = new List<Lists.DonationHistory>();
+
+            foreach (var donates in myDonates)
+            {
+                if (donates.eventType == 1)
+                {
+                    // Fetch organization event
+                    var orgEvent = _organizationManager.GetEventByEventId((int)donates.eventId);
+                    donationHistories.Add(new Lists.DonationHistory
+                    {
+                        donates = donates,
+                        orgEvents = orgEvent,
+                        donationEvent = null // No donation event for type 1
+                    });
+                }
+                else
+                {
+                    // Fetch donation event
+                    var donationEvent = _organizationManager.GetDonationEventByDonationEventId((int)donates.eventId);
+                    donationHistories.Add(new Lists.DonationHistory
+                    {
+                        donates = donates,
+                        orgEvents = null, // No org event for this type
+                        donationEvent = donationEvent
+                    });
+                }
+            }
+
+            var indexModel = new Lists()
+            {
+                listOfDonates = myDonates,
+                listOfDonationsHisotry = donationHistories, // Add the populated donation history
+                picture = db.ProfilePicture.Where(m => m.userId == UserId).ToList(),
+                volunteersInfo = db.VolunteerInfo.Where(m => m.userId == UserId).ToList(),
+                listofUserDonated = db.UserDonated.Where(m => m.userId == UserId).ToList(),
+                userDonatedInformations = db.sp_GetUserDonatedInformations(UserId).ToList(),
+                listOfEvents = db.vw_ListOfEvent.OrderByDescending(m => m.Event_Id).ToList(),
+                detailsEventImage = _eventImages.GetAll().ToList()
+            };
+
+            return View(indexModel);
+        }
+        [HttpGet]
+        public JsonResult MyDonation(int userId, int eventId)
+        {
+            try
+            {
+                var donates = _volunteerManager.GetDonatedByUserIdAndDonationEventId(userId, eventId);
+
+                var myDonations = _volunteerManager.MyDonation(donates.donatesId)
+                    .Select(d => new
+                    {
+                        donationId = d.donateId,
+                        donationEventId = donates.eventId,
+                        donationQuantity = d.donationQuantity,
+                        donationType = d.donationType,
+                        donationUnit = d.donationUnit,
+                    }).ToList();
+
+                return Json(new { success = true, data = myDonations }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                // Log exception for debugging
+                Console.WriteLine(ex.Message);
+                return Json(new { success = false, message = "Error fetching donations." }, JsonRequestBehavior.AllowGet);
             }
         }
         [Authorize]

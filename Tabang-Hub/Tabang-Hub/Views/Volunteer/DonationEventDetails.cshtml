@@ -205,7 +205,6 @@
                     <thead>
                         <tr>
                             <th>Donation Type</th>
-                            <th>Item</th>
                             <th>Unit</th>
                             <th>Quantity</th>
                             <th>Actions</th>
@@ -243,25 +242,34 @@
                         </tr>
                     </thead>
                     <tbody id="pendingDonationsTable">
-                        @foreach (var items in Model.MyDonations)
+                        @if (Model.MyDonations != null && Model.MyDonations.Any())
                         {
-                            if(items.status == 0)
-                            { 
-                            <tr>
-                                <td>@items.donationType</td>
-                                <td>@items.donationUnit</td>
-                                <td>
-                                    @if (items.donationType == "Money")
-                                    {
-                                       <span>₱</span>@(items.donationQuantity.HasValue ? items.donationQuantity.Value.ToString("F2") : "N/A") <!-- Decimal for Money -->
-                                    }
-                                    else
-                                    {
-                                        @(items.donationQuantity.HasValue ? items.donationQuantity.Value.ToString("F0") : "N/A") <!-- Integer for others -->
-                                    }
-                                </td>
-                            </tr>
+                            foreach (var items in Model.MyDonations)
+                            {
+                                if (Model.donates?.status == 0)
+                                {
+                                    <tr>
+                                        <td>@items.donationType</td>
+                                        <td>@items.donationUnit</td>
+                                        <td>
+                                            @if (items.donationType == "Money")
+                                            {
+                                                <span>₱</span>@(items.donationQuantity?.ToString("F2") ?? "N/A") <!-- Decimal for Money -->
+                                            }
+                                            else
+                                            {
+                                                @(items.donationQuantity?.ToString("F0") ?? "N/A") <!-- Integer for others -->
+                                            }
+                                        </td>
+                                    </tr>
+                                }
                             }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="3" class="text-center">No pending donations available.</td>
+                            </tr>
                         }
                     </tbody>
                 </table>
@@ -277,25 +285,34 @@
                         </tr>
                     </thead>
                     <tbody id="deliveredDonationsTable">
-                        @foreach (var items in Model.MyDonations)
+                        @if (Model.MyDonations != null && Model.MyDonations.Any())
                         {
-                            if (items.status == 1)
-                            { 
-                                <tr>
-                                    <td>@items.donationType</td>
-                                    <td>@items.donationUnit</td>
-                                    <td>
-                                        @if (items.donationType == "Money")
-                                        {
-                                           <span>₱</span>@(items.donationQuantity.HasValue ? items.donationQuantity.Value.ToString("F2") : "N/A") <!-- Decimal for Money -->
-                                        }
-                                        else
-                                        {
-                                            @(items.donationQuantity.HasValue ? items.donationQuantity.Value.ToString("F0") : "N/A") <!-- Integer for others -->
-                                        }
-                                    </td>
-                                </tr>
+                            foreach (var items in Model.MyDonations)
+                            {
+                                if (Model.donates?.status == 1)
+                                {
+                                    <tr>
+                                        <td>@items.donationType</td>
+                                        <td>@items.donationUnit</td>
+                                        <td>
+                                            @if (items.donationType == "Money")
+                                            {
+                                                <span>₱</span>@(items.donationQuantity?.ToString("F2") ?? "N/A") <!-- Decimal for Money -->
+                                            }
+                                            else
+                                            {
+                                                @(items.donationQuantity?.ToString("F0") ?? "N/A") <!-- Integer for others -->
+                                            }
+                                        </td>
+                                    </tr>
+                                }
                             }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="3" class="text-center">No successful donations available.</td>
+                            </tr>
                         }
                     </tbody>
                 </table>
@@ -315,7 +332,6 @@
             const newRow = document.createElement('tr');
             newRow.innerHTML = `
             <td>Money</td>
-            <td>N/A</td>
             <td>N/A</td>
             <td>${amount}</td>
             <td><button type="button" class="btn btn-danger btn-sm removeDonation">Remove</button></td>
@@ -387,16 +403,16 @@
 
         // Collect donation details from the table
         donationRows.forEach(row => {
-            const donationType = row.cells[0].textContent.trim(); // Donation type (Money, Food, Clothes, etc.)
-            const unit = donationType === "Money" ? null : row.cells[1].textContent.trim(); // Null for Money
-            const quantity = donationType === "Money" ? parseFloat(row.cells[3].textContent.trim()) : parseFloat(row.cells[2].textContent.trim()); // Amount for Money, Quantity for items
+            const donationType = row.cells[0].textContent.trim(); // Donation type (Money, Food, etc.)
+            const unit = donationType === "Money" ? null : row.cells[1].textContent.trim();
+            const quantity = donationType === "Money" ? parseFloat(row.cells[2].textContent.trim()) : parseFloat(row.cells[2].textContent.trim());
 
             donations.push({
-                donationEventId: eventId, // Event ID from hidden input
-                userId: userId, // User ID from hidden input
-                donationType: donationType, // Correct donation type
-                donationUnit: unit, // Unit for non-monetary donations
-                donationQuantity: quantity // Amount for Money or Quantity for items
+                donationEventId: eventId,
+                userId: userId,
+                donationType: donationType,
+                donationUnit: unit,
+                donationQuantity: quantity
             });
         });
 
@@ -412,17 +428,23 @@
             return;
         }
 
-        // Send data to the backend
-        $.post('/Volunteer/SubmitDonation', { donated: donations }, (response) => {
+        // Send donations to the backend
+        $.post('/Volunteer/SubmitDonation', { donated: donations, donationEventId: eventId }, (response) => {
             if (response.success) {
-                Swal.fire({
-                    title: 'Success!',
-                    text: 'Donations have been submitted successfully.',
-                    icon: 'success',
-                    confirmButtonText: 'OK'
-                }).then(() => {
-                    location.reload(); // Reload the page to reflect the new state or clear the table
-                });
+                if (response.checkoutUrl) {
+                    // Redirect to PayMongo checkout
+                    window.location.href = response.checkoutUrl;
+                } else {
+                    // Show success message and reload the page
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Donations submitted successfully.',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        location.reload();
+                    });
+                }
             } else {
                 Swal.fire({
                     title: 'Error!',

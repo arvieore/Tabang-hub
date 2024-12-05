@@ -251,6 +251,7 @@
                         <table class="table table-sm table-bordered table-striped align-middle bg-white">
                             <thead class="table-dark">
                                 <tr>
+                                    <th scope="col">Ref. Number</th>
                                     <th scope="col">Donor Name</th>
                                     <th scope="col">Total Donations</th>
                                     <th scope="col">Action</th>
@@ -262,6 +263,7 @@
                                     if (items.status == 0)
                                     {
                                         <tr>
+                                            <td>@items.referenceNum</td>
                                             <td>@items.donorName</td>
                                             <td>@items.donationQuantity</td>
                                             <td>
@@ -269,7 +271,7 @@
                                                     <button type="button" class="btn btn-sm btn-primary" onclick="viewDonation(@items.userId, @items.donationEventId)">
                                                         <i class="bi bi-eye"></i> View
                                                     </button>
-                                                    <button type="button" class="btn btn-sm btn-success" onclick="markReceived(@items.userId, @items.donationEventId)">
+                                                    <button type="button" class="btn btn-sm btn-success" onclick="markReceived(@items.donatesId)">
                                                         <i class="bi bi-check-circle"></i> Mark as Received
                                                     </button>
                                                 </div>
@@ -394,7 +396,7 @@
         });
     }
 
-    function markReceived(userId, eventId) {
+    function markReceived(donatesId) {
         Swal.fire({
             title: 'Are you sure?',
             text: "You are about to mark this donation as received.",
@@ -408,7 +410,7 @@
                 $.ajax({
                     url: '/Organization/Received', // Ensure this URL matches your route
                     type: 'POST',
-                    data: { userId: userId, eventId: eventId },
+                    data: { donatesId: donatesId }, // Use the correct parameter name
                     success: function (response) {
                         if (response.success) {
                             Swal.fire(

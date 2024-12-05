@@ -26,6 +26,7 @@ namespace Tabang_Hub.Repository
         public BaseRepository<Notification> _notification;
         public BaseRepository<VolunteerInfo> _volunteerInfo;
         public BaseRepository<Donated> _donated;
+        public BaseRepository<Donates> _donates;
 
         public BaseRepository<vw_ListOfEvent> _vw_listOfEvent;
 
@@ -42,6 +43,7 @@ namespace Tabang_Hub.Repository
             _notification = new BaseRepository<Notification>();
             _volunteerInfo = new BaseRepository<VolunteerInfo>();
             _donated = new BaseRepository<Donated>();
+            _donates = new BaseRepository<Donates>();
 
             _vw_listOfEvent = new BaseRepository<vw_ListOfEvent>();
 
@@ -59,19 +61,44 @@ namespace Tabang_Hub.Repository
             }
             return ErrorCode.Success;
         }
-        public ErrorCode SubmitDonation(Donated donated, ref String errMsg)
+        public ErrorCode SubmitDonation(Donated donate, int donationEventId, string refNum, int userId, ref String errMsg)
         {
-            donated.status = 0;
+            var toSave = new Donates()
+            {
+                eventType = 2,
+                referenceNum = refNum,
+                userId = userId,
+                eventId = donationEventId,
+                donatedAt = DateTime.Now,
+                status = 0,
+            };
 
-            if (_donated.Create(donated, out errMsg) != ErrorCode.Success)
+            if (_donates.Create(toSave, out errMsg) != ErrorCode.Success)
             {
                 return ErrorCode.Error;
             }
+
+            donate.donatesId = toSave.donatesId;
+            donate.status = 0;
+
+            if (_donated.Create(donate, out errMsg) != ErrorCode.Success)
+            {
+                return ErrorCode.Error;
+            }
+
             return ErrorCode.Success;
         }
-        public List<Donated> MyDonation(int userId, int eventId)
-        { 
-            return _donated._table.Where(m => m.userId == userId && m.donationEventId == eventId).ToList();
+        public Donates GetDonatedByUserIdAndDonationEventId1(int donatesId)
+        {
+            return _donates._table.Where(m => m.donatesId == donatesId).FirstOrDefault();
+        }
+        public Donates GetDonatedByUserIdAndDonationEventId(int userId, int donationEventId)
+        {
+            return _donates._table.Where(m => m.userId == userId && m.eventId == donationEventId).FirstOrDefault();
+        }
+        public List<Donated> MyDonation(int donatesId)
+        {
+            return _donated._table.Where(m => m.donatesId == donatesId).ToList();
         }
         public Volunteers GetVolunteerByUserId(int userId, int eventId)
         {
@@ -99,6 +126,10 @@ namespace Tabang_Hub.Repository
         public VolunteerInfo GetVolunteerInfoByUserId(int userId)
         {
             return _volunteerInfo._table.Where(m => m.userId == userId).FirstOrDefault();
+        }
+        public Donates DonatesExist(int userId, int eventId)
+        {
+            return _donates._table.Where(m => m.userId == userId && m.eventId == eventId).FirstOrDefault();
         }
 
         public List<Volunteers> GetVolunteersEventParticipateByUserId(int userId)

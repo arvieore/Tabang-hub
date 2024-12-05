@@ -48,7 +48,14 @@
       <Parameter Name="userId" Mode="In" Type="Int32" />
       <Parameter Name="eventId" Mode="In" Type="Int32" />
     </FunctionImport>
+    <FunctionImport Name="sp_GetUserDonated" ReturnType="Collection(TabangHubModel.sp_GetUserDonated_Result)">
+      <Parameter Name="userId" Mode="In" Type="Int32" />
+    </FunctionImport>
+    <FunctionImport Name="sp_GetUserDonated1" ReturnType="Collection(TabangHubModel.sp_GetUserDonated1_Result)">
+      <Parameter Name="userId" Mode="In" Type="Int32" />
+    </FunctionImport>
     <EntitySet Name="Donated" EntityType="TabangHubModel.Donated" />
+    <EntitySet Name="Donates" EntityType="TabangHubModel.Donates" />
     <EntitySet Name="DonationEvent" EntityType="TabangHubModel.DonationEvent" />
     <EntitySet Name="DonationImage" EntityType="TabangHubModel.DonationImage" />
     <EntitySet Name="DonationType" EntityType="TabangHubModel.DonationType" />
@@ -80,14 +87,6 @@
     <EntitySet Name="vw_UserRoles" EntityType="TabangHubModel.vw_UserRoles" />
     <EntitySet Name="vw_VolunteerAccounts" EntityType="TabangHubModel.vw_VolunteerAccounts" />
     <EntitySet Name="vw_VolunteerSkills" EntityType="TabangHubModel.vw_VolunteerSkills" />
-    <AssociationSet Name="FK_Donated_DonationEvent" Association="TabangHubModel.FK_Donated_DonationEvent">
-      <End Role="DonationEvent" EntitySet="DonationEvent" />
-      <End Role="Donated" EntitySet="Donated" />
-    </AssociationSet>
-    <AssociationSet Name="FK_Donated_UserAccount" Association="TabangHubModel.FK_Donated_UserAccount">
-      <End Role="UserAccount" EntitySet="UserAccount" />
-      <End Role="Donated" EntitySet="Donated" />
-    </AssociationSet>
     <AssociationSet Name="FK_Feedback_OrgEvents" Association="TabangHubModel.FK_Feedback_OrgEvents">
       <End Role="OrgEvents" EntitySet="OrgEvents" />
       <End Role="Feedback" EntitySet="Feedback" />
@@ -180,9 +179,6 @@
       <End Role="UserAccount" EntitySet="UserAccount" />
       <End Role="VolunteersHistory" EntitySet="VolunteersHistory" />
     </AssociationSet>
-    <FunctionImport Name="sp_GetUserDonated" ReturnType="Collection(TabangHubModel.sp_GetUserDonated_Result)">
-      <Parameter Name="userId" Mode="In" Type="Int32" />
-    </FunctionImport>
   </EntityContainer>
   <ComplexType Name="sp_GetAllMessage_Result">
     <Property Type="Int32" Name="groupChatId" Nullable="false" />
@@ -268,21 +264,52 @@
     <Property Type="Int32" Name="eventId" Nullable="true" />
     <Property Type="String" Name="eventTitle" Nullable="true" MaxLength="255" />
   </ComplexType>
+  <ComplexType Name="sp_GetUserDonated_Result">
+    <Property Type="String" Name="donationEventId" Nullable="true" MaxLength="30" />
+    <Property Type="String" Name="eventId" Nullable="true" MaxLength="30" />
+    <Property Type="String" Name="RefNumber" Nullable="true" MaxLength="255" />
+    <Property Type="DateTime" Name="DateDonated" Nullable="true" Precision="23" />
+    <Property Type="String" Name="Type" Nullable="false" MaxLength="12" />
+    <Property Type="String" Name="AmountOrDescription" Nullable="true" MaxLength="4000" />
+    <Property Type="String" Name="EventName" Nullable="true" MaxLength="255" />
+    <Property Type="String" Name="DonationDescription" Nullable="true" />
+    <Property Type="String" Name="EventDescription" Nullable="true" />
+    <Property Type="String" Name="EventImage" Nullable="true" MaxLength="255" />
+  </ComplexType>
+  <ComplexType Name="sp_GetUserDonated1_Result">
+    <Property Type="String" Name="donationEventId" Nullable="true" MaxLength="30" />
+    <Property Type="String" Name="eventId" Nullable="true" MaxLength="30" />
+    <Property Type="String" Name="RefNumber" Nullable="true" MaxLength="255" />
+    <Property Type="DateTime" Name="DateDonated" Nullable="true" Precision="23" />
+    <Property Type="String" Name="Type" Nullable="false" MaxLength="12" />
+    <Property Type="String" Name="AmountOrDescription" Nullable="true" MaxLength="4000" />
+    <Property Type="String" Name="EventName" Nullable="true" MaxLength="255" />
+    <Property Type="String" Name="DonationDescription" Nullable="true" />
+    <Property Type="String" Name="EventDescription" Nullable="true" />
+    <Property Type="String" Name="EventImage" Nullable="true" MaxLength="255" />
+  </ComplexType>
   <EntityType Name="Donated">
     <Key>
       <PropertyRef Name="donateId" />
     </Key>
     <Property Name="donateId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-    <Property Name="donationEventId" Type="Int32" />
-    <Property Name="userId" Type="Int32" />
+    <Property Name="donatesId" Type="Int32" />
     <Property Name="donationType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
     <Property Name="donationUnit" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
     <Property Name="donationQuantity" Type="Decimal" Precision="10" Scale="2" />
     <Property Name="status" Type="Int32" />
-    <NavigationProperty Name="DonationEvent" Relationship="TabangHubModel.FK_Donated_DonationEvent" FromRole="Donated" ToRole="DonationEvent" />
-    <NavigationProperty Name="UserAccount" Relationship="TabangHubModel.FK_Donated_UserAccount" FromRole="Donated" ToRole="UserAccount" />
-    <Property Name="referenceNum" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+  </EntityType>
+  <EntityType Name="Donates">
+    <Key>
+      <PropertyRef Name="donatesId" />
+    </Key>
+    <Property Name="donatesId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="referenceNum" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="eventType" Type="Int32" />
+    <Property Name="userId" Type="Int32" />
+    <Property Name="eventId" Type="Int32" />
     <Property Name="donatedAt" Type="DateTime" Precision="3" />
+    <Property Name="status" Type="Int32" />
   </EntityType>
   <EntityType Name="DonationEvent">
     <Key>
@@ -296,7 +323,6 @@
     <Property Name="dateEnd" Type="DateTime" Precision="3" />
     <Property Name="location" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
     <Property Name="status" Type="Int32" />
-    <NavigationProperty Name="Donated" Relationship="TabangHubModel.FK_Donated_DonationEvent" FromRole="DonationEvent" ToRole="Donated" />
   </EntityType>
   <EntityType Name="DonationImage">
     <Key>
@@ -494,7 +520,6 @@
     <Property Name="password" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="true" />
     <Property Name="status" Type="Int16" Nullable="false" />
     <Property Name="roleId" Type="Int32" Nullable="false" />
-    <NavigationProperty Name="Donated" Relationship="TabangHubModel.FK_Donated_UserAccount" FromRole="UserAccount" ToRole="Donated" />
     <NavigationProperty Name="Feedback" Relationship="TabangHubModel.FK_Feedback_UserAccount" FromRole="UserAccount" ToRole="Feedback" />
     <NavigationProperty Name="GroupMessages" Relationship="TabangHubModel.FK_GroupMessages_UserAccount" FromRole="UserAccount" ToRole="GroupMessages" />
     <NavigationProperty Name="OrgEvents" Relationship="TabangHubModel.FK_OrgEvents_UserAccount" FromRole="UserAccount" ToRole="OrgEvents" />
@@ -690,30 +715,6 @@
     <Property Name="skillId" Type="Int32" />
     <Property Name="rate" Type="Int32" Nullable="false" />
   </EntityType>
-  <Association Name="FK_Donated_DonationEvent">
-    <End Type="TabangHubModel.DonationEvent" Role="DonationEvent" Multiplicity="0..1" />
-    <End Type="TabangHubModel.Donated" Role="Donated" Multiplicity="*" />
-    <ReferentialConstraint>
-      <Principal Role="DonationEvent">
-        <PropertyRef Name="donationEventId" />
-      </Principal>
-      <Dependent Role="Donated">
-        <PropertyRef Name="donationEventId" />
-      </Dependent>
-    </ReferentialConstraint>
-  </Association>
-  <Association Name="FK_Donated_UserAccount">
-    <End Type="TabangHubModel.UserAccount" Role="UserAccount" Multiplicity="0..1" />
-    <End Type="TabangHubModel.Donated" Role="Donated" Multiplicity="*" />
-    <ReferentialConstraint>
-      <Principal Role="UserAccount">
-        <PropertyRef Name="userId" />
-      </Principal>
-      <Dependent Role="Donated">
-        <PropertyRef Name="userId" />
-      </Dependent>
-    </ReferentialConstraint>
-  </Association>
   <Association Name="FK_Feedback_OrgEvents">
     <End Type="TabangHubModel.OrgEvents" Role="OrgEvents" Multiplicity="0..1" />
     <End Type="TabangHubModel.Feedback" Role="Feedback" Multiplicity="*" />
@@ -990,16 +991,4 @@
       </Dependent>
     </ReferentialConstraint>
   </Association>
-  <ComplexType Name="sp_GetUserDonated_Result">
-    <Property Type="String" Name="donationEventId" Nullable="true" MaxLength="30" />
-    <Property Type="String" Name="eventId" Nullable="true" MaxLength="30" />
-    <Property Type="String" Name="RefNumber" Nullable="true" MaxLength="255" />
-    <Property Type="DateTime" Name="DateDonated" Nullable="true" Precision="23" />
-    <Property Type="String" Name="Type" Nullable="false" MaxLength="12" />
-    <Property Type="String" Name="AmountOrDescription" Nullable="true" MaxLength="4000" />
-    <Property Type="String" Name="EventName" Nullable="true" MaxLength="255" />
-    <Property Type="String" Name="DonationDescription" Nullable="true" />
-    <Property Type="String" Name="EventDescription" Nullable="true" />
-    <Property Type="String" Name="EventImage" Nullable="true" MaxLength="255" />
-  </ComplexType>
 </Schema>

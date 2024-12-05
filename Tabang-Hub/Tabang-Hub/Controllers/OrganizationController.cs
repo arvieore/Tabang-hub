@@ -170,102 +170,179 @@ namespace Tabang_Hub.Controllers
 
             return View(indexModel);
         }
-        [HttpPost]
-        public async Task<ActionResult> CreateEvents(Lists events, List<string> skills, HttpPostedFileBase[] images)
+        [Authorize]
+        public ActionResult ListOfEvent()
         {
-            // Sanitize skill names
-            var sanitizedSkills = new List<string>();
-            if (skills != null)
+            var lists = _organizationManager.ListOfEvents2(UserId);
+            var listOfSkill = _organizationManager.ListOfSkills();
+            var listofUserDonated = _organizationManager.ListOfUserDonated(UserId);
+            var orgInfo = _organizationManager.GetOrgInfoByUserId(UserId);
+            var donationList = _organizationManager.GetListOfDonationEventByUserId(UserId);
+
+            var indexModel = new Lists()
             {
-                foreach (var skill in skills)
+                listOfOrgEvents = lists,
+                listOfSkills = listOfSkill,
+                listofUserDonated = listofUserDonated,
+                OrgInfo = orgInfo,
+                listOfDonationEvent = donationList,
+            };
+
+            return View(indexModel);
+        }
+        [HttpPost]
+        public JsonResult CreateEvent(OrgEvents eventDto, List<SkillDto> skills, HttpPostedFileBase[] eventImages)
+        {
+            try
+            {
+                // Check if skills is null or empty
+                if (skills == null || !skills.Any())
                 {
-                    var sanitizedSkillName = skill.Replace(" x", "").Trim();
-                    sanitizedSkills.Add(sanitizedSkillName);
+                    return Json(new { success = false, message = "No skills were provided." });
                 }
-            }
 
-            events.CreateEvents.userId = UserId;
-            string errMsg = string.Empty;
-            List<string> uploadedFiles = new List<string>();
-
-            // Server-side validation
-            if (string.IsNullOrWhiteSpace(events.CreateEvents.eventTitle))
-            {
-                ModelState.AddModelError("CreateEvents.eventTitle", "Event Title is required.");
-            }
-            if (string.IsNullOrWhiteSpace(events.CreateEvents.eventDescription))
-            {
-                ModelState.AddModelError("CreateEvents.eventDescription", "Event Description is required.");
-            }
-            if (events.CreateEvents.maxVolunteer <= 0)
-            {
-                ModelState.AddModelError("CreateEvents.maxVolunteer", "Maximum Volunteers must be greater than 0.");
-            }
-            if (events.CreateEvents.dateStart == null || events.CreateEvents.dateEnd == null)
-            {
-                ModelState.AddModelError("CreateEvents.dateStart", "Start Date and End Date are required.");
-            }
-            if (events.CreateEvents.dateStart < DateTime.Now)
-            { 
-                ModelState.AddModelError("CreateEvents.dateStart", "Start date and time cannot be before the current date and time.");
-            }
-            if (events.CreateEvents.dateEnd <= events.CreateEvents.dateStart)
-            {
-                ModelState.AddModelError("CreateEvents.dateEnd", "End date and time cannot be before or the same as the start date and time.");
-            }
-            if (string.IsNullOrWhiteSpace(events.CreateEvents.location))
-            {
-                ModelState.AddModelError("CreateEvents.location", "Location is required.");
-            }
-            if (sanitizedSkills == null || sanitizedSkills.Count == 0)
-            {
-                ModelState.AddModelError("CreateEvents.skills", "At least one skill is required.");
-            }
-            if (images == null || images.Length == 0)
-            {
-                ModelState.AddModelError("CreateEvents.images", "At least one image is required.");
-            }
-
-            // Image processing
-            if (images != null && images.Length > 0)
-            {
-                var imagePath = Server.MapPath("~/Content/Events");
-                Directory.CreateDirectory(imagePath); // Create directory if it doesn't exist
-
-                foreach (var image in images)
+                // Initialize new event entity
+                var newEvent = new OrgEvents
                 {
-                    if (image != null && image.ContentLength > 0)
+                    userId = UserId,
+                    eventTitle = eventDto.eventTitle,
+                    eventDescription = eventDto.eventDescription,
+                    targetAmount = eventDto.targetAmount,
+                    maxVolunteer = eventDto.maxVolunteer,
+                    dateStart = eventDto.dateStart,
+                    dateEnd = eventDto.dateEnd,
+                    location = eventDto.location,
+                    status = 1 // Assuming 1 means 'active' or 'upcoming'
+                };
+
+                // Image processing
+                List<string> uploadedFiles = new List<string>();
+                if (eventImages != null && eventImages.Length > 0)
+                {
+                    var imagePath = Server.MapPath("~/Content/Events");
+                    Directory.CreateDirectory(imagePath); // Create directory if it doesn't exist
+
+                    foreach (var image in eventImages)
                     {
-                        var fileName = Path.GetFileName(image.FileName);
-                        var filePath = Path.Combine(imagePath, fileName);
-                        image.SaveAs(filePath);
-                        uploadedFiles.Add(fileName);
+                        if (image != null && image.ContentLength > 0)
+                        {
+                            var fileName = Path.GetFileName(image.FileName);
+                            var filePath = Path.Combine(imagePath, fileName);
+                            image.SaveAs(filePath);
+                            uploadedFiles.Add(fileName);
+                        }
                     }
                 }
-            }
 
-            // Store the event and associated skill requirements
-            if (_organizationManager.CreateEvents(events.CreateEvents, uploadedFiles, sanitizedSkills, ref errMsg) != ErrorCode.Success)
-            {
-                ModelState.AddModelError(string.Empty, errMsg);
-                return RedirectToAction("EventsList");
-            }
-
-            var filtered = await _organizationManager.GetMatchedVolunteers(events.CreateEvents.eventId);
-            var user = _organizationManager.GetOrgInfoByUserId(UserId);
-
-            foreach(var fltr in filtered.SortedByRating)
-            {
-                if (_organizationManager.SentNotif(fltr.userId, UserId, events.CreateEvents.eventId, "Create Event", $"{user.orgName} create a new event that matched your skills!", 0, ref ErrorMessage) != ErrorCode.Success)
+                // Call manager to save the event
+                if (_organizationManager.CreateEvents(newEvent, uploadedFiles, skills, ref ErrorMessage) != ErrorCode.Success)
                 {
-                    TempData["Error Sending Notification"] = true;
-                    return RedirectToAction("EventsList");
+                    return Json(new { success = false, message = ErrorMessage });
                 }
-            }
 
-            TempData["Success"] = true;
-            return RedirectToAction("EventsList");
+                return Json(new { success = true, message = ErrorMessage });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
+        //[HttpPost]
+        //public async Task<ActionResult> CreateEvents(Lists events, List<string> skills, HttpPostedFileBase[] images)
+        //{
+        //    // Sanitize skill names
+        //    var sanitizedSkills = new List<string>();
+        //    if (skills != null)
+        //    {
+        //        foreach (var skill in skills)
+        //        {
+        //            var sanitizedSkillName = skill.Replace(" x", "").Trim();
+        //            sanitizedSkills.Add(sanitizedSkillName);
+        //        }
+        //    }
+
+        //    events.CreateEvents.userId = UserId;
+        //    string errMsg = string.Empty;
+        //    List<string> uploadedFiles = new List<string>();
+
+        //    // Server-side validation
+        //    if (string.IsNullOrWhiteSpace(events.CreateEvents.eventTitle))
+        //    {
+        //        ModelState.AddModelError("CreateEvents.eventTitle", "Event Title is required.");
+        //    }
+        //    if (string.IsNullOrWhiteSpace(events.CreateEvents.eventDescription))
+        //    {
+        //        ModelState.AddModelError("CreateEvents.eventDescription", "Event Description is required.");
+        //    }
+        //    if (events.CreateEvents.maxVolunteer <= 0)
+        //    {
+        //        ModelState.AddModelError("CreateEvents.maxVolunteer", "Maximum Volunteers must be greater than 0.");
+        //    }
+        //    if (events.CreateEvents.dateStart == null || events.CreateEvents.dateEnd == null)
+        //    {
+        //        ModelState.AddModelError("CreateEvents.dateStart", "Start Date and End Date are required.");
+        //    }
+        //    if (events.CreateEvents.dateStart < DateTime.Now)
+        //    { 
+        //        ModelState.AddModelError("CreateEvents.dateStart", "Start date and time cannot be before the current date and time.");
+        //    }
+        //    if (events.CreateEvents.dateEnd <= events.CreateEvents.dateStart)
+        //    {
+        //        ModelState.AddModelError("CreateEvents.dateEnd", "End date and time cannot be before or the same as the start date and time.");
+        //    }
+        //    if (string.IsNullOrWhiteSpace(events.CreateEvents.location))
+        //    {
+        //        ModelState.AddModelError("CreateEvents.location", "Location is required.");
+        //    }
+        //    if (sanitizedSkills == null || sanitizedSkills.Count == 0)
+        //    {
+        //        ModelState.AddModelError("CreateEvents.skills", "At least one skill is required.");
+        //    }
+        //    if (images == null || images.Length == 0)
+        //    {
+        //        ModelState.AddModelError("CreateEvents.images", "At least one image is required.");
+        //    }
+
+        //    // Image processing
+        //    if (images != null && images.Length > 0)
+        //    {
+        //        var imagePath = Server.MapPath("~/Content/Events");
+        //        Directory.CreateDirectory(imagePath); // Create directory if it doesn't exist
+
+        //        foreach (var image in images)
+        //        {
+        //            if (image != null && image.ContentLength > 0)
+        //            {
+        //                var fileName = Path.GetFileName(image.FileName);
+        //                var filePath = Path.Combine(imagePath, fileName);
+        //                image.SaveAs(filePath);
+        //                uploadedFiles.Add(fileName);
+        //            }
+        //        }
+        //    }
+
+        //    // Store the event and associated skill requirements
+        //    if (_organizationManager.CreateEvents(events.CreateEvents, uploadedFiles, sanitizedSkills, ref errMsg) != ErrorCode.Success)
+        //    {
+        //        ModelState.AddModelError(string.Empty, errMsg);
+        //        return RedirectToAction("EventsList");
+        //    }
+
+        //    var filtered = await _organizationManager.GetMatchedVolunteers(events.CreateEvents.eventId);
+        //    var user = _organizationManager.GetOrgInfoByUserId(UserId);
+
+        //    foreach(var fltr in filtered.SortedByRating)
+        //    {
+        //        if (_organizationManager.SentNotif(fltr.userId, UserId, events.CreateEvents.eventId, "Create Event", $"{user.orgName} create a new event that matched your skills!", 0, ref ErrorMessage) != ErrorCode.Success)
+        //        {
+        //            TempData["Error Sending Notification"] = true;
+        //            return RedirectToAction("EventsList");
+        //        }
+        //    }
+
+        //    TempData["Success"] = true;
+        //    return RedirectToAction("EventsList");
+        //}
         [HttpPost]
         public JsonResult CreateDonation(DonationEvent donation, HttpPostedFileBase[] donationImage)
         {
@@ -442,39 +519,32 @@ namespace Tabang_Hub.Controllers
             return RedirectToAction("EventsList");
         }
         [Authorize]
-        public ActionResult DonationDetails(int donationEventId)
+        public ActionResult DonationDetails(int? donationEventId)
         {
             var orgInfo = _organizationManager.GetOrgInfoByUserId(UserId);
-            var donationEvent = _organizationManager.GetDonationEventByDonationEventId(donationEventId);
-            var donationImage = _organizationManager.GetDonationEventImageByDonationEventId(donationEventId);
-            var listOfDonated = _organizationManager.ListOfDonatedByDonationEventId(donationEventId);
-
-            // Group donations by userId and calculate the count of donations and status
-            var groupedDonations = listOfDonated
-                .GroupBy(d => d.userId)
-                .Select(g => new
-                {
-                    UserId = g.Key,
-                    DonationCount = g.Count(), // Count the number of donations for each donor
-                    Status = g.Any(d => d.status == 0) ? 0 : 1, // If any donation is pending, mark as pending; otherwise, successful
-                    Donations = g.ToList(),
-                }).ToList();
+            var donationEvent = _organizationManager.GetDonationEventByDonationEventId((int)donationEventId);
+            var donationImage = _organizationManager.GetDonationEventImageByDonationEventId((int)donationEventId);
+            var listofDonates = _organizationManager.GetDonatedByDonationEventId((int)donationEventId);
 
             var donators = new List<Donators>();
 
-            foreach (var group in groupedDonations)
+            foreach (var group in listofDonates)
             {
-                var volInfo = _organizationManager.GetVolunteerInfoByUserId((int)group.UserId);
+                var volInfo = _organizationManager.GetVolunteerInfoByUserId((int)group.userId);
+                var donated = _organizationManager.GetDonatedByDonatesId(group.donatesId);
+
 
                 if (volInfo != null)
                 {
                     var donatorsToAppend = new Donators()
                     {
-                        userId = (int)group.UserId,
-                        donationEventId = donationEventId,
+                        donatesId = group.donatesId,
+                        userId = (int)group.userId,
+                        referenceNum = group.referenceNum,
+                        donationEventId = (int)donationEventId,
                         donorName = volInfo.lName + ", " + volInfo.fName,
-                        donationQuantity = group.DonationCount, // Use the count of donations
-                        status = group.Status,
+                        donationQuantity = donated.Count, // Use the count of donations
+                        status = (int)group.status,
                     };
 
                     donators.Add(donatorsToAppend);
@@ -497,16 +567,16 @@ namespace Tabang_Hub.Controllers
         {
             try
             {
-                var myDonations = _volunteerManager.MyDonation(userId, eventId)
+                var donates = _volunteerManager.GetDonatedByUserIdAndDonationEventId(userId, eventId);
+
+                var myDonations = _volunteerManager.MyDonation(donates.donatesId)
                     .Select(d => new
                     {
                         donationId = d.donateId,
-                        donationEventId = d.donationEventId,
+                        donationEventId = donates.eventId,
                         donationQuantity = d.donationQuantity,
                         donationType = d.donationType,
                         donationUnit = d.donationUnit,
-                        status = d.status,
-                        userId = d.userId
                     }).ToList();
 
                 return Json(new { success = true, data = myDonations }, JsonRequestBehavior.AllowGet);
@@ -519,19 +589,18 @@ namespace Tabang_Hub.Controllers
             }
         }
         [HttpPost]
-        public JsonResult Received(int userId, int eventId)
+        public JsonResult Received(int donatesId)
         {
             try
             {
-                var myDonations = _volunteerManager.MyDonation(userId, eventId);
+                var myDonations = _volunteerManager.GetDonatedByUserIdAndDonationEventId1(donatesId);
 
-                foreach (var item in myDonations)
+
+                if (_organizationManager.MarkAsReceived(myDonations.donatesId, ref ErrorMessage) != ErrorCode.Success)
                 {
-                    if (_organizationManager.MarkAsReceived(item.donateId, ref ErrorMessage) != ErrorCode.Success)
-                    {
-                        return Json(new { success = false, message = "Failed to mark the donation as received." });
-                    }
+                    return Json(new { success = false, message = "Failed to mark the donation as received." });
                 }
+
                 return Json(new { success = true, message = "Successfully Received." });
 
             }

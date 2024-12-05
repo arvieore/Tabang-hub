@@ -126,18 +126,44 @@
       </ResultMapping>
     </FunctionImportMapping>
     <FunctionImportMapping FunctionImportName="sp_RemoveVolunteer" FunctionName="TabangHubModel.Store.sp_RemoveVolunteer" />
+    <FunctionImportMapping FunctionImportName="sp_GetUserDonated1" FunctionName="TabangHubModel.Store.sp_GetUserDonated">
+      <ResultMapping>
+        <ComplexTypeMapping TypeName="TabangHubModel.sp_GetUserDonated1_Result">
+          <ScalarProperty Name="donationEventId" ColumnName="donationEventId" />
+          <ScalarProperty Name="eventId" ColumnName="eventId" />
+          <ScalarProperty Name="RefNumber" ColumnName="RefNumber" />
+          <ScalarProperty Name="DateDonated" ColumnName="DateDonated" />
+          <ScalarProperty Name="Type" ColumnName="Type" />
+          <ScalarProperty Name="AmountOrDescription" ColumnName="AmountOrDescription" />
+          <ScalarProperty Name="EventName" ColumnName="EventName" />
+          <ScalarProperty Name="DonationDescription" ColumnName="DonationDescription" />
+          <ScalarProperty Name="EventDescription" ColumnName="EventDescription" />
+          <ScalarProperty Name="EventImage" ColumnName="EventImage" />
+        </ComplexTypeMapping>
+      </ResultMapping>
+    </FunctionImportMapping>
     <EntitySetMapping Name="Donated">
       <EntityTypeMapping TypeName="TabangHubModel.Donated">
         <MappingFragment StoreEntitySet="Donated">
-          <ScalarProperty Name="donatedAt" ColumnName="donatedAt" />
-          <ScalarProperty Name="referenceNum" ColumnName="referenceNum" />
           <ScalarProperty Name="status" ColumnName="status" />
           <ScalarProperty Name="donationQuantity" ColumnName="donationQuantity" />
           <ScalarProperty Name="donationUnit" ColumnName="donationUnit" />
           <ScalarProperty Name="donationType" ColumnName="donationType" />
-          <ScalarProperty Name="userId" ColumnName="userId" />
-          <ScalarProperty Name="donationEventId" ColumnName="donationEventId" />
+          <ScalarProperty Name="donatesId" ColumnName="donatesId" />
           <ScalarProperty Name="donateId" ColumnName="donateId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Donates">
+      <EntityTypeMapping TypeName="TabangHubModel.Donates">
+        <MappingFragment StoreEntitySet="Donates">
+          <ScalarProperty Name="status" ColumnName="status" />
+          <ScalarProperty Name="donatedAt" ColumnName="donatedAt" />
+          <ScalarProperty Name="eventId" ColumnName="eventId" />
+          <ScalarProperty Name="userId" ColumnName="userId" />
+          <ScalarProperty Name="eventType" ColumnName="eventType" />
+          <ScalarProperty Name="referenceNum" ColumnName="referenceNum" />
+          <ScalarProperty Name="donatesId" ColumnName="donatesId" />
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
@@ -518,21 +544,5 @@
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
-    <FunctionImportMapping FunctionImportName="sp_GetUserDonated" FunctionName="TabangHubModel.Store.sp_GetUserDonated">
-      <ResultMapping>
-        <ComplexTypeMapping TypeName="TabangHubModel.sp_GetUserDonated_Result">
-          <ScalarProperty Name="donationEventId" ColumnName="donationEventId" />
-          <ScalarProperty Name="eventId" ColumnName="eventId" />
-          <ScalarProperty Name="RefNumber" ColumnName="RefNumber" />
-          <ScalarProperty Name="DateDonated" ColumnName="DateDonated" />
-          <ScalarProperty Name="Type" ColumnName="Type" />
-          <ScalarProperty Name="AmountOrDescription" ColumnName="AmountOrDescription" />
-          <ScalarProperty Name="EventName" ColumnName="EventName" />
-          <ScalarProperty Name="DonationDescription" ColumnName="DonationDescription" />
-          <ScalarProperty Name="EventDescription" ColumnName="EventDescription" />
-          <ScalarProperty Name="EventImage" ColumnName="EventImage" />
-        </ComplexTypeMapping>
-      </ResultMapping>
-    </FunctionImportMapping>
   </EntityContainerMapping>
 </Mapping>

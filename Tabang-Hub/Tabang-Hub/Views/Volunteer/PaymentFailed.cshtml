@@ -19,9 +19,18 @@
             <p class="card-text mb-4">
                 Unfortunately, your payment did not go through. Please check your payment details and try again.
             </p>
-            <a href="@Url.Action("EventDetails", "Volunteer", new { eventId = Model.CreateEvents.eventId })" class="btn btn-primary btn-lg">
-                Return to Event Details
-            </a>
+            @if (ViewBag.DonationType == 1)
+            {
+                <a href="@Url.Action("EventDetails", "Volunteer", new { eventId = Model.CreateEvents.eventId })" class="btn btn-primary btn-lg">
+                    Return to Event Details
+                </a>
+            }
+            else
+            {
+                <a href="@Url.Action("DonationEventDetails", "Volunteer", new { donatioEventId = ViewBag.EventId })" class="btn btn-primary btn-lg">
+                    Return to Event Details
+                </a>
+            }
         </div>
     </div>
 </div>

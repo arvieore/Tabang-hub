@@ -40,6 +40,7 @@ namespace Tabang_Hub.Repository
         private BaseRepository<DonationEvent> _donationEvent;
         private BaseRepository<DonationImage> _donationImage;
         private BaseRepository<Donated> _donated;
+        private BaseRepository<Donates> _donates;
         public OrganizationManager()
         {
             db = new TabangHubEntities();
@@ -67,9 +68,10 @@ namespace Tabang_Hub.Repository
             _donationEvent = new BaseRepository<DonationEvent>();
             _donationImage = new BaseRepository<DonationImage>();
             _donated = new BaseRepository<Donated>();
+            _donates = new BaseRepository<Donates>();
         }
 
-        public ErrorCode CreateEvents(OrgEvents orgEvents, List<string> imageFileNames, List<string> skills, ref string errMsg)
+        public ErrorCode CreateEvents(OrgEvents orgEvents, List<string> imageFileNames, List<SkillDto> skills, ref string errMsg)
         {
             // Create the event
             orgEvents.status = 1;
@@ -95,7 +97,7 @@ namespace Tabang_Hub.Repository
             // Add each skill associated with the eventId            
             foreach (var skill in skills)
             {
-                var skillId = GetSkillIdBySkillName(skill);
+                var skillId = GetSkillIdBySkillName(skill.Name);
                 var skillRequirement = new OrgSkillRequirement
                 {
                     eventId = eventId,
@@ -132,20 +134,29 @@ namespace Tabang_Hub.Repository
         {
             return _donationImage._table.Where(m => m.donationEventId == donationEventId).ToList();
         }
-        public List<Donated> ListOfDonatedByDonationEventId(int donationEventId)
+        //public List<Donated> ListOfDonatedByDonationEventId(int donationEventId)
+        //{
+        //    return _donated._table.Where(m => m.donationEventId == donationEventId).ToList();
+        //}
+        
+        public List<Donates> GetDonatedByDonationEventId(int donatedId)
         {
-            return _donated._table.Where(m => m.donationEventId == donationEventId).ToList();
+            return _donates._table.Where(m => m.eventId == donatedId && m.eventType == 2).ToList();
         }
         public Donated GetDonateByDonateId(int donateId)
         {
             return _donated._table.Where(m => m.donateId == donateId).FirstOrDefault();
         }
+        public Donates GetDonatesByDonateId(int donatesId)
+        { 
+            return _donates._table.Where(m => m.donatesId == donatesId).FirstOrDefault();
+        }
         public ErrorCode MarkAsReceived(int donateId, ref string errMsg)
         {
-            var donate = GetDonateByDonateId(donateId);
+            var donate = GetDonatesByDonateId(donateId);
             donate.status = 1;
 
-            if (_donated.Update(donate.donateId, donate, out errMsg) != ErrorCode.Success)
+            if (_donates.Update(donate.donatesId, donate, out errMsg) != ErrorCode.Success)
             {
                 return ErrorCode.Error;
             }
@@ -316,6 +327,14 @@ namespace Tabang_Hub.Repository
             return _listOfEvents.GetAll()
                                 .Where(m => m.User_Id == userId && m.status == 1)
                                 .OrderByDescending(m => m.Start_Date) // Replace `Event_Date` with the appropriate property for ordering
+                                .ToList();
+        }
+
+        public List<OrgEvents> ListOfEvents2(int userId)
+        {
+            return _orgEvents.GetAll()
+                                .Where(m => m.userId == userId && m.status == 1)
+                                .OrderByDescending(m => m.dateStart) // Replace `Event_Date` with the appropriate property for ordering
                                 .ToList();
         }
 
@@ -585,6 +604,10 @@ namespace Tabang_Hub.Repository
         public VolunteerInfo GetVolunteerInfoByUserId(int userId)
         {
             return _volunteerInfo._table.Where(m => m.userId == userId).FirstOrDefault();
+        }
+        public List<Donated> GetDonatedByDonatesId(int donatesId)
+        {
+            return _donated._table.Where(m => m.donatesId == donatesId).ToList();
         }
         public List<OrgEvents> GetEventHistoryByUserId(int userId)
         {
