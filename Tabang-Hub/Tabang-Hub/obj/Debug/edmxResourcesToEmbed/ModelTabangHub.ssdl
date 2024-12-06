@@ -119,6 +119,7 @@
     <Property Name="userId" Type="int" />
     <Property Name="eventTitle" Type="nvarchar" MaxLength="255" />
     <Property Name="eventDescription" Type="text" />
+    <Property Name="donationIsAllowed" Type="int" />
     <Property Name="targetAmount" Type="decimal" Precision="10" Scale="2" />
     <Property Name="maxVolunteer" Type="int" />
     <Property Name="dateStart" Type="datetime" />

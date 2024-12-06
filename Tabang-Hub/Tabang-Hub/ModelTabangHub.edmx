@@ -124,6 +124,7 @@
           <Property Name="userId" Type="int" />
           <Property Name="eventTitle" Type="nvarchar" MaxLength="255" />
           <Property Name="eventDescription" Type="text" />
+          <Property Name="donationIsAllowed" Type="int" />
           <Property Name="targetAmount" Type="decimal" Precision="10" Scale="2" />
           <Property Name="maxVolunteer" Type="int" />
           <Property Name="dateStart" Type="datetime" />
@@ -1121,7 +1122,7 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
             <End Role="VolunteersHistory" EntitySet="VolunteersHistory" />
           </AssociationSet>
           <FunctionImport Name="sp_checkMatchByUserId" ReturnType="Collection(TabangHubModel.sp_checkMatchByUserId_Result)">
-            <Parameter Name="userId" Mode="In" Type="Int32" />
+          <Parameter Name="userId" Mode="In" Type="Int32" />
           </FunctionImport>
           </EntityContainer>
         <ComplexType Name="sp_GetAllMessage_Result">
@@ -1373,6 +1374,7 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
           <NavigationProperty Name="OrgSkillRequirement" Relationship="TabangHubModel.FK_OrgSkillRequirement_OrgEvents" FromRole="OrgEvents" ToRole="OrgSkillRequirement" />
           <NavigationProperty Name="UserDonated" Relationship="TabangHubModel.FK_UserDonated_OrgEvents" FromRole="OrgEvents" ToRole="UserDonated" />
           <NavigationProperty Name="Volunteers" Relationship="TabangHubModel.FK_Volunteers_OrgEvents" FromRole="OrgEvents" ToRole="Volunteers" />
+          <Property Name="donationIsAllowed" Type="Int32" />
         </EntityType>
         <EntityType Name="OrgInfo">
           <Key>
@@ -2213,6 +2215,7 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
           <EntitySetMapping Name="OrgEvents">
             <EntityTypeMapping TypeName="TabangHubModel.OrgEvents">
               <MappingFragment StoreEntitySet="OrgEvents">
+                <ScalarProperty Name="donationIsAllowed" ColumnName="donationIsAllowed" />
                 <ScalarProperty Name="status" ColumnName="status" />
                 <ScalarProperty Name="eventImage" ColumnName="eventImage" />
                 <ScalarProperty Name="location" ColumnName="location" />

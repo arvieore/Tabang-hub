@@ -35,6 +35,7 @@ namespace Tabang_Hub
         public string location { get; set; }
         public string eventImage { get; set; }
         public Nullable<int> status { get; set; }
+        public Nullable<int> donationIsAllowed { get; set; }
     
         public virtual ICollection<Feedback> Feedback { get; set; }
         public virtual ICollection<GroupChat> GroupChat { get; set; }

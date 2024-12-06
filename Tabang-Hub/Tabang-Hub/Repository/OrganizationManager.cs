@@ -762,6 +762,12 @@ namespace Tabang_Hub.Repository
 
             var evnt = GetEventByEventId(eventId);
 
+            if (evnt.dateStart >= DateTime.Now && evnt.dateEnd <= DateTime.Now)
+            {
+                errMsg = "Event is ongoing";
+                return ErrorCode.Error;
+            }
+
             //if (eventImage != null)
             //{
             //    var deletedEvent = new DeletedEvent()

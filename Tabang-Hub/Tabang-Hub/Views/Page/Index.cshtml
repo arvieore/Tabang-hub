@@ -298,23 +298,58 @@
                                                 <img src="@Url.Content("~/Content/Events/" + imgs)" class="custom-block-image img-fluid" alt="">
 
                                                 @{
-                                                    var listUserEvents = Model.sp_userListEvent.Where(m => m.eventId == evt.Event_Id && m.Event_Status == 1).FirstOrDefault();
-                                                    var checkDateOrgEvents = Model.orgEvents.Where(m => m.eventId == evt.Event_Id && m.status == 1).FirstOrDefault();
+                                                    // Retrieve all relevant data
+                                                    var listUserEvents = Model.sp_userListEvent
+                                                                            .Where(m => m.Event_Status == 1)
+                                                                            .ToList(); // List of all events the volunteer is registered for
+                                                    var checkDateOrgEvents = Model.orgEvents
+                                                                            .FirstOrDefault(m => m.eventId == evt.Event_Id && m.status == 1);
+
+                                                    var volSkill = Model.volunteersSkills.Select(v => v.skillId).ToList();
+                                                    var eventSkills = Model.skillRequirement1
+                                                                        .Where(m => m.eventId == evt.Event_Id)
+                                                                        .Select(m => m.skillId)
+                                                                        .ToList();
+
+                                                    // Check if all required event skills are present in the volunteer's skills
+                                                    var isSkillMatched = eventSkills.All(skill => volSkill.Contains(skill));
+
+                                                    // Check if this specific event is in the registered list
+                                                    var isRegisteredEvent = listUserEvents.Any(e => e.eventId == evt.Event_Id && e.Volunteer_Status == 1);
+                                                    var isPendingRequest = listUserEvents.Any(e => e.eventId == evt.Event_Id && e.Volunteer_Status == 0);
                                                 }
 
-                                                @if (checkDateOrgEvents != null && listUserEvents != null)
+                                                @if (isRegisteredEvent)
                                                 {
-                                                    if (!(checkDateOrgEvents.dateEnd < listUserEvents.dateStart || checkDateOrgEvents.dateStart > listUserEvents.dateEnd))
+                                                    // Show badge for registered event
+                                                    <span class="badge bg-success position-absolute top-0 end-0 m-2 p-2">Registered event</span>
+                                                }
+                                                else if (isPendingRequest)
+                                                {
+                                                    <span class="badge position-absolute top-0 end-0 m-2 p-2" style="background-color: #e3b868">Pending applied event</span>
+                                                }
+                                                else
+                                                {
+                                                    foreach (var userEvent in listUserEvents)
                                                     {
-                                                        if (listUserEvents.Volunteer_Status == 0)
+                                                        if (checkDateOrgEvents != null &&
+                                                            !(checkDateOrgEvents.dateEnd < userEvent.dateStart || checkDateOrgEvents.dateStart > userEvent.dateEnd))
                                                         {
-                                                            <span class="badge bg-danger position-absolute top-0 end-0 m-2">Conflict applied event</span>
+                                                            // Conflict cases
+                                                            if (userEvent.Volunteer_Status == 0)
+                                                            {
+                                                                <span class="badge bg-danger position-absolute top-0 end-0 m-2 p-2">Conflict applied event</span>
+                                                            }
+                                                            else if (userEvent.Volunteer_Status == 1 && userEvent.eventId != evt.Event_Id)
+                                                            {
+                                                                <span class="badge bg-danger position-absolute top-0 end-0 m-2 p-2">Conflict registered event</span>
+                                                            }
                                                         }
-                                                        else if (listUserEvents.Volunteer_Status == 1)
+                                                        else if (isSkillMatched)
                                                         {
-                                                            <span class="badge bg-danger position-absolute top-0 end-0 m-2">Conflict registered event</span>
+                                                            // Recommended event
+                                                            <span class="badge bg-success position-absolute top-0 end-0 m-2 p-2">Recommended event</span>
                                                         }
-
                                                     }
                                                 }
 
@@ -411,38 +446,63 @@
                                                 <img src="@Url.Content("~/Content/Events/" + imgs)" class="custom-block-image img-fluid" alt="">
 
                                                 @{
-                                                    var listUserEvents = Model.sp_userListEvent.Where(m => m.eventId == l_event.Event_Id && m.Event_Status == 1).FirstOrDefault();
-                                                    var checkDateOrgEvents = Model.orgEvents.Where(m => m.eventId == l_event.Event_Id && m.status == 1).FirstOrDefault();
+                                                    // Retrieve all relevant data
+                                                    var listUserEvents = Model.sp_userListEvent
+                                                                            .Where(m => m.Event_Status == 1)
+                                                                            .ToList(); // List of all events the volunteer is registered for
+                                                    var checkDateOrgEvents = Model.orgEvents
+                                                                            .FirstOrDefault(m => m.eventId == l_event.Event_Id && m.status == 1);
 
-                                                    var volSkill = Model.volunteersSkills.Select(v => v.skillId).ToList().ToList();
+                                                    var volSkill = Model.volunteersSkills.Select(v => v.skillId).ToList();
                                                     var eventSkills = Model.skillRequirement1
-                                                                    .Where(m => m.eventId == l_event.Event_Id)
-                                                                    .Select(m => m.skillId)
-                                                                    .ToList();
-                                                    // Check if all event skills are in the volunteer's skills
+                                                                        .Where(m => m.eventId == l_event.Event_Id)
+                                                                        .Select(m => m.skillId)
+                                                                        .ToList();
+
+                                                    // Check if all required event skills are present in the volunteer's skills
                                                     var isSkillMatched = eventSkills.All(skill => volSkill.Contains(skill));
+
+                                                    // Check if this specific event is in the registered list
+                                                    var isRegisteredEvent = listUserEvents.Any(e => e.eventId == l_event.Event_Id && e.Volunteer_Status == 1);
+                                                    var isPendingRequest = listUserEvents.Any(e => e.eventId == l_event.Event_Id && e.Volunteer_Status == 0);
                                                 }
 
-                                                @if (checkDateOrgEvents != null && listUserEvents != null)
+                                                @if (isRegisteredEvent)
                                                 {
-                                                    if (!(checkDateOrgEvents.dateEnd < listUserEvents.dateStart || checkDateOrgEvents.dateStart > listUserEvents.dateEnd))
+                                                    // Show badge for registered event
+                                                    <span class="badge bg-success position-absolute top-0 end-0 m-2 p-2">Registered event</span>
+                                                }
+                                                else if (isPendingRequest)
+                                                {
+                                                    <span class="badge position-absolute top-0 end-0 m-2 p-2" style="background-color: #e3b868">Pending applied event</span>
+                                                }
+                                                @*else if (checkDateOrgEvents == null)
+                                                {
+                                                    // If there is no conflict with organization events and no user events
+                                                    <span class="badge bg-warning position-absolute top-0 end-0 m-2 p-2">No conflicts found</span>
+                                                }*@
+                                                else
+                                                {
+                                                    foreach (var userEvent in listUserEvents)
                                                     {
-                                                        if (listUserEvents.Volunteer_Status == 0)
+                                                        if (checkDateOrgEvents != null &&
+                                                            !(checkDateOrgEvents.dateEnd < userEvent.dateStart || checkDateOrgEvents.dateStart > userEvent.dateEnd))
                                                         {
-                                                            <span class="badge bg-danger position-absolute top-0 end-0 m-2 p-2">Conflict applied event</span>
+                                                            // Conflict cases
+                                                            if (userEvent.Volunteer_Status == 0)
+                                                            {
+                                                                <span class="badge bg-danger position-absolute top-0 end-0 m-2 p-2">Conflict applied event</span>
+                                                            }
+                                                            else if (userEvent.Volunteer_Status == 1 && userEvent.eventId != l_event.Event_Id)
+                                                            {
+                                                                <span class="badge bg-danger position-absolute top-0 end-0 m-2 p-2">Conflict registered event</span>
+                                                            }
                                                         }
-                                                        else if (listUserEvents.Volunteer_Status == 1 && listUserEvents.eventId != l_event.Event_Id)
+                                                        else if (isSkillMatched)
                                                         {
-                                                            <span class="badge bg-danger position-absolute top-0 end-0 m-2 p-2">Conflict registered event</span>
-                                                        }
-                                                        else if (listUserEvents.eventId == l_event.Event_Id)
-                                                        {
-                                                            <span class="badge bg-success position-absolute top-0 end-0 m-2 p-2">Registered event</span>
-                                                        }
-                                                        @*else if (isSkillMatched)
-                                                        {
+                                                            // Recommended event
                                                             <span class="badge bg-success position-absolute top-0 end-0 m-2 p-2">Recommended event</span>
-                                                        }*@
+                                                        }
                                                     }
                                                 }
 
@@ -452,16 +512,19 @@
 
                                                         <p>@l_event.Description</p>
                                                         @{
-                                                            int currentVolunteers = Model.volunteers.Where(m => m.Status == 1).Count();
+                                                            int currentVolunteers = Model.volunteers
+                                                                                .Where(m => m.Status == 1 && m.eventId == l_event.Event_Id).Count();
                                                             int? maxVolunteers = l_event.Maximum_Volunteer;
                                                             double? progressPercentage = (double)currentVolunteers / maxVolunteers * 100;
                                                             Console.WriteLine(progressPercentage);
                                                         }
-                                                        <div class="progress-bar" role="progressbar"
-                                                             style="width: @progressPercentage%; background-color: mediumseagreen;"
-                                                             aria-valuenow="@currentVolunteers"
-                                                             aria-valuemin="0"
-                                                             aria-valuemax="@maxVolunteers">
+                                                        <div class="progress mt-4">
+                                                            <div class="progress-bar" role="progressbar"
+                                                                 style="width: @progressPercentage%; background-color: mediumseagreen;"
+                                                                 aria-valuenow="@currentVolunteers"
+                                                                 aria-valuemin="0"
+                                                                 aria-valuemax="@maxVolunteers">
+                                                            </div>
                                                         </div>
 
                                                         <div class="d-flex align-items-center my-2">

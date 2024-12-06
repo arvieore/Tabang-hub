@@ -432,6 +432,7 @@
     <NavigationProperty Name="OrgSkillRequirement" Relationship="TabangHubModel.FK_OrgSkillRequirement_OrgEvents" FromRole="OrgEvents" ToRole="OrgSkillRequirement" />
     <NavigationProperty Name="UserDonated" Relationship="TabangHubModel.FK_UserDonated_OrgEvents" FromRole="OrgEvents" ToRole="UserDonated" />
     <NavigationProperty Name="Volunteers" Relationship="TabangHubModel.FK_Volunteers_OrgEvents" FromRole="OrgEvents" ToRole="Volunteers" />
+    <Property Name="donationIsAllowed" Type="Int32" />
   </EntityType>
   <EntityType Name="OrgInfo">
     <Key>

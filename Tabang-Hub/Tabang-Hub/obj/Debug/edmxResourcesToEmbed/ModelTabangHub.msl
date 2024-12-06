@@ -267,6 +267,7 @@
     <EntitySetMapping Name="OrgEvents">
       <EntityTypeMapping TypeName="TabangHubModel.OrgEvents">
         <MappingFragment StoreEntitySet="OrgEvents">
+          <ScalarProperty Name="donationIsAllowed" ColumnName="donationIsAllowed" />
           <ScalarProperty Name="status" ColumnName="status" />
           <ScalarProperty Name="eventImage" ColumnName="eventImage" />
           <ScalarProperty Name="location" ColumnName="location" />

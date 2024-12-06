@@ -191,7 +191,7 @@ namespace Tabang_Hub.Controllers
             return View(indexModel);
         }
         [HttpPost]
-        public JsonResult CreateEvent(OrgEvents eventDto, List<SkillDto> skills, HttpPostedFileBase[] eventImages)
+        public JsonResult CreateEvent(OrgEvents eventDto, List<SkillDto> skills, HttpPostedFileBase[] eventImages, int donationAllowed)
         {
             try
             {
@@ -207,6 +207,7 @@ namespace Tabang_Hub.Controllers
                     userId = UserId,
                     eventTitle = eventDto.eventTitle,
                     eventDescription = eventDto.eventDescription,
+                    donationIsAllowed = donationAllowed,
                     targetAmount = eventDto.targetAmount,
                     maxVolunteer = eventDto.maxVolunteer,
                     dateStart = eventDto.dateStart,
