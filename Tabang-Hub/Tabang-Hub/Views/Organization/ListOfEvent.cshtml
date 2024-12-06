@@ -364,7 +364,7 @@
 
         // Function to fetch and validate location
         function fetchLocationName(lat, lng) {
-            var apiUrl = https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng};
+            var apiUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
             var locationInput = document.getElementById('locationName');
 
             fetch(apiUrl)
@@ -382,7 +382,7 @@
                             locationInput.value = ""; // Clear the input
                             locationInput.classList.remove("is-valid");
                             locationInput.classList.add("is-invalid");
-                            marker.bindPopup(Invalid Location: Outside Lapu - Lapu City).openPopup();
+                            marker.bindPopup(`Invalid Location: Outside Lapu-Lapu City`).openPopup();
                         }
                     } else {
                         locationInput.value = ""; // Clear the input
@@ -435,7 +435,7 @@
                 const skillName = this.getAttribute("data-skill-name");
 
                 // Check if skill already exists in the table
-                if (document.querySelector(tr[data - skill - id= "${skillId}"])) {
+                if (document.querySelector(`tr[data-skill-id="${skillId}"]`)) {
                     return; // Exit if skill already exists
                 }
 
@@ -462,7 +462,7 @@
                 // Remove row and re-enable button on click
                 removeButton.addEventListener("click", function () {
                     row.remove();
-                    const correspondingButton = document.querySelector(.skill - button[data - skill - id="${skillId}"]);
+                    const correspondingButton = document.querySelector(`.skill-button[data-skill-id="${skillId}"]`);
                     if (correspondingButton) {
                         correspondingButton.disabled = false;
                         correspondingButton.classList.remove("disabled");
@@ -741,8 +741,8 @@
                     const skillId = row.getAttribute("data-skill-id");
                     const skillName = row.querySelector(".skill-name").textContent.trim();
 
-                    formData.append(skills[${ index }].Id, skillId);
-                    formData.append(skills[${ index }].Name, skillName);
+                    formData.append(`skills[${index}].Id`, skillId);
+                    formData.append(`skills[${index}].Name`, skillName);
                 });
 
                 // Collect uploaded images
@@ -806,7 +806,7 @@
 
         // Function to fetch and validate location
         function fetchDonationLocationName(lat, lng) {
-            var apiUrl = https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng};
+            var apiUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
             var donationLocationInput = document.getElementById('donationLocation');
 
             fetch(apiUrl)
@@ -824,7 +824,7 @@
                             donationLocationInput.value = ""; // Clear the input
                             donationLocationInput.classList.remove("is-valid");
                             donationLocationInput.classList.add("is-invalid");
-                            marker.bindPopup(Invalid Location: Outside Lapu - Lapu City).openPopup();
+                            marker.bindPopup(`Invalid Location: Outside Lapu-Lapu City`).openPopup();
                         }
                     } else {
                         donationLocationInput.value = ""; // Clear the input
@@ -1170,7 +1170,7 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         // Send AJAX request to delete the event
-                        fetch(/Organization/Delete, {
+                        fetch(`/Organization/Delete`, {
                             method: "POST",
                             headers: {
                                 "Content-Type": "application/json",
@@ -1224,7 +1224,7 @@
                 const eventId = this.getAttribute("data-event-id");
                 if (eventId) {
                     // Redirect to the Details action
-                    window.location.href = /Organization/Details / ${ eventId };
+                    window.location.href = `/Organization/Details/${eventId}`;
                 }
             });
         });
@@ -1237,7 +1237,7 @@
                 const donationEventId = this.getAttribute('data-donation-id');
                 if (donationEventId) {
                     // Redirect to the DonationDetails action with the donationEventId as a query parameter
-                    window.location.href = /Organization/DonationDetails ? donationEventId = ${ donationEventId };
+                    window.location.href = `/Organization/DonationDetails?donationEventId=${donationEventId}`;
                 }
             });
         });
