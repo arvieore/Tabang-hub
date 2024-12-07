@@ -195,7 +195,7 @@
                                         @for (int i = 0; i < Model.detailsEventImage.Count; i++)
                                         {
                                             <div class="carousel-item @(i == 0 ? "active" : "") h-100">
-                                                <img src="@Url.Content("~/Content/Events/" + Model.detailsEventImage[i].eventImage)" class="d-block w-100 h-100" alt="Event Image @i" style="object-fit: cover;" />
+                                                <img src="@Url.Content("~/Content/Events/" + Model.detailsEventImage[i].eventImage)" class="d-block w-100 h-100" alt="Event Image @i" style="height: 400px; object-fit: cover; object-position: center;" />
                                             </div>
                                         }
                                     </div>
@@ -1325,7 +1325,7 @@
                 <div class="modal-dialog modal-lg modal-dialog-scrollable">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="createEventModalLabel">Create Event</h5>
+                            <h5 class="modal-title" id="createEventModalLabel">Edit Event</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
@@ -1450,7 +1450,7 @@
 
                                 <!-- Submit Button -->
                                 <div class="mt-3 text-end">
-                                    <button type="button" class="btn btn-primary" id="createEventBtn">Create Event</button>
+                                    <button type="button" class="btn btn-primary" id="createEventBtn">Edit Event</button>
                                 </div>
                             </form>
                         </div>
@@ -1594,7 +1594,7 @@ else
                                         @for (int i = 0; i < Model.detailsEventImage.Count; i++)
                                         {
                                             <div class="carousel-item @(i == 0 ? "active" : "") h-100">
-                                                <img src="@Url.Content("~/Content/Events/" + Model.detailsEventImage[i].eventImage)" class="d-block w-100 h-100" alt="Event Image @i" style="object-fit: cover;" />
+                                                <img src="@Url.Content("~/Content/Events/" + Model.detailsEventImage[i].eventImage)" class="d-block w-100 h-100" alt="Event Image @i" style="height: 400px; object-fit: cover; object-position: center;" />
                                             </div>
                                         }
                                     </div>
@@ -2986,7 +2986,7 @@ function previewEditImages() {
                          Swal.fire({
                              icon: "success",
                              title: "Event Created",
-                             text: "Your event has been created successfully!",
+                             text: "Your event has been edited successfully!",
                              confirmButtonText: "OK",
                          }).then(() => {
                              location.reload();
@@ -2995,7 +2995,7 @@ function previewEditImages() {
                          Swal.fire({
                              icon: "error",
                              title: "Error",
-                             text: data.message || "An error occurred while creating the event.",
+                             text: data.message || "An error occurred while editng the event.",
                              confirmButtonText: "OK",
                          });
                      }

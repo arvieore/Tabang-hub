@@ -27,6 +27,24 @@
                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createEventModal">
                     Create Event
                 </button>
+
+            </div>
+            <div class="mb-3 d-flex justify-content-between align-items-center">
+                <!-- Search Input -->
+                <div class="input-group w-50">
+                    <input type="text" id="eventSearchInput" class="form-control form-control-sm" placeholder="Search events...">
+                </div>
+
+                <!-- Dropdown for Sorting -->
+                <div class="w-auto">
+                    <select class="form-select form-select-sm" id="eventSortDropdown">
+                        <option value="newest" selected>Newest to Oldest</option>
+                        <option value="oldest">Oldest to Newest</option>
+                        <option value="finished">Finished Events</option>
+                        <option value="upcoming">Upcoming</option>
+                        <option value="ongoing">Ongoing</option>
+                    </select>
+                </div>
             </div>
             <div class="table-responsive">
                 <table class="table table-striped table-hover table-bordered rounded-5" id="eventsTable">
@@ -56,8 +74,8 @@
                                     </td>
                                     <td>@eventItem.targetAmount</td>
                                     <td>@eventItem.maxVolunteer</td>
-                                    <td>@eventItem.dateStart</td>
-                                    <td>@eventItem.dateEnd</td>
+                                    <td>@String.Format("{0:MMMM d, yyyy h:mm tt}", eventItem.dateStart)</td>
+                                    <td>@String.Format("{0:MMMM d, yyyy h:mm tt}", eventItem.dateEnd)</td>
                                     <td>@eventItem.location</td>
                                     <td>
                                         <button class="btn btn-danger btn-sm w-100 delete-event-btn"
@@ -87,11 +105,30 @@
                     Create Donation
                 </button>
             </div>
+
+            <!-- Search and Filter -->
+            <div class="mb-3 d-flex justify-content-between align-items-center">
+                <!-- Search Input -->
+                <div class="input-group w-50">
+                    <input type="text" id="donationSearchInput" class="form-control form-control-sm" placeholder="Search donations...">
+                </div>
+
+                <!-- Dropdown for Sorting -->
+                <div class="w-auto">
+                    <select class="form-select form-select-sm" id="donationSortDropdown">
+                        <option value="newest" selected>Newest to Oldest</option>
+                        <option value="oldest">Oldest to Newest</option>
+                        <option value="finished">Finished Donations</option>
+                        <option value="upcoming">Upcoming</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="table-responsive">
-                <table class="table table-striped table-hover table-bordered rounded-5">
+                <table class="table table-striped table-hover table-bordered rounded-5" id="donationTable">
                     <thead style="background-color: #3087d1; color: white;">
                         <tr>
-                            <th>Event Name</th>
+                            <th>Donation Name</th>
                             <th>Description</th>
                             <th>Date Start</th>
                             <th>Date End</th>
@@ -111,8 +148,8 @@
                                             @donationItem.donationDescription
                                         </span>
                                     </td>
-                                    <td>@donationItem.dateStart</td>
-                                    <td>@donationItem.dateEnd</td>
+                                    <td>@String.Format("{0:MMMM d, yyyy h:mm tt}", donationItem.dateStart)</td>
+                                    <td>@String.Format("{0:MMMM d, yyyy h:mm tt}", donationItem.dateEnd)</td>
                                     <td>@donationItem.location</td>
                                     <td>
                                         <button class="btn btn-danger btn-sm w-100">
@@ -1245,6 +1282,130 @@
                     window.location.href = `/Organization/DonationDetails?donationEventId=${donationEventId}`;
                 }
             });
+        });
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const searchInput = document.getElementById("eventSearchInput");
+        const tableBody = document.querySelector("#eventsTable tbody");
+        const sortDropdown = document.getElementById("eventSortDropdown");
+
+        // Function to filter events based on search input
+        function filterEvents() {
+            const filterText = searchInput.value.toLowerCase();
+
+            tableBody.querySelectorAll("tr").forEach((row) => {
+                const eventTitle = row.querySelector("td:first-child")?.textContent.toLowerCase() || "";
+
+                // Show or hide row based on the search text
+                if (eventTitle.includes(filterText)) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+        }
+
+        // Search input event listener (real-time filtering)
+        searchInput.addEventListener("input", filterEvents);
+
+        // Function to sort events
+        sortDropdown.addEventListener("change", function () {
+            const sortValue = sortDropdown.value;
+            const rows = Array.from(tableBody.querySelectorAll("tr"));
+
+            rows.sort((a, b) => {
+                const aDateStart = new Date(a.querySelector("td:nth-child(5)").textContent);
+                const bDateStart = new Date(b.querySelector("td:nth-child(5)").textContent);
+
+                const aDateEnd = new Date(a.querySelector("td:nth-child(6)").textContent);
+                const bDateEnd = new Date(b.querySelector("td:nth-child(6)").textContent);
+
+                const now = new Date();
+
+                switch (sortValue) {
+                    case "newest":
+                        return bDateStart - aDateStart;
+                    case "oldest":
+                        return aDateStart - bDateStart;
+                    case "finished": // Finished Events (endDate < now)
+                        const aFinished = aDateEnd < now ? -1 : 1;
+                        const bFinished = bDateEnd < now ? -1 : 1;
+                        return aFinished - bFinished;
+                    case "upcoming":
+                        return aDateStart - now;
+                    case "ongoing":
+                        const aOngoing = aDateStart <= now && now <= aDateEnd ? -1 : 1;
+                        const bOngoing = bDateStart <= now && now <= bDateEnd ? -1 : 1;
+                        return aOngoing - bOngoing;
+                    default:
+                        return 0;
+                }
+            });
+
+            // Re-append sorted rows
+            rows.forEach((row) => tableBody.appendChild(row));
+        });
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const donationSearchInput = document.getElementById("donationSearchInput");
+        const donationTableBody = document.querySelector("#donationTable tbody");
+        const donationSortDropdown = document.getElementById("donationSortDropdown");
+
+        // Function to filter donation events based on search input
+        function filterDonations() {
+            const filterText = donationSearchInput.value.toLowerCase();
+
+            donationTableBody.querySelectorAll("tr").forEach((row) => {
+                const donationName = row.querySelector("td:first-child")?.textContent.toLowerCase() || "";
+
+                // Show or hide row based on the search text
+                if (donationName.includes(filterText)) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+        }
+
+        // Event listener for search input (real-time filtering)
+        donationSearchInput.addEventListener("input", filterDonations);
+
+        // Function to sort donation events
+        donationSortDropdown.addEventListener("change", function () {
+            const sortValue = donationSortDropdown.value;
+            const rows = Array.from(donationTableBody.querySelectorAll("tr"));
+
+            rows.sort((a, b) => {
+                const aDateStart = new Date(a.querySelector("td:nth-child(3)").textContent);
+                const bDateStart = new Date(b.querySelector("td:nth-child(3)").textContent);
+
+                const aDateEnd = new Date(a.querySelector("td:nth-child(4)").textContent);
+                const bDateEnd = new Date(b.querySelector("td:nth-child(4)").textContent);
+
+                const now = new Date();
+
+                switch (sortValue) {
+                    case "newest":
+                        return bDateStart - aDateStart;
+                    case "oldest":
+                        return aDateStart - bDateStart;
+                    case "finished": // Finished Donations (endDate < now)
+                        const aFinished = aDateEnd < now ? -1 : 1;
+                        const bFinished = bDateEnd < now ? -1 : 1;
+                        return aFinished - bFinished;
+                    case "upcoming": // Upcoming Donations (startDate > now)
+                        const aUpcoming = aDateStart > now ? -1 : 1;
+                        const bUpcoming = bDateStart > now ? -1 : 1;
+                        return aUpcoming - bUpcoming;
+                    default:
+                        return 0;
+                }
+            });
+
+            // Re-append sorted rows
+            rows.forEach((row) => donationTableBody.appendChild(row));
         });
     });
 </script>

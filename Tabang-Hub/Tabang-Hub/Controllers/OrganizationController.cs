@@ -216,8 +216,11 @@ namespace Tabang_Hub.Controllers
                     status = 1 // Assuming 1 means 'active' or 'upcoming'
                 };
 
-                // Image processing
+                // Image processing with resizing and compression
                 List<string> uploadedFiles = new List<string>();
+                const int targetWidth = 800;  // Set desired width
+                const int targetHeight = 600; // Set desired height
+
                 if (eventImages != null && eventImages.Length > 0)
                 {
                     var imagePath = Server.MapPath("~/Content/Events");
@@ -229,7 +232,43 @@ namespace Tabang_Hub.Controllers
                         {
                             var fileName = Path.GetFileName(image.FileName);
                             var filePath = Path.Combine(imagePath, fileName);
-                            image.SaveAs(filePath);
+
+                            // Resize and compress image before saving
+                            using (var originalImage = System.Drawing.Image.FromStream(image.InputStream))
+                            {
+                                using (var resizedImage = new Bitmap(targetWidth, targetHeight))
+                                {
+                                    using (var graphics = Graphics.FromImage(resizedImage))
+                                    {
+                                        graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                                        graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                                        graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+
+                                        // Draw resized image
+                                        graphics.DrawImage(originalImage, 0, 0, targetWidth, targetHeight);
+
+                                        // Compress and save
+                                        var qualityParam = new System.Drawing.Imaging.EncoderParameter(
+                                            System.Drawing.Imaging.Encoder.Quality, 75L); // Adjust compression level
+
+                                        var jpegCodec = System.Drawing.Imaging.ImageCodecInfo
+                                            .GetImageDecoders()
+                                            .FirstOrDefault(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
+
+                                        if (jpegCodec != null)
+                                        {
+                                            var encoderParams = new System.Drawing.Imaging.EncoderParameters(1);
+                                            encoderParams.Param[0] = qualityParam;
+
+                                            resizedImage.Save(filePath, jpegCodec, encoderParams);
+                                        }
+                                        else
+                                        {
+                                            resizedImage.Save(filePath); // Fallback if no encoder found
+                                        }
+                                    }
+                                }
+                            }
                             uploadedFiles.Add(fileName);
                         }
                     }
@@ -248,6 +287,7 @@ namespace Tabang_Hub.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
+
         //[HttpPost]
         //public async Task<ActionResult> CreateEvents(Lists events, List<string> skills, HttpPostedFileBase[] images)
         //{
@@ -1478,7 +1518,7 @@ namespace Tabang_Hub.Controllers
                 {
                     if (vlntr.Status != 0)
                     {
-                        if (volunteerStats.ContainsKey((int)vlntr.userId))
+                        if (volunteerStats.ContainsKey((int)vlntr.userId) && vlntr.Status == 1)
                         {
                             // Increment participation count if volunteer exists
                             volunteerStats[(int)vlntr.userId].TotalEventsParticipated++;
