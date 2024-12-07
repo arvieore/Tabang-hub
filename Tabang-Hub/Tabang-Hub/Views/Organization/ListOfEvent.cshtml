@@ -1178,7 +1178,12 @@
                             },
                             body: JSON.stringify({ eventId: parseInt(eventId) }),
                         })
-                            .then((response) => response.json())
+                            .then((response) => {
+                                if (!response.ok) {
+                                    throw new Error("Network response was not ok");
+                                }
+                                return response.json(); // Parse JSON response
+                            })
                             .then((data) => {
                                 if (data.success) {
                                     Swal.fire({

@@ -1090,172 +1090,231 @@ namespace Tabang_Hub.Controllers
         {
             return Json( new { });
         }
+        //[HttpPost]
+        //public JsonResult EditEvent(Lists events, List<string> skills, string[] skillsToRemove, HttpPostedFileBase[] images, int eventId)
+        //{
+        //    string errMsg = string.Empty;
+        //    var allowedExtensions = new List<string> { ".jpg", ".jpeg", ".png", ".gif" };
+
+        //    List<string> uploadedFiles = new List<string>();
+
+        //    // Handle image uploads
+        //    if (images != null && images.Length > 0)
+        //    {
+        //        foreach (var image in images)
+        //        {
+        //            if (image != null && image.ContentLength > 0)
+        //            {
+        //                var extension = Path.GetExtension(image.FileName).ToLower();
+
+        //                if (!allowedExtensions.Contains(extension))
+        //                {
+        //                    return Json(new { success = false, message = "Invalid file type. Only JPG, JPEG, PNG, and GIF files are allowed." });
+        //                }
+
+        //                var inputFileName = Path.GetFileName(image.FileName);
+        //                var serverSavePath = Path.Combine(Server.MapPath("~/Content/Events/"), inputFileName);
+
+        //                if (!Directory.Exists(Server.MapPath("~/Content/Events/")))
+        //                    Directory.CreateDirectory(Server.MapPath("~/Content/Events/"));
+
+        //                try
+        //                {
+        //                    // Save the image (you can include resizing logic here)
+        //                    image.SaveAs(serverSavePath);
+        //                    uploadedFiles.Add(inputFileName);
+        //                }
+        //                catch (Exception ex)
+        //                {
+        //                    return Json(new { success = false, message = $"Error processing file {inputFileName}: {ex.Message}" });
+        //                }
+        //            }
+        //        }
+        //    }
+
+        //    if (Request.Form["events.CreateEvents.targetAmount"] != null)
+        //    {
+        //        var targetAmountString = Request.Form["events.CreateEvents.targetAmount"];
+        //        if (string.IsNullOrWhiteSpace(targetAmountString))
+        //        {
+        //            events.CreateEvents.targetAmount = null; // Set to null if empty
+        //        }
+        //        else
+        //        {
+        //            // Validate and parse the target amount
+        //            if (decimal.TryParse(targetAmountString, out decimal targetAmountValue) && targetAmountValue > 0)
+        //            {
+        //                events.CreateEvents.targetAmount = targetAmountValue;
+        //            }
+        //            else
+        //            {
+        //                return Json(new { success = false, message = "Please enter a valid target amount." });
+        //            }
+        //        }
+        //    }
+        //    else
+        //    {
+        //        // If the field is not present, set targetAmount to null
+        //        events.CreateEvents.targetAmount = null;
+        //    }
+
+        //    // Fetch the current event from the database
+        //    var currentEvent = _organizationManager.GetEventByEventId(eventId);
+        //    if (currentEvent == null)
+        //    {
+        //        return Json(new { success = false, message = "Event not found." });
+        //    }
+
+        //    // Compare the event details to detect changes
+        //    bool hasChanges = false;
+        //    bool skillsChanged = false;
+        //    bool imagesChanged = false;
+
+        //    if (events.CreateEvents.eventTitle != currentEvent.eventTitle)
+        //    {
+        //        hasChanges = true;
+        //    }
+        //    if (events.CreateEvents.eventDescription != currentEvent.eventDescription)
+        //    {
+        //        hasChanges = true;
+        //    }
+        //    if (events.CreateEvents.dateStart != currentEvent.dateStart)
+        //    {
+        //        hasChanges = true;
+        //    }
+        //    if (events.CreateEvents.dateEnd != currentEvent.dateEnd)
+        //    {
+        //        hasChanges = true;
+        //    }
+        //    if (events.CreateEvents.location != currentEvent.location)
+        //    {
+        //        hasChanges = true;
+        //    }
+        //    if (events.CreateEvents.targetAmount != currentEvent.targetAmount)
+        //    {
+        //        hasChanges = true;
+        //    }
+        //    // Add comparisons for other fields as necessary
+
+        //    // Check for skills changes
+        //    var currentSkills = _organizationManager.listOfSkillRequirement(eventId);
+        //    var currentSkillsSet = new HashSet<string>(currentSkills.Select(s => s.Skills.skillName));
+        //    var newSkillsSet = new HashSet<string>(skills);
+
+        //    if (!currentSkillsSet.SetEquals(newSkillsSet))
+        //    {
+        //        skillsChanged = true;
+        //        hasChanges = true;
+        //    }
+        //    // Check if skills are to be removed
+        //    if (skillsToRemove != null && skillsToRemove.Length > 0)
+        //    {
+        //        skillsChanged = true;
+        //        hasChanges = true;
+        //    }
+
+        //    // Check for image changes
+        //    if (uploadedFiles.Count > 0)
+        //    {
+        //        imagesChanged = true;
+        //        hasChanges = true;
+        //    }
+        //    // Note: If you also handle image deletions, include that logic here
+
+        //    // Handle no changes
+        //    if (!hasChanges)
+        //    {
+        //        return Json(new { success = false, message = "No changes were made to the event." });
+        //    }
+
+        //    // Proceed to update the event details in the database
+        //    if (_organizationManager.EditEvent(events.CreateEvents, skills, skillsToRemove, uploadedFiles, eventId, ref errMsg) != ErrorCode.Success)
+        //    {
+        //        return Json(new { success = false, message = errMsg });
+        //    }
+
+        //    // Send notifications to volunteers regardless of the changes
+        //    var volunteers = _organizationManager.GetVolunteersByEventId(eventId);
+
+        //    foreach (var vol in volunteers)
+        //    {
+        //        var notification = new Notification
+        //        {
+        //            userId = vol.userId,
+        //            senderUserId = UserId,
+        //            relatedId = currentEvent.eventId,
+        //            type = "Event Update",
+        //            content = $"{events.CreateEvents.eventTitle} Event has been edited.",
+        //            broadcast = 0,
+        //            status = 0,
+        //            createdAt = DateTime.Now,
+        //            readAt = null
+        //        };
+
+        //        db.Notification.Add(notification);
+        //    }
+        //    db.SaveChanges(); // Save the notifications
+
+        //    return Json(new { success = true, message = "Event edited successfully.", redirectUrl = Url.Action("Details", new { id = eventId }) });
+        //}
+
         [HttpPost]
-        public JsonResult EditEvent(Lists events, List<string> skills, string[] skillsToRemove, HttpPostedFileBase[] images, int eventId)
+        public JsonResult EditEvent(OrgEvents eventDto, List<SkillDto> skills, HttpPostedFileBase[] eventImages, int donationAllowed)
         {
-            string errMsg = string.Empty;
-            var allowedExtensions = new List<string> { ".jpg", ".jpeg", ".png", ".gif" };
-
-            List<string> uploadedFiles = new List<string>();
-
-            // Handle image uploads
-            if (images != null && images.Length > 0)
+            try
             {
-                foreach (var image in images)
+                eventDto.donationIsAllowed = donationAllowed;
+                List<string> skillToRemove = new List<string>();
+
+                // Fetch current event skills from the database
+                var eventSkillRequirement = _organizationManager.listOfSkillRequirement(eventDto.eventId);
+
+                // Check if skills is null or empty
+                if (skills == null || !skills.Any())
                 {
-                    if (image != null && image.ContentLength > 0)
+                    return Json(new { success = false, message = "No skills were provided." });
+                }
+
+                // Identify skills to remove
+                foreach (var currentSkill in eventSkillRequirement)
+                {
+                    if (!skills.Any(s => s.Id == currentSkill.Skills.skillId))
                     {
-                        var extension = Path.GetExtension(image.FileName).ToLower();
+                        skillToRemove.Add(currentSkill.Skills.skillName);
+                    }
+                }
 
-                        if (!allowedExtensions.Contains(extension))
+                // Image processing
+                List<string> uploadedFiles = new List<string>();
+                if (eventImages != null && eventImages.Length > 0)
+                {
+                    var imagePath = Server.MapPath("~/Content/Events");
+                    Directory.CreateDirectory(imagePath); // Create directory if it doesn't exist
+
+                    foreach (var image in eventImages)
+                    {
+                        if (image != null && image.ContentLength > 0)
                         {
-                            return Json(new { success = false, message = "Invalid file type. Only JPG, JPEG, PNG, and GIF files are allowed." });
-                        }
-
-                        var inputFileName = Path.GetFileName(image.FileName);
-                        var serverSavePath = Path.Combine(Server.MapPath("~/Content/Events/"), inputFileName);
-
-                        if (!Directory.Exists(Server.MapPath("~/Content/Events/")))
-                            Directory.CreateDirectory(Server.MapPath("~/Content/Events/"));
-
-                        try
-                        {
-                            // Save the image (you can include resizing logic here)
-                            image.SaveAs(serverSavePath);
-                            uploadedFiles.Add(inputFileName);
-                        }
-                        catch (Exception ex)
-                        {
-                            return Json(new { success = false, message = $"Error processing file {inputFileName}: {ex.Message}" });
+                            var fileName = Path.GetFileName(image.FileName);
+                            var filePath = Path.Combine(imagePath, fileName);
+                            image.SaveAs(filePath);
+                            uploadedFiles.Add(fileName);
                         }
                     }
                 }
-            }
 
-            if (Request.Form["events.CreateEvents.targetAmount"] != null)
-            {
-                var targetAmountString = Request.Form["events.CreateEvents.targetAmount"];
-                if (string.IsNullOrWhiteSpace(targetAmountString))
+                // Proceed to update the event details in the database
+                if (_organizationManager.EditEvent(eventDto, skills, skillToRemove, uploadedFiles, eventDto.eventId, ref ErrorMessage) != ErrorCode.Success)
                 {
-                    events.CreateEvents.targetAmount = null; // Set to null if empty
+                    return Json(new { success = false, message = ErrorMessage });
                 }
-                else
-                {
-                    // Validate and parse the target amount
-                    if (decimal.TryParse(targetAmountString, out decimal targetAmountValue) && targetAmountValue > 0)
-                    {
-                        events.CreateEvents.targetAmount = targetAmountValue;
-                    }
-                    else
-                    {
-                        return Json(new { success = false, message = "Please enter a valid target amount." });
-                    }
-                }
-            }
-            else
-            {
-                // If the field is not present, set targetAmount to null
-                events.CreateEvents.targetAmount = null;
-            }
 
-            // Fetch the current event from the database
-            var currentEvent = _organizationManager.GetEventByEventId(eventId);
-            if (currentEvent == null)
-            {
-                return Json(new { success = false, message = "Event not found." });
+                return Json(new { success = true, message = "Event updated successfully!" });
             }
-
-            // Compare the event details to detect changes
-            bool hasChanges = false;
-            bool skillsChanged = false;
-            bool imagesChanged = false;
-
-            if (events.CreateEvents.eventTitle != currentEvent.eventTitle)
+            catch (Exception ex)
             {
-                hasChanges = true;
+                return Json(new { success = false, message = ex.Message });
             }
-            if (events.CreateEvents.eventDescription != currentEvent.eventDescription)
-            {
-                hasChanges = true;
-            }
-            if (events.CreateEvents.dateStart != currentEvent.dateStart)
-            {
-                hasChanges = true;
-            }
-            if (events.CreateEvents.dateEnd != currentEvent.dateEnd)
-            {
-                hasChanges = true;
-            }
-            if (events.CreateEvents.location != currentEvent.location)
-            {
-                hasChanges = true;
-            }
-            if (events.CreateEvents.targetAmount != currentEvent.targetAmount)
-            {
-                hasChanges = true;
-            }
-            // Add comparisons for other fields as necessary
-
-            // Check for skills changes
-            var currentSkills = _organizationManager.listOfSkillRequirement(eventId);
-            var currentSkillsSet = new HashSet<string>(currentSkills.Select(s => s.Skills.skillName));
-            var newSkillsSet = new HashSet<string>(skills);
-
-            if (!currentSkillsSet.SetEquals(newSkillsSet))
-            {
-                skillsChanged = true;
-                hasChanges = true;
-            }
-            // Check if skills are to be removed
-            if (skillsToRemove != null && skillsToRemove.Length > 0)
-            {
-                skillsChanged = true;
-                hasChanges = true;
-            }
-
-            // Check for image changes
-            if (uploadedFiles.Count > 0)
-            {
-                imagesChanged = true;
-                hasChanges = true;
-            }
-            // Note: If you also handle image deletions, include that logic here
-
-            // Handle no changes
-            if (!hasChanges)
-            {
-                return Json(new { success = false, message = "No changes were made to the event." });
-            }
-
-            // Proceed to update the event details in the database
-            if (_organizationManager.EditEvent(events.CreateEvents, skills, skillsToRemove, uploadedFiles, eventId, ref errMsg) != ErrorCode.Success)
-            {
-                return Json(new { success = false, message = errMsg });
-            }
-
-            // Send notifications to volunteers regardless of the changes
-            var volunteers = _organizationManager.GetVolunteersByEventId(eventId);
-
-            foreach (var vol in volunteers)
-            {
-                var notification = new Notification
-                {
-                    userId = vol.userId,
-                    senderUserId = UserId,
-                    relatedId = currentEvent.eventId,
-                    type = "Event Update",
-                    content = $"{events.CreateEvents.eventTitle} Event has been edited.",
-                    broadcast = 0,
-                    status = 0,
-                    createdAt = DateTime.Now,
-                    readAt = null
-                };
-
-                db.Notification.Add(notification);
-            }
-            db.SaveChanges(); // Save the notifications
-
-            return Json(new { success = true, message = "Event edited successfully.", redirectUrl = Url.Action("Details", new { id = eventId }) });
         }
 
         [HttpPost]
@@ -1267,9 +1326,7 @@ namespace Tabang_Hub.Controllers
 
             if (deleteEvent != ErrorCode.Success)
             {
-                // You may want to set a TempData or ViewBag message to inform the user of the error
-                TempData["ErrorMessage"] = "There was an error deleting the event. Please try again.";
-                return RedirectToAction("EventsList");
+                return Json(new { success = false, message = "There was an error deleting the event." });
             }
 
             foreach (var vol in volunteer)
@@ -1291,12 +1348,9 @@ namespace Tabang_Hub.Controllers
                 db.Notification.Add(notification);
                 db.SaveChanges(); // Save the notification
             }
-           
 
-
-            // You may want to set a TempData or ViewBag message to inform the user of the success
-            TempData["SuccessMessage"] = "Event deleted successfully.";
-            return RedirectToAction("EventsList");
+            // Return success response
+            return Json(new { success = true, message = "Event deleted successfully." });
         }
         [HttpPost]
         public JsonResult ConfirmApplicants(int id, int eventId)
@@ -1621,6 +1675,8 @@ namespace Tabang_Hub.Controllers
         public JsonResult SubmitRatings(int eventId, List<VolunteerRatingData> volunteerRatings)
         {
             string errMsg = string.Empty;
+            var feedback = "Great Job";
+            
 
             if (volunteerRatings == null || volunteerRatings.Count == 0)
             {
@@ -1631,7 +1687,6 @@ namespace Tabang_Hub.Controllers
             {
                 var volunteerId = ratingData.VolunteerId;
                 var attendanceStatus = ratingData.Attendance; // Attendance is processed
-                var feedback = ratingData.Feedback; // Feedback is now included
 
                 foreach (var skillRating in ratingData.SkillRatings)
                 {

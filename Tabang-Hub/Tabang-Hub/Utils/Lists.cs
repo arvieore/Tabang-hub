@@ -116,7 +116,7 @@ namespace Tabang_Hub.Utils
         {
             public int VolunteerId { get; set; }
             public int Attendance { get; set; } // Process Attendance
-            public string Feedback { get; set; } // Add Feedback field
+            public string Feedback { get; set; }
             public List<SkillRating> SkillRatings { get; set; }
         }
 
