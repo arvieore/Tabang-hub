@@ -14,6 +14,7 @@ namespace Tabang_Hub.Controllers
         [Authorize]
         public ActionResult Calendar(string section = "ongoingEventsSection")
         {
+            _volunteerManager.CheckVolunteerEventEndByUserId(UserId); //Check if na a nay na end nga event
 
             var getInfo = db.VolunteerInfo.Where(m => m.userId == UserId).ToList();
             var getVolunteerSkills = db.VolunteerSkill.Where(m => m.userId == UserId).ToList();

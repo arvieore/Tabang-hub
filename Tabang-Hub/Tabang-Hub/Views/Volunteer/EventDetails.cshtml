@@ -687,6 +687,7 @@ function acceptEvent(eventId) {
             } else {
                 Swal.fire({
                     title: response.message,
+                    text: response.eventConflict,
                     icon: 'warning',
                     confirmButtonText: 'OK',
                     allowOutsideClick: false

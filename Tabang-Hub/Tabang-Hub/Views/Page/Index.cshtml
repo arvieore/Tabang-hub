@@ -187,7 +187,9 @@
         }
         else
         {
-            <section class="hero-section hero-section-full-height">
+
+
+<section class="hero-section hero-section-full-height">
                 <div class="container-fluid">
                     <div class="row">
 
@@ -257,13 +259,11 @@
 
                     </div>
                 </div>
-            </section>
-            <style>
+            </section><style>
                 .nav-tabs .nav-link.active {
                     color: #5a6f80;
                 }
-            </style>
-            <section class="section-padding" id="sectionevent">
+            </style><section class="section-padding" id="sectionevent">
                 <div class="container">
                     <div class="row" id="eventsContainer">
 
@@ -273,13 +273,13 @@
 
                         <ul class="nav nav-tabs justify-content-center mb-4" id="eventTabs" role="tablist">
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="recommended-tab" data-bs-toggle="tab" data-bs-target="#recommendedSection" type="button" role="tab" aria-controls="recommendedSection" aria-selected="true">Recommended Event</button>
+                                <button class="nav-link active" id="recommended-tab" data-bs-toggle="tab" data-bs-target="#recommendedSection" type="button" role="tab" aria-controls="recommendedSection" aria-selected="true">Recommended event</button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="list-tab" data-bs-toggle="tab" data-bs-target="#listSection" type="button" role="tab" aria-controls="listSection" aria-selected="false">List of Events</button>
+                                <button class="nav-link" id="list-tab" data-bs-toggle="tab" data-bs-target="#listSection" type="button" role="tab" aria-controls="listSection" aria-selected="false">List of all events</button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="donation-tab" data-bs-toggle="tab" data-bs-target="#donationSection" type="button" role="tab" aria-controls="donationSection" aria-selected="false">Donation Event</button>
+                                <button class="nav-link" id="donation-tab" data-bs-toggle="tab" data-bs-target="#donationSection" type="button" role="tab" aria-controls="donationSection" aria-selected="false">Donation only events</button>
                             </li>
                         </ul>
 
@@ -287,6 +287,12 @@
                             <!-- Recommended Event Tab -->
                             <div class="tab-pane fade show active" id="recommendedSection" role="tabpanel" aria-labelledby="recommended-tab">
                                 <div class="row" id="recommendedContainer">
+                                    @if (Model.listOfEvents.Where(m => m.End_Date >= DateTime.Now).Count().Equals(0)) 
+                                    {
+                                        <div style="text-align: center; margin-top: 100px; margin-bottom: 70px;">
+                                                <div>No recommended event available.</div>
+                                        </div>
+                                    }
                                     @foreach (var evt in Model.listOfEvents.Where(m => m.End_Date >= DateTime.Now))
                                     {
                                         <div class="col-lg-4 col-md-6 mt-2 col-12 mb-4 mb-lg-0 event-card">
@@ -436,6 +442,14 @@
                             <!-- List of Events Tab -->
                             <div class="tab-pane fade" id="listSection" role="tabpanel" aria-labelledby="list-tab">
                                 <div class="row" id="listContainer">
+
+                                    @if (Model.listOfEventsSection.Where(m => m.status != 3).Count().Equals(0))
+                                    {
+                                        <div style="text-align: center; margin-top: 100px; margin-bottom: 70px;">
+                                                <div>No event available.</div>
+                                        </div>
+                                    }
+
                                     @foreach (var l_event in Model.listOfEventsSection)
                                     {
                                         <div class="col-lg-4 col-md-6 mt-2 col-12 mb-4 mb-lg-0 event-card">
@@ -477,10 +491,10 @@
                                                     <span class="badge position-absolute top-0 end-0 m-2 p-2" style="background-color: #e3b868">Pending applied event</span>
                                                 }
                                                 @*else if (checkDateOrgEvents == null)
-                                                {
-                                                    // If there is no conflict with organization events and no user events
-                                                    <span class="badge bg-warning position-absolute top-0 end-0 m-2 p-2">No conflicts found</span>
-                                                }*@
+                    {
+                        // If there is no conflict with organization events and no user events
+                        <span class="badge bg-warning position-absolute top-0 end-0 m-2 p-2">No conflicts found</span>
+                    }*@
                                                 else
                                                 {
                                                     foreach (var userEvent in listUserEvents)
@@ -586,6 +600,14 @@
                             <!-- Donation Event Tab -->
                             <div class="tab-pane fade" id="donationSection" role="tabpanel" aria-labelledby="donation-tab">
                                 <div class="row" id="donationContainer">
+
+                                    @if (Model.ListOfDonationEvents == null && Model.ListOfDonationEvents.Count().Equals(0))
+                                    {
+                                        <div style="text-align: center; margin-top: 100px; margin-bottom: 70px;">
+                                            <div>No donation event available.</div>
+                                        </div>
+                                    }
+
                                     @if (Model.ListOfDonationEvents != null && Model.ListOfDonationEvents.Any())
                                     {
                                         foreach (var donationItem in Model.ListOfDonationEvents)

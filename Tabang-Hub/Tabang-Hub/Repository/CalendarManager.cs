@@ -131,7 +131,7 @@ namespace Tabang_Hub.Repository
                                             .Where(rating => rating != null)
                                             .ToList()
                 };
-                if (!eventHistory.Any(m => m.eventId == e.eventId) && h.status == 2)
+                if (!eventHistory.Any(m => m.eventId == e.eventId) && h.dateEnd <= DateTime.Now)
                 {
                     eventHistory.Add(e);
                 }

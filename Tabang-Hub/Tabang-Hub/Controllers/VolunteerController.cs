@@ -662,11 +662,11 @@ namespace Tabang_Hub.Controllers
                     {
                         if (userEvent.Volunteer_Status == 0)
                         {
-                            return Json(new { success = false, message = "Conflict with another registered event" });
+                            return Json(new { success = false, message = "Conflict with another registered event: \"" + checkDateOrgEvents.eventTitle + "\"" });
                         }
                         else if (userEvent.Volunteer_Status == 1)
                         {
-                            return Json(new { success = false, message = "Conflict with another applied event" });
+                            return Json(new { success = false, message = "Conflict with another applied event: \"" + checkDateOrgEvents.eventTitle + "\"" });
                         }
                     }
                 }
@@ -755,7 +755,7 @@ namespace Tabang_Hub.Controllers
                     {
                         if (userEvent.Volunteer_Status == 0)
                         {
-                            return Json(new { success = false, message = "Conflict with another applied event" });
+                            return Json(new { success = false, message = "Conflict with another applied event: \"" + checkDateOrgEvents.eventTitle + "\"" });
                         }
                         else if (userEvent.Volunteer_Status == 2)
                         {
@@ -763,7 +763,7 @@ namespace Tabang_Hub.Controllers
                         }
                         else
                         {
-                            return Json(new { success = false, message = "Conflict with another registered event" });
+                            return Json(new { success = false, message = "Conflict with another registered event: \"" + checkDateOrgEvents.eventTitle + "\"" });
                         }
                     }
                 }
