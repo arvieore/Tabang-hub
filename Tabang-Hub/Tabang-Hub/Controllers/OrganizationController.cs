@@ -469,6 +469,7 @@ namespace Tabang_Hub.Controllers
         {
             try
             {
+                donation.userId = UserId;
                 // Validate the donation details
                 if (string.IsNullOrEmpty(donation.donationEventName))
                 {
@@ -1473,29 +1474,44 @@ namespace Tabang_Hub.Controllers
             return Json(new { success = true, message = "Event deleted successfully." });
         }
         [HttpPost]
+        public JsonResult DeleteDonation(int donationEventId)
+        {
+            try
+            {
+                if (_organizationManager.DeleteDonation(donationEventId, ref ErrorMessage) == ErrorCode.Success)
+                {
+                    return Json(new { success = true, message = "Donation event deleted successfully." });
+                }
+                else
+                {
+                    return Json(new { success = false, message = ErrorMessage ?? "Failed to delete donation event." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "An error occurred while deleting the donation event.", error = ex.Message });
+            }
+        }
+        [HttpPost]
         public JsonResult ConfirmApplicants(int id, int eventId)
         {
             string errMsg = string.Empty;
 
             if (_organizationManager.ConfirmApplicants(id, eventId, ref errMsg) == ErrorCode.Success)
             {
-                // Create an instance of your NotificationHub and call SendNotification
                 var notificationHub = new NotificationHub();
-
                 notificationHub.SendNotification(
-                    userId: id, // The volunteer's user ID
-                    senderUserId: UserId, // The organization ID or admin ID who is sending the notification
+                    userId: id,
+                    senderUserId: UserId,
                     relatedId: eventId,
                     type: "Acceptance",
                     content: "You have been accepted to participate in the event!"
                 );
 
-                // Return JSON response indicating success with redirect URL to event details page
                 return Json(new { success = true, message = "Volunteer confirmed successfully.", redirectUrl = Url.Action("Details", "Organization", new { id = eventId }) });
             }
             else
             {
-                // Return JSON response indicating failure with an error message
                 return Json(new { success = false, message = errMsg });
             }
         }
@@ -1503,28 +1519,23 @@ namespace Tabang_Hub.Controllers
         public JsonResult DeclineApplicants(int id, int eventId)
         {
             string errMsg = string.Empty;
-
             var evnt = _organizationManager.GetEventByEventId(eventId);
 
             if (_organizationManager.DeclineApplicant(id, eventId) == ErrorCode.Success)
             {
-                // Create an instance of your NotificationHub and call SendNotification
                 var notificationHub = new NotificationHub();
-
                 notificationHub.SendNotification(
-                    userId: id, // The volunteer's user ID
-                    senderUserId: UserId, // The organization ID or admin ID who is sending the notification
+                    userId: id,
+                    senderUserId: UserId,
                     relatedId: eventId,
                     type: "Declined",
                     content: $"Your request to participate in the event {evnt.eventTitle} has been declined!"
                 );
 
-                // Return JSON response indicating success with redirect URL to event details page
                 return Json(new { success = true, message = "Volunteer declined successfully.", redirectUrl = Url.Action("Details", "Organization", new { id = eventId }) });
             }
             else
             {
-                // Return JSON response indicating failure with an error message
                 return Json(new { success = false, message = errMsg });
             }
         }
@@ -1537,6 +1548,8 @@ namespace Tabang_Hub.Controllers
             var getProfile = db.ProfilePicture.Where(m => m.userId == userId).ToList();
             var orgInfo = _organizationManager.GetOrgInfoByUserId(UserId);
             var vol = _volunteerManager.GetVolunteerByUserIdAndEventId(userId, eventId);
+
+            ViewBag.eventId = eventId;
 
             var getUniqueSkill = db.sp_GetSkills(userId).ToList();
             if (getProfile.Count() <= 0)

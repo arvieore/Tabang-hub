@@ -750,6 +750,18 @@ namespace Tabang_Hub.Repository
 
             return ErrorCode.Success;
         }
+        public ErrorCode DeleteDonation(int eventId, ref string errMsg)
+        { 
+            var eventDoination = GetDonationEventByDonationEventId(eventId);
+
+            eventDoination.status = 3;
+
+            if (_donationEvent.Update(eventDoination.donationEventId, eventDoination, out errMsg) != ErrorCode.Success)
+            {
+                return ErrorCode.Error;
+            }
+            return ErrorCode.Success;
+        }
         public ErrorCode ConfirmApplicants(int id, int eventId, ref string errMsg)
         {
             var user = GetVolunteerById(id, eventId);

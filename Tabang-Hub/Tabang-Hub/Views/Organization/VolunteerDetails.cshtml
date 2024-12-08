@@ -21,7 +21,7 @@
                 <div class="col-md-3 text-center d-flex align-items-center justify-content-center">
                     @if (Model.picture.Any())
                     {
-                        <img src="@Url.Content("~/UserProfile/" + Model.picture.First().profilePath)" class="rounded-circle img-fluid" alt="Profile Picture" style="width: 150px; height: 150px; object-fit: cover;">
+                        <img src="@Url.Content("~/Content/UserProfile/" + Model.picture.First().profilePath)" class="rounded-circle img-fluid" alt="Profile Picture" style="width: 150px; height: 150px; object-fit: cover;">
                     }
                     else
                     {
@@ -165,100 +165,104 @@
 </div>
 
 <!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.js"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="~/Content/Js2/profile.js"></script>
 <script src="~/Content/Js2/rankskill.js"></script>
 <script>
-     $(document).ready(function () {
-        var userId = @Model.userAccount.userId;
-        var eventId = @ViewBag.EventId;
+   $(document).ready(function () {
+    // Ensure these IDs are properly set from the server-side
+    var userId = "@Model.volunteerInfo.userId";
+    var eventId = "@ViewBag.EventId";
 
-        $('#acceptButton').click(function () {
-            Swal.fire({
-                title: 'Are you sure?',
-                text: 'Do you want to accept this volunteer?',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'Yes, accept',
-                cancelButtonText: 'Cancel'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: '@Url.Action("ConfirmApplicants", "Organization")',
-                        type: 'POST',
-                        data: { id: userId, eventId: eventId },
-                        success: function (response) {
-                            if (response.success) {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Accepted!',
-                                    text: response.message
-                                }).then(() => {
-                                    window.location.href = response.redirectUrl;
-                                });
-                            } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Error',
-                                    text: response.message
-                                });
-                            }
-                        },
-                        error: function () {
+    // Check if userId and eventId are populated correctly
+    console.log("User ID:", userId, "Event ID:", eventId);
+
+    // Accept Button Click
+    $('#acceptButton').click(function () {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'Do you want to accept this volunteer?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, accept',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '@Url.Action("ConfirmApplicants", "Organization")',
+                    type: 'POST',
+                    data: { id: userId, eventId: eventId },
+                    success: function (response) {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Accepted!',
+                                text: response.message
+                            }).then(() => {
+                                window.location.href = response.redirectUrl;
+                            });
+                        } else {
                             Swal.fire({
                                 icon: 'error',
-                                title: 'Oops...',
-                                text: 'An error occurred while processing your request.'
+                                title: 'Error',
+                                text: response.message
                             });
                         }
-                    });
-                }
-            });
-        });
-
-        $('#declineButton').click(function () {
-            Swal.fire({
-                title: 'Are you sure?',
-                text: 'Do you want to decline this volunteer?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Yes, decline',
-                cancelButtonText: 'Cancel'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: '@Url.Action("DeclineApplicants", "Organization")',
-                        type: 'POST',
-                        data: { id: userId, eventId: eventId },
-                        success: function (response) {
-                            if (response.success) {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Declined',
-                                    text: response.message
-                                }).then(() => {
-                                    window.location.href = response.redirectUrl;
-                                });
-                            } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Error',
-                                    text: response.message
-                                });
-                            }
-                        },
-                        error: function () {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Oops...',
-                                text: 'An error occurred while processing your request.'
-                            });
-                        }
-                    });
-                }
-            });
+                    },
+                    error: function () {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'An error occurred while processing your request.'
+                        });
+                    }
+                });
+            }
         });
     });
+
+    // Decline Button Click
+    $('#declineButton').click(function () {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'Do you want to decline this volunteer?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, decline',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '@Url.Action("DeclineApplicants", "Organization")',
+                    type: 'POST',
+                    data: { id: userId, eventId: eventId },
+                    success: function (response) {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Declined',
+                                text: response.message
+                            }).then(() => {
+                                window.location.href = response.redirectUrl;
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.message
+                            });
+                        }
+                    },
+                    error: function () {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'An error occurred while processing your request.'
+                        });
+                    }
+                });
+            }
+        });
+    });
+});
 </script>

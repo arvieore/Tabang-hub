@@ -141,6 +141,8 @@
                         {
                             foreach (var donationItem in Model.listOfDonationEvent)
                             {
+                                if(donationItem.status != 3)
+                                {
                                 <tr class="clickable-row-donation" data-donation-id="@donationItem.donationEventId">
                                     <td>@donationItem.donationEventName</td>
                                     <td>
@@ -152,11 +154,13 @@
                                     <td>@String.Format("{0:MMMM d, yyyy h:mm tt}", donationItem.dateEnd)</td>
                                     <td>@donationItem.location</td>
                                     <td>
-                                        <button class="btn btn-danger btn-sm w-100">
+                                        <button class="btn btn-danger btn-sm w-100 delete-donation-btn"
+                                                data-donation-id="@donationItem.donationEventId">
                                             Delete
                                         </button>
                                     </td>
                                 </tr>
+                                }
                             }
                         }
                         else
@@ -1406,6 +1410,75 @@
 
             // Re-append sorted rows
             rows.forEach((row) => donationTableBody.appendChild(row));
+        });
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".delete-donation-btn").forEach((button) => {
+            button.addEventListener("click", function (event) {
+                event.stopPropagation(); // Prevent row click event
+
+                const donationId = this.getAttribute("data-donation-id");
+
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "You won't be able to undo this!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#d33",
+                    cancelButtonColor: "#3085d6",
+                    confirmButtonText: "Yes, delete it!",
+                    cancelButtonText: "Cancel",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Send AJAX request
+                        fetch(`/Organization/DeleteDonation`, {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-Requested-With": "XMLHttpRequest",
+                            },
+                            body: JSON.stringify({ donationEventId: parseInt(donationId) }),
+                        })
+                            .then((response) => {
+                                if (!response.ok) {
+                                    throw new Error("Network response was not ok");
+                                }
+                                return response.json();
+                            })
+                            .then((data) => {
+                                if (data.success) {
+                                    Swal.fire({
+                                        icon: "success",
+                                        title: "Deleted!",
+                                        text: data.message || "The donation event has been deleted.",
+                                        confirmButtonText: "OK",
+                                    }).then(() => {
+                                        // Remove the row from the table
+                                        const row = button.closest("tr");
+                                        if (row) row.remove();
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        icon: "error",
+                                        title: "Error!",
+                                        text: data.message || "Failed to delete the donation event.",
+                                        confirmButtonText: "OK",
+                                    });
+                                }
+                            })
+                            .catch((error) => {
+                                console.error("Error:", error);
+                                Swal.fire({
+                                    icon: "error",
+                                    title: "Error!",
+                                    text: "An unexpected error occurred. Please try again later.",
+                                    confirmButtonText: "OK",
+                                });
+                            });
+                    }
+                });
+            });
         });
     });
 </script>

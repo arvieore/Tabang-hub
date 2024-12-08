@@ -3,24 +3,28 @@
   "WorkspaceRootPath": "D:\\School Shits\\Tabang-Hub For Deploy\\Tabang-hub\\Tabang-Hub\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{C91BF11D-2370-46E0-8461-E1D6FBCBCA76}|Tabang-Hub\\Tabang-Hub.csproj|d:\\school shits\\tabang-hub for deploy\\tabang-hub\\tabang-hub\\tabang-hub\\views\\shared\\_admin.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{C91BF11D-2370-46E0-8461-E1D6FBCBCA76}|Tabang-Hub\\Tabang-Hub.csproj|solutionrelative:tabang-hub\\views\\shared\\_admin.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C91BF11D-2370-46E0-8461-E1D6FBCBCA76}|Tabang-Hub\\Tabang-Hub.csproj|d:\\school shits\\tabang-hub for deploy\\tabang-hub\\tabang-hub\\tabang-hub\\controllers\\organizationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{C91BF11D-2370-46E0-8461-E1D6FBCBCA76}|Tabang-Hub\\Tabang-Hub.csproj|D:\\School Shits\\Tabang-Hub For Deploy\\Tabang-hub\\Tabang-Hub\\tabang-hub\\controllers\\organizationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{C91BF11D-2370-46E0-8461-E1D6FBCBCA76}|Tabang-Hub\\Tabang-Hub.csproj|solutionrelative:tabang-hub\\controllers\\organizationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{C91BF11D-2370-46E0-8461-E1D6FBCBCA76}|Tabang-Hub\\Tabang-Hub.csproj|d:\\school shits\\tabang-hub for deploy\\tabang-hub\\tabang-hub\\tabang-hub\\views\\organization\\organizationprofile.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{C91BF11D-2370-46E0-8461-E1D6FBCBCA76}|Tabang-Hub\\Tabang-Hub.csproj|solutionrelative:tabang-hub\\views\\organization\\organizationprofile.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{C91BF11D-2370-46E0-8461-E1D6FBCBCA76}|Tabang-Hub\\Tabang-Hub.csproj|d:\\school shits\\tabang-hub for deploy\\tabang-hub\\tabang-hub\\tabang-hub\\views\\organization\\volunteerdetails.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{C91BF11D-2370-46E0-8461-E1D6FBCBCA76}|Tabang-Hub\\Tabang-Hub.csproj|solutionrelative:tabang-hub\\views\\organization\\volunteerdetails.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{C91BF11D-2370-46E0-8461-E1D6FBCBCA76}|Tabang-Hub\\Tabang-Hub.csproj|d:\\school shits\\tabang-hub for deploy\\tabang-hub\\tabang-hub\\tabang-hub\\content\\css\\orgprofs.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
-      "RelativeMoniker": "D:0:0:{C91BF11D-2370-46E0-8461-E1D6FBCBCA76}|Tabang-Hub\\Tabang-Hub.csproj|solutionrelative:tabang-hub\\content\\css\\orgprofs.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+      "AbsoluteMoniker": "D:0:0:{C91BF11D-2370-46E0-8461-E1D6FBCBCA76}|Tabang-Hub\\Tabang-Hub.csproj|d:\\school shits\\tabang-hub for deploy\\tabang-hub\\tabang-hub\\tabang-hub\\views\\volunteer\\volunteerprofile.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{C91BF11D-2370-46E0-8461-E1D6FBCBCA76}|Tabang-Hub\\Tabang-Hub.csproj|solutionrelative:tabang-hub\\views\\volunteer\\volunteerprofile.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{C91BF11D-2370-46E0-8461-E1D6FBCBCA76}|Tabang-Hub\\Tabang-Hub.csproj|D:\\School Shits\\Tabang-Hub For Deploy\\Tabang-hub\\Tabang-Hub\\tabang-hub\\repository\\organizationmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{C91BF11D-2370-46E0-8461-E1D6FBCBCA76}|Tabang-Hub\\Tabang-Hub.csproj|solutionrelative:tabang-hub\\repository\\organizationmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C91BF11D-2370-46E0-8461-E1D6FBCBCA76}|Tabang-Hub\\Tabang-Hub.csproj|d:\\school shits\\tabang-hub for deploy\\tabang-hub\\tabang-hub\\tabang-hub\\repository\\calendarmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C91BF11D-2370-46E0-8461-E1D6FBCBCA76}|Tabang-Hub\\Tabang-Hub.csproj|solutionrelative:tabang-hub\\repository\\calendarmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C91BF11D-2370-46E0-8461-E1D6FBCBCA76}|Tabang-Hub\\Tabang-Hub.csproj|d:\\school shits\\tabang-hub for deploy\\tabang-hub\\tabang-hub\\tabang-hub\\views\\organization\\listofevent.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{C91BF11D-2370-46E0-8461-E1D6FBCBCA76}|Tabang-Hub\\Tabang-Hub.csproj|solutionrelative:tabang-hub\\views\\organization\\listofevent.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     }
   ],
   "DocumentGroupContainers": [
@@ -30,69 +34,82 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "_Admin.cshtml",
-              "DocumentMoniker": "D:\\School Shits\\Tabang-Hub For Deploy\\Tabang-hub\\Tabang-Hub\\Tabang-Hub\\Views\\Shared\\_Admin.cshtml",
-              "RelativeDocumentMoniker": "Tabang-Hub\\Views\\Shared\\_Admin.cshtml",
-              "ToolTip": "D:\\School Shits\\Tabang-Hub For Deploy\\Tabang-hub\\Tabang-Hub\\Tabang-Hub\\Views\\Shared\\_Admin.cshtml",
-              "RelativeToolTip": "Tabang-Hub\\Views\\Shared\\_Admin.cshtml",
-              "ViewState": "AQIAAG0AAAAAAAAAAIAwwHsAAAAuAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2024-12-08T16:23:02.996Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "OrganizationProfile.cshtml",
-              "DocumentMoniker": "D:\\School Shits\\Tabang-Hub For Deploy\\Tabang-hub\\Tabang-Hub\\Tabang-Hub\\Views\\Organization\\OrganizationProfile.cshtml",
-              "RelativeDocumentMoniker": "Tabang-Hub\\Views\\Organization\\OrganizationProfile.cshtml",
-              "ToolTip": "D:\\School Shits\\Tabang-Hub For Deploy\\Tabang-hub\\Tabang-Hub\\Tabang-Hub\\Views\\Organization\\OrganizationProfile.cshtml",
-              "RelativeToolTip": "Tabang-Hub\\Views\\Organization\\OrganizationProfile.cshtml",
-              "ViewState": "AQIAAM8AAAAAAAAAAAAAAOQAAAANAAAA",
+              "Title": "VolunteerProfile.cshtml",
+              "DocumentMoniker": "D:\\School Shits\\Tabang-Hub For Deploy\\Tabang-hub\\Tabang-Hub\\Tabang-Hub\\Views\\Volunteer\\VolunteerProfile.cshtml",
+              "RelativeDocumentMoniker": "Tabang-Hub\\Views\\Volunteer\\VolunteerProfile.cshtml",
+              "ToolTip": "D:\\School Shits\\Tabang-Hub For Deploy\\Tabang-hub\\Tabang-Hub\\Tabang-Hub\\Views\\Volunteer\\VolunteerProfile.cshtml",
+              "RelativeToolTip": "Tabang-Hub\\Views\\Volunteer\\VolunteerProfile.cshtml",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABEAAABKAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2024-12-08T14:28:14.013Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "orgProfs.css",
-              "DocumentMoniker": "D:\\School Shits\\Tabang-Hub For Deploy\\Tabang-hub\\Tabang-Hub\\Tabang-Hub\\Content\\Css\\orgProfs.css",
-              "RelativeDocumentMoniker": "Tabang-Hub\\Content\\Css\\orgProfs.css",
-              "ToolTip": "D:\\School Shits\\Tabang-Hub For Deploy\\Tabang-hub\\Tabang-Hub\\Tabang-Hub\\Content\\Css\\orgProfs.css",
-              "RelativeToolTip": "Tabang-Hub\\Content\\Css\\orgProfs.css",
-              "ViewState": "AQIAABQAAAAAAAAAAAAiwCMAAAAPAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
-              "WhenOpened": "2024-12-08T14:39:14.855Z",
+              "WhenOpened": "2024-12-08T17:47:00.136Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
+              "Title": "VolunteerDetails.cshtml",
+              "DocumentMoniker": "D:\\School Shits\\Tabang-Hub For Deploy\\Tabang-hub\\Tabang-Hub\\Tabang-Hub\\Views\\Organization\\VolunteerDetails.cshtml",
+              "RelativeDocumentMoniker": "Tabang-Hub\\Views\\Organization\\VolunteerDetails.cshtml",
+              "ToolTip": "D:\\School Shits\\Tabang-Hub For Deploy\\Tabang-hub\\Tabang-Hub\\Tabang-Hub\\Views\\Organization\\VolunteerDetails.cshtml",
+              "RelativeToolTip": "Tabang-Hub\\Views\\Organization\\VolunteerDetails.cshtml",
+              "ViewState": "AQIAAIoAAAAAAAAAAAAAAPQAAAArAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2024-12-08T17:46:33.768Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "CalendarManager.cs",
+              "DocumentMoniker": "D:\\School Shits\\Tabang-Hub For Deploy\\Tabang-hub\\Tabang-Hub\\Tabang-Hub\\Repository\\CalendarManager.cs",
+              "RelativeDocumentMoniker": "Tabang-Hub\\Repository\\CalendarManager.cs",
+              "ToolTip": "D:\\School Shits\\Tabang-Hub For Deploy\\Tabang-hub\\Tabang-Hub\\Tabang-Hub\\Repository\\CalendarManager.cs",
+              "RelativeToolTip": "Tabang-Hub\\Repository\\CalendarManager.cs",
+              "ViewState": "AQIAAHMAAAAAAAAAAAAIwIsAAAAMAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-08T17:26:27.793Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "ListOfEvent.cshtml",
+              "DocumentMoniker": "D:\\School Shits\\Tabang-Hub For Deploy\\Tabang-hub\\Tabang-Hub\\Tabang-Hub\\Views\\Organization\\ListOfEvent.cshtml",
+              "RelativeDocumentMoniker": "Tabang-Hub\\Views\\Organization\\ListOfEvent.cshtml",
+              "ToolTip": "D:\\School Shits\\Tabang-Hub For Deploy\\Tabang-hub\\Tabang-Hub\\Tabang-Hub\\Views\\Organization\\ListOfEvent.cshtml",
+              "RelativeToolTip": "Tabang-Hub\\Views\\Organization\\ListOfEvent.cshtml",
+              "ViewState": "AQIAAHwAAAAAAAAAAAAiwJYAAAAvAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2024-12-08T17:33:17.035Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
               "Title": "OrganizationController.cs",
               "DocumentMoniker": "D:\\School Shits\\Tabang-Hub For Deploy\\Tabang-hub\\Tabang-Hub\\Tabang-Hub\\Controllers\\OrganizationController.cs",
               "RelativeDocumentMoniker": "Tabang-Hub\\Controllers\\OrganizationController.cs",
               "ToolTip": "D:\\School Shits\\Tabang-Hub For Deploy\\Tabang-hub\\Tabang-Hub\\Tabang-Hub\\Controllers\\OrganizationController.cs",
               "RelativeToolTip": "Tabang-Hub\\Controllers\\OrganizationController.cs",
-              "ViewState": "AQIAAGwAAAAAAAAAAAAiwHwAAAAMAAAA",
+              "ViewState": "AQIAAAAGAAAAAAAAAAAIwBIGAAAoAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-12-08T06:28:18.152Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 3,
               "Title": "OrganizationManager.cs",
               "DocumentMoniker": "D:\\School Shits\\Tabang-Hub For Deploy\\Tabang-hub\\Tabang-Hub\\Tabang-Hub\\Repository\\OrganizationManager.cs",
               "RelativeDocumentMoniker": "Tabang-Hub\\Repository\\OrganizationManager.cs",
               "ToolTip": "D:\\School Shits\\Tabang-Hub For Deploy\\Tabang-hub\\Tabang-Hub\\Tabang-Hub\\Repository\\OrganizationManager.cs",
               "RelativeToolTip": "Tabang-Hub\\Repository\\OrganizationManager.cs",
-              "ViewState": "AQIAAEICAAAAAAAAAAA2wA0DAAA4AAAA",
+              "ViewState": "AQIAAJIBAAAAAAAAAIAwwKMBAAAMAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-12-08T06:21:13.919Z",
               "EditorCaption": ""
