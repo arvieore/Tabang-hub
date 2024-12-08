@@ -93,59 +93,139 @@ namespace Tabang_Hub.Controllers
                 //profilePic = profile,
             };
             return View(indexModdel);
+        }      
+        [Authorize]
+        public ActionResult OrganizationProfile()
+        {
+            var orgInfo = _organizationManager.GetOrgInfoByUserId(UserId);
+            var orgEvents = _organizationManager.GetOrgEventsByUserId(UserId);
+            var orgImage = new List<OrgEventImage>();
+            foreach (var image in orgEvents)
+            {
+                var orgEvenImage = _organizationManager.GetEventImageByEventId(image.eventId);
+
+                orgImage.Add(orgEvenImage);
+            }
+
+            //var profile = _organizationManager.GetProfileByProfileId(orgInfo.profileId);
+
+            var indexModdel = new Lists()
+            {
+                OrgInfo = orgInfo,
+                getAllOrgEvent = orgEvents,
+                detailsEventImage = orgImage,
+                //profilePic = profile,
+            };
+            return View(indexModdel);
+        }
+        [HttpPost]
+        public JsonResult EditProf(OrgInfo orginfo, HttpPostedFileBase profilePic, HttpPostedFileBase coverPhoto)
+        {
+            try
+            {
+                // Handle Profile Picture Upload
+                if (profilePic != null && profilePic.ContentLength > 0)
+                {
+                    var profileFileName = Path.GetFileName(profilePic.FileName);
+                    var profileSavePath = Path.Combine(Server.MapPath("~/Content/IdPicture/"), profileFileName);
+
+                    if (!Directory.Exists(Server.MapPath("~/Content/IdPicture/")))
+                        Directory.CreateDirectory(Server.MapPath("~/Content/IdPicture/"));
+
+                    profilePic.SaveAs(profileSavePath);
+                    orginfo.profilePath = "~/Content/IdPicture/" + profileFileName;
+                }
+
+                // Handle Cover Photo Upload
+                if (coverPhoto != null && coverPhoto.ContentLength > 0)
+                {
+                    var coverFileName = Path.GetFileName(coverPhoto.FileName);
+                    var coverSavePath = Path.Combine(Server.MapPath("~/Content/CoverPhotos/"), coverFileName);
+
+                    if (!Directory.Exists(Server.MapPath("~/Content/CoverPhotos/")))
+                        Directory.CreateDirectory(Server.MapPath("~/Content/CoverPhotos/"));
+
+                    coverPhoto.SaveAs(coverSavePath);
+                    orginfo.coverPhoto = "~/Content/CoverPhotos/" + coverFileName;
+                }
+
+                // Update organization info
+                string errMsg = string.Empty;
+                var result = _organizationManager.EditOrgInfo(orginfo, UserId, ref errMsg);
+
+                if (result == ErrorCode.Success)
+                {
+                    return Json(new { success = true, message = "Profile updated successfully." });
+                }
+                else
+                {
+                    return Json(new { success = false, message = errMsg });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        private string SaveFile(HttpPostedFileBase file, string folderPath)
+        {
+            if (file != null && file.ContentLength > 0)
+            {
+                string fileName = Path.GetFileName(file.FileName);
+                string fullPath = Path.Combine(Server.MapPath(folderPath), fileName);
+                file.SaveAs(fullPath);
+                return $"{folderPath.Replace("~", "")}/{fileName}";
+            }
+            return null;
         }
         [HttpPost]
         public JsonResult EditOrgProfile(Lists orgProfile, HttpPostedFileBase profilePic, HttpPostedFileBase coverPic)
         {
-            string errMsg = string.Empty;
-
-            // Ensure the email cannot be changed by reassigning the original email from the database
-            var existingOrgInfo = _organizationManager.GetOrgInfoByUserId(UserId); // Retrieve existing organization info by UserId
-            if (existingOrgInfo != null)
+            try
             {
-                orgProfile.OrgInfo.orgEmail = existingOrgInfo.orgEmail; // Maintain the original email
+                if (Request.Files["profilePic"] != null && Request.Files["profilePic"].ContentLength > 0)
+                {
+                    profilePic = Request.Files["profilePic"];
+                    var inputFileName = Path.GetFileName(profilePic.FileName);
+                    var serverSavePath = Path.Combine(Server.MapPath("~/Content/IdPicture/"), inputFileName);
+
+                    if (!Directory.Exists(Server.MapPath("~/Content/IdPicture/")))
+                        Directory.CreateDirectory(Server.MapPath("~/Content/IdPicture/"));
+
+                    profilePic.SaveAs(serverSavePath);
+                    orgProfile.OrgInfo.profilePath = "~/Content/IdPicture/" + inputFileName;
+                }
+
+                if (Request.Files["coverPic"] != null && Request.Files["coverPic"].ContentLength > 0)
+                {
+                    coverPic = Request.Files["coverPic"];
+                    var coverFileName = Path.GetFileName(coverPic.FileName);
+                    var coverSavePath = Path.Combine(Server.MapPath("~/Content/CoverPhotos/"), coverFileName);
+
+                    if (!Directory.Exists(Server.MapPath("~/Content/CoverPhotos/")))
+                        Directory.CreateDirectory(Server.MapPath("~/Content/CoverPhotos/"));
+
+                    coverPic.SaveAs(coverSavePath);
+                    orgProfile.OrgInfo.coverPhoto = "~/Content/CoverPhotos/" + coverFileName;
+                }
+
+                // Update organization info
+                string errMsg = string.Empty;
+                var result = _organizationManager.EditOrgInfo(orgProfile.OrgInfo, UserId, ref errMsg);
+
+                if (result == ErrorCode.Success)
+                {
+                    return Json(new { success = true, message = "Profile updated successfully." });
+                }
+                else
+                {
+                    return Json(new { success = false, message = errMsg });
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return Json(new { success = false, message = "Organization information not found." });
-            }
-
-            // Handle profile picture upload
-            if (profilePic != null && profilePic.ContentLength > 0)
-            {
-                var inputFileName = Path.GetFileName(profilePic.FileName);
-                var serverSavePath = Path.Combine(Server.MapPath("~/Content/IdPicture/"), inputFileName);
-
-                if (!Directory.Exists(Server.MapPath("~/Content/IdPicture/")))
-                    Directory.CreateDirectory(Server.MapPath("~/Content/IdPicture/"));
-
-                profilePic.SaveAs(serverSavePath);
-                orgProfile.OrgInfo.profilePath = "~/Content/IdPicture/" + inputFileName;
-            }
-
-            // Handle cover photo upload
-            if (coverPic != null && coverPic.ContentLength > 0)
-            {
-                var coverFileName = Path.GetFileName(coverPic.FileName);
-                var coverSavePath = Path.Combine(Server.MapPath("~/Content/CoverPhotos/"), coverFileName);
-
-                if (!Directory.Exists(Server.MapPath("~/Content/CoverPhotos/")))
-                    Directory.CreateDirectory(Server.MapPath("~/Content/CoverPhotos/"));
-
-                coverPic.SaveAs(coverSavePath);
-                orgProfile.OrgInfo.coverPhoto = "~/Content/CoverPhotos/" + coverFileName;
-            }
-
-            // Update organization profile info
-            var result = _organizationManager.EditOrgInfo(orgProfile.OrgInfo, UserId, ref errMsg);
-
-            if (result == ErrorCode.Success)
-            {
-                return Json(new { success = true, message = "Profile updated successfully." });
-            }
-            else
-            {
-                return Json(new { success = false, message = errMsg });
+                return Json(new { success = false, message = ex.Message });
             }
         }
         [Authorize]
