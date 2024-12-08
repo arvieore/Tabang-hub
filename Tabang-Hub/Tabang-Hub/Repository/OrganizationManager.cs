@@ -778,8 +778,8 @@ namespace Tabang_Hub.Repository
 
         public async Task<RecruitmentResult> GetMatchedVolunteers(int eventId)
         {
-            //string flaskApiUrl = "https://tabangapi.as.r.appspot.com/recruit"; // Flask API URL
-            string flaskApiUrl = "http://127.0.0.1:5000/recruitSortVolunteer"; // Flask API URL
+            string flaskApiUrl = "https://tabangapi.as.r.appspot.com/recruitSortVolunteer"; // Flask API URL
+            //string flaskApiUrl = "http://127.0.0.1:5000/recruitSortVolunteer"; // Flask API URL
 
             RecruitmentResult recruitmentResult = new RecruitmentResult();
             string errorMessage = null;
@@ -847,8 +847,8 @@ namespace Tabang_Hub.Repository
         }
         public async Task<List<VolunteerInvite>> ConvertFeedbackToSentiment(int eventId)
         {
-            string flaskApiUrl = "http://127.0.0.1:5000/classify_users_feedback";
-            //string flaskApiUrl = "https://tabangapi.as.r.appspot.com/recruit";
+            //string flaskApiUrl = "http://127.0.0.1:5000/classify_users_feedback";
+            string flaskApiUrl = "https://tabangapi.as.r.appspot.com/classify_users_feedback";
 
             var datas = new
             {
@@ -958,8 +958,8 @@ namespace Tabang_Hub.Repository
                 // Selected skills for the event
                 event_skills = skillIds.Select(skillId => new { eventId = eventId, skillId = skillId }).ToList()
             };
-            //string flaskApiUrl = "https://tabangapi.as.r.appspot.com/recruit"; // Flask API URL
-            string flaskApiUrl = "http://127.0.0.1:5000/recruit"; // Flask API URL
+            string flaskApiUrl = "https://tabangapi.as.r.appspot.com/recruit"; // Flask API URL
+            //string flaskApiUrl = "http://127.0.0.1:5000/recruit"; // Flask API URL
 
             using (var client = new HttpClient())
             {
@@ -979,8 +979,8 @@ namespace Tabang_Hub.Repository
         }
         public async Task<List<VolunteerInvite>> GetVolunteersByRating(int eventId)
         {
-            string flaskApiUrl = "http://127.0.0.1:5000/filter_rate";
-            //string flaskApiUrl = "https://tabangapi.as.r.appspot.com/recruit";
+            string flaskApiUrl = "https://tabangapi.as.r.appspot.com/filter_rate";
+            //string flaskApiUrl = "http://127.0.0.1:5000/filter_rate";
 
             var datas = new
             {
@@ -1031,8 +1031,8 @@ namespace Tabang_Hub.Repository
 
         public async Task<List<VolunteerInvite>> GetVolunteersBySkillsAndRatings(List<int> skillIds, int eventId)
         {
-            string flaskApiUrl = "http://127.0.0.1:5000/filter_skills_and_ratings";
-            //string flaskApiUrl = "https://tabangapi.as.r.appspot.com/recruit";
+            string flaskApiUrl = "https://tabangapi.as.r.appspot.com/filter_skills_and_ratings";
+            //string flaskApiUrl = "http://127.0.0.1:5000/filter_skills_and_ratings";
 
             var datas = new
             {
@@ -1068,9 +1068,9 @@ namespace Tabang_Hub.Repository
 
         public async Task<List<VolunteerInvite>> GetFilteredVolunteerBasedOnAvailability(List<int> skillIds, int eventId, string availability)
         {
-            string flaskApiUrl = "http://127.0.0.1:5000/filter_by_availability";
-            //string flaskApiUrl = "https://tabangapi.as.r.appspot.com/recruit";
-           
+            string flaskApiUrl = "https://tabangapi.as.r.appspot.com/filter_by_availability";
+            //string flaskApiUrl = "http://127.0.0.1:5000/filter_by_availability";
+
             var datas = new
             {
                 user_info = (from volunteer in _volunteerInfo.GetAll()
@@ -1124,8 +1124,8 @@ namespace Tabang_Hub.Repository
 
         public async Task<List<VolunteerInvite>> GetFilteredByAvailabilityWithSkill(List<int> skillIds, int eventId, string availability)
         {
-            string flaskApiUrl = "http://127.0.0.1:5000/filter_by_availability_with_skills";
-            //string flaskApiUrl = "https://tabangapi.as.r.appspot.com/recruit";
+            string flaskApiUrl = "https://tabangapi.as.r.appspot.com/filter_by_availability_with_skills";
+            //string flaskApiUrl = "http://127.0.0.1:5000/filter_by_availability_with_skills";
 
             var datas = new
             {
@@ -1178,8 +1178,8 @@ namespace Tabang_Hub.Repository
 
         public async Task<List<VolunteerInvite>> GetFilterByRatingsWithAvailability(List<int> skillIds, int eventId, string availability)
         {
-            string flaskApiUrl = "http://127.0.0.1:5000/filter_by_ratings_with_availability";
-            //string flaskApiUrl = "https://tabangapi.as.r.appspot.com/recruit";
+            string flaskApiUrl = "https://tabangapi.as.r.appspot.com/filter_by_availability_with_skills";
+            //string flaskApiUrl = "http://127.0.0.1:5000/filter_by_ratings_with_availability";
 
             var datas = new
             {
@@ -1227,8 +1227,8 @@ namespace Tabang_Hub.Repository
 
         public async Task<List<VolunteerInvite>> GetFilterByRateWithAvailabilityAndSkills(List<int> skillIds, int eventId, string availability)
         {
-            string flaskApiUrl = "http://127.0.0.1:5000/filter_by_rate_availability_skills";
-            //string flaskApiUrl = "https://tabangapi.as.r.appspot.com/recruit";
+            string flaskApiUrl = "https://tabangapi.as.r.appspot.com/filter_by_ratings_with_availability";
+            //string flaskApiUrl = "http://127.0.0.1:5000/filter_by_rate_availability_skills";
 
             var datas = new
             {
