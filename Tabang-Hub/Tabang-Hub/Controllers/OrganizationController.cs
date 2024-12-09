@@ -2018,5 +2018,149 @@ namespace Tabang_Hub.Controllers
             // Default to null if no redirection is needed
             return null;
         }
+
+        [Authorize]
+        [HttpPost]
+        public ActionResult ExportReportsToPdf()
+        {
+            var orgInfo = _organizationManager.GetOrgInfoByUserId(UserId);
+            var events = _organizationManager.ListOfEvents(UserId);
+            var totalDonation = _organizationManager.GetTotalDonationByUserId(UserId);
+            var totalVolunteer = _organizationManager.GetTotalVolunteerByUserId(UserId);
+            var eventSummary = _organizationManager.GetEventsByUserId(UserId);
+            var totalSkills = _organizationManager.GetAllVolunteerSkills(UserId).OrderByDescending(x => x.Value).Take(5).ToList();
+
+            // Calculate Top 5 Volunteers
+            var volunteerParticipation = new Dictionary<int, (string Name, int Count)>();
+
+            foreach (var evnt in events)
+            {
+                var volunteers = _organizationManager.GetVolunteersByEventId(evnt.Event_Id);
+
+                foreach (var volunteer in volunteers)
+                {
+                    if (volunteer.Status != 0) // Check if the volunteer is active
+                    {
+                        if (volunteerParticipation.ContainsKey((int)volunteer.userId))
+                        {
+                            volunteerParticipation[(int)volunteer.userId] = (
+                                volunteerParticipation[(int)volunteer.userId].Name,
+                                volunteerParticipation[(int)volunteer.userId].Count + 1
+                            );
+                        }
+                        else
+                        {
+                            var volInfo = _organizationManager.GetVolunteerInfoByUserId((int)volunteer.userId);
+                            volunteerParticipation[(int)volunteer.userId] = (
+                                $"{volInfo.fName} {volInfo.lName}",
+                                1
+                            );
+                        }
+                    }
+                }
+            }
+
+            var topVolunteers = volunteerParticipation
+                .OrderByDescending(v => v.Value.Count)
+                .Take(5)
+                .Select(v => new { Name = v.Value.Name, TotalEventsParticipated = v.Value.Count })
+                .ToList();
+
+            // Create a MemoryStream
+            var ms = new MemoryStream();
+
+            // Use PdfWriter and prevent it from closing the MemoryStream
+            var pdfDoc = new iTextSharp.text.Document(iTextSharp.text.PageSize.A4, 25, 25, 30, 30);
+            var writer = iTextSharp.text.pdf.PdfWriter.GetInstance(pdfDoc, ms);
+            writer.CloseStream = false;
+
+            try
+            {
+                pdfDoc.Open();
+
+                // Add Logo
+                string logoPath = Server.MapPath("~/Content/images/tabanghub3.png");
+                if (System.IO.File.Exists(logoPath))
+                {
+                    iTextSharp.text.Image logo = iTextSharp.text.Image.GetInstance(logoPath);
+                    logo.ScaleAbsolute(100, 100);
+                    logo.Alignment = iTextSharp.text.Element.ALIGN_CENTER;
+                    pdfDoc.Add(logo);
+                }
+
+                // Add Report Title
+                iTextSharp.text.Font titleFont = iTextSharp.text.FontFactory.GetFont("Arial", 18, iTextSharp.text.Font.BOLD);
+                pdfDoc.Add(new iTextSharp.text.Paragraph("Reports Summary", titleFont)
+                {
+                    Alignment = iTextSharp.text.Element.ALIGN_CENTER,
+                    SpacingAfter = 20
+                });
+
+                // Add Overall Statistics
+                iTextSharp.text.Font subTitleFont = iTextSharp.text.FontFactory.GetFont("Arial", 14, iTextSharp.text.Font.BOLD);
+                pdfDoc.Add(new iTextSharp.text.Paragraph("Overall Statistics", subTitleFont) { SpacingBefore = 10, SpacingAfter = 10 });
+
+                pdfDoc.Add(new iTextSharp.text.Paragraph($"Overall Events: {events.Count()}"));
+                pdfDoc.Add(new iTextSharp.text.Paragraph($"Overall Donations: ₱{totalDonation:N}"));
+                pdfDoc.Add(new iTextSharp.text.Paragraph($"Overall Volunteers: {totalVolunteer}"));
+                pdfDoc.Add(new iTextSharp.text.Paragraph("\n"));
+
+                // Add Monthly Event Summary Table
+                pdfDoc.Add(new iTextSharp.text.Paragraph("Monthly Event Summary", subTitleFont) { SpacingBefore = 10, SpacingAfter = 10 });
+                iTextSharp.text.pdf.PdfPTable summaryTable = new iTextSharp.text.pdf.PdfPTable(2) { WidthPercentage = 100 };
+                summaryTable.AddCell(new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase("Month", iTextSharp.text.FontFactory.GetFont("Arial", 12, iTextSharp.text.Font.BOLD))) { BackgroundColor = iTextSharp.text.BaseColor.LIGHT_GRAY });
+                summaryTable.AddCell(new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase("Event Count", iTextSharp.text.FontFactory.GetFont("Arial", 12, iTextSharp.text.Font.BOLD))) { BackgroundColor = iTextSharp.text.BaseColor.LIGHT_GRAY });
+
+                foreach (var month in eventSummary)
+                {
+                    summaryTable.AddCell(CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(month.Key));
+                    summaryTable.AddCell(month.Value.ToString());
+                }
+                pdfDoc.Add(summaryTable);
+
+                pdfDoc.Add(new iTextSharp.text.Paragraph("\n"));
+
+                // Add Top 5 Volunteers Table
+                pdfDoc.Add(new iTextSharp.text.Paragraph("Top 5 Volunteers", subTitleFont) { SpacingBefore = 10, SpacingAfter = 10 });
+                iTextSharp.text.pdf.PdfPTable volunteerTable = new iTextSharp.text.pdf.PdfPTable(2) { WidthPercentage = 100 };
+                volunteerTable.AddCell(new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase("Name", iTextSharp.text.FontFactory.GetFont("Arial", 12, iTextSharp.text.Font.BOLD))) { BackgroundColor = iTextSharp.text.BaseColor.LIGHT_GRAY });
+                volunteerTable.AddCell(new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase("Total Events Participated", iTextSharp.text.FontFactory.GetFont("Arial", 12, iTextSharp.text.Font.BOLD))) { BackgroundColor = iTextSharp.text.BaseColor.LIGHT_GRAY });
+
+                foreach (var volunteer in topVolunteers)
+                {
+                    volunteerTable.AddCell(volunteer.Name);
+                    volunteerTable.AddCell(volunteer.TotalEventsParticipated.ToString());
+                }
+                pdfDoc.Add(volunteerTable);
+
+                pdfDoc.Add(new iTextSharp.text.Paragraph("\n"));
+
+                // Add Top 5 Skills Table
+                pdfDoc.Add(new iTextSharp.text.Paragraph("Top 5 Skills", subTitleFont) { SpacingBefore = 10, SpacingAfter = 10 });
+                iTextSharp.text.pdf.PdfPTable skillTable = new iTextSharp.text.pdf.PdfPTable(2) { WidthPercentage = 100 };
+                skillTable.AddCell(new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase("Skill", iTextSharp.text.FontFactory.GetFont("Arial", 12, iTextSharp.text.Font.BOLD))) { BackgroundColor = iTextSharp.text.BaseColor.LIGHT_GRAY });
+                skillTable.AddCell(new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase("Count", iTextSharp.text.FontFactory.GetFont("Arial", 12, iTextSharp.text.Font.BOLD))) { BackgroundColor = iTextSharp.text.BaseColor.LIGHT_GRAY });
+
+                foreach (var skill in totalSkills)
+                {
+                    skillTable.AddCell(skill.Key); // Skill name
+                    skillTable.AddCell(skill.Value.ToString()); // Skill count
+                }
+                pdfDoc.Add(skillTable);
+
+                pdfDoc.Close();
+
+                // Reset MemoryStream position
+                ms.Position = 0;
+
+                // Return the file
+                return File(ms.ToArray(), "application/pdf", "ReportsSummary.pdf");
+            }
+            finally
+            {
+                writer.Dispose();
+                pdfDoc.Dispose();
+            }
+        }
     }
 }

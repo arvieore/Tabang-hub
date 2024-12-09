@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ using System.Web.Mvc;
 using System.Web.Security;
 using Tabang_Hub.Repository;
 using Tabang_Hub.Utils;
+using static Tabang_Hub.Utils.Lists;
 
 namespace Tabang_Hub.Controllers
 {
@@ -34,6 +36,7 @@ namespace Tabang_Hub.Controllers
             };
             return View(indexModel);
         }
+        [Authorize]
         public ActionResult VolunteerAccounts()
         {
 
@@ -45,6 +48,7 @@ namespace Tabang_Hub.Controllers
             };
             return View(indexModel);
         }
+        [Authorize]
         public ActionResult History(int? organizationId = null)
         {
             var organizations = _adminManager.GetOrganizationAccount();
@@ -480,6 +484,7 @@ namespace Tabang_Hub.Controllers
             }
             return Json(new { success = true });
         }
+        [Authorize]
         public ActionResult Reports(int? organizationId = null)
         {
             if (organizationId != null && organizationId != 0)
@@ -490,12 +495,116 @@ namespace Tabang_Hub.Controllers
                 var totalDonation = _organizationManager.GetTotalDonationByUserId((int)organizationId);
                 var totalVolunteer = _organizationManager.GetTotalVolunteerByUserId((int)organizationId);
                 var eventSummary = _organizationManager.GetEventsByUserId((int)organizationId);
+                var donationSummary = _organizationManager.GetDonationEventSummaryByUserId((int)organizationId);
                 var recentEvents1 = _organizationManager.GetRecentOngoingEventsByUserId((int)organizationId);
                 var totalSkills1 = _organizationManager.GetAllVolunteerSkills((int)organizationId);
                 var userDonated = _organizationManager.GetRecentUserDonationsByUserId((int)organizationId);
+                var eventHistory = _organizationManager.GetEventHistoryByUserId((int)organizationId);
+                var listofUserDonated = _organizationManager.ListOfUserDonated((int)organizationId);
                 var allOrgAcc1 = _adminManager.GetOrganizationAccount();
+                var donationList = _organizationManager.GetListOfDonationEventByUserId((int)organizationId);
+                var listOfvlntr = new List<Volunteers>();
 
-                var indexModdel1 = new Lists()
+                // Dictionary to accumulate volunteer participation stats
+                var volunteerStats = new Dictionary<int, TopVolunteer>();
+                var donatorStats = new Dictionary<int, TopDonators>();
+
+                foreach (var evnt in events)
+                {
+                    var volunteers = _organizationManager.GetVolunteersByEventId(evnt.Event_Id);
+                    var evntImg = _organizationManager.GetEventImageByEventId(evnt.Event_Id);
+                    var userDntd = _organizationManager.ListOfUserDonated(evnt.Event_Id);
+                    listOfvlntr.AddRange(volunteers);
+
+                    foreach (var vlntr in volunteers)
+                    {
+                        if (vlntr.Status != 0)
+                        {
+                            if (volunteerStats.ContainsKey((int)vlntr.userId) && vlntr.Status == 1)
+                            {
+                                // Increment participation count if volunteer exists
+                                volunteerStats[(int)vlntr.userId].TotalEventsParticipated++;
+                                volunteerStats[(int)vlntr.userId].EventIds.Add(evnt.Event_Id); // Add event ID
+                                volunteerStats[(int)vlntr.userId].EventImages.Add(evntImg.eventImage); // Add event image
+                            }
+                            else
+                            {
+                                var volName = _organizationManager.GetVolunteerInfoByUserId((int)vlntr.userId);
+                                // Add new volunteer to the dictionary
+                                volunteerStats[(int)vlntr.userId] = new TopVolunteer
+                                {
+                                    VolunteerId = (int)vlntr.userId,
+                                    EventIds = new List<int> { evnt.Event_Id }, // Initialize with first event ID
+                                    EventImages = new List<string> { evntImg.eventImage }, // Initialize with first event image
+                                    Name = volName.lName + ", " + volName.fName,
+                                    TotalEventsParticipated = 1
+                                };
+                            }
+                        }
+                    }
+
+                    foreach (var dnt in userDntd)
+                    {
+                        if (donatorStats.ContainsKey((int)dnt.userId))
+                        {
+                            donatorStats[(int)dnt.userId].totalAmountDonated += (decimal)dnt.amount;
+
+                            // Update donation for the specific event
+                            var existingEventDonation = donatorStats[(int)dnt.userId].EventDonations
+                                .FirstOrDefault(ed => ed.EventId == evnt.Event_Id);
+
+                            if (existingEventDonation != null)
+                            {
+                                existingEventDonation.AmountDonated += (decimal)dnt.amount;
+                            }
+                            else
+                            {
+                                donatorStats[(int)dnt.userId].EventDonations.Add(new EventDonation
+                                {
+                                    EventId = evnt.Event_Id,
+                                    EventName = evnt.Event_Name,
+                                    EventImage = evntImg.eventImage,
+                                    AmountDonated = (decimal)dnt.amount
+                                });
+                            }
+                        }
+                        else
+                        {
+                            var volName = _organizationManager.GetVolunteerInfoByUserId((int)dnt.userId);
+
+                            donatorStats[(int)dnt.userId] = new TopDonators
+                            {
+                                donatorsId = (int)dnt.userId,
+                                Name = volName.lName + ", " + volName.fName,
+                                totalAmountDonated = (decimal)dnt.amount,
+                                EventDonations = new List<EventDonation>
+                            {
+                                new EventDonation
+                                {
+                                    EventId = evnt.Event_Id,
+                                    EventName = evnt.Event_Name,
+                                    EventImage = evntImg.eventImage,
+                                    AmountDonated = (decimal)dnt.amount
+                                }
+                            }
+                            };
+                        }
+                    }
+                }
+
+                // Get top 5 volunteers by total events participated
+                var topVolunteersList = volunteerStats.Values
+                    .OrderByDescending(v => v.TotalEventsParticipated)
+                    .Take(5)
+                    .ToList();
+
+                // Get top 5 volunteers by total events participated
+                var topDonators = donatorStats.Values
+                    .OrderByDescending(v => v.totalAmountDonated)
+                    .Take(5)
+                    .ToList();
+
+                var indexModel1 = new Lists()
                 {
                     OrgInfo = orgInfo,
                     listOfEvents = events,
@@ -503,12 +612,18 @@ namespace Tabang_Hub.Controllers
                     totalVolunteer = totalVolunteer,
                     eventSummary = eventSummary,
                     recentEvents = recentEvents1,
+                    donationSummary = donationSummary,
                     totalSkills = totalSkills1,
+                    orgEventHistory = eventHistory,
                     recentDonators = userDonated,
-                    getAllOrgAccounts = allOrgAcc1,                    
-                    //profilePic = profile,
+                    topVolunteers = topVolunteersList, // Assign the top volunteers list here
+                    volunteers = listOfvlntr,
+                    topDonators = topDonators,
+                    listOfDonationEvent = donationList,
+                    listofUserDonated = listofUserDonated,
+                    getAllOrgAccounts = allOrgAcc1,
                 };
-                return View(indexModdel1);
+                return View(indexModel1);
             }
             var allOrgEvents = _adminManager.GetAllEvents();
             var allOrgAcc = _adminManager.GetOrganizationAccount();
@@ -709,6 +824,150 @@ namespace Tabang_Hub.Controllers
 
             // Default to null if no redirection is needed
             return null;
+        }
+
+        [Authorize]
+        [HttpPost]
+        public ActionResult ExportReportsToPdf(int userId)
+        {
+            var orgInfo = _organizationManager.GetOrgInfoByUserId(userId);
+            var events = _organizationManager.ListOfEvents(userId);
+            var totalDonation = _organizationManager.GetTotalDonationByUserId(userId);
+            var totalVolunteer = _organizationManager.GetTotalVolunteerByUserId(userId);
+            var eventSummary = _organizationManager.GetEventsByUserId(userId);
+            var totalSkills = _organizationManager.GetAllVolunteerSkills(userId).OrderByDescending(x => x.Value).Take(5).ToList();
+
+            // Calculate Top 5 Volunteers
+            var volunteerParticipation = new Dictionary<int, (string Name, int Count)>();
+
+            foreach (var evnt in events)
+            {
+                var volunteers = _organizationManager.GetVolunteersByEventId(evnt.Event_Id);
+
+                foreach (var volunteer in volunteers)
+                {
+                    if (volunteer.Status != 0) // Check if the volunteer is active
+                    {
+                        if (volunteerParticipation.ContainsKey((int)volunteer.userId))
+                        {
+                            volunteerParticipation[(int)volunteer.userId] = (
+                                volunteerParticipation[(int)volunteer.userId].Name,
+                                volunteerParticipation[(int)volunteer.userId].Count + 1
+                            );
+                        }
+                        else
+                        {
+                            var volInfo = _organizationManager.GetVolunteerInfoByUserId((int)volunteer.userId);
+                            volunteerParticipation[(int)volunteer.userId] = (
+                                $"{volInfo.fName} {volInfo.lName}",
+                                1
+                            );
+                        }
+                    }
+                }
+            }
+
+            var topVolunteers = volunteerParticipation
+                .OrderByDescending(v => v.Value.Count)
+                .Take(5)
+                .Select(v => new { Name = v.Value.Name, TotalEventsParticipated = v.Value.Count })
+                .ToList();
+
+            // Create a MemoryStream
+            var ms = new MemoryStream();
+
+            // Use PdfWriter and prevent it from closing the MemoryStream
+            var pdfDoc = new iTextSharp.text.Document(iTextSharp.text.PageSize.A4, 25, 25, 30, 30);
+            var writer = iTextSharp.text.pdf.PdfWriter.GetInstance(pdfDoc, ms);
+            writer.CloseStream = false;
+
+            try
+            {
+                pdfDoc.Open();
+
+                // Add Logo
+                string logoPath = Server.MapPath("~/Content/images/tabanghub3.png");
+                if (System.IO.File.Exists(logoPath))
+                {
+                    iTextSharp.text.Image logo = iTextSharp.text.Image.GetInstance(logoPath);
+                    logo.ScaleAbsolute(100, 100);
+                    logo.Alignment = iTextSharp.text.Element.ALIGN_CENTER;
+                    pdfDoc.Add(logo);
+                }
+
+                // Add Report Title
+                iTextSharp.text.Font titleFont = iTextSharp.text.FontFactory.GetFont("Arial", 18, iTextSharp.text.Font.BOLD);
+                pdfDoc.Add(new iTextSharp.text.Paragraph("Reports Summary", titleFont)
+                {
+                    Alignment = iTextSharp.text.Element.ALIGN_CENTER,
+                    SpacingAfter = 20
+                });
+
+                // Add Overall Statistics
+                iTextSharp.text.Font subTitleFont = iTextSharp.text.FontFactory.GetFont("Arial", 14, iTextSharp.text.Font.BOLD);
+                pdfDoc.Add(new iTextSharp.text.Paragraph("Overall Statistics", subTitleFont) { SpacingBefore = 10, SpacingAfter = 10 });
+
+                pdfDoc.Add(new iTextSharp.text.Paragraph($"Overall Events: {events.Count()}"));
+                pdfDoc.Add(new iTextSharp.text.Paragraph($"Overall Donations: ₱{totalDonation:N}"));
+                pdfDoc.Add(new iTextSharp.text.Paragraph($"Overall Volunteers: {totalVolunteer}"));
+                pdfDoc.Add(new iTextSharp.text.Paragraph("\n"));
+
+                // Add Monthly Event Summary Table
+                pdfDoc.Add(new iTextSharp.text.Paragraph("Monthly Event Summary", subTitleFont) { SpacingBefore = 10, SpacingAfter = 10 });
+                iTextSharp.text.pdf.PdfPTable summaryTable = new iTextSharp.text.pdf.PdfPTable(2) { WidthPercentage = 100 };
+                summaryTable.AddCell(new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase("Month", iTextSharp.text.FontFactory.GetFont("Arial", 12, iTextSharp.text.Font.BOLD))) { BackgroundColor = iTextSharp.text.BaseColor.LIGHT_GRAY });
+                summaryTable.AddCell(new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase("Event Count", iTextSharp.text.FontFactory.GetFont("Arial", 12, iTextSharp.text.Font.BOLD))) { BackgroundColor = iTextSharp.text.BaseColor.LIGHT_GRAY });
+
+                foreach (var month in eventSummary)
+                {
+                    summaryTable.AddCell(CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(month.Key));
+                    summaryTable.AddCell(month.Value.ToString());
+                }
+                pdfDoc.Add(summaryTable);
+
+                pdfDoc.Add(new iTextSharp.text.Paragraph("\n"));
+
+                // Add Top 5 Volunteers Table
+                pdfDoc.Add(new iTextSharp.text.Paragraph("Top 5 Volunteers", subTitleFont) { SpacingBefore = 10, SpacingAfter = 10 });
+                iTextSharp.text.pdf.PdfPTable volunteerTable = new iTextSharp.text.pdf.PdfPTable(2) { WidthPercentage = 100 };
+                volunteerTable.AddCell(new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase("Name", iTextSharp.text.FontFactory.GetFont("Arial", 12, iTextSharp.text.Font.BOLD))) { BackgroundColor = iTextSharp.text.BaseColor.LIGHT_GRAY });
+                volunteerTable.AddCell(new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase("Total Events Participated", iTextSharp.text.FontFactory.GetFont("Arial", 12, iTextSharp.text.Font.BOLD))) { BackgroundColor = iTextSharp.text.BaseColor.LIGHT_GRAY });
+
+                foreach (var volunteer in topVolunteers)
+                {
+                    volunteerTable.AddCell(volunteer.Name);
+                    volunteerTable.AddCell(volunteer.TotalEventsParticipated.ToString());
+                }
+                pdfDoc.Add(volunteerTable);
+
+                pdfDoc.Add(new iTextSharp.text.Paragraph("\n"));
+
+                // Add Top 5 Skills Table
+                pdfDoc.Add(new iTextSharp.text.Paragraph("Top 5 Skills", subTitleFont) { SpacingBefore = 10, SpacingAfter = 10 });
+                iTextSharp.text.pdf.PdfPTable skillTable = new iTextSharp.text.pdf.PdfPTable(2) { WidthPercentage = 100 };
+                skillTable.AddCell(new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase("Skill", iTextSharp.text.FontFactory.GetFont("Arial", 12, iTextSharp.text.Font.BOLD))) { BackgroundColor = iTextSharp.text.BaseColor.LIGHT_GRAY });
+                skillTable.AddCell(new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase("Count", iTextSharp.text.FontFactory.GetFont("Arial", 12, iTextSharp.text.Font.BOLD))) { BackgroundColor = iTextSharp.text.BaseColor.LIGHT_GRAY });
+
+                foreach (var skill in totalSkills)
+                {
+                    skillTable.AddCell(skill.Key); // Skill name
+                    skillTable.AddCell(skill.Value.ToString()); // Skill count
+                }
+                pdfDoc.Add(skillTable);
+
+                pdfDoc.Close();
+
+                // Reset MemoryStream position
+                ms.Position = 0;
+
+                // Return the file
+                return File(ms.ToArray(), "application/pdf", "ReportsSummary.pdf");
+            }
+            finally
+            {
+                writer.Dispose();
+                pdfDoc.Dispose();
+            }
         }
     }
 }

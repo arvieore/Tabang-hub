@@ -141,25 +141,25 @@
                         {
                             foreach (var donationItem in Model.listOfDonationEvent)
                             {
-                                if(donationItem.status == 1)
+                                if (donationItem.status == 1)
                                 {
-                                <tr class="clickable-row-donation" data-donation-id="@donationItem.donationEventId">
-                                    <td>@donationItem.donationEventName</td>
-                                    <td>
-                                        <span class="description" title="@donationItem.donationDescription">
-                                            @donationItem.donationDescription
-                                        </span>
-                                    </td>
-                                    <td>@String.Format("{0:MMMM d, yyyy h:mm tt}", donationItem.dateStart)</td>
-                                    <td>@String.Format("{0:MMMM d, yyyy h:mm tt}", donationItem.dateEnd)</td>
-                                    <td>@donationItem.location</td>
-                                    <td>
-                                        <button class="btn btn-danger btn-sm w-100 delete-donation-btn"
-                                                data-donation-id="@donationItem.donationEventId">
-                                            Delete
-                                        </button>
-                                    </td>
-                                </tr>
+                                    <tr class="clickable-row-donation" data-donation-id="@donationItem.donationEventId">
+                                        <td>@donationItem.donationEventName</td>
+                                        <td>
+                                            <span class="description" title="@donationItem.donationDescription">
+                                                @donationItem.donationDescription
+                                            </span>
+                                        </td>
+                                        <td>@String.Format("{0:MMMM d, yyyy h:mm tt}", donationItem.dateStart)</td>
+                                        <td>@String.Format("{0:MMMM d, yyyy h:mm tt}", donationItem.dateEnd)</td>
+                                        <td>@donationItem.location</td>
+                                        <td>
+                                            <button class="btn btn-danger btn-sm w-100 delete-donation-btn"
+                                                    data-donation-id="@donationItem.donationEventId">
+                                                Delete
+                                            </button>
+                                        </td>
+                                    </tr>
                                 }
                             }
                         }
