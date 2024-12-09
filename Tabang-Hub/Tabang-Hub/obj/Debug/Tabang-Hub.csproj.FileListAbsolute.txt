@@ -1388,3 +1388,45 @@ C:\Tabang-hub\Tabang-hub2\Tabang-Hub\Tabang-Hub\obj\Debug\Tabang-Hub.csproj.Core
 C:\Tabang-hub\Tabang-hub2\Tabang-Hub\Tabang-Hub\obj\Debug\Tabang-Hub.csproj.Up2Date
 C:\Tabang-hub\Tabang-hub2\Tabang-Hub\Tabang-Hub\obj\Debug\Tabang-Hub.dll
 C:\Tabang-hub\Tabang-hub2\Tabang-Hub\Tabang-Hub\obj\Debug\Tabang-Hub.pdb
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\BouncyCastle.Cryptography.dll
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.barcodes.dll
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.bouncy-castle-connector.dll
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.commons.dll
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.forms.dll
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.io.dll
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.kernel.dll
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.layout.dll
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.pdfa.dll
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.pdfua.dll
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.sign.dll
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.styledxmlparser.dll
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.svg.dll
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itextsharp.dll
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\Microsoft.Extensions.DependencyInjection.dll
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\Microsoft.Extensions.Logging.Abstractions.dll
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\Microsoft.Extensions.Logging.dll
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\Microsoft.Extensions.Options.dll
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\Microsoft.Extensions.Primitives.dll
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\System.Diagnostics.DiagnosticSource.dll
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\BouncyCastle.Cryptography.xml
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.barcodes.xml
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.bouncy-castle-connector.xml
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.commons.xml
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.forms.xml
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.io.xml
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.kernel.xml
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.layout.xml
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.pdfa.xml
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.pdfua.xml
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.sign.xml
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.styledxmlparser.xml
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.svg.xml
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itextsharp.xml
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\Microsoft.Extensions.DependencyInjection.xml
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\Microsoft.Extensions.DependencyInjection.Abstractions.xml
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\Microsoft.Extensions.Logging.xml
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\Microsoft.Extensions.Logging.Abstractions.xml
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\Microsoft.Extensions.Options.xml
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\Microsoft.Extensions.Primitives.xml
+D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\System.Diagnostics.DiagnosticSource.xml

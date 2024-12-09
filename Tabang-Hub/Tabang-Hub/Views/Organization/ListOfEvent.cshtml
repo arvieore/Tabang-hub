@@ -141,7 +141,7 @@
                         {
                             foreach (var donationItem in Model.listOfDonationEvent)
                             {
-                                if(donationItem.status != 3)
+                                if(donationItem.status == 1)
                                 {
                                 <tr class="clickable-row-donation" data-donation-id="@donationItem.donationEventId">
                                     <td>@donationItem.donationEventName</td>

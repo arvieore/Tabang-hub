@@ -239,8 +239,8 @@
                             data.forEach(notification => {
                                 notificationsHtml += `
                         <li class="${notification.status === 0 ? 'unread-notification' : ''}">
-                            <a href="#" 
-                               class="dropdown-item notification-item" 
+                            <a href="#"
+                               class="dropdown-item notification-item"
                                data-notification-id="${notification.notificationId}">
                                 ${notification.content}
                             </a>
@@ -292,6 +292,31 @@
                 });
             });
         });
+
+        $(document).ready(function () {
+    const checkFinishedDonationEventsUrl = '@Url.Action("CheckFinishedDonationEvents", "Organization")';
+
+    // Call the function when the page loads
+    checkFinishedDonationEvents();
+    setInterval(checkFinishedDonationEvents, 6000); // Check every 60 seconds
+
+    function checkFinishedDonationEvents() {
+        $.ajax({
+            url: checkFinishedDonationEventsUrl,
+            type: 'POST',
+            success: function (data) {
+                if (data.success) {
+                    console.log(data.message); // Log success message
+                } else {
+                    console.error("Error:", data.message); // Log error message
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX Error:", error); // Log AJAX error details
+            }
+        });
+    }
+});
     </script>
 </body>
 

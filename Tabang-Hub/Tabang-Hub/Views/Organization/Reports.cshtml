@@ -51,9 +51,9 @@
 
 <div class="page-heading">
     <h3>Reports Dashboard</h3>
-    <form action="/Organization/ExportData" method="post">
-        <button type="submit" class="btn btn-primary">
-            Export Data to CSV
+    <form action="/Organization/ExportReportsToPdf" method="post">
+        <button type="submit" class="btn btn-danger">
+            Export Reports to PDF
         </button>
     </form>
 
@@ -338,16 +338,47 @@
                                     <table class="table table-bordered mb-0">
                                         <thead class="table-dark">
                                             <tr>
-                                                <th>Event Name</th>
-                                                <th>Target Amount</th>
-                                                <th>Total Volunteers</th>
-                                                <th>Date Started</th>
-                                                <th>Date Ended</th>
+                                                <th>Donation Name</th>
+                                                <th>Description</th>
+                                                <th>Date Start</th>
+                                                <th>Date End</th>
                                                 <th>Location</th>
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
+                                            @if (Model.listOfDonationEvent != null && Model.listOfDonationEvent.Any())
+                                            {
+                                                foreach (var donationItem in Model.listOfDonationEvent)
+                                                {
+                                                    if (donationItem.status == 2)
+                                                    {
+                                                        <tr class="clickable-row-donation" data-donation-id="@donationItem.donationEventId">
+                                                            <td>@donationItem.donationEventName</td>
+                                                            <td>
+                                                                <span class="description" title="@donationItem.donationDescription">
+                                                                    @donationItem.donationDescription
+                                                                </span>
+                                                            </td>
+                                                            <td>@String.Format("{0:MMMM d, yyyy h:mm tt}", donationItem.dateStart)</td>
+                                                            <td>@String.Format("{0:MMMM d, yyyy h:mm tt}", donationItem.dateEnd)</td>
+                                                            <td>@donationItem.location</td>
+                                                            <td>
+                                                                <button class="btn btn-primary btn-sm w-100"
+                                                                        data-donation-id="@donationItem.donationEventId">
+                                                                    View
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <tr>
+                                                    <td colspan="6" class="text-center">No donation events available.</td>
+                                                </tr>
+                                            }
                                         </tbody>
                                     </table>
                                 </div>
@@ -355,14 +386,14 @@
                         </div>
                     </div>
 
-                    <!-- Top 5 Skills -->
+                    <!-- Monthly Event Summary -->
                     <div class="dashboard-section">
-                        <div class="card" style="min-height: 475px;">
+                        <div class="card">
                             <div class="card-header">
-                                <h4>Top 5 Skills</h4>
+                                <h4>Monthly Event Summary</h4>
                             </div>
-                            <div class="card-body d-flex justify-content-center align-items-center">
-                                <div id="chart-top-five" class="chart"></div>
+                            <div class="card-body">
+                                <div id="monthlyDonationSummaryChart" class="chart"></div>
                             </div>
                         </div>
                     </div>
@@ -577,4 +608,45 @@
         // Redirect to the desired action with the eventId as a parameter
         window.location.href = `/Organization/HistoryDetails/${eventId}`;
     }
+
+    document.addEventListener('DOMContentLoaded', function () {
+    // Prepare data for monthly donations
+    var donationMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    var monthlyDonations = new Array(12).fill(0); // Initialize all months with 0 donations
+
+    // Populate monthlyDonations based on server data
+    @foreach (var month in Model.donationSummary.Keys)
+    {
+        <text>
+            monthlyDonations[@month - 1] = @Model.donationSummary[month];
+        </text>;
+    }
+
+    // ApexCharts configuration for Monthly Donation Summary
+    var donationOptions = {
+        chart: {
+            type: 'bar',
+            height: 350
+        },
+        series: [{
+            name: 'Donation Event',
+            data: monthlyDonations
+        }],
+        xaxis: {
+            categories: months
+        },
+        yaxis: {
+            min: 0,
+            max: 30, // Set max value to accommodate higher event counts, adjust as needed
+            tickAmount: 6, // Number of intervals (5 units each if max is 30)
+            title: {
+                text: 'Event Count'
+            }
+        }
+    };
+
+    // Render chart
+    var donationChart = new ApexCharts(document.querySelector("#monthlyDonationSummaryChart"), donationOptions);
+    donationChart.render();
+});
 </script>

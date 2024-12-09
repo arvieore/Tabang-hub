@@ -16,6 +16,8 @@ using Tabang_Hub.Hubs;
 using static Tabang_Hub.Utils.Lists;
 using System.Globalization;
 using System.Security.Cryptography.X509Certificates;
+using iTextSharp.text.pdf;
+using iTextSharp.text;
 
 namespace Tabang_Hub.Controllers
 {
@@ -1516,6 +1518,37 @@ namespace Tabang_Hub.Controllers
             }
         }
         [HttpPost]
+        public JsonResult CheckFinishedDonationEvents()
+        {
+            try
+            {
+                // Call the manager method to check for finished donation events
+                if (_organizationManager.CheckFinishedDonationEvents(UserId, ref ErrorMessage) != ErrorCode.Success)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = ErrorMessage
+                    });
+                }
+
+                return Json(new
+                {
+                    success = true,
+                    message = "Donation events successfully processed."
+                });
+            }
+            catch (Exception ex)
+            {
+                // Handle unexpected errors
+                return Json(new
+                {
+                    success = false,
+                    message = $"An unexpected error occurred: {ex.Message}"
+                });
+            }
+        }
+        [HttpPost]
         public JsonResult DeclineApplicants(int id, int eventId)
         {
             string errMsg = string.Empty;
@@ -1590,10 +1623,13 @@ namespace Tabang_Hub.Controllers
             var totalDonation = _organizationManager.GetTotalDonationByUserId(UserId);
             var totalVolunteer = _organizationManager.GetTotalVolunteerByUserId(UserId);
             var eventSummary = _organizationManager.GetEventsByUserId(UserId);
+            var donationSummary = _organizationManager.GetDonationEventSummaryByUserId(UserId);
             var recentEvents = _organizationManager.GetRecentOngoingEventsByUserId(UserId);
             var totalSkills = _organizationManager.GetAllVolunteerSkills(UserId);
             var userDonated = _organizationManager.GetRecentUserDonationsByUserId(UserId);
             var eventHistory = _organizationManager.GetEventHistoryByUserId(UserId);
+            var listofUserDonated = _organizationManager.ListOfUserDonated(UserId);
+            var donationList = _organizationManager.GetListOfDonationEventByUserId(UserId);
             var listOfvlntr = new List<Volunteers>();
 
             // Dictionary to accumulate volunteer participation stats
@@ -1703,12 +1739,15 @@ namespace Tabang_Hub.Controllers
                 totalVolunteer = totalVolunteer,
                 eventSummary = eventSummary,
                 recentEvents = recentEvents,
+                donationSummary = donationSummary,
                 totalSkills = totalSkills,
                 orgEventHistory = eventHistory,
                 recentDonators = userDonated,
                 topVolunteers = topVolunteersList, // Assign the top volunteers list here
                 volunteers = listOfvlntr,
                 topDonators = topDonators,
+                listOfDonationEvent = donationList,
+                listofUserDonated = listofUserDonated,
             };
 
             return View(indexModel);

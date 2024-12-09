@@ -95,6 +95,7 @@ namespace Tabang_Hub.Utils
         public int totalVolunteer { get; set; }
 
         public Dictionary<int, int> eventSummary { get; set; }
+        public Dictionary<int, int> donationSummary { get; set; }
         public Dictionary<int, int> allEventSummary { get; set; }
         public List<FilteredVolunteer> filteredVolunteers { get; set; }
         public List<RecruitmentResult> recruitmentResults { get; set; }

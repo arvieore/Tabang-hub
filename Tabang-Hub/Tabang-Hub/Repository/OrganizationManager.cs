@@ -333,6 +333,20 @@ namespace Tabang_Hub.Repository
             return eventSummary;
         }
 
+        public Dictionary<int, int> GetDonationEventSummaryByUserId(int userId)
+        {
+            // Donation Events from the main table
+            var donationSummary = _donationEvent._table
+                .Where(m => m.userId == userId && m.dateStart.HasValue && m.dateEnd.HasValue && m.status == 2)
+                .GroupBy(m => m.dateStart.Value.Month)
+                .ToDictionary(
+                    group => group.Key,             
+                    group => group.Count()
+                );
+
+            return donationSummary;
+        }
+
         public List<OrgEvents> GetRecentOngoingEventsByUserId(int userId)
         {
             var recentEvents = _orgEvents._table
@@ -414,6 +428,47 @@ namespace Tabang_Hub.Repository
         public List<ProfilePicture> GetProfileByUserId(int userId)
         {
             return _profile._table.Where(m => m.userId == userId).ToList();
+        }
+        // Fetches all donation events for the user
+        public List<DonationEvent> ListOfFinishedDonationEvents(int userId)
+        {
+            return _donationEvent._table
+                .Where(m => m.userId == userId && m.dateEnd <= DateTime.Now && m.status == 1)
+                .ToList();
+        }
+
+        // Checks finished donation events and updates their status
+        public ErrorCode CheckFinishedDonationEvents(int userId, ref string errMsg)
+        {
+            try
+            {
+                var donationEvents = ListOfFinishedDonationEvents(userId);
+
+                foreach (var donationEventItem in donationEvents)
+                {
+                    // Ensure the event's end date has passed
+                    if (donationEventItem.dateEnd <= DateTime.Now)
+                    {
+                        // Update the status to "Finished"
+                        donationEventItem.status = 2;
+
+                        // Perform the update and handle potential errors
+                        if (_donationEvent.Update(donationEventItem.donationEventId, donationEventItem, out errMsg) != ErrorCode.Success)
+                        {
+                            errMsg = $"Failed to update event ID {donationEventItem.donationEventId}: {errMsg}";
+                            return ErrorCode.Error;
+                        }
+                    }
+                }
+
+                // Success if no errors occurred
+                return ErrorCode.Success;
+            }
+            catch (Exception ex)
+            {
+                errMsg = $"An unexpected error occurred: {ex.Message}";
+                return ErrorCode.Error;
+            }
         }
         public ErrorCode SentNotif(int userId, int senderId, int relatedId, string type, string content, int broadcast, ref string errMsg)
         {
