@@ -115,11 +115,11 @@
                 </div>
                 <div class="card-body">
                     <ul class="list-group list-group-flush">
-                        <li class="list-group-item"><i class="bi bi-calendar-event me-2"></i><strong>Event Name:</strong> @Model.eventDetails.Event_Name</li>
-                        <li class="list-group-item"><i class="bi bi-file-earmark-text me-2"></i><strong>Description:</strong> @Model.eventDetails.Description</li>
-                        <li class="list-group-item"><i class="bi bi-calendar me-2"></i><strong>Date Started:</strong> @Model.eventDetails.Start_Date</li>
-                        <li class="list-group-item"><i class="bi bi-calendar me-2"></i><strong>Date Ended:</strong> @Model.eventDetails.End_Date</li>
-                        <li class="list-group-item"><i class="bi bi-geo-alt me-2"></i><strong>Location:</strong> @Model.eventDetails.Location</li>
+                        <li class="list-group-item"><i class="bi bi-calendar-event me-2"></i><strong>Event Name:</strong> @Model.eventDetails.eventTitle</li>
+                        <li class="list-group-item"><i class="bi bi-file-earmark-text me-2"></i><strong>Description:</strong> @Model.eventDetails.eventDescription</li>
+                        <li class="list-group-item"><i class="bi bi-calendar me-2"></i><strong>Date Started:</strong> @Model.eventDetails.dateStart</li>
+                        <li class="list-group-item"><i class="bi bi-calendar me-2"></i><strong>Date Ended:</strong> @Model.eventDetails.dateEnd</li>
+                        <li class="list-group-item"><i class="bi bi-geo-alt me-2"></i><strong>Location:</strong> @Model.eventDetails.location</li>
                     </ul>
                 </div>
                 <div class="card-body">
@@ -132,13 +132,13 @@
                             raisedAmount += donated.amount;
                         }
 
-                        var percentage = (raisedAmount / Model.eventDetails.Target_Amount) * 100;
+                        var percentage = (raisedAmount / Model.eventDetails.targetAmount) * 100;
                     }
                     <div class="progress-bar-container">
                         <div class="progress">
-                            <div class="progress-bar" role="progressbar" style="width: @percentage%" aria-valuenow="@raisedAmount" aria-valuemin="0" aria-valuemax="@Model.eventDetails.Target_Amount"></div>
+                            <div class="progress-bar" role="progressbar" style="width: @percentage%" aria-valuenow="@raisedAmount" aria-valuemin="0" aria-valuemax="@Model.eventDetails.targetAmount"></div>
                             <div class="progress-text">
-                                @($"{raisedAmount:₱#,##0.00}") / @($"{Model.eventDetails.Target_Amount:₱#,##0.00}")
+                                @($"{raisedAmount:₱#,##0.00}") / @($"{Model.eventDetails.targetAmount:₱#,##0.00}")
 
                             </div>
                         </div>
@@ -164,7 +164,7 @@
             </div>
             <div class="modal-body">
                 <form id="donationForm" action="@Url.Action("DonateNow", "Volunteer")" method="post">
-                    <input type="hidden" name="userDonated.eventId" value="@Model.eventDetails.Event_Id" />
+                    <input type="hidden" name="userDonated.eventId" value="@Model.eventDetails.eventId" />
                     <div class="mb-3">
                         <label for="donationAmount" class="form-label">Donation Amount</label>
                         <input type="number" class="form-control" id="donationAmount" name="userDonated.amount" required>

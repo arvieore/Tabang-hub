@@ -1,0 +1,108 @@
+﻿/* Skills Container */
+.skills-container {
+    width: 100%;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Skills Header */
+.skills-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+    .skills-header h6 {
+        font-size: 16px;
+        font-weight: bold;
+        margin: 0;
+        color: #333;
+    }
+
+/* Dropdown Container */
+.dropdown-container {
+    position: relative;
+    width: 100%;
+}
+
+.dropdown-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border: 1px solid #6272a4;
+    border-radius: 4px;
+    cursor: pointer;
+    color: black;
+    position: relative;
+    min-height: 40px; /* Fixed height to prevent moving */
+}
+
+.dropdown-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    overflow: hidden;
+    width: 100%;
+    color: black;
+}
+
+    .dropdown-tags span {
+        background-color: #6272a4;
+        border-radius: 4px;
+        padding: 2px 8px;
+        font-size: 12px;
+        color: white;
+        margin-right: 5px;
+        display: flex;
+        align-items: center;
+    }
+
+        .dropdown-tags span i {
+            margin-left: 5px;
+            cursor: pointer;
+        }
+
+.dropdown-arrow {
+    font-size: 14px;
+    margin-left: auto;
+}
+
+/* Dropdown List */
+.dropdown-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: white;
+    border: 1px solid #6272a4;
+    border-radius: 4px;
+    display: none;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    padding: 5px 0;
+}
+
+    .dropdown-list li {
+        padding: 8px 10px;
+    }
+
+        .dropdown-list li label {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+            .dropdown-list li label input {
+                margin-right: 10px;
+            }
+
+        .dropdown-list li:hover {
+            background-color: #d6dfe7;
+        }

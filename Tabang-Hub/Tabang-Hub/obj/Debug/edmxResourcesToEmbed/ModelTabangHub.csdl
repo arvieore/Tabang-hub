@@ -48,12 +48,6 @@
       <Parameter Name="userId" Mode="In" Type="Int32" />
       <Parameter Name="eventId" Mode="In" Type="Int32" />
     </FunctionImport>
-    <FunctionImport Name="sp_GetUserDonated" ReturnType="Collection(TabangHubModel.sp_GetUserDonated_Result)">
-      <Parameter Name="userId" Mode="In" Type="Int32" />
-    </FunctionImport>
-    <FunctionImport Name="sp_GetUserDonated1" ReturnType="Collection(TabangHubModel.sp_GetUserDonated1_Result)">
-      <Parameter Name="userId" Mode="In" Type="Int32" />
-    </FunctionImport>
     <EntitySet Name="Donated" EntityType="TabangHubModel.Donated" />
     <EntitySet Name="Donates" EntityType="TabangHubModel.Donates" />
     <EntitySet Name="DonationEvent" EntityType="TabangHubModel.DonationEvent" />
@@ -266,30 +260,6 @@
     <Property Type="Int32" Name="userId" Nullable="true" />
     <Property Type="Int32" Name="eventId" Nullable="true" />
     <Property Type="String" Name="eventTitle" Nullable="true" MaxLength="255" />
-  </ComplexType>
-  <ComplexType Name="sp_GetUserDonated_Result">
-    <Property Type="String" Name="donationEventId" Nullable="true" MaxLength="30" />
-    <Property Type="String" Name="eventId" Nullable="true" MaxLength="30" />
-    <Property Type="String" Name="RefNumber" Nullable="true" MaxLength="255" />
-    <Property Type="DateTime" Name="DateDonated" Nullable="true" Precision="23" />
-    <Property Type="String" Name="Type" Nullable="false" MaxLength="12" />
-    <Property Type="String" Name="AmountOrDescription" Nullable="true" MaxLength="4000" />
-    <Property Type="String" Name="EventName" Nullable="true" MaxLength="255" />
-    <Property Type="String" Name="DonationDescription" Nullable="true" />
-    <Property Type="String" Name="EventDescription" Nullable="true" />
-    <Property Type="String" Name="EventImage" Nullable="true" MaxLength="255" />
-  </ComplexType>
-  <ComplexType Name="sp_GetUserDonated1_Result">
-    <Property Type="String" Name="donationEventId" Nullable="true" MaxLength="30" />
-    <Property Type="String" Name="eventId" Nullable="true" MaxLength="30" />
-    <Property Type="String" Name="RefNumber" Nullable="true" MaxLength="255" />
-    <Property Type="DateTime" Name="DateDonated" Nullable="true" Precision="23" />
-    <Property Type="String" Name="Type" Nullable="false" MaxLength="12" />
-    <Property Type="String" Name="AmountOrDescription" Nullable="true" MaxLength="4000" />
-    <Property Type="String" Name="EventName" Nullable="true" MaxLength="255" />
-    <Property Type="String" Name="DonationDescription" Nullable="true" />
-    <Property Type="String" Name="EventDescription" Nullable="true" />
-    <Property Type="String" Name="EventImage" Nullable="true" MaxLength="255" />
   </ComplexType>
   <EntityType Name="Donated">
     <Key>

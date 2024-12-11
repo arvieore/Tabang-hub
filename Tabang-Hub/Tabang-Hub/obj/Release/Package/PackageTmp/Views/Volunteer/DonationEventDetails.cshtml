@@ -1,0 +1,465 @@
+﻿﻿@model Tabang_Hub.Utils.Lists
+@{
+    ViewBag.Title = "DonationEventDetails";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link href="~/Content/css2/Eventdetails.css" rel="stylesheet" />
+<style>
+    body {
+        padding-top: 70px;
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12 event-description">
+            @foreach (var title in Model.donationEvents)
+            {
+                <h3>@title.donationEventName</h3>
+            }
+            @foreach (var orgDetails in Model.donationEvents)
+            {
+                <p>@orgDetails.donationDescription</p>
+            }
+        </div>
+        <hr />
+        <div class="row" style="background-color: #F0F8FF; margin: 0">
+            <div class="col-md-8">
+                <div id="carouselExampleDark" class="carousel carousel-dark slide" data-bs-ride="carousel">
+                    <div class="carousel-indicators">
+                        @for (int i = 0; i < Model.donationImages.Count; i++)
+                        {
+                            <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="@@i" class="@(i == 0 ? "active" : "")" aria-current="@(i == 0 ? "true" : "false")" aria-label="Slide @i"></button>
+                        }
+                    </div>
+                    <div class="carousel-inner">
+                        @for (int i = 0; i < Model.donationImages.Count; i++)
+                        {
+                            <div class="carousel-item @(i == 0 ? "active" : "")">
+                                <img src="@Url.Content("~/Content/Events/" + Model.donationImages[i].imagePath)" class="d-block w-100 img-fluid fixed-size-img" alt="Event Image" style="border-radius: 1rem; margin: 15px 0px 15px 0px;">
+                            </div>
+                        }
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleDark" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleDark" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-4 event-details" style="border-radius: 1rem; background-color: #FFFF">
+                @foreach (var location in Model.donationEvents)
+                {
+                    DateTime? originalDateStart = location.dateStart;
+                    string formattedDateStart = originalDateStart.HasValue ? originalDateStart.Value.ToString("MMMM dd, yyyy hh:mm tt") : "N/A";
+
+                    DateTime? originalDateEnd = location.dateEnd;
+                    string formattedDateEnd = originalDateEnd.HasValue ? originalDateEnd.Value.ToString("MMMM dd, yyyy hh:mm tt") : "N/A";
+
+                    <i class="bi bi-geo-alt" style="font-size:24px;"></i> @location.location
+
+                    <div style="margin-top: 50px; color: dimgray" class="org-info">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="bi bi-calendar me-2" style="font-size:16px;"></i>
+                            <span><strong>Start: </strong>@formattedDateStart <strong>-</strong> <br /><strong>End: </strong>@formattedDateEnd</span>
+                        </div>
+                    </div>
+                }
+
+                <!-- Donate and My Donation Buttons -->
+                <div class="d-flex justify-content-between">
+                    <button style="width: 48%" type="button" class="btn btn-primary btn-block" data-bs-toggle="modal" data-bs-target="#donationModal">
+                        Donate
+                    </button>
+                    <button style="width: 48%" type="button" class="btn btn-secondary btn-block" data-bs-toggle="modal" data-bs-target="#myDonationModal">
+                        My Donation
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<br />
+<hr />
+
+<div class="container mt-5">
+    <div style="text-align: center">
+        <h1>Organization</h1>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                @foreach (var info in Model.orgInfos)
+                {
+                    <div class="col-md-7 org-description">
+                        <div class="d-flex align-items-center mb-3">
+                            <!-- Anchor Wrapping Both the Image and Name -->
+                            <a href="@Url.Action("OrganizationProfile", "Volunteer", new {info.userId})"
+                               class="d-flex align-items-center text-decoration-none" style="color: black;">
+                                <!-- Profile Picture -->
+                                <img src="@Url.Content(info.profilePath)" alt="@info.orgName Profile Picture"
+                                     class="rounded-circle me-3" style="width: 50px; height: 50px; object-fit: cover;">
+
+                                <!-- Organization Name -->
+                                <h6 class="mb-0">
+                                    @info.orgName
+                                </h6>
+                            </a>
+                        </div>
+                        <!-- Organization Description -->
+                        <p>
+                            @info.orgDescription
+                        </p>
+                    </div>
+
+
+                    <div class="col-md-3">
+                        <h6>Contact us</h6>
+                        <p>
+                            <i style="font-size:15px;" class="fa">&#xf095;</i> @info.phoneNum
+                        </p>
+
+                        <p>
+                            <i style="font-size:15px" class="fa">&#xf1a0;</i> @*@info.orgEmail*@ <a href="#">@info.orgEmail@*organization@gmail.com*@</a>
+                        </p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<br />
+
+<!-- Donation Modal -->
+<div class="modal fade" id="donationModal" tabindex="-1" aria-labelledby="donationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="donationModalLabel">Donate Now</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Tabs for Monetary and Item Donations -->
+                <ul class="nav nav-tabs" id="donationTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="money-tab" data-bs-toggle="tab" data-bs-target="#money" type="button" role="tab" aria-controls="money" aria-selected="true">Monetary Donation</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="items-tab" data-bs-toggle="tab" data-bs-target="#items" type="button" role="tab" aria-controls="items" aria-selected="false">Item Donation</button>
+                    </li>
+                </ul>
+
+                <div class="tab-content mt-3" id="donationTabsContent">
+                    <!-- Monetary Donation Tab -->
+                    <div class="tab-pane fade show active" id="money" role="tabpanel" aria-labelledby="money-tab">
+                        <form id="moneyDonationForm">
+                            <div class="mb-3">
+                                <label for="donationAmount" class="form-label">Amount</label>
+                                <input type="number" class="form-control" id="donationAmount" name="amount" placeholder="Enter amount" step="0.01">
+                            </div>
+                            <button type="button" class="btn btn-primary" id="addMonetaryDonation">Add to Donations</button>
+                        </form>
+                    </div>
+
+                    <!-- Item Donation Tab -->
+                    <div class="tab-pane fade" id="items" role="tabpanel" aria-labelledby="items-tab">
+                        <form id="itemDonationForm">
+                            <div class="mb-3">
+                                <label for="itemType" class="form-label">Item Type</label>
+                                <select class="form-control" id="itemType" name="itemType">
+                                    <option value="Clothes">Clothes</option>
+                                    <option value="Food">Food</option>
+                                    <option value="Books">Books</option>
+                                    <option value="Toys">Toys</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="itemUnit" class="form-label">Unit</label>
+                                <select class="form-control" id="itemUnit" name="itemUnit">
+                                    <option value="Piece">Piece</option>
+                                    <option value="Sack">Sack</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="itemQuantity" class="form-label">Quantity</label>
+                                <input type="number" class="form-control" id="itemQuantity" name="itemQuantity" placeholder="Enter quantity">
+                            </div>
+                            <button type="button" class="btn btn-primary" id="addItemDonation">Add to Donations</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Summary Table -->
+                <h3 class="mt-4">Summary of Donations</h3>
+                <table class="table" id="donationTable">
+                    <thead>
+                        <tr>
+                            <th>Donation Type</th>
+                            <th>Unit</th>
+                            <th>Quantity</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Donations will be dynamically added here -->
+                    </tbody>
+                </table>
+                <input type="hidden" id="userId" value="@Model.volunteerInfo.userId" />
+                <input type="hidden" id="eventId" value="@Model.donationEvent.donationEventId" />
+                <button type="button" class="btn btn-success" id="submitDonation">Submit Donation</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- My Donation Modal -->
+<div class="modal fade" id="myDonationModal" tabindex="-1" aria-labelledby="myDonationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="myDonationModalLabel">My Donations</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Pending Donations Table -->
+                <h3>Pending Donations</h3>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Donation Type</th>
+                            <th>Unit</th>
+                            <th>Amount/Quantity</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pendingDonationsTable">
+                        @if (Model.MyDonations != null && Model.MyDonations.Any())
+                        {
+                            foreach (var items in Model.MyDonations)
+                            {
+                                if (Model.donates?.status == 0)
+                                {
+                                    <tr>
+                                        <td>@items.donationType</td>
+                                        <td>@items.donationUnit</td>
+                                        <td>
+                                            @if (items.donationType == "Money")
+                                            {
+                                                <span>₱</span>@(items.donationQuantity?.ToString("F2") ?? "N/A") <!-- Decimal for Money -->
+                                            }
+                                            else
+                                            {
+                                                @(items.donationQuantity?.ToString("F0") ?? "N/A") <!-- Integer for others -->
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="3" class="text-center">No pending donations available.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <!-- Delivered Donations Table -->
+                <h3>Successful Donations</h3>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Donation Type</th>
+                            <th>Unit</th>
+                            <th>Amount/Quantity</th>
+                        </tr>
+                    </thead>
+                    <tbody id="deliveredDonationsTable">
+                        @if (Model.MyDonations != null && Model.MyDonations.Any())
+                        {
+                            foreach (var items in Model.MyDonations)
+                            {
+                                if (Model.donates?.status == 1)
+                                {
+                                    <tr>
+                                        <td>@items.donationType</td>
+                                        <td>@items.donationUnit</td>
+                                        <td>
+                                            @if (items.donationType == "Money")
+                                            {
+                                                <span>₱</span>@(items.donationQuantity?.ToString("F2") ?? "N/A") <!-- Decimal for Money -->
+                                            }
+                                            else
+                                            {
+                                                @(items.donationQuantity?.ToString("F0") ?? "N/A") <!-- Integer for others -->
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="3" class="text-center">No successful donations available.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const donationTableBody = document.querySelector('#donationTable tbody');
+
+    // Add Monetary Donation
+    document.getElementById('addMonetaryDonation').addEventListener('click', () => {
+        const amount = document.getElementById('donationAmount').value;
+
+        if (amount) {
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+            <td>Money</td>
+            <td>N/A</td>
+            <td>${amount}</td>
+            <td><button type="button" class="btn btn-danger btn-sm removeDonation">Remove</button></td>
+        `;
+            donationTableBody.appendChild(newRow);
+            addRemoveEvent(newRow);
+        } else {
+            Swal.fire({
+                title: 'Error!',
+                text: 'Please enter an amount for the monetary donation.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        }
+    });
+
+    // Add Item Donation
+    document.getElementById('addItemDonation').addEventListener('click', () => {
+        const itemType = document.getElementById('itemType').value; // e.g., Clothes, Food
+        const itemUnit = document.getElementById('itemUnit').value; // e.g., Sack, Piece
+        const itemQuantity = document.getElementById('itemQuantity').value; // Quantity
+
+        // Validation to ensure all fields are filled
+        if (itemType && itemUnit && itemQuantity) {
+            const newRow = document.createElement('tr'); // Create a new table row
+            newRow.innerHTML = `
+            <td>${itemType}</td>
+            <td>${itemUnit}</td>
+            <td>${itemQuantity}</td>
+            <td><button type="button" class="btn btn-danger btn-sm removeDonation">Remove</button></td>
+        `;
+            donationTableBody.appendChild(newRow); // Append the row to the table body
+            addRemoveEvent(newRow); // Add functionality to remove the row
+        } else {
+            Swal.fire({
+                title: 'Error!',
+                text: 'Please complete all fields for the item donation.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        }
+    });
+
+    // Remove Donation Row
+    function addRemoveEvent(row) {
+        row.querySelector('.removeDonation').addEventListener('click', () => {
+            row.remove();
+        });
+    }
+
+    document.getElementById('submitDonation').addEventListener('click', () => {
+        const donationRows = donationTableBody.querySelectorAll('tr');
+        const donations = [];
+
+        // Retrieve userId and eventId from hidden inputs
+        const userId = document.getElementById('userId').value;
+        const eventId = document.getElementById('eventId').value;
+
+        // Validate userId and eventId
+        if (!userId || !eventId) {
+            Swal.fire({
+                title: 'Error!',
+                text: 'User ID or Event ID is missing.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+
+        // Collect donation details from the table
+        donationRows.forEach(row => {
+            const donationType = row.cells[0].textContent.trim(); // Donation type (Money, Food, etc.)
+            const unit = donationType === "Money" ? null : row.cells[1].textContent.trim();
+            const quantity = donationType === "Money" ? parseFloat(row.cells[2].textContent.trim()) : parseFloat(row.cells[2].textContent.trim());
+
+            donations.push({
+                donationEventId: eventId,
+                userId: userId,
+                donationType: donationType,
+                donationUnit: unit,
+                donationQuantity: quantity
+            });
+        });
+
+        console.log(donations); // Debugging: Check the donations array before sending it to the backend
+
+        if (donations.length === 0) {
+            Swal.fire({
+                title: 'Error!',
+                text: 'No donations to submit. Please add donations before submitting.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+
+        // Send donations to the backend
+        $.post('/Volunteer/SubmitDonation', { donated: donations, donationEventId: eventId }, (response) => {
+            if (response.success) {
+                if (response.checkoutUrl) {
+                    // Redirect to PayMongo checkout
+                    window.location.href = response.checkoutUrl;
+                } else {
+                    // Show success message and reload the page
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Donations submitted successfully.',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        location.reload();
+                    });
+                }
+            } else {
+                Swal.fire({
+                    title: 'Error!',
+                    text: response.message || 'Something went wrong while submitting your donations.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        }).fail(() => {
+            Swal.fire({
+                title: 'Error!',
+                text: 'Failed to submit donations. Please try again later.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        });
+    });
+</script>

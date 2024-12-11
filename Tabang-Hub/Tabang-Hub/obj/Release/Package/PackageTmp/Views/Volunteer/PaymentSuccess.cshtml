@@ -21,9 +21,18 @@
             <p class="card-text mb-4">
                 Your payment was successful, and we greatly appreciate your support for this event. Your contribution makes a real difference!
             </p>
-            <a href="@Url.Action("EventDetails", "Volunteer", new { eventId = Model.CreateEvents.eventId })" class="btn btn-primary btn-lg">
-                View Event Details
-            </a>
+            @if (ViewBag.DonationType == 1)
+            {
+                <a href="@Url.Action("EventDetails", "Volunteer", new { eventId = Model.CreateEvents.eventId })" class="btn btn-primary btn-lg">
+                    Return to Event Details
+                </a>
+            }
+            else
+            {
+                <a href="@Url.Action("DonationEventDetails", "Volunteer", new { donatioEventId = ViewBag.EventId })" class="btn btn-primary btn-lg">
+                    Return to Event Details
+                </a>
+            }
         </div>
     </div>
 </div>

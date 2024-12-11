@@ -697,9 +697,6 @@ warning 6002: The table/view 'TabangHub.dbo.vw_VolunteerSkills' does not have a 
         <Function Name="sp_GetSkills" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="userId" Type="int" Mode="In" />
         </Function>
-        <Function Name="sp_GetUserDonated" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
-          <Parameter Name="userId" Type="int" Mode="In" />
-        </Function>
         <Function Name="sp_GetUserDonatedInformations" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="userId" Type="int" Mode="In" />
         </Function>
@@ -990,12 +987,6 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
             <Parameter Name="userId" Mode="In" Type="Int32" />
             <Parameter Name="eventId" Mode="In" Type="Int32" />
           </FunctionImport>
-          <FunctionImport Name="sp_GetUserDonated" ReturnType="Collection(TabangHubModel.sp_GetUserDonated_Result)">
-            <Parameter Name="userId" Mode="In" Type="Int32" />
-          </FunctionImport>
-          <FunctionImport Name="sp_GetUserDonated1" ReturnType="Collection(TabangHubModel.sp_GetUserDonated1_Result)">
-          <Parameter Name="userId" Mode="In" Type="Int32" />
-          </FunctionImport>
           <EntitySet Name="Donated" EntityType="TabangHubModel.Donated" />
           <EntitySet Name="Donates" EntityType="TabangHubModel.Donates" />
           <EntitySet Name="DonationEvent" EntityType="TabangHubModel.DonationEvent" />
@@ -1208,30 +1199,6 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
           <Property Type="Int32" Name="userId" Nullable="true" />
           <Property Type="Int32" Name="eventId" Nullable="true" />
           <Property Type="String" Name="eventTitle" Nullable="true" MaxLength="255" />
-        </ComplexType>
-        <ComplexType Name="sp_GetUserDonated_Result">
-          <Property Type="String" Name="donationEventId" Nullable="true" MaxLength="30" />
-          <Property Type="String" Name="eventId" Nullable="true" MaxLength="30" />
-          <Property Type="String" Name="RefNumber" Nullable="true" MaxLength="255" />
-          <Property Type="DateTime" Name="DateDonated" Nullable="true" Precision="23" />
-          <Property Type="String" Name="Type" Nullable="false" MaxLength="12" />
-          <Property Type="String" Name="AmountOrDescription" Nullable="true" MaxLength="4000" />
-          <Property Type="String" Name="EventName" Nullable="true" MaxLength="255" />
-          <Property Type="String" Name="DonationDescription" Nullable="true" />
-          <Property Type="String" Name="EventDescription" Nullable="true" />
-          <Property Type="String" Name="EventImage" Nullable="true" MaxLength="255" />
-        </ComplexType>
-        <ComplexType Name="sp_GetUserDonated1_Result">
-          <Property Type="String" Name="donationEventId" Nullable="true" MaxLength="30" />
-          <Property Type="String" Name="eventId" Nullable="true" MaxLength="30" />
-          <Property Type="String" Name="RefNumber" Nullable="true" MaxLength="255" />
-          <Property Type="DateTime" Name="DateDonated" Nullable="true" Precision="23" />
-          <Property Type="String" Name="Type" Nullable="false" MaxLength="12" />
-          <Property Type="String" Name="AmountOrDescription" Nullable="true" MaxLength="4000" />
-          <Property Type="String" Name="EventName" Nullable="true" MaxLength="255" />
-          <Property Type="String" Name="DonationDescription" Nullable="true" />
-          <Property Type="String" Name="EventDescription" Nullable="true" />
-          <Property Type="String" Name="EventImage" Nullable="true" MaxLength="255" />
         </ComplexType>
         <EntityType Name="Donated">
           <Key>
@@ -2074,22 +2041,6 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
             </ResultMapping>
           </FunctionImportMapping>
           <FunctionImportMapping FunctionImportName="sp_RemoveVolunteer" FunctionName="TabangHubModel.Store.sp_RemoveVolunteer" />
-          <FunctionImportMapping FunctionImportName="sp_GetUserDonated1" FunctionName="TabangHubModel.Store.sp_GetUserDonated">
-            <ResultMapping>
-              <ComplexTypeMapping TypeName="TabangHubModel.sp_GetUserDonated1_Result">
-                <ScalarProperty Name="donationEventId" ColumnName="donationEventId" />
-                <ScalarProperty Name="eventId" ColumnName="eventId" />
-                <ScalarProperty Name="RefNumber" ColumnName="RefNumber" />
-                <ScalarProperty Name="DateDonated" ColumnName="DateDonated" />
-                <ScalarProperty Name="Type" ColumnName="Type" />
-                <ScalarProperty Name="AmountOrDescription" ColumnName="AmountOrDescription" />
-                <ScalarProperty Name="EventName" ColumnName="EventName" />
-                <ScalarProperty Name="DonationDescription" ColumnName="DonationDescription" />
-                <ScalarProperty Name="EventDescription" ColumnName="EventDescription" />
-                <ScalarProperty Name="EventImage" ColumnName="EventImage" />
-              </ComplexTypeMapping>
-            </ResultMapping>
-          </FunctionImportMapping>
           <EntitySetMapping Name="Donated">
             <EntityTypeMapping TypeName="TabangHubModel.Donated">
               <MappingFragment StoreEntitySet="Donated">

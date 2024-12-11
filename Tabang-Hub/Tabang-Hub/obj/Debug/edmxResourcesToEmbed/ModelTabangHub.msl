@@ -126,22 +126,6 @@
       </ResultMapping>
     </FunctionImportMapping>
     <FunctionImportMapping FunctionImportName="sp_RemoveVolunteer" FunctionName="TabangHubModel.Store.sp_RemoveVolunteer" />
-    <FunctionImportMapping FunctionImportName="sp_GetUserDonated1" FunctionName="TabangHubModel.Store.sp_GetUserDonated">
-      <ResultMapping>
-        <ComplexTypeMapping TypeName="TabangHubModel.sp_GetUserDonated1_Result">
-          <ScalarProperty Name="donationEventId" ColumnName="donationEventId" />
-          <ScalarProperty Name="eventId" ColumnName="eventId" />
-          <ScalarProperty Name="RefNumber" ColumnName="RefNumber" />
-          <ScalarProperty Name="DateDonated" ColumnName="DateDonated" />
-          <ScalarProperty Name="Type" ColumnName="Type" />
-          <ScalarProperty Name="AmountOrDescription" ColumnName="AmountOrDescription" />
-          <ScalarProperty Name="EventName" ColumnName="EventName" />
-          <ScalarProperty Name="DonationDescription" ColumnName="DonationDescription" />
-          <ScalarProperty Name="EventDescription" ColumnName="EventDescription" />
-          <ScalarProperty Name="EventImage" ColumnName="EventImage" />
-        </ComplexTypeMapping>
-      </ResultMapping>
-    </FunctionImportMapping>
     <EntitySetMapping Name="Donated">
       <EntityTypeMapping TypeName="TabangHubModel.Donated">
         <MappingFragment StoreEntitySet="Donated">

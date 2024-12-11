@@ -150,9 +150,6 @@
                     <div class="btn-container">
                         <button type="button" class="btn btn-primary btn-lg btn-block btn-disabled" id="nextButton" onclick="nextStep()" disabled>Next</button>
                     </div>
-                    @*<div class="step-indicator">
-                        <span class="step-number">1</span> of 2
-                    </div>*@
                 </div>
 
                 <!-- Second Step: Skill Selection -->
@@ -173,7 +170,7 @@
 
                     <div class="step-content">
                         <div class="grid-container" id="skillsGrid">
-                            @foreach (var skillImage in Model.skills)
+                            @foreach (var skillImage in Model.skills.OrderBy(m => m.skillName))
                             {
                                 <div class="grid-item" onclick="toggleSkill(this)" data-skill-name="@skillImage.skillName.ToLower()">
                                     <img src="@Url.Content("~/Content/SkillImages/" + skillImage.skillImage)" class="selectable" data-skill="@skillImage.skillName">
@@ -190,7 +187,9 @@
         }
         else
         {
-            <section class="hero-section hero-section-full-height">
+
+
+<section class="hero-section hero-section-full-height">
                 <div class="container-fluid">
                     <div class="row">
 
@@ -198,32 +197,50 @@
                             <div id="hero-slide" class="carousel carousel-fade slide" data-bs-ride="carousel">
                                 <div class="carousel-inner">
                                     <div class="carousel-item active">
-                                        <img src="~/Content/images2/slide/volunteer-helping-with-donation-box.jpg" class="carousel-image img-fluid" alt="...">
+                                        <img src="~/Content/images2/slide/army.jpg" class="carousel-image img-fluid" alt="...">
 
                                         <div class="carousel-caption d-flex flex-column justify-content-end">
                                             <h1>Tabang Heart</h1>
 
                                             <p>Bringing help to where it's needed.</p>
+
+                                            <div class="">
+                                                @*<a href="#" class="me-4">Make a donation</a>*@
+
+                                                <a href="#sectionevent" class="custom-btn btn smoothscroll">Become a volunteer</a>
+                                            </div>
                                         </div>
                                     </div>
 
                                     <div class="carousel-item">
-                                        <img src="~/Content/images2/slide/volunteer-selecting-organizing-clothes-donations-charity.jpg" class="carousel-image img-fluid" alt="...">
+                                        <img src="~/Content/images2/slide/red cross.jpg" class="carousel-image img-fluid" alt="...">
 
                                         <div class="carousel-caption d-flex flex-column justify-content-end">
-                                            <h1>Join Our Mission</h1>
+                                            <h1>Join Us</h1>
 
                                             <p>Help us empower more communities.</p>
+
+                                            <div class="">
+                                                @*<a href="#" class="me-4">Make a donation</a>*@
+
+                                                <a href="#sectionevent" class="custom-btn btn smoothscroll">Become a volunteer</a>
+                                            </div>
                                         </div>
                                     </div>
 
                                     <div class="carousel-item">
-                                        <img src="~/Content/images2/slide/medium-shot-people-collecting-donations.jpg" class="carousel-image img-fluid" alt="...">
+                                        <img src="~/Content/images2/slide/dagat.jpg" class="carousel-image img-fluid" alt="...">
 
                                         <div class="carousel-caption d-flex flex-column justify-content-end">
                                             <h1>Humanity</h1>
 
                                             <p>Please tell your friends about our website</p>
+
+                                            <div class="">
+                                                @*<a href="#" class="me-4">Make a donation</a>*@
+
+                                                <a href="#sectionevent" class="custom-btn btn smoothscroll">Become a volunteer</a>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -242,9 +259,11 @@
 
                     </div>
                 </div>
-            </section>
-
-            <section class="section-padding">
+            </section><style>
+                .nav-tabs .nav-link.active {
+                    color: #5a6f80;
+                }
+            </style><section class="section-padding" id="sectionevent">
                 <div class="container">
                     <div class="row" id="eventsContainer">
 
@@ -252,91 +271,433 @@
                             <h2 class="mb-5">Welcome to Tabang Hub Volunteering Community</h2>
                         </div>
 
-                        @foreach (var evt in Model.listOfEvents.Where(m => m.End_Date >= DateTime.Now))
-                        {
-                            <div class="col-lg-4 col-md-6 mt-2 col-12 mb-4 mb-lg-0 event-card">
-                                <div class="custom-block-wrap">
-                                    @*<img src="~/Content/images2/causes/Basak.jpg" class="custom-block-image img-fluid" alt="">*@
-                                    @{
-                                        var imgs = Model.detailsEventImage.Where(m => m.eventId == evt.Event_Id).Select(m => m.eventImage).FirstOrDefault();
-                                    }
-                                    <img src="@Url.Content("~/Content/Events/" + imgs)" class="custom-block-image img-fluid" alt="">
-                                    <div class="custom-block">
-                                        <div class="custom-block-body">
-                                            <h5 class="mb-3">@evt.Event_Name</h5>
+                        <ul class="nav nav-tabs justify-content-center mb-4" id="eventTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="recommended-tab" data-bs-toggle="tab" data-bs-target="#recommendedSection" type="button" role="tab" aria-controls="recommendedSection" aria-selected="true">Recommended event</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="list-tab" data-bs-toggle="tab" data-bs-target="#listSection" type="button" role="tab" aria-controls="listSection" aria-selected="false">List of all events</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="donation-tab" data-bs-toggle="tab" data-bs-target="#donationSection" type="button" role="tab" aria-controls="donationSection" aria-selected="false">Donation only events</button>
+                            </li>
+                        </ul>
 
-                                            <p>@evt.Description</p>
-                                            @{
-                                                int currentVolunteers = Model.volunteers.Where(m => m.Status == 1).Count();
-                                                int? maxVolunteers = evt.Maximum_Volunteer;
-                                                double? progressPercentage = (double)currentVolunteers / maxVolunteers * 100;
-                                                Console.WriteLine(progressPercentage);
-                                            }
-                                            <div class="progress-bar" role="progressbar"
-                                                 style="width: @progressPercentage%; background-color: mediumseagreen;"
-                                                 aria-valuenow="@currentVolunteers"
-                                                 aria-valuemin="0"
-                                                 aria-valuemax="@maxVolunteers">
-                                            </div>
-
-                                            <div class="d-flex align-items-center my-2">
-                                                <p class="mb-0">
-                                                    <strong>Number of volunteers joined:</strong>
-                                                    <!-- $18,500 -->
-                                                </p>
-
-                                                <p class="ms-auto mb-0">
-                                                    <!-- <strong>Goal:</strong> -->
-                                                    @Model.volunteers.Where(m => m.Status == 1 && m.eventId == evt.Event_Id).Count()/@evt.Maximum_Volunteer
-                                                </p>
-                                            </div>
-                                            @if (evt.Target_Amount != null)
-                                            {
-                                                <div class="progress mt-4">
-                                                    @{
-                                                        decimal? raisedAmount = evt.Total_Donation;
-
-                                                        //foreach (var donated in Model.listofUserDonated.Where(m => m.eventId == evt.Event_Id))
-                                                        //{
-                                                        //    raisedAmount += donated.amount;
-                                                        //}
-
-                                                        var percentage = (raisedAmount / evt.Target_Amount) * 100;
-                                                    }
-                                                    <div class="progress-bar" style="width: @percentage%" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
-                                                </div>
-                                                <div class="d-flex align-items-center my-2">
-                                                    <p class="mb-0">
-                                                        <strong>Fund Raised: </strong>
-                                                    </p>
-                                                    <p class="ms-auto mb-0">
-                                                        <!-- <strong>Goal:</strong> -->
-                                                        ₱@(evt.Total_Donation.Equals(null) ? "0 " : evt.Total_Donation.ToString()) / ₱@evt.Target_Amount
-                                                    </p>
-                                                </div>
-                                            }
+                        <div class="tab-content" id="eventTabsContent">
+                            <!-- Recommended Event Tab -->
+                            <div class="tab-pane fade show active" id="recommendedSection" role="tabpanel" aria-labelledby="recommended-tab">
+                                <div class="row" id="recommendedContainer">
+                                    @if (Model.listOfEvents.Where(m => m.End_Date >= DateTime.Now).Count().Equals(0)) 
+                                    {
+                                        <div style="text-align: center; margin-top: 100px; margin-bottom: 70px;">
+                                                <div>No recommended event available.</div>
                                         </div>
-                                        <span class="custom-btn btn" onclick="redirectToDetails(@evt.Event_Id)">View Details</span>
+                                    }
+                                    @foreach (var evt in Model.listOfEvents.Where(m => m.End_Date >= DateTime.Now))
+                                    {
+                                        <div class="col-lg-4 col-md-6 mt-2 col-12 mb-4 mb-lg-0 event-card">
+                                            <div class="custom-block-wrap">
+                                                @*<img src="~/Content/images2/causes/Basak.jpg" class="custom-block-image img-fluid" alt="">*@
+                                                @{
+                                                    var imgs = Model.detailsEventImage.Where(m => m.eventId == evt.Event_Id).Select(m => m.eventImage).FirstOrDefault();
+                                                }
+                                                <img src="@Url.Content("~/Content/Events/" + imgs)" class="custom-block-image img-fluid" alt="">
+
+                                                @{
+                                                    // Retrieve all relevant data
+                                                    var listUserEvents = Model.sp_userListEvent
+                                                                            .Where(m => m.Event_Status == 1)
+                                                                            .ToList(); // List of all events the volunteer is registered for
+                                                    var checkDateOrgEvents = Model.orgEvents
+                                                                            .FirstOrDefault(m => m.eventId == evt.Event_Id && m.status == 1);
+
+                                                    var volSkill = Model.volunteersSkills.Select(v => v.skillId).ToList();
+                                                    var eventSkills = Model.skillRequirement1
+                                                                        .Where(m => m.eventId == evt.Event_Id)
+                                                                        .Select(m => m.skillId)
+                                                                        .ToList();
+
+                                                    // Check if all required event skills are present in the volunteer's skills
+                                                    var isSkillMatched = eventSkills.All(skill => volSkill.Contains(skill));
+
+                                                    // Check if this specific event is in the registered list
+                                                    var isRegisteredEvent = listUserEvents.Any(e => e.eventId == evt.Event_Id && e.Volunteer_Status == 1);
+                                                    var isPendingRequest = listUserEvents.Any(e => e.eventId == evt.Event_Id && e.Volunteer_Status == 0);
+                                                }
+
+                                                @if (isRegisteredEvent)
+                                                {
+                                                    // Show badge for registered event
+                                                    <span class="badge bg-success position-absolute top-0 end-0 m-2 p-2">Registered event</span>
+                                                }
+                                                else if (isPendingRequest)
+                                                {
+                                                    <span class="badge position-absolute top-0 end-0 m-2 p-2" style="background-color: #e3b868">Pending applied event</span>
+                                                }
+                                                else
+                                                {
+                                                    foreach (var userEvent in listUserEvents)
+                                                    {
+                                                        if (checkDateOrgEvents != null &&
+                                                            !(checkDateOrgEvents.dateEnd < userEvent.dateStart || checkDateOrgEvents.dateStart > userEvent.dateEnd))
+                                                        {
+                                                            // Conflict cases
+                                                            if (userEvent.Volunteer_Status == 0)
+                                                            {
+                                                                <span class="badge bg-danger position-absolute top-0 end-0 m-2 p-2">Conflict applied event</span>
+                                                            }
+                                                            else if (userEvent.Volunteer_Status == 1 && userEvent.eventId != evt.Event_Id)
+                                                            {
+                                                                <span class="badge bg-danger position-absolute top-0 end-0 m-2 p-2">Conflict registered event</span>
+                                                            }
+                                                        }
+                                                        else if (isSkillMatched)
+                                                        {
+                                                            // Recommended event
+                                                            <span class="badge bg-success position-absolute top-0 end-0 m-2 p-2">Recommended event</span>
+                                                        }
+                                                    }
+                                                }
+
+                                                <div class="custom-block">
+                                                    <div class="custom-block-body">
+                                                        <h5 class="mb-3">@evt.Event_Name</h5>
+
+                                                        <p>@evt.Description</p>
+                                                        @{
+                                                            int currentVolunteers = Model.volunteers.Where(m => m.Status == 1 && m.eventId == evt.Event_Id).Count();
+                                                            int? maxVolunteers = evt.Maximum_Volunteer;
+                                                            double? progressPercentage = (double)currentVolunteers / maxVolunteers * 100;
+                                                            Console.WriteLine(progressPercentage);
+
+
+                                                        }
+                                                        @if (evt.Target_Amount == null)
+                                                        {
+                                                            <br />
+                                                        }
+                                                        <div class="progress mt-4">
+                                                            <div class="progress-bar" role="progressbar"
+                                                                 style="width: @progressPercentage%; background-color: mediumseagreen;"
+                                                                 aria-valuenow="@currentVolunteers"
+                                                                 aria-valuemin="0"
+                                                                 aria-valuemax="@maxVolunteers">
+                                                            </div>
+                                                        </div>
+                                                        <div class="d-flex align-items-center my-2">
+                                                            <p class="mb-0">
+                                                                <strong>Number of volunteers joined:</strong>
+                                                            </p>
+
+                                                            <p class="ms-auto mb-0">
+                                                                @Model.volunteers.Where(m => m.Status == 1 && m.eventId == evt.Event_Id).Count()/@evt.Maximum_Volunteer
+                                                            </p>
+                                                        </div>
+                                                        @if (evt.Target_Amount != null)
+                                                        {
+                                                            <div class="progress mt-4">
+                                                                @{
+                                                                    decimal? raisedAmount = evt.Total_Donation;
+                                                                    var percentage = (raisedAmount / evt.Target_Amount) * 100;
+                                                                }
+
+                                                                <div class="progress-bar" style="width: @percentage%" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                                                            </div>
+                                                            <div class="d-flex align-items-center my-2">
+                                                                <p class="mb-0">
+                                                                    <strong>Fund Donated: </strong>
+                                                                </p>
+                                                                <p class="ms-auto mb-0">
+                                                                    <!-- <strong>Goal:</strong> -->
+                                                                    ₱@(evt.Total_Donation.Equals(null) ? "0.00 " : evt.Total_Donation.ToString()) @*/ ₱@evt.Target_Amount*@
+                                                                </p>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                    <span class="custom-btn btn" onclick="redirectToDetails(@evt.Event_Id)">View Details</span>
+                                                    @*<span class="custom-btn btn" onclick="openConflictModal(@evt.Event_Id)">View Details</span>*@
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+
+                                <nav aria-label="Page navigation" class="mt-4" id="recommended-pagination">
+                                    <ul class="pagination justify-content-center">
+                                        <li class="page-item">
+                                            <button class="page-link" onclick="prevPage('recommendedContainer', 'recommended-pagination')" aria-label="Previous">
+                                                <span aria-hidden="true">&laquo;</span>
+                                            </button>
+                                        </li>
+                                        <li class="page-item">
+                                            <button class="page-link" onclick="nextPage('recommendedContainer', 'recommended-pagination')" aria-label="Next">
+                                                <span aria-hidden="true">&raquo;</span>
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </nav>
+
+                            </div>
+
+                            <!-- List of Events Tab -->
+                            <div class="tab-pane fade" id="listSection" role="tabpanel" aria-labelledby="list-tab">
+                                <div class="row" id="listContainer">
+
+                                    @if (Model.listOfEventsSection.Where(m => m.status != 3).Count().Equals(0))
+                                    {
+                                        <div style="text-align: center; margin-top: 100px; margin-bottom: 70px;">
+                                                <div>No event available.</div>
+                                        </div>
+                                    }
+
+                                    @foreach (var l_event in Model.listOfEventsSection)
+                                    {
+                                        <div class="col-lg-4 col-md-6 mt-2 col-12 mb-4 mb-lg-0 event-card">
+                                            <div class="custom-block-wrap">
+                                                @{
+                                                    var imgs = Model.detailsEventImage.Where(m => m.eventId == l_event.Event_Id).Select(m => m.eventImage).FirstOrDefault();
+                                                }
+                                                <img src="@Url.Content("~/Content/Events/" + imgs)" class="custom-block-image img-fluid" alt="">
+
+                                                @{
+                                                    // Retrieve all relevant data
+                                                    var listUserEvents = Model.sp_userListEvent
+                                                                            .Where(m => m.Event_Status == 1)
+                                                                            .ToList(); // List of all events the volunteer is registered for
+                                                    var checkDateOrgEvents = Model.orgEvents
+                                                                            .FirstOrDefault(m => m.eventId == l_event.Event_Id && m.status == 1);
+
+                                                    var volSkill = Model.volunteersSkills.Select(v => v.skillId).ToList();
+                                                    var eventSkills = Model.skillRequirement1
+                                                                        .Where(m => m.eventId == l_event.Event_Id)
+                                                                        .Select(m => m.skillId)
+                                                                        .ToList();
+
+                                                    // Check if all required event skills are present in the volunteer's skills
+                                                    var isSkillMatched = eventSkills.All(skill => volSkill.Contains(skill));
+
+                                                    // Check if this specific event is in the registered list
+                                                    var isRegisteredEvent = listUserEvents.Any(e => e.eventId == l_event.Event_Id && e.Volunteer_Status == 1);
+                                                    var isPendingRequest = listUserEvents.Any(e => e.eventId == l_event.Event_Id && e.Volunteer_Status == 0);
+                                                }
+
+                                                @if (isRegisteredEvent)
+                                                {
+                                                    // Show badge for registered event
+                                                    <span class="badge bg-success position-absolute top-0 end-0 m-2 p-2">Registered event</span>
+                                                }
+                                                else if (isPendingRequest)
+                                                {
+                                                    <span class="badge position-absolute top-0 end-0 m-2 p-2" style="background-color: #e3b868">Pending applied event</span>
+                                                }
+                                                @*else if (checkDateOrgEvents == null)
+                    {
+                        // If there is no conflict with organization events and no user events
+                        <span class="badge bg-warning position-absolute top-0 end-0 m-2 p-2">No conflicts found</span>
+                    }*@
+                                                else
+                                                {
+                                                    foreach (var userEvent in listUserEvents)
+                                                    {
+                                                        if (checkDateOrgEvents != null &&
+                                                            !(checkDateOrgEvents.dateEnd < userEvent.dateStart || checkDateOrgEvents.dateStart > userEvent.dateEnd))
+                                                        {
+                                                            // Conflict cases
+                                                            if (userEvent.Volunteer_Status == 0)
+                                                            {
+                                                                <span class="badge bg-danger position-absolute top-0 end-0 m-2 p-2">Conflict applied event</span>
+                                                            }
+                                                            else if (userEvent.Volunteer_Status == 1 && userEvent.eventId != l_event.Event_Id)
+                                                            {
+                                                                <span class="badge bg-danger position-absolute top-0 end-0 m-2 p-2">Conflict registered event</span>
+                                                            }
+                                                        }
+                                                        else if (isSkillMatched)
+                                                        {
+                                                            // Recommended event
+                                                            <span class="badge bg-success position-absolute top-0 end-0 m-2 p-2">Recommended event</span>
+                                                        }
+                                                    }
+                                                }
+
+                                                <div class="custom-block">
+                                                    <div class="custom-block-body">
+                                                        <h5 class="mb-3">@l_event.Event_Name</h5>
+
+                                                        <p>@l_event.Description</p>
+                                                        @{
+                                                            int currentVolunteers = Model.volunteers
+                                                                                .Where(m => m.Status == 1 && m.eventId == l_event.Event_Id).Count();
+                                                            int? maxVolunteers = l_event.Maximum_Volunteer;
+                                                            double? progressPercentage = (double)currentVolunteers / maxVolunteers * 100;
+                                                            Console.WriteLine(progressPercentage);
+                                                        }
+                                                        <div class="progress mt-4">
+                                                            <div class="progress-bar" role="progressbar"
+                                                                 style="width: @progressPercentage%; background-color: mediumseagreen;"
+                                                                 aria-valuenow="@currentVolunteers"
+                                                                 aria-valuemin="0"
+                                                                 aria-valuemax="@maxVolunteers">
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="d-flex align-items-center my-2">
+                                                            <p class="mb-0">
+                                                                <strong>Number of volunteers joined:</strong>
+                                                                <!-- $18,500 -->
+                                                            </p>
+
+                                                            <p class="ms-auto mb-0">
+                                                                <!-- <strong>Goal:</strong> -->
+                                                                @Model.volunteers.Where(m => m.Status == 1 && m.eventId == l_event.Event_Id).Count()/@l_event.Maximum_Volunteer
+                                                            </p>
+                                                        </div>
+                                                        @if (l_event.Target_Amount != null)
+                                                        {
+                                                            <div class="progress mt-4">
+                                                                @{
+                                                                    decimal? raisedAmount = l_event.Total_Donation;
+
+                                                                    var percentage = (raisedAmount / l_event.Target_Amount) * 100;
+                                                                }
+                                                                <div class="progress-bar" style="width: @percentage%" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                                                            </div>
+                                                            <div class="d-flex align-items-center my-2">
+                                                                <p class="mb-0">
+                                                                    <strong>Fund Donated: </strong>
+                                                                </p>
+                                                                <p class="ms-auto mb-0">
+                                                                    <!-- <strong>Goal:</strong> -->
+                                                                    ₱@(l_event.Total_Donation.Equals(null) ? "0.00 " : l_event.Total_Donation.ToString()) @*/ ₱@l_event.Target_Amount*@
+                                                                </p>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                    <span class="custom-btn btn" onclick="redirectToDetails(@l_event.Event_Id)">View Details</span>
+                                                    @*<span class="custom-btn btn" onclick="openConflictModal(@evt.Event_Id)">View Details</span>*@
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                                <!-- Pagination for List of Events -->
+                                <nav aria-label="Page navigation" class="mt-4" id="list-pagination">
+                                    <ul class="pagination justify-content-center">
+                                        <li class="page-item">
+                                            <button class="page-link" onclick="prevPage('listContainer', 'list-pagination')" aria-label="Previous">
+                                                <span aria-hidden="true">&laquo;</span>
+                                            </button>
+                                        </li>
+                                        <li class="page-item">
+                                            <button class="page-link" onclick="nextPage('listContainer', 'list-pagination')" aria-label="Next">
+                                                <span aria-hidden="true">&raquo;</span>
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+
+                            <!-- Donation Event Tab -->
+                            <div class="tab-pane fade" id="donationSection" role="tabpanel" aria-labelledby="donation-tab">
+                                <div class="row" id="donationContainer">
+
+                                    @if (Model.ListOfDonationEvents == null && Model.ListOfDonationEvents.Count().Equals(0))
+                                    {
+                                        <div style="text-align: center; margin-top: 100px; margin-bottom: 70px;">
+                                            <div>No donation event available.</div>
+                                        </div>
+                                    }
+
+                                    @if (Model.ListOfDonationEvents != null && Model.ListOfDonationEvents.Any())
+                                    {
+                                        foreach (var donationItem in Model.ListOfDonationEvents)
+                                        {
+                                            var donationEvent = donationItem.Event.FirstOrDefault();
+                                            var donationImages = donationItem.Image;
+
+                                            if (donationEvent != null)
+                                            {
+                                                var imgPath = donationImages.FirstOrDefault()?.imagePath ?? "default.jpg";
+                                                <div class="col-lg-4 col-md-6 mt-2 col-12 mb-4 mb-lg-0 event-card">
+                                                    <div class="custom-block-wrap">
+                                                        <img src="@Url.Content("~/Content/Events/" + imgPath)" class="custom-block-image img-fluid" alt="">
+                                                        <div class="custom-block">
+                                                            <div class="custom-block-body">
+                                                                <h5 class="mb-3">@donationEvent.donationEventName</h5>
+                                                                <p>@donationEvent.donationDescription</p>
+
+                                                            </div>
+                                                            <span class="custom-btn btn" onclick="redirectToDonationDetails(@donationEvent.donationEventId)">View Details</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div class="col-12 text-center">
+                                            <p>No donation events available.</p>
+                                        </div>
+                                    }
+                                </div>
+
+                                <!-- Pagination for Donation Events -->
+                                <nav aria-label="Page navigation" class="mt-4" id="donation-pagination">
+                                    <ul class="pagination justify-content-center">
+                                        <li class="page-item">
+                                            <button class="page-link" onclick="prevPage('donationContainer', 'donation-pagination')" aria-label="Previous">
+                                                <span aria-hidden="true">&laquo;</span>
+                                            </button>
+                                        </li>
+                                        <li class="page-item">
+                                            <button class="page-link" onclick="nextPage('donationContainer', 'donation-pagination')" aria-label="Next">
+                                                <span aria-hidden="true">&raquo;</span>
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+
+
+
+                        <!-- Bootstrap Modal -->
+                        <div class="modal fade" id="conflictModal" tabindex="-1" aria-labelledby="conflictModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="conflictModalLabel">Event Conflict</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        This event might conflict with one you've already joined. Would you like to proceed?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <button type="button" class="btn btn-primary" id="proceedButton">Proceed</button>
                                     </div>
                                 </div>
                             </div>
-                        }
+                        </div>
+
+
                     </div>
                     <!-- Pagination Controls -->
-                    <nav aria-label="Page navigation" class="mt-4" id="eventsContainer-pagination">
-                        <ul class="pagination justify-content-center">
-                            <li class="page-item">
-                                <button class="page-link" onclick="prevPage('eventsContainer')" aria-label="Previous">
-                                    <span aria-hidden="true">&laquo;</span>
-                                </button>
-                            </li>
-                            <li class="page-item">
-                                <button class="page-link" onclick="nextPage('eventsContainer')" aria-label="Next">
-                                    <span aria-hidden="true">&raquo;</span>
-                                </button>
-                            </li>
-                        </ul>
-                    </nav>
+                    @*<nav aria-label="Page navigation" class="mt-4" id="eventsContainer-pagination">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item">
+                                    <button class="page-link" onclick="prevPage('eventsContainer')" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </button>
+                                </li>
+                                <li class="page-item">
+                                    <button class="page-link" onclick="nextPage('eventsContainer')" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </button>
+                                </li>
+                            </ul>
+                        </nav>*@
                 </div>
             </section>
 
@@ -422,7 +783,7 @@
                         <div class="col-lg-5 col-12">
                             @*<a href="#" class="me-4">Make a donation</a>*@
 
-                            <a href="#section_1" class="custom-btn btn smoothscroll">Become a volunteer</a>
+                            <a href="#sectionevent" class="custom-btn btn smoothscroll">Become a volunteer</a>
                         </div>
 
                     </div>
@@ -488,11 +849,12 @@
         <script>
 
             const pageSize = 9; // Number of items per page
-            let currentPage = 1;
+            const currentPageMap = {}; // Store the current page for each section
 
-            function showPage(eventsContainerId) {
-                const cards = document.querySelectorAll(`#${eventsContainerId} .event-card`);
+            function showPage(containerId, paginationId) {
+                const cards = document.querySelectorAll(`#${containerId} .event-card`);
                 const totalPages = Math.ceil(cards.length / pageSize);
+                const currentPage = currentPageMap[containerId] || 1;
 
                 // Display only the events for the current page
                 cards.forEach((card, index) => {
@@ -500,40 +862,66 @@
                 });
 
                 // Toggle the disabled state of pagination buttons
-                const prevButton = document.querySelector(`#${eventsContainerId}-pagination .page-link[aria-label="Previous"]`).parentElement;
-                const nextButton = document.querySelector(`#${eventsContainerId}-pagination .page-link[aria-label="Next"]`).parentElement;
+                const prevButton = document.querySelector(`#${paginationId} .page-link[aria-label="Previous"]`).parentElement;
+                const nextButton = document.querySelector(`#${paginationId} .page-link[aria-label="Next"]`).parentElement;
 
                 prevButton.classList.toggle('disabled', currentPage === 1);
                 nextButton.classList.toggle('disabled', currentPage === totalPages);
             }
 
-            function nextPage(eventsContainerId) {
-                const cards = document.querySelectorAll(`#${eventsContainerId} .event-card`);
+            function nextPage(containerId, paginationId) {
+                const cards = document.querySelectorAll(`#${containerId} .event-card`);
                 const totalPages = Math.ceil(cards.length / pageSize);
+                const currentPage = currentPageMap[containerId] || 1;
+
                 if (currentPage < totalPages) {
-                    currentPage++;
-                    showPage(eventsContainerId);
-                    // Scroll to the events section only when the next button is clicked
-                    document.getElementById(eventsContainerId).scrollIntoView({ behavior: 'smooth' });
+                    currentPageMap[containerId] = currentPage + 1;
+                    showPage(containerId, paginationId);
+                    document.getElementById(containerId).scrollIntoView({ behavior: 'smooth' });
                 }
             }
 
-            function prevPage(eventsContainerId) {
+            function prevPage(containerId, paginationId) {
+                const currentPage = currentPageMap[containerId] || 1;
+
                 if (currentPage > 1) {
-                    currentPage--;
-                    showPage(eventsContainerId);
-                    // Scroll to the events section only when the prev button is clicked
-                    document.getElementById(eventsContainerId).scrollIntoView({ behavior: 'smooth' });
+                    currentPageMap[containerId] = currentPage - 1;
+                    showPage(containerId, paginationId);
+                    document.getElementById(containerId).scrollIntoView({ behavior: 'smooth' });
                 }
             }
 
             document.addEventListener('DOMContentLoaded', () => {
-                showPage('eventsContainer');
+                // Initialize pagination for each container
+                showPage('recommendedContainer', 'recommended-pagination');
+                showPage('listContainer', 'list-pagination');
+                showPage('donationContainer', 'donation-pagination');
             });
+
+
 
         function redirectToDetails(eventId) {
             window.location.href = '@Url.Action("EventDetails", "Volunteer")' + '?eventId=' + eventId;
-            }
+        }
+
+        function redirectToDonationDetails(donationEventId) {
+            window.location.href = '@Url.Action("DonationEventDetails", "Volunteer")' + '?donatioEventId=' + donationEventId;
+        }
+
+        let selectedEventId = null; // Store the event ID temporarily
+
+        function openConflictModal(eventId) {
+            selectedEventId = eventId; // Save the event ID
+            const modal = new bootstrap.Modal(document.getElementById('conflictModal')); // Initialize the modal
+            modal.show(); // Show the modal
+        }
+
+        document.getElementById('proceedButton').addEventListener('click', function () {
+            // Redirect when the user clicks "Proceed"
+            window.location.href = '@Url.Action("EventDetails", "Volunteer")' + '?eventId=' + selectedEventId;
+        });
+
+
         </script>
     </div>
 </body>

@@ -2043,8 +2043,11 @@
     <None Include="Properties\PublishProfiles\FolderProfile4.pubxml" />
     <None Include="Properties\PublishProfiles\FolderProfile5.pubxml" />
     <None Include="Properties\PublishProfiles\FolderProfile6.pubxml" />
+    <None Include="Properties\PublishProfiles\FolderProfile7.pubxml" />
     <None Include="Properties\PublishProfiles\tabang-001-site1 - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\tabang-001-site1 - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\tabanghub001-001-site1 - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\tabanghub001-001-site1 - Web Deploy.pubxml" />
     <None Include="scripts\_vs2012.intellisense.js" />
     <None Include="scripts\_references.js" />
     <None Include="scripts\jquery-1.6.4-vsdoc.js" />
@@ -2175,13 +2178,7 @@
     <Compile Include="sp_GetSkills_Result.cs">
       <DependentUpon>ModelTabangHub.tt</DependentUpon>
     </Compile>
-    <Compile Include="sp_GetUserDonated1_Result.cs">
-      <DependentUpon>ModelTabangHub.tt</DependentUpon>
-    </Compile>
     <Compile Include="sp_GetUserDonatedInformations_Result.cs">
-      <DependentUpon>ModelTabangHub.tt</DependentUpon>
-    </Compile>
-    <Compile Include="sp_GetUserDonated_Result.cs">
       <DependentUpon>ModelTabangHub.tt</DependentUpon>
     </Compile>
     <Compile Include="sp_ListOfGc_Result.cs">
