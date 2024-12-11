@@ -334,6 +334,10 @@
                                                 {
                                                     <span class="badge position-absolute top-0 end-0 m-2 p-2" style="background-color: #e3b868">Pending applied event</span>
                                                 }
+                                                else if (listUserEvents.Count().Equals(0))
+                                                {
+                                                    <span class="badge bg-success position-absolute top-0 end-0 m-2 p-2">Recommended event</span>
+                                                }
                                                 else
                                                 {
                                                     foreach (var userEvent in listUserEvents)
@@ -490,11 +494,10 @@
                                                 {
                                                     <span class="badge position-absolute top-0 end-0 m-2 p-2" style="background-color: #e3b868">Pending applied event</span>
                                                 }
-                                                @*else if (checkDateOrgEvents == null)
-                    {
-                        // If there is no conflict with organization events and no user events
-                        <span class="badge bg-warning position-absolute top-0 end-0 m-2 p-2">No conflicts found</span>
-                    }*@
+                                                else if (listUserEvents.Count().Equals(0))
+                                                {
+                                                    <span class="badge bg-success position-absolute top-0 end-0 m-2 p-2">Recommended event</span>
+                                                }
                                                 else
                                                 {
                                                     foreach (var userEvent in listUserEvents)

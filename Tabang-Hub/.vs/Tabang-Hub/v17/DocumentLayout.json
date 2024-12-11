@@ -3,6 +3,7 @@
   "WorkspaceRootPath": "D:\\School Shits\\Tabang-Hub For Deploy\\Tabang-hub\\Tabang-Hub\\",
   "Documents": [
     {
+<<<<<<< Updated upstream
       "AbsoluteMoniker": "D:0:0:{C91BF11D-2370-46E0-8461-E1D6FBCBCA76}|Tabang-Hub\\Tabang-Hub.csproj|d:\\school shits\\tabang-hub for deploy\\tabang-hub\\tabang-hub\\tabang-hub\\controllers\\admincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{C91BF11D-2370-46E0-8461-E1D6FBCBCA76}|Tabang-Hub\\Tabang-Hub.csproj|solutionrelative:tabang-hub\\controllers\\admincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -13,6 +14,10 @@
     {
       "AbsoluteMoniker": "D:0:0:{C91BF11D-2370-46E0-8461-E1D6FBCBCA76}|Tabang-Hub\\Tabang-Hub.csproj|d:\\school shits\\tabang-hub for deploy\\tabang-hub\\tabang-hub\\tabang-hub\\controllers\\organizationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{C91BF11D-2370-46E0-8461-E1D6FBCBCA76}|Tabang-Hub\\Tabang-Hub.csproj|solutionrelative:tabang-hub\\controllers\\organizationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+=======
+      "AbsoluteMoniker": "D:0:0:{C91BF11D-2370-46E0-8461-E1D6FBCBCA76}|Tabang-Hub\\Tabang-Hub.csproj|c:\\tabang-hub\\tabang-hub\\tabang-hub\\tabang-hub\\controllers\\calendarcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C91BF11D-2370-46E0-8461-E1D6FBCBCA76}|Tabang-Hub\\Tabang-Hub.csproj|solutionrelative:tabang-hub\\controllers\\calendarcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+>>>>>>> Stashed changes
     }
   ],
   "DocumentGroupContainers": [
@@ -26,6 +31,7 @@
           "Children": [
             {
               "$type": "Document",
+<<<<<<< Updated upstream
               "DocumentIndex": 1,
               "Title": "Reports.cshtml",
               "DocumentMoniker": "D:\\School Shits\\Tabang-Hub For Deploy\\Tabang-hub\\Tabang-Hub\\Tabang-Hub\\Views\\Organization\\Reports.cshtml",
@@ -61,6 +67,17 @@
               "ViewState": "AQIAAGYCAAAAAAAAAAAAwIACAAAsAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-12-09T07:58:47.045Z",
+=======
+              "DocumentIndex": 0,
+              "Title": "CalendarController.cs",
+              "DocumentMoniker": "C:\\Tabang-hub\\Tabang-hub\\Tabang-Hub\\Tabang-Hub\\Controllers\\CalendarController.cs",
+              "RelativeDocumentMoniker": "Tabang-Hub\\Controllers\\CalendarController.cs",
+              "ToolTip": "C:\\Tabang-hub\\Tabang-hub\\Tabang-Hub\\Tabang-Hub\\Controllers\\CalendarController.cs",
+              "RelativeToolTip": "Tabang-Hub\\Controllers\\CalendarController.cs",
+              "ViewState": "AQIAABMAAAAAAAAAAAAQwCEAAABDAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-11T09:40:04.455Z",
+>>>>>>> Stashed changes
               "EditorCaption": ""
             }
           ]
