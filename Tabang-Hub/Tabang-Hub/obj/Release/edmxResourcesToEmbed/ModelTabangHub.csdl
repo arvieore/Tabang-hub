@@ -48,6 +48,12 @@
       <Parameter Name="userId" Mode="In" Type="Int32" />
       <Parameter Name="eventId" Mode="In" Type="Int32" />
     </FunctionImport>
+    <EntitySet Name="Donated" EntityType="TabangHubModel.Donated" />
+    <EntitySet Name="Donates" EntityType="TabangHubModel.Donates" />
+    <EntitySet Name="DonationEvent" EntityType="TabangHubModel.DonationEvent" />
+    <EntitySet Name="DonationImage" EntityType="TabangHubModel.DonationImage" />
+    <EntitySet Name="DonationType" EntityType="TabangHubModel.DonationType" />
+    <EntitySet Name="Feedback" EntityType="TabangHubModel.Feedback" />
     <EntitySet Name="GroupChat" EntityType="TabangHubModel.GroupChat" />
     <EntitySet Name="GroupMessages" EntityType="TabangHubModel.GroupMessages" />
     <EntitySet Name="LastRead" EntityType="TabangHubModel.LastRead" />
@@ -68,11 +74,21 @@
     <EntitySet Name="Volunteers" EntityType="TabangHubModel.Volunteers" />
     <EntitySet Name="VolunteersHistory" EntityType="TabangHubModel.VolunteersHistory" />
     <EntitySet Name="VolunteerSkill" EntityType="TabangHubModel.VolunteerSkill" />
+    <EntitySet Name="vw_AllVolunteers" EntityType="TabangHubModel.vw_AllVolunteers" />
     <EntitySet Name="vw_ListOfEvent" EntityType="TabangHubModel.vw_ListOfEvent" />
+    <EntitySet Name="vw_ListOfVolunteerToBeInvite" EntityType="TabangHubModel.vw_ListOfVolunteerToBeInvite" />
     <EntitySet Name="vw_OrganizationAccounts" EntityType="TabangHubModel.vw_OrganizationAccounts" />
     <EntitySet Name="vw_UserRoles" EntityType="TabangHubModel.vw_UserRoles" />
     <EntitySet Name="vw_VolunteerAccounts" EntityType="TabangHubModel.vw_VolunteerAccounts" />
     <EntitySet Name="vw_VolunteerSkills" EntityType="TabangHubModel.vw_VolunteerSkills" />
+    <AssociationSet Name="FK_Feedback_OrgEvents" Association="TabangHubModel.FK_Feedback_OrgEvents">
+      <End Role="OrgEvents" EntitySet="OrgEvents" />
+      <End Role="Feedback" EntitySet="Feedback" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Feedback_UserAccount" Association="TabangHubModel.FK_Feedback_UserAccount">
+      <End Role="UserAccount" EntitySet="UserAccount" />
+      <End Role="Feedback" EntitySet="Feedback" />
+    </AssociationSet>
     <AssociationSet Name="FK_GroupChat_OrgEvents" Association="TabangHubModel.FK_GroupChat_OrgEvents">
       <End Role="OrgEvents" EntitySet="OrgEvents" />
       <End Role="GroupChat" EntitySet="GroupChat" />
@@ -101,7 +117,7 @@
       <End Role="OrgEvents" EntitySet="OrgEvents" />
       <End Role="OrgSkillRequirement" EntitySet="OrgSkillRequirement" />
     </AssociationSet>
-    <AssociationSet Name="FK_UserDonated_UserDonated" Association="TabangHubModel.FK_UserDonated_UserDonated">
+    <AssociationSet Name="FK_UserDonated_OrgEvents" Association="TabangHubModel.FK_UserDonated_OrgEvents">
       <End Role="OrgEvents" EntitySet="OrgEvents" />
       <End Role="UserDonated" EntitySet="UserDonated" />
     </AssociationSet>
@@ -157,6 +173,9 @@
       <End Role="UserAccount" EntitySet="UserAccount" />
       <End Role="VolunteersHistory" EntitySet="VolunteersHistory" />
     </AssociationSet>
+    <FunctionImport Name="sp_checkMatchByUserId" ReturnType="Collection(TabangHubModel.sp_checkMatchByUserId_Result)">
+      <Parameter Name="userId" Mode="In" Type="Int32" />
+    </FunctionImport>
   </EntityContainer>
   <ComplexType Name="sp_GetAllMessage_Result">
     <Property Type="Int32" Name="groupChatId" Nullable="false" />
@@ -242,6 +261,68 @@
     <Property Type="Int32" Name="eventId" Nullable="true" />
     <Property Type="String" Name="eventTitle" Nullable="true" MaxLength="255" />
   </ComplexType>
+  <EntityType Name="Donated">
+    <Key>
+      <PropertyRef Name="donateId" />
+    </Key>
+    <Property Name="donateId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="donatesId" Type="Int32" />
+    <Property Name="donationType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="donationUnit" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="donationQuantity" Type="Decimal" Precision="10" Scale="2" />
+    <Property Name="status" Type="Int32" />
+  </EntityType>
+  <EntityType Name="Donates">
+    <Key>
+      <PropertyRef Name="donatesId" />
+    </Key>
+    <Property Name="donatesId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="referenceNum" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="eventType" Type="Int32" />
+    <Property Name="userId" Type="Int32" />
+    <Property Name="eventId" Type="Int32" />
+    <Property Name="donatedAt" Type="DateTime" Precision="3" />
+    <Property Name="status" Type="Int32" />
+  </EntityType>
+  <EntityType Name="DonationEvent">
+    <Key>
+      <PropertyRef Name="donationEventId" />
+    </Key>
+    <Property Name="donationEventId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="userId" Type="Int32" />
+    <Property Name="donationEventName" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+    <Property Name="donationDescription" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+    <Property Name="dateStart" Type="DateTime" Precision="3" />
+    <Property Name="dateEnd" Type="DateTime" Precision="3" />
+    <Property Name="location" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+    <Property Name="status" Type="Int32" />
+  </EntityType>
+  <EntityType Name="DonationImage">
+    <Key>
+      <PropertyRef Name="donationImageId" />
+    </Key>
+    <Property Name="donationImageId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="donationEventId" Type="Int32" />
+    <Property Name="imagePath" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+  </EntityType>
+  <EntityType Name="DonationType">
+    <Key>
+      <PropertyRef Name="donationTypeId" />
+    </Key>
+    <Property Name="donationTypeId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="donationTypeName" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+  </EntityType>
+  <EntityType Name="Feedback">
+    <Key>
+      <PropertyRef Name="feedbackId" />
+    </Key>
+    <Property Name="feedbackId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="userId" Type="Int32" />
+    <Property Name="eventId" Type="Int32" />
+    <Property Name="feedback1" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+    <NavigationProperty Name="OrgEvents" Relationship="TabangHubModel.FK_Feedback_OrgEvents" FromRole="Feedback" ToRole="OrgEvents" />
+    <NavigationProperty Name="UserAccount" Relationship="TabangHubModel.FK_Feedback_UserAccount" FromRole="Feedback" ToRole="UserAccount" />
+  </EntityType>
   <EntityType Name="GroupChat">
     <Key>
       <PropertyRef Name="groupChatId" />
@@ -314,12 +395,14 @@
     <Property Name="location" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
     <Property Name="eventImage" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
     <Property Name="status" Type="Int32" />
+    <NavigationProperty Name="Feedback" Relationship="TabangHubModel.FK_Feedback_OrgEvents" FromRole="OrgEvents" ToRole="Feedback" />
     <NavigationProperty Name="GroupChat" Relationship="TabangHubModel.FK_GroupChat_OrgEvents" FromRole="OrgEvents" ToRole="GroupChat" />
     <NavigationProperty Name="OrgEventImage" Relationship="TabangHubModel.FK_OrgEventImage_OrgEvents" FromRole="OrgEvents" ToRole="OrgEventImage" />
     <NavigationProperty Name="UserAccount" Relationship="TabangHubModel.FK_OrgEvents_UserAccount" FromRole="OrgEvents" ToRole="UserAccount" />
     <NavigationProperty Name="OrgSkillRequirement" Relationship="TabangHubModel.FK_OrgSkillRequirement_OrgEvents" FromRole="OrgEvents" ToRole="OrgSkillRequirement" />
-    <NavigationProperty Name="UserDonated" Relationship="TabangHubModel.FK_UserDonated_UserDonated" FromRole="OrgEvents" ToRole="UserDonated" />
+    <NavigationProperty Name="UserDonated" Relationship="TabangHubModel.FK_UserDonated_OrgEvents" FromRole="OrgEvents" ToRole="UserDonated" />
     <NavigationProperty Name="Volunteers" Relationship="TabangHubModel.FK_Volunteers_OrgEvents" FromRole="OrgEvents" ToRole="Volunteers" />
+    <Property Name="donationIsAllowed" Type="Int32" />
   </EntityType>
   <EntityType Name="OrgInfo">
     <Key>
@@ -411,6 +494,7 @@
     <Property Name="password" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="true" />
     <Property Name="status" Type="Int16" Nullable="false" />
     <Property Name="roleId" Type="Int32" Nullable="false" />
+    <NavigationProperty Name="Feedback" Relationship="TabangHubModel.FK_Feedback_UserAccount" FromRole="UserAccount" ToRole="Feedback" />
     <NavigationProperty Name="GroupMessages" Relationship="TabangHubModel.FK_GroupMessages_UserAccount" FromRole="UserAccount" ToRole="GroupMessages" />
     <NavigationProperty Name="OrgEvents" Relationship="TabangHubModel.FK_OrgEvents_UserAccount" FromRole="UserAccount" ToRole="OrgEvents" />
     <NavigationProperty Name="OrgInfo" Relationship="TabangHubModel.FK_OrgInfo_UserAccount" FromRole="UserAccount" ToRole="OrgInfo" />
@@ -433,7 +517,7 @@
     <Property Name="amount" Type="Decimal" Precision="10" Scale="2" />
     <Property Name="Status" Type="Int32" />
     <Property Name="donatedAt" Type="DateTime" Precision="3" />
-    <NavigationProperty Name="OrgEvents" Relationship="TabangHubModel.FK_UserDonated_UserDonated" FromRole="UserDonated" ToRole="OrgEvents" />
+    <NavigationProperty Name="OrgEvents" Relationship="TabangHubModel.FK_UserDonated_OrgEvents" FromRole="UserDonated" ToRole="OrgEvents" />
     <NavigationProperty Name="UserAccount" Relationship="TabangHubModel.FK_UserDonated_UserAccount" FromRole="UserDonated" ToRole="UserAccount" />
   </EntityType>
   <EntityType Name="UserRoles">
@@ -498,6 +582,16 @@
     <Property Name="skillId" Type="Int32" />
     <NavigationProperty Name="Skills" Relationship="TabangHubModel.FK_Skills_UserAccount" FromRole="VolunteerSkill" ToRole="Skills" />
   </EntityType>
+  <EntityType Name="vw_AllVolunteers">
+    <Key>
+      <PropertyRef Name="FullName" />
+    </Key>
+    <Property Name="userId" Type="Int32" />
+    <Property Name="FullName" Type="String" Nullable="false" MaxLength="511" FixedLength="false" Unicode="true" />
+    <Property Name="OverallRating" Type="Decimal" Precision="10" Scale="1" />
+    <Property Name="Feedback" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="availability" Type="String" MaxLength="25" FixedLength="false" Unicode="true" />
+  </EntityType>
   <EntityType Name="vw_ListOfEvent">
     <Key>
       <PropertyRef Name="Event_Id" />
@@ -514,6 +608,16 @@
     <Property Name="End_Date" Type="DateTime" Precision="3" />
     <Property Name="location" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
     <Property Name="status" Type="Int32" />
+  </EntityType>
+  <EntityType Name="vw_ListOfVolunteerToBeInvite">
+    <Key>
+      <PropertyRef Name="userId" />
+    </Key>
+    <Property Name="userId" Type="Int32" Nullable="false" />
+    <Property Name="FullName" Type="String" MaxLength="511" FixedLength="false" Unicode="true" />
+    <Property Name="OverallRating" Type="Decimal" Precision="10" Scale="1" />
+    <Property Name="Feedback" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="availability" Type="String" MaxLength="25" FixedLength="false" Unicode="true" />
   </EntityType>
   <EntityType Name="vw_OrganizationAccounts">
     <Key>
@@ -585,6 +689,30 @@
     <Property Name="skillId" Type="Int32" />
     <Property Name="rate" Type="Int32" Nullable="false" />
   </EntityType>
+  <Association Name="FK_Feedback_OrgEvents">
+    <End Type="TabangHubModel.OrgEvents" Role="OrgEvents" Multiplicity="0..1" />
+    <End Type="TabangHubModel.Feedback" Role="Feedback" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="OrgEvents">
+        <PropertyRef Name="eventId" />
+      </Principal>
+      <Dependent Role="Feedback">
+        <PropertyRef Name="eventId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Feedback_UserAccount">
+    <End Type="TabangHubModel.UserAccount" Role="UserAccount" Multiplicity="0..1" />
+    <End Type="TabangHubModel.Feedback" Role="Feedback" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="UserAccount">
+        <PropertyRef Name="userId" />
+      </Principal>
+      <Dependent Role="Feedback">
+        <PropertyRef Name="userId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
   <Association Name="FK_GroupChat_OrgEvents">
     <End Type="TabangHubModel.OrgEvents" Role="OrgEvents" Multiplicity="0..1" />
     <End Type="TabangHubModel.GroupChat" Role="GroupChat" Multiplicity="*" />
@@ -669,7 +797,7 @@
       </Dependent>
     </ReferentialConstraint>
   </Association>
-  <Association Name="FK_UserDonated_UserDonated">
+  <Association Name="FK_UserDonated_OrgEvents">
     <End Type="TabangHubModel.OrgEvents" Role="OrgEvents" Multiplicity="0..1" />
     <End Type="TabangHubModel.UserDonated" Role="UserDonated" Multiplicity="*" />
     <ReferentialConstraint>
@@ -837,4 +965,10 @@
       </Dependent>
     </ReferentialConstraint>
   </Association>
+  <ComplexType Name="sp_checkMatchByUserId_Result">
+    <Property Type="Int32" Name="eventId" Nullable="true" />
+    <Property Type="Int32" Name="skillId" Nullable="true" />
+    <Property Type="Int32" Name="userId" Nullable="true" />
+    <Property Type="String" Name="skillName" Nullable="true" MaxLength="255" />
+  </ComplexType>
 </Schema>

@@ -1,0 +1,269 @@
+﻿@model Tabang_Hub.Utils.Lists
+@{
+    ViewBag.Title = "Calendar";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    //string activeSection = Request.QueryString["section"] ?? "ongoingEventsSection";
+}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+<link href="~/Content/Css/Calendar.css" rel="stylesheet" />
+<style>
+    .badge {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        margin-right: 5px;
+        background-color: mediumseagreen;
+        border: 1px solid #ccc;
+        cursor: default;
+        color: white;
+    }
+
+    #skillContainer {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .card img {
+        width: 100%;
+        height: 170px;
+        object-fit: cover;
+    }
+
+    #eventModal img {
+        max-width: 100%; /* Ensures the image does not exceed the modal width */
+        height: auto; /* Maintains the aspect ratio */
+        display: block; /* Removes any inline gaps caused by `img` default inline styles */
+        margin: 0 auto; /* Centers the image horizontally */
+        object-fit: contain; /* Ensures the entire image is visible without cropping */
+    }
+
+    .no-scroll {
+        overflow: hidden;
+    }
+
+    #eventTitle {
+        color: var(--secondary-color);
+        letter-spacing: -2px;
+    }
+</style>
+<body>
+    <div class="main-container">
+        <div class="calendar-container">
+            <h1>Tabang Hub Calendar</h1>
+            <div class="calendar-controls">
+                <button id="prevYear"><i class="fas fa-chevron-left"></i></button>
+                <button id="prevMonth"><i class="fas fa-chevron-left"></i></button>
+                <span id="currentDate"></span>
+                <button id="nextMonth"><i class="fas fa-chevron-right"></i></button>
+                <button id="nextYear"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div class="calendar" id="calendar"></div> <!-- Calendar content will be populated here -->
+        </div>
+
+        <!-- Tabs for Event Sections -->
+        <ul class="nav nav-tabs justify-content-center mb-4" id="eventTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="ongoingEvents-tab" data-section="ongoing" data-bs-toggle="tab" data-bs-target="#ongoingEventsSection" type="button" role="tab" aria-controls="ongoingEventsSection" aria-selected="true">Ongoing Events</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="pendingRequest-tab" data-section="pending" data-bs-toggle="tab" data-bs-target="#pendingRequestSection" type="button" role="tab" aria-controls="pendingRequestSection" aria-selected="false">Pending Requests</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="eventHistory-tab" data-section="history" data-bs-toggle="tab" data-bs-target="#eventHistorySection" type="button" role="tab" aria-controls="eventHistorySection" aria-selected="false">Event History</button>
+            </li>
+        </ul>
+
+        <!-- Tab content -->
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="ongoingEventsSection" role="tabpanel" aria-labelledby="ongoingEvents-tab">
+                @*<h3>List of Ongoing Events</h3>*@
+
+                @foreach (var evt in Model.ongoingEvents.Where(m => m.Status != 2))
+                {
+                    <div class="card mb-3">
+                        <div class="row g-0">
+                            <div class="col-md-4">
+                                @{
+                                    var imgs = Model.detailsEventImage.Where(m => m.eventId == evt.eventId).Select(m => m.eventImage).FirstOrDefault();
+                                }
+                                <img src="@Url.Content("~/Content/Events/" + imgs)" class="img-fluid rounded-start" alt="Event Image" />
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h5 class="card-title">@evt.Title</h5>
+                                    <p class="card-text">@evt.Details</p>
+                                    @*<button class="btn btn-primary" onclick="openEventModal(@Html.Raw(Json.Encode(evt)))">View Details</button>*@
+                                    <button id="btnview" class="btn btn-primary" data-event='@Html.Raw(Json.Encode(evt))'>View Details</button>
+                                    <button class="btn btn-outline-danger" onclick="LeaveBtn('@evt.eventId')">Leave Event</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+
+
+            </div>
+
+
+            <div class="tab-pane fade" id="pendingRequestSection" role="tabpanel" aria-labelledby="pendingRequest-tab">
+                @*<h3>List of Pending Requests</h3>*@
+                @foreach (var pendingOrg in Model.pendingEvents)
+                {
+                    <div class="card mb-3">
+                        <div class="row g-0">
+                            <div class="col-md-4">
+                                @{
+                                    var imgs = Model.detailsEventImage.Where(m => m.eventId == pendingOrg.eventId).Select(m => m.eventImage).FirstOrDefault();
+                                }
+                                <img src="@Url.Content("~/Content/Events/" + imgs)" class="img-fluid rounded-start" alt="Event Image" />
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h5 class="card-title">@pendingOrg.Title</h5>
+                                    <p class="card-text">@pendingOrg.Details</p>
+                                    @*<button class="btn btn-primary" onclick="openEventModal(@Html.Raw(Json.Encode(pendingOrg)))">View Details</button>*@
+                                    <button id="btnview" class="btn btn-primary" data-event='@Html.Raw(Json.Encode(pendingOrg))'>View Details</button>
+                                    <button class="btn btn-outline-danger" onclick="cancelRequest('@pendingOrg.eventId')">Cancel Request</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="tab-pane fade" id="eventHistorySection" role="tabpanel" aria-labelledby="eventHistory-tab">
+                @*<h3>Event History</h3>*@
+                @foreach (var evt in Model.eventHistory)
+                {
+
+                    <div class="card mb-3">
+                        <div class="row g-0">
+                            <div class="col-md-4">
+                                @{
+                                    var imgs = Model.detailsEventImage.Where(m => m.eventId == evt.eventId).Select(m => m.eventImage).FirstOrDefault();
+                                }
+                                <img src="@Url.Content("~/Content/Events/" + imgs)" class="img-fluid rounded-start" alt="Event Image" />
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h5 class="card-title">@evt.Title</h5>
+                                    <p class="card-text">@evt.Details</p>
+                                    <div>
+                                        @*<button class="btn btn-primary" onclick="openEventModal(@Html.Raw(Json.Encode(evt)))">View Details</button>*@
+                                        <button class="btn btn-primary" data-event='@Html.Raw(Json.Encode(evt))'>View Details</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Event details modal -->
+    <div id="eventModal">
+        <div id="eventModalContent">
+            <span id="closeModal" class="close-btn">×</span>
+            <h3 id="eventTitle"></h3>
+            <p id="eventLocation" style="font-weight: bold;"></p>
+            <hr />
+            <p id="eventDetails"></p>
+            <img id="eventImage" src="" alt="Event Image">
+            <div id="skillContainer"></div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript">
+        const ongoingEvents = @Html.Raw(Json.Encode(Model.ongoingEvents));
+        const pendingEvents = @Html.Raw(Json.Encode(Model.pendingEvents));
+        const eventHistory = @Html.Raw(Json.Encode(Model.eventHistory));
+
+        console.log(ongoingEvents);
+        console.log(pendingEvents);
+        console.log(eventHistory);
+
+        function cancelRequest(eventId) {
+            Swal.fire({
+                title: 'Confirm Cancel',
+                text: 'Are you sure you want to cancel this request?',
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'No'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '@Url.Action("CancelRequest", "Calendar")',
+                        type: 'POST',
+                        data: { eventId: eventId },
+                        success: function (response) {
+                            if (response.success) {
+                                Swal.fire({
+                                    title: response.message,
+                                    text: '',
+                                    icon: 'success',
+                                    confirmButtonText: 'OK'
+                                }).then(() => {
+                                    window.location.href = '@Url.Action("Calendar", "Calendar")';
+                                });
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            Swal.fire({
+                                title: 'Error',
+                                text: 'An error occurred. Please try again.',
+                                icon: 'error',
+                                confirmButtonText: 'Ok'
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        function LeaveBtn(eventId) {
+            Swal.fire({
+                title: 'Confirm Leave',
+                text: 'Are you sure you want to leave this event?',
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'No'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '@Url.Action("LeaveEvent", "Calendar")',
+                        type: 'POST',
+                        data: { eventId: eventId },
+                        success: function (response) {
+                            if (response.success) {
+                                Swal.fire({
+                                    title: response.message,
+                                    text: '',
+                                    icon: 'success',
+                                    confirmButtonText: 'OK'
+                                }).then(() => {
+                                    window.location.href = '@Url.Action("Calendar", "Calendar")';
+                                });
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            Swal.fire({
+                                title: 'Error',
+                                text: 'An error occurred. Please try again.',
+                                icon: 'error',
+                                confirmButtonText: 'Ok'
+                            });
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+    <script src="~/Content/Js/Calendar.js"></script>
+</body>

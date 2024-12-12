@@ -1430,3 +1430,45 @@ D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\Micro
 D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\Microsoft.Extensions.Options.xml
 D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\Microsoft.Extensions.Primitives.xml
 D:\School Shits\Tabang-Hub For Deploy\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\System.Diagnostics.DiagnosticSource.xml
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\BouncyCastle.Cryptography.dll
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.barcodes.dll
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.bouncy-castle-connector.dll
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.commons.dll
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.forms.dll
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.io.dll
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.kernel.dll
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.layout.dll
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.pdfa.dll
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.pdfua.dll
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.sign.dll
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.styledxmlparser.dll
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.svg.dll
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itextsharp.dll
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\Microsoft.Extensions.DependencyInjection.dll
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\Microsoft.Extensions.Logging.Abstractions.dll
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\Microsoft.Extensions.Logging.dll
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\Microsoft.Extensions.Options.dll
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\Microsoft.Extensions.Primitives.dll
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\System.Diagnostics.DiagnosticSource.dll
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\BouncyCastle.Cryptography.xml
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.barcodes.xml
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.bouncy-castle-connector.xml
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.commons.xml
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.forms.xml
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.io.xml
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.kernel.xml
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.layout.xml
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.pdfa.xml
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.pdfua.xml
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.sign.xml
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.styledxmlparser.xml
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itext.svg.xml
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\itextsharp.xml
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\Microsoft.Extensions.DependencyInjection.xml
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\Microsoft.Extensions.DependencyInjection.Abstractions.xml
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\Microsoft.Extensions.Logging.xml
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\Microsoft.Extensions.Logging.Abstractions.xml
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\Microsoft.Extensions.Options.xml
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\Microsoft.Extensions.Primitives.xml
+C:\Tabang-hub\Tabang-hub\Tabang-Hub\Tabang-Hub\bin\System.Diagnostics.DiagnosticSource.xml

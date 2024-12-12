@@ -25,17 +25,48 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
 
     <style>
-        /* Custom scrollable notification dropdown */
+        .unread-notification {
+            font-weight: bold;
+            background-color: #e6e6e6; /* Light gray background for highlight */
+        }
+            .unread-notification hr {
+                border-color: #ddd; /* Optional: Change color of the line for better visibility */
+                margin: 5px 0; /* Adjust spacing around the line */
+            }
         .dropdown-menu-scrollable {
             max-height: 500px;
             overflow-y: auto;
+            width: 400px; /* Adjust width as needed */
+            word-wrap: break-word; /* Wrap words if necessary */
         }
 
         .notification-item {
-            white-space: nowrap;
+            white-space: normal; /* Allow wrapping */
             overflow: hidden;
-            text-overflow: ellipsis;
+            text-overflow: ellipsis; /* Truncate overflowing text */
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 3; /* Limit to 2 lines */
         }
+        @@media (max-width: 768px) {
+        /* Adjust the dropdown for smaller screens */
+        .dropdown-menu-scrollable {
+            width: 90%; /* Make it adapt to the screen size */
+            max-height: 500px; /* Reduce height for better fit */
+        }
+
+        .notification-item {
+            font-size: 0.9rem; /* Slightly smaller text for better readability */
+            -webkit-line-clamp: 5; /* Limit to 2 lines on smaller screens */
+        }
+
+        #notificationCount {
+            font-size: 0.75rem; /* Adjust badge size for mobile */
+            width: 2.5em;
+            height: 2em;
+            line-height: 1.5em;
+        }
+    }
     </style>
 </head>
 
@@ -63,7 +94,7 @@
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a href="~/Organization/EventsList" class='sidebar-link'>
+                            <a href="~/Organization/ListOfEvent" class='sidebar-link'>
                                 <i class="bi bi-table"></i>
                                 <span>Events List</span>
                             </a>
@@ -74,12 +105,12 @@
                                 <span>Reports</span>
                             </a>
                         </li>
-                        <li class="sidebar-item">
+                        @*<li class="sidebar-item">
                             <a href="~/Organization/History" class='sidebar-link'>
                                 <i class="bi bi-clock-history"></i>
                                 <span>History</span>
                             </a>
-                        </li>
+                        </li>*@
                     </ul>
                 </div>
                 <button class="sidebar-toggler btn x"><i data-feather="x"></i></button>
@@ -114,7 +145,10 @@
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-scrollable" id="notificationDropdown" aria-labelledby="notificationBell">
                                         <li><h6 class="dropdown-header">Notifications</h6></li>
-                                        <li><a class="dropdown-item">No new notifications</a></li>
+                                        <li>
+                                            <a href="#" class="dropdown-item notification-item">
+                                            </a>
+                                        </li>
                                     </ul>
                                 </li>
                             </ul>
@@ -144,7 +178,7 @@
                                         <h6 class="dropdown-header">Hello, @Model.OrgInfo.orgName</h6>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="~/Organization/OrgProfile">
+                                        <a class="dropdown-item" href="~/Organization/OrganizationProfile">
                                             <i class="icon-mid bi bi-person me-2"></i> My Profile
                                         </a>
                                     </li>
@@ -197,18 +231,21 @@
                     url: getUnreadNotificationsUrl,
                     type: 'GET',
                     success: function (data) {
-                        let unreadCount = data.length;
+                        let unreadCount = data.filter(n => n.status === 0).length; // Count only unread notifications
                         updateNotificationCount(unreadCount);
 
-                        if (unreadCount > 0) {
+                        if (data.length > 0) {
                             let notificationsHtml = '<li><h6 class="dropdown-header">Notifications</h6></li>';
                             data.forEach(notification => {
                                 notificationsHtml += `
-                                    <li>
-                                        <a href="#" class="dropdown-item notification-item" data-notification-id="${notification.notificationId}">
-                                            ${notification.content}
-                                        </a>
-                                    </li>`;
+                        <li class="${notification.status === 0 ? 'unread-notification' : ''}">
+                            <a href="#"
+                               class="dropdown-item notification-item"
+                               data-notification-id="${notification.notificationId}">
+                                ${notification.content}
+                            </a>
+                            <hr>
+                        </li>`;
                             });
                             $('#notificationDropdown').html(notificationsHtml);
                         } else {
@@ -216,7 +253,7 @@
                         }
                     },
                     error: function () {
-                        console.error("Error fetching unread notifications.");
+                        console.error("Error fetching notifications.");
                     }
                 });
             }
@@ -255,6 +292,31 @@
                 });
             });
         });
+
+        $(document).ready(function () {
+    const checkFinishedDonationEventsUrl = '@Url.Action("CheckFinishedDonationEvents", "Organization")';
+
+    // Call the function when the page loads
+    checkFinishedDonationEvents();
+    setInterval(checkFinishedDonationEvents, 6000); // Check every 60 seconds
+
+    function checkFinishedDonationEvents() {
+        $.ajax({
+            url: checkFinishedDonationEventsUrl,
+            type: 'POST',
+            success: function (data) {
+                if (data.success) {
+                    console.log(data.message); // Log success message
+                } else {
+                    console.error("Error:", data.message); // Log error message
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX Error:", error); // Log AJAX error details
+            }
+        });
+    }
+});
     </script>
 </body>
 

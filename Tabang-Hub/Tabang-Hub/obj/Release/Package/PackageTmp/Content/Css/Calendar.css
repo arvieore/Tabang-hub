@@ -1,0 +1,243 @@
+﻿body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin-top: 100px;
+    flex-direction: column;
+    padding-top: 100px;
+}
+
+.main-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    flex-direction: column; /* Stack elements vertically */
+    gap: 20px;
+}
+
+.calendar-container {
+    width: 100%;
+    max-width: 700px;
+    text-align: center;
+    background: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.calendar-controls {
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 8px;
+}
+
+.calendar-controls button {
+    font-size: 1.2rem;
+    padding: 8px;
+    cursor: pointer;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+    margin: 5px;
+}
+
+.calendar-controls button:hover {
+    background-color: #0056b3;
+}
+
+.calendar-controls span {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+    font-size: 0.9rem;
+}
+
+.day {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fdfdfd;
+    box-sizing: border-box;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    cursor: pointer;
+}
+
+.day:hover {
+    background-color: #f0f0f0;
+    transform: scale(1.05);
+}
+
+.day.event-1 {
+    background-color: #ffe4e1; /* Light red for event */
+}
+
+.day.event-2 {
+    background-color: #e2f7e1; /* Light green for event */
+}
+
+.day.event-ended {
+    background-color: #8bc34a; /* Green for ended events */
+}
+
+.day.today {
+    border: 2px solid #007bff;
+}
+
+/* Modal Styling */
+#eventModal {
+    display: none; /* Initially hidden */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    animation: fadeIn 0.3s ease-out;
+    z-index: 1000; /* Ensure modal is on top */
+}
+
+#eventModalContent {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 500px;
+    width: 100%;
+    opacity: 0;
+    animation: fadeInContent 0.3s forwards;
+    position: relative;
+    max-height: 80vh;
+    overflow-y: auto; /* Allows scrolling if content is too long */
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 30px;
+    cursor: pointer;
+}
+
+/* Fade In Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInContent {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+#eventModalContent img {
+    width: 100%;
+    height: auto;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+/* Tab Content Styling */
+.tab-content {
+    width: 100%;
+    max-width: 700px;
+}
+
+.nav-tabs {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.nav-tabs .nav-item {
+    margin-right: 10px;
+}
+
+.card {
+    width: 100%;
+    margin-bottom: 15px;
+
+    display: flex;
+    border-radius: 8px;
+    overflow: hidden; /* Ensure the content doesn't overflow the card */
+}
+
+    .card .col-md-8 {
+        flex: 2; /* Ensures the text section takes up 2/3rds of the card */
+        /*padding: 15px;*/
+    }
+
+.card .row {
+    display: flex;
+    justify-content: space-between;
+}
+
+.card .card-body {
+    padding: 5px;
+}
+
+.card .card-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+.card .card-text {
+    font-size: 1rem;
+    color: #555;
+    /* Limiting text height and adding ellipsis for overflow */
+    max-height: 80px; /* You can adjust this height as per your needs */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* Limiting to 3 lines of text */
+    -webkit-box-orient: vertical;
+}
+
+.card img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+
+    object-fit: cover; /* Ensures the image is scaled properly */
+}
+
+    .card #btnview {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+        .card #btnview:hover {
+            background-color: #0056b3;
+        }

@@ -83,195 +83,469 @@
 
             <div class="page-heading">
                 <h3>Reports Dashboard</h3>
+                <form action="/Admin/ExportReportsToPdf" method="post">
+                    <input type="hidden" name="userId" value="@Model.OrgInfo.userId" />
+                    <button type="submit" class="btn btn-danger">
+                        Export Reports to PDF
+                    </button>
+                </form>
             </div>
 
             <div class="page-content">
-                <section class="row">
-                    <!-- Container for Total Stats -->
-                    <div class="col-12">
-                        <div class="row">
-                            <!-- Total Events, Total Donations, and Total Volunteers in same container -->
-                            <div class="col-12 col-md-4 mb-4">
-                                <div class="card">
-                                    <div class="card-body px-3 py-4-5">
-                                        <div class="d-flex align-items-center">
-                                            <div class="stats-icon blue me-3">
-                                                <i class="iconly-boldProfile"></i>
+                <ul class="nav nav-tabs" id="reportsTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboard" type="button" role="tab" aria-controls="dashboard" aria-selected="true">Event Reports</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="donation-reports-tab" data-bs-toggle="tab" data-bs-target="#donation-reports" type="button" role="tab" aria-controls="donation-reports" aria-selected="false">Donation Reports</button>
+                    </li>
+                </ul>
+                <div class="tab-content" id="reportsTabContent">
+                    <div class="tab-pane fade show active" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
+                        <section class="row">
+                            <!-- Container for Total Stats -->
+                            <div class="col-12">
+                                <div class="row">
+                                    <!-- Total Events, Total Donations, and Total Volunteers in same container -->
+                                    <div class="col-12 col-md-4 mb-4">
+                                        <div class="card">
+                                            <div class="card-body px-3 py-4-5">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="stats-icon blue me-3">
+                                                        <i class="iconly-boldProfile"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="text-muted">Overall Events</h6>
+                                                        <h6 class="font-extrabold mb-0">@Model.listOfEvents.Count()</h6>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <h6 class="text-muted">Total Events</h6>
-                                                <h6 class="font-extrabold mb-0">@Model.listOfEvents.Count()</h6>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-4 mb-4">
+                                        <div class="card">
+                                            <div class="card-body px-3 py-4-5">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="stats-icon green me-3">
+                                                        <i class="iconly-boldAdd-User"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="text-muted">Overall Donations</h6>
+                                                        <h6 class="font-extrabold mb-0">₱@Model.totalDonation</h6>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-4 mb-4">
+                                        <div class="card">
+                                            <div class="card-body px-3 py-4-5">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="stats-icon red me-3">
+                                                        <i class="iconly-boldBookmark"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="text-muted">Overall Volunteers</h6>
+                                                        <h6 class="font-extrabold mb-0">@Model.totalVolunteer</h6>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-12 col-md-4 mb-4">
-                                <div class="card">
-                                    <div class="card-body px-3 py-4-5">
-                                        <div class="d-flex align-items-center">
-                                            <div class="stats-icon green me-3">
-                                                <i class="iconly-boldAdd-User"></i>
+
+                            <!-- Main Dashboard Layout -->
+                            <div class="row">
+                                <!-- Left Column: Event History and Monthly Event Summary -->
+                                <div class="col-12 col-lg-9">
+                                    <!-- Event History -->
+                                    <div class="dashboard-section mb-4">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <h4>Event History</h4>
                                             </div>
-                                            <div>
-                                                <h6 class="text-muted">Total Donations</h6>
-                                                <h6 class="font-extrabold mb-0">₱@Model.totalDonation</h6>
+                                            <div class="card-body p-0">
+                                                <div class="table-responsive" style="height: 390px;">
+                                                    <table class="table table-bordered mb-0">
+                                                        <thead class="table-dark">
+                                                            <tr>
+                                                                <th>Event Name</th>
+                                                                <th>Target Amount</th>
+                                                                <th>Total Volunteers</th>
+                                                                <th>Date Started</th>
+                                                                <th>Date Ended</th>
+                                                                <th>Location</th>
+                                                                <th>Action</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach (var history in Model.orgEventHistory)
+                                                            {
+                                                                if (history != null)
+                                                                {
+                                                                    <tr>
+                                                                        <td>@history.eventTitle</td>
+                                                                        <td>@history.targetAmount</td>
+                                                                        <td>@history.maxVolunteer</td>
+                                                                        <td>@(history.dateStart.HasValue ? history.dateStart.Value.ToString("MMMM dd, yyyy") : "N/A")</td>
+                                                                        <td>@(history.dateEnd.HasValue ? history.dateEnd.Value.ToString("MMMM dd, yyyy") : "N/A")</td>
+                                                                        <td>@history.location</td>
+                                                                        <td>
+                                                                            <button class="btn btn-primary btn-sm" onclick="viewEventDetails('@history.eventId')">
+                                                                                View
+                                                                            </button>
+                                                                        </td>
+                                                                    </tr>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <tr>
+                                                                        <td colspan="7" class="text-center">No event history!</td>
+                                                                    </tr>
+                                                                }
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Monthly Event Summary -->
+                                    <div class="dashboard-section">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <h4>Monthly Event Summary</h4>
+                                            </div>
+                                            <div class="card-body">
+                                                <div id="monthlyEventSummaryChart" class="chart"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Right Column: Recent Events and Top 5 Volunteers -->
+                                <div class="col-12 col-lg-3">
+                                    <!-- Recent Events -->
+                                    <div class="dashboard-section mb-4">
+                                        <div class="card" style="min-height: 470px;">
+                                            <div class="card-header">
+                                                <h4>Recent Events</h4>
+                                            </div>
+                                            <div class="card-body mt-4" style="max-height: 350px; overflow-y: auto;">
+                                                @if (Model.recentEvents.Any())
+                                                {
+                                                    foreach (var recent in Model.recentEvents)
+                                                    {
+                                                        <div class="recent-message d-flex align-items-center mb-3">
+                                                            <div class="avatar avatar-lg">
+                                                                <img src="~/Content/images1/faces/4.jpg" class="rounded-circle" alt="Event Image">
+                                                            </div>
+                                                            <div class="ms-3">
+                                                                <h5 class="mb-1">@recent.eventTitle</h5>
+                                                                <!-- Truncated Location -->
+                                                                <p class="text-muted mb-0 text-truncate" style="max-width: 200px;" data-bs-toggle="tooltip" data-bs-placement="top" title="@recent.location">
+                                                                    @recent.location
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <p class="text-muted">No recent ongoing event.</p>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Top 5 Volunteers -->
+                                    <div class="dashboard-section">
+                                        <div class="card" style="min-height: 475px;">
+                                            <div class="card-header">
+                                                <h4>Top 5 Volunteers</h4>
+                                            </div>
+                                            <div class="card-body mt-4" style="max-height: 400px; overflow-y: auto;">
+                                                @if (Model.topVolunteers.Any())
+                                                {
+                                                    foreach (var volunteer in Model.topVolunteers)
+                                                    {
+                                                        <div class="recent-message d-flex align-items-center mb-3"
+                                                             data-bs-toggle="modal"
+                                                             data-bs-target="#volunteerModal-@volunteer.VolunteerId"
+                                                             style="cursor: pointer; transition: background-color 0.2s;"
+                                                             onmouseover="this.style.backgroundColor='#f8f9fa';"
+                                                             onmouseout="this.style.backgroundColor='';">
+                                                            <div class="avatar avatar-lg">
+                                                                <img src="~/Content/images1/faces/4.jpg" class="rounded-circle" alt="@volunteer.Name">
+                                                            </div>
+                                                            <div class="ms-3 w-100">
+                                                                <!-- Volunteer Name -->
+                                                                <h5 class="mb-1 text-md" title="Click for more details">
+                                                                    @volunteer.Name
+                                                                </h5>
+                                                                <p class="text-muted mb-0 text-sm">Events Participated: @volunteer.TotalEventsParticipated</p>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <p class="text-muted">No volunteers available.</p>
+                                                }
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-12 col-md-4 mb-4">
-                                <div class="card">
-                                    <div class="card-body px-3 py-4-5">
-                                        <div class="d-flex align-items-center">
-                                            <div class="stats-icon red me-3">
-                                                <i class="iconly-boldBookmark"></i>
+                        </section>
+                    </div>
+                    <!-- Donation Reports Tab -->
+                    <div class="tab-pane fade" id="donation-reports" role="tabpanel" aria-labelledby="donation-reports-tab">
+                        <section class="row">
+                            <!-- Container for Total Stats -->
+                            <div class="col-12">
+                                <div class="row">
+                                    <!-- Total Events, Total Donations, and Total Volunteers in same container -->
+                                    <div class="col-12 col-md-4 mb-4">
+                                        <div class="card">
+                                            <div class="card-body px-3 py-4-5">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="stats-icon blue me-3">
+                                                        <i class="iconly-boldProfile"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="text-muted">Overall Events</h6>
+                                                        <h6 class="font-extrabold mb-0">@Model.listOfEvents.Count()</h6>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <h6 class="text-muted">Total Volunteers</h6>
-                                                <h6 class="font-extrabold mb-0">@Model.totalVolunteer</h6>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-4 mb-4">
+                                        <div class="card">
+                                            <div class="card-body px-3 py-4-5">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="stats-icon green me-3">
+                                                        <i class="iconly-boldAdd-User"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="text-muted">Overall Donations</h6>
+                                                        <h6 class="font-extrabold mb-0">₱@Model.totalDonation</h6>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-4 mb-4">
+                                        <div class="card">
+                                            <div class="card-body px-3 py-4-5">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="stats-icon red me-3">
+                                                        <i class="iconly-boldBookmark"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="text-muted">Overall Volunteers</h6>
+                                                        <h6 class="font-extrabold mb-0">@Model.totalVolunteer</h6>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
 
-                    <!-- Separate Containers for Monthly Event Summary, Recent Events, Recent Donators, Top 5 Skills -->
-                    <div class="col-12 col-lg-8">
-                        <!-- Monthly Event Summary -->
-                        <div class="dashboard-section">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h4>Monthly Event Summary</h4>
-                                </div>
-                                <div class="card-body">
-                                    <div id="monthlyEventSummaryChart" class="chart"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Top 5 Skills -->
-                        <div class="dashboard-section">
-                            <div class="card" style="min-height: 475px;">
-                                <div class="card-header">
-                                    <h4>Top 5 Skills</h4>
-                                </div>
-                                <div class="card-body d-flex justify-content-center align-items-center">
-                                    <div id="chart-top-five" class="chart"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-lg-4">
-                        <!-- Recent Events -->
-                        <div class="dashboard-section">
-                            <div class="card mb-3" style="min-height: 475px;">
-                                <div class="card-header">
-                                    <h4>Recent Events</h4>
-                                </div>
-                                <div class="card-body overflow-auto mt-4">
-                                    @if (Model.recentEvents.Any())
-                                    {
-                                        foreach (var recent in Model.recentEvents)
-                                        {
-                                            <div class="recent-message d-flex align-items-center mb-3">
-                                                <div class="avatar avatar-lg">
-                                                    <img src="~/Content/images1/faces/4.jpg" class="rounded-circle" alt="Event Image">
-                                                </div>
-                                                <div class="ms-3">
-                                                    <h5 class="mb-1">@recent.eventTitle</h5>
-                                                    <p class="text-muted mb-0">@recent.location</p>
-                                                </div>
+                            <!-- Separate Containers for Monthly Event Summary, Recent Events, Recent Donators, Top 5 Skills -->
+                            <div class="col-12 col-lg-9">
+                                <!-- Monthly Event Summary -->
+                                <div class="dashboard-section">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h4>Event History</h4>
+                                        </div>
+                                        <div class="card-body p-0">
+                                            <!-- Table container with fixed height and scrollable content -->
+                                            <div class="table-responsive" style="height: 390px;">
+                                                <table class="table table-bordered mb-0">
+                                                    <thead class="table-dark">
+                                                        <tr>
+                                                            <th>Donation Name</th>
+                                                            <th>Description</th>
+                                                            <th>Date Start</th>
+                                                            <th>Date End</th>
+                                                            <th>Location</th>
+                                                            <th>Action</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @if (Model.listOfDonationEvent != null && Model.listOfDonationEvent.Any())
+                                                        {
+                                                            foreach (var donationItem in Model.listOfDonationEvent)
+                                                            {
+                                                                if (donationItem.status == 2)
+                                                                {
+                                                                    <tr class="clickable-row-donation" data-donation-id="@donationItem.donationEventId">
+                                                                        <td>@donationItem.donationEventName</td>
+                                                                        <td>
+                                                                            <span class="description" title="@donationItem.donationDescription">
+                                                                                @donationItem.donationDescription
+                                                                            </span>
+                                                                        </td>
+                                                                        <td>@String.Format("{0:MMMM d, yyyy h:mm tt}", donationItem.dateStart)</td>
+                                                                        <td>@String.Format("{0:MMMM d, yyyy h:mm tt}", donationItem.dateEnd)</td>
+                                                                        <td>@donationItem.location</td>
+                                                                        <td>
+                                                                            <button class="btn btn-primary btn-sm w-100"
+                                                                                    data-donation-id="@donationItem.donationEventId">
+                                                                                View
+                                                                            </button>
+                                                                        </td>
+                                                                    </tr>
+                                                                }
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            <tr>
+                                                                <td colspan="6" class="text-center">No donation events available.</td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
                                             </div>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <p class="text-muted">No recent ongoing event.</p>
-                                    }
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
 
-                        <!-- Recent Donators -->
-                        <div class="dashboard-section">
-                            <div class="card" style="min-height: 475px;">
-                                <div class="card-header">
-                                    <h4>Recent Donators</h4>
-                                </div>
-                                <div class="card-body overflow-auto mt-4">
-                                    @if (Model.recentDonators.Any())
-                                    {
-                                        foreach (var recent in Model.recentDonators)
-                                        {
-                                            <div class="recent-message d-flex align-items-center mb-3">
-                                                <div class="avatar avatar-lg">
-                                                    <img src="~/Content/images1/faces/4.jpg" class="rounded-circle" alt="Donor Image">
-                                                </div>
-                                                <div class="ms-3 w-100">
-                                                    <h5 class="mb-1 text-md" data-bs-toggle="tooltip" title="@recent.UserAccount.email">
-                                                        @recent.UserAccount.email
-                                                    </h5>
-                                                    <p class="text-muted mb-0 text-sm">@recent.amount</p>
-                                                </div>
-                                            </div>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <p class="text-muted">No recent donator.</p>
-                                    }
+                                <!-- Monthly Event Summary -->
+                                <div class="dashboard-section">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h4>Monthly Event Summary</h4>
+                                        </div>
+                                        <div class="card-body">
+                                            <div id="monthlyDonationSummaryChart" class="chart"></div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+
+                            <div class="col-12 col-lg-3">
+                                <!-- Recent Donator-->
+                                <div class="dashboard-section">
+                                    <div class="card mb-3" style="min-height: 470px;">
+                                        <div class="card-header">
+                                            <h4>Recent Donators</h4>
+                                        </div>
+                                        <div class="card-body mt-4" style="max-height: 350px; overflow-y: auto;">
+                                            @if (Model.recentDonators.Any())
+                                            {
+                                                foreach (var recent in Model.recentDonators)
+                                                {
+                                                    <div class="recent-message d-flex align-items-center mb-3">
+                                                        <div class="avatar avatar-lg">
+                                                            <img src="~/Content/images1/faces/4.jpg" class="rounded-circle" alt="Donor Image">
+                                                        </div>
+                                                        <div class="ms-3 w-100">
+                                                            <h5 class="mb-1 text-md" data-bs-toggle="tooltip" title="@recent.UserAccount.email">
+                                                                @recent.UserAccount.email
+                                                            </h5>
+                                                            <p class="text-muted mb-0 text-sm">@recent.amount</p>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <p class="text-muted">No recent donator.</p>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Recent Donators -->
+                                <div class="dashboard-section">
+                                    <div class="card" style="min-height: 475px;">
+                                        <div class="card-header">
+                                            <h4>Top 5 Donators</h4>
+                                        </div>
+                                        <div class="card-body mt-4" style="max-height: 400px; overflow-y: auto;">
+                                            @if (Model.topDonators.Any())
+                                            {
+                                                foreach (var volunteer in Model.topDonators)
+                                                {
+                                                    <div class="recent-message d-flex align-items-center mb-3"
+                                                         data-bs-toggle="modal"
+                                                         data-bs-target="#donatorModal-@volunteer.donatorsId"
+                                                         style="cursor: pointer; transition: background-color 0.2s;"
+                                                         onmouseover="this.style.backgroundColor='#f8f9fa';"
+                                                         onmouseout="this.style.backgroundColor='';">
+                                                        <div class="avatar avatar-lg">
+                                                            <img src="~/Content/images1/faces/4.jpg" class="rounded-circle" alt="@volunteer.Name">
+                                                        </div>
+                                                        <div class="ms-3 w-100">
+                                                            <!-- Volunteer Name -->
+                                                            <h5 class="mb-1 text-md" title="Click for more details">
+                                                                @volunteer.Name
+                                                            </h5>
+                                                            <p class="text-muted mb-0 text-sm">Total Amount Donated: @volunteer.totalAmountDonated</p>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Modal -->
+                                                    <div class="modal fade" id="donatorModal-@volunteer.donatorsId" tabindex="-1" aria-labelledby="donatorModalLabel-@volunteer.donatorsId" aria-hidden="true">
+                                                        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title" id="donatorModalLabel-@volunteer.donatorsId">Donations by @volunteer.Name</h5>
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    <div class="row g-3">
+                                                                        @foreach (var eventDonation in volunteer.EventDonations)
+                                                                        {
+                                                                            <div class="col-6">
+                                                                                <!-- Adjust grid size to fit 2 cards per row -->
+                                                                                <div class="card" style="cursor: pointer; width: 100%; height: 300px; transition: box-shadow 0.2s;"
+                                                                                     onclick="window.location.href='@Url.Action("EventDetails", "Events", new { id = eventDonation.EventId })'"
+                                                                                     onmouseover="this.style.boxShadow='0 4px 8px rgba(0, 0, 0, 0.2)';"
+                                                                                     onmouseout="this.style.boxShadow='none';">
+                                                                                    <img src="@Url.Content("~/Content/Events/" + eventDonation.EventImage)" class="card-img-top" alt="Event Image" style="height: 120px; object-fit: cover;">
+                                                                                    <div class="card-body">
+                                                                                        <h6 class="card-title text-truncate" title="@eventDonation.EventName">@eventDonation.EventName</h6>
+                                                                                        <p class="card-text small mb-1">Amount Donated: @eventDonation.AmountDonated.ToString("C")</p>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        }
+                                                                    </div>
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <p class="text-muted">No Donators available.</p>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
                     </div>
-                </section>
+                </div>
             </div>
+
 
             <script src="~/Content/vendors/apexcharts/apexcharts.js"></script>
             <script src="~/Content/js1/pages/dashboard.js"></script>
             <script type="text/javascript">
-    // Prepare data for the chart
-    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    var eventCounts = new Array(12).fill(0); // Initialize all months with 0 events
-
-    // Populate eventCounts based on the summary data from the backend
-    @foreach (var month in Model.eventSummary.Keys)
-    {
-        <text>
-            eventCounts[@month - 1] = @Model.eventSummary[month];
-        </text>;
-    }
-
-    // ApexCharts configuration
-    var options = {
-        chart: {
-            type: 'bar',
-            height: 350
-        },
-        series: [{
-            name: 'Events',
-            data: eventCounts
-        }],
-        xaxis: {
-            categories: months
-        },
-        yaxis: {
-            min: 0,
-            max: 30, // Set max value to accommodate higher event counts, adjust as needed
-            tickAmount: 6, // Number of intervals (5 units each if max is 30)
-            title: {
-                text: 'Event Count'
-            }
-        }
-    };
-
-    var chart = new ApexCharts(document.querySelector("#monthlyEventSummaryChart"), options);
-    chart.render();
 
     document.addEventListener('DOMContentLoaded', function () {
         // Extract the top 5 skills from the server data
@@ -316,6 +590,97 @@
         var chart = new ApexCharts(document.querySelector("#chart-top-five"), options);
         chart.render();
     });
+
+      document.addEventListener('DOMContentLoaded', function () {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+      });
+
+       // Prepare data for the chart
+    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    var eventCounts = new Array(12).fill(0); // Initialize all months with 0 events
+
+    // Populate eventCounts based on the summary data from the backend
+    @foreach (var month in Model.eventSummary.Keys)
+    {
+        <text>
+            eventCounts[@month - 1] = @Model.eventSummary[month];
+        </text>;
+    }
+
+    // ApexCharts configuration
+    var options = {
+        chart: {
+            type: 'bar',
+            height: 350
+        },
+        series: [{
+            name: 'Events',
+            data: eventCounts
+        }],
+        xaxis: {
+            categories: months
+        },
+        yaxis: {
+            min: 0,
+            max: 30, // Set max value to accommodate higher event counts, adjust as needed
+            tickAmount: 6, // Number of intervals (5 units each if max is 30)
+            title: {
+                text: 'Event Count'
+            }
+        }
+    };
+
+    var chart = new ApexCharts(document.querySelector("#monthlyEventSummaryChart"), options);
+    chart.render();
+
+    function viewEventDetails(eventId) {
+        // Redirect to the desired action with the eventId as a parameter
+        window.location.href = `/Organization/HistoryDetails/${eventId}`;
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+    // Prepare data for monthly donations
+    var donationMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    var monthlyDonations = new Array(12).fill(0); // Initialize all months with 0 donations
+
+    // Populate monthlyDonations based on server data
+    @foreach (var month in Model.donationSummary.Keys)
+    {
+        <text>
+            monthlyDonations[@month - 1] = @Model.donationSummary[month];
+        </text>;
+    }
+
+    // ApexCharts configuration for Monthly Donation Summary
+    var donationOptions = {
+        chart: {
+            type: 'bar',
+            height: 350
+        },
+        series: [{
+            name: 'Donation Event',
+            data: monthlyDonations
+        }],
+        xaxis: {
+            categories: months
+        },
+        yaxis: {
+            min: 0,
+            max: 30, // Set max value to accommodate higher event counts, adjust as needed
+            tickAmount: 6, // Number of intervals (5 units each if max is 30)
+            title: {
+                text: 'Event Count'
+            }
+        }
+    };
+
+    // Render chart
+    var donationChart = new ApexCharts(document.querySelector("#monthlyDonationSummaryChart"), donationOptions);
+    donationChart.render();
+});
             </script>
         </div>
     }
