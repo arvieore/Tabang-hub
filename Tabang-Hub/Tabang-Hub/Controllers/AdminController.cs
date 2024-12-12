@@ -26,7 +26,7 @@ namespace Tabang_Hub.Controllers
             var recentDonate = _adminManager.GetRecentDonated();
 
             var indexModel = new Lists()
-            { 
+            {
                 recentOrgAcc = organization,
                 volunteerAccounts = volunteers,
                 listofUserDonated = donated,
@@ -393,6 +393,21 @@ namespace Tabang_Hub.Controllers
                     return Json(new { success = false, message = "Skill name cannot be empty." });
                 }
 
+                var orgEvents = _adminManager.GetAllEvents();
+
+                foreach (var evenItems in orgEvents)
+                {
+                    var orgSkillReq = _organizationManager.listOfSkillRequirement(evenItems.eventId);
+
+                    foreach (var reqItem in orgSkillReq)
+                    {
+                        if (reqItem.skillId == skillId)
+                        {
+                            return Json(new { success = false, message = "You cannot edit a skill that is currently in use." });
+                        }
+                    }
+                }
+
                 // Fetch the current skill details from the database
                 var existingSkill = _adminManager.GetSkillById(skillId);
                 if (existingSkill == null)
@@ -446,10 +461,26 @@ namespace Tabang_Hub.Controllers
         {
             string errMsg = string.Empty;
             var skill = _adminManager.GetSkillById(skillId);
+
+            var orgEvents = _adminManager.GetAllEvents();
+
+            foreach (var evenItems in orgEvents)
+            {
+                var orgSkillReq = _organizationManager.listOfSkillRequirement(evenItems.eventId);
+
+                foreach (var reqItem in orgSkillReq)
+                {
+                    if (reqItem.skillId == skillId)
+                    {
+                        return Json(new { success = false, message = "You cannot delete a skill that is currently in use." });
+                    }
+                }
+            }
+
             if (_adminManager.DeleteSkill(skillId) == ErrorCode.Success)
             {
                 var users = _adminManager.GetAllUser();
-                
+
 
                 foreach (var usr in users)
                 {

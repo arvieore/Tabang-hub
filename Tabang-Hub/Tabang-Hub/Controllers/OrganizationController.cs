@@ -31,7 +31,7 @@ namespace Tabang_Hub.Controllers
             var totalVolunteer = _organizationManager.GetTotalVolunteerByUserId(UserId);
             var totalDonation = _organizationManager.GetTotalDonationByUserId(UserId);
             var totalEvents = _organizationManager.GetOrgEventsByUserId(UserId);
-            
+
             //var profile = _organizationManager.GetProfileByProfileId(orgInfo.profileId);
 
             var pendingVol = new List<Volunteers>();
@@ -43,7 +43,7 @@ namespace Tabang_Hub.Controllers
                 var userDonated = _organizationManager.ListOfUserDonated(events.eventId);
 
                 foreach (var volDonated in userDonated)
-                { 
+                {
                     donated.Add(volDonated);
                 }
                 foreach (var vol in volunteers)
@@ -84,7 +84,7 @@ namespace Tabang_Hub.Controllers
 
                 orgImage.Add(orgEvenImage);
             }
-            
+
             //var profile = _organizationManager.GetProfileByProfileId(orgInfo.profileId);
 
             var indexModdel = new Lists()
@@ -95,7 +95,7 @@ namespace Tabang_Hub.Controllers
                 //profilePic = profile,
             };
             return View(indexModdel);
-        }      
+        }
         [Authorize]
         public ActionResult OrganizationProfile()
         {
@@ -273,7 +273,7 @@ namespace Tabang_Hub.Controllers
             return View(indexModel);
         }
         [HttpPost]
-        public JsonResult CreateEvent(OrgEvents eventDto, List<SkillDto> skills, HttpPostedFileBase[] eventImages, int donationAllowed)
+        public async Task<JsonResult> CreateEvent(OrgEvents eventDto, List<SkillDto> skills, HttpPostedFileBase[] eventImages, int donationAllowed)
         {
             try
             {
@@ -360,6 +360,17 @@ namespace Tabang_Hub.Controllers
                 if (_organizationManager.CreateEvents(newEvent, uploadedFiles, skills, ref ErrorMessage) != ErrorCode.Success)
                 {
                     return Json(new { success = false, message = ErrorMessage });
+                }
+
+                var filtered = await _organizationManager.GetMatchedVolunteers(newEvent.eventId);
+                var user = _organizationManager.GetOrgInfoByUserId(UserId);
+
+                foreach (var fltr in filtered.SortedByRating)
+                {
+                    if (_organizationManager.SentNotif(fltr.userId, UserId, newEvent.eventId, "Create Event", $"{user.orgName} create a new event that matched your skills!", 0, ref ErrorMessage) != ErrorCode.Success)
+                    {
+                        return Json(new { success = false, message = ErrorMessage });
+                    }
                 }
 
                 return Json(new { success = true, message = ErrorMessage });
@@ -552,8 +563,8 @@ namespace Tabang_Hub.Controllers
             //var profile = _organizationManager.GetProfileByProfileId(orgInfo.profileId);
             var listOfSkill = _organizationManager.ListOfSkills();
             var pendingVol = new List<Volunteers>();
-            var rating = new List<Rating>(); 
-            
+            var rating = new List<Rating>();
+
             //na a anhi ang users nga nag based sa Rating
             //var getRate = new List<FilteredVolunteer>();
             //var usrRank = new List<UserAccount>();
@@ -1211,7 +1222,7 @@ namespace Tabang_Hub.Controllers
         [HttpPost]
         public JsonResult Invite(List<int> userId)
         {
-            return Json( new { });
+            return Json(new { });
         }
         //[HttpPost]
         //public JsonResult EditEvent(Lists events, List<string> skills, string[] skillsToRemove, HttpPostedFileBase[] images, int eventId)
@@ -1771,11 +1782,11 @@ namespace Tabang_Hub.Controllers
             csv.AppendLine("Skill Requirement ID,Event ID,Skill ID,Total Needed");
             foreach (var evt in events)
             {
-                var skillRequirements = _organizationManager.listOfSkillRequirement(evt.Event_Id);                
+                var skillRequirements = _organizationManager.listOfSkillRequirement(evt.Event_Id);
                 foreach (var skillReq in skillRequirements)
                 {
                     csv.AppendLine($"{skillReq.skillRequirementId},{skillReq.eventId},{skillReq.skillId},{skillReq.totalNeeded}");
-                }               
+                }
             }
 
             csv.AppendLine();
@@ -1828,18 +1839,18 @@ namespace Tabang_Hub.Controllers
         public JsonResult GetUnreadNotifications()
         {
             int organizationId = UserId;
-             var notifications = db.Notification
-                .Where(n => n.userId == organizationId)
-                .OrderBy(n => n.status) // Unread (status = 0) first
-                .ThenByDescending(n => n.createdAt)
-                .Select(n => new
-                {
-                    n.notificationId,
-                    n.content,
-                    n.status, // 0 for unread, 1 for read
-                    n.createdAt
-                })
-                .ToList();
+            var notifications = db.Notification
+               .Where(n => n.userId == organizationId)
+               .OrderBy(n => n.status) // Unread (status = 0) first
+               .ThenByDescending(n => n.createdAt)
+               .Select(n => new
+               {
+                   n.notificationId,
+                   n.content,
+                   n.status, // 0 for unread, 1 for read
+                   n.createdAt
+               })
+               .ToList();
 
             return Json(notifications, JsonRequestBehavior.AllowGet);
         }
@@ -1848,7 +1859,7 @@ namespace Tabang_Hub.Controllers
         {
             string errMsg = string.Empty;
             var feedback = "Great Job";
-            
+
 
             if (volunteerRatings == null || volunteerRatings.Count == 0)
             {
