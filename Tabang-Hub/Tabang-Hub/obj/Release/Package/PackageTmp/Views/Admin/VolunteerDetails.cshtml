@@ -14,7 +14,7 @@
                 <div class="col-md-3 text-center d-flex align-items-center justify-content-center">
                     @if (Model.picture.Any())
                     {
-                        <img src="@Url.Content("~/UserProfile/" + Model.picture.First().profilePath)" class="rounded-circle img-fluid" alt="Profile Picture" style="width: 150px; height: 150px; object-fit: cover;">
+                        <img src="@Url.Content("~/Content/UserProfile/" + Model.picture.First().profilePath)" class="rounded-circle img-fluid" alt="Profile Picture" style="width: 150px; height: 150px; object-fit: cover;">
                     }
                     else
                     {

@@ -154,7 +154,7 @@ namespace Tabang_Hub.Repository
             {
                 return ErrorCode.Error;
             }
-            profilePic.profilePath = "~/Content/images/tabanghub3.png";
+            profilePic.profilePath = "~/Images/default-profile.png";
             //profilePic.userId = u.userId;
             //if (_profilePic.Create(profilePic, out errMsg) != ErrorCode.Success)
             //{

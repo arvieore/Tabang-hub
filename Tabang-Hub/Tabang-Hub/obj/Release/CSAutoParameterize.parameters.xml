@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<parameters>
+  <parameter name="TabangHubEntities-Web.config Connection String" description="TabangHubEntities Connection String used in web.config by the application to access the database." defaultValue="metadata=res://*/ModelTabangHub.csdl|res://*/ModelTabangHub.ssdl|res://*/ModelTabangHub.msl;provider=System.Data.SqlClient;provider connection string=&quot;&#xD;&#xA;    Data Source=SQL1001.site4now.net;Initial Catalog=db_ab06f5_tabanghub01;User Id=db_ab06f5_tabanghub01_admin;Password=P@assword1&quot;" tags="SqlConnectionString">
+    <parameterEntry kind="XmlFile" scope="D:\\School\ Shits\\Tabang-Hub\ For\ Deploy\\Tabang-hub\\Tabang-Hub\\Tabang-Hub\\obj\\Release\\Package\\PackageTmp\\Web\.config$" match="/configuration/connectionStrings/add[@name='TabangHubEntities']/@connectionString" />
+  </parameter>
+</parameters>

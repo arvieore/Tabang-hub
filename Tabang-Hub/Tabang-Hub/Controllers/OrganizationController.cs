@@ -273,7 +273,7 @@ namespace Tabang_Hub.Controllers
             return View(indexModel);
         }
         [HttpPost]
-        public JsonResult CreateEvent(OrgEvents eventDto, List<SkillDto> skills, HttpPostedFileBase[] eventImages, int donationAllowed)
+        public async Task<JsonResult> CreateEvent(OrgEvents eventDto, List<SkillDto> skills, HttpPostedFileBase[] eventImages, int donationAllowed)
         {
             try
             {
@@ -360,6 +360,17 @@ namespace Tabang_Hub.Controllers
                 if (_organizationManager.CreateEvents(newEvent, uploadedFiles, skills, ref ErrorMessage) != ErrorCode.Success)
                 {
                     return Json(new { success = false, message = ErrorMessage });
+                }
+
+                var filtered = await _organizationManager.GetMatchedVolunteers(newEvent.eventId);
+                var user = _organizationManager.GetOrgInfoByUserId(UserId);
+
+                foreach (var fltr in filtered.SortedByRating)
+                {
+                    if (_organizationManager.SentNotif(fltr.userId, UserId, newEvent.eventId, "Create Event", $"{user.orgName} create a new event that matched your skills!", 0, ref ErrorMessage) != ErrorCode.Success)
+                    {
+                        return Json(new { success = false, message = ErrorMessage });
+                    }
                 }
 
                 return Json(new { success = true, message = ErrorMessage });
