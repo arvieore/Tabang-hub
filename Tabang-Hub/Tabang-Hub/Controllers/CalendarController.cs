@@ -12,7 +12,7 @@ namespace Tabang_Hub.Controllers
     {
         // GET: Calendar
         [Authorize]
-        public ActionResult Calendar(string section = "ongoingEventsSection")
+        public ActionResult Calendar()
         {
             _volunteerManager.CheckVolunteerEventEndByUserId(UserId); //Check if na a nay na end nga event
 
@@ -49,7 +49,6 @@ namespace Tabang_Hub.Controllers
                 listOfEventsSection = db.vw_ListOfEvent.Where(m => m.End_Date >= DateTime.Now && m.status != 3).ToList()
             };
 
-            ViewBag.SectionToShow = section;
             return View(indexModel);
         }
 
