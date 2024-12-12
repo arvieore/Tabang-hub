@@ -17,6 +17,7 @@ using Tabang_Hub.Utils;
 using System.Collections.ObjectModel;
 using System.Data.Entity;
 using static Tabang_Hub.Utils.Lists;
+using Microsoft.Extensions.Logging;
 
 namespace Tabang_Hub.Controllers
 {
@@ -149,16 +150,28 @@ namespace Tabang_Hub.Controllers
         public JsonResult GetFilteredEvents(string searchTerm)
         {
             var events = db.vw_ListOfEvent
-                          .Where(e => e.End_Date >= DateTime.Now && e.Event_Name.Contains(searchTerm))
+                          .Where(e => e.End_Date >= DateTime.Now && e.Event_Name.Contains(searchTerm) && e.status != 3)
                           .Select(e => new
                           {
-                              e.Event_Id,
-                              e.Event_Name,
-                              EventImage = db.OrgEventImage.Where(m => m.eventId == e.Event_Id).Select(m => m.eventImage).FirstOrDefault() // Adjust as needed
+                              Event_Id = e.Event_Id,
+                              Event_Name = e.Event_Name,
+                              EventImage = db.OrgEventImage.Where(m => m.eventId == e.Event_Id).Select(m => m.eventImage).FirstOrDefault()
                           })
                           .ToList();
 
-            return Json(events, JsonRequestBehavior.AllowGet);
+            var donationEvent = db.DonationEvent
+                           .Where(e => e.dateEnd >= DateTime.Now && e.donationEventName.Contains(searchTerm) && e.status != 3)
+                           .Select(e => new
+                           {
+                               Event_Id = e.donationEventId,
+                               Event_Name = e.donationEventName,
+                               EventImage = db.DonationImage.Where(m => m.donationEventId == e.donationEventId).Select(m => m.imagePath).FirstOrDefault()
+                           })
+                           .ToList();
+
+            var combinedEvents = events.Concat(donationEvent);
+
+            return Json(combinedEvents, JsonRequestBehavior.AllowGet);
         }
         [AllowAnonymous]
         public ActionResult ChooseRegister()

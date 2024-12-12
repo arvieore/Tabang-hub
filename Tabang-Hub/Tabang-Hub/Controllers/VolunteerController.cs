@@ -350,6 +350,27 @@ namespace Tabang_Hub.Controllers
 
             return Json(new { success = true, message = "Phone number is valid." });
         }
+        public JsonResult ViewEvent(int? eventId)
+        {
+            if (!eventId.HasValue)
+                return Json(new { success = false, message = "Event ID is required" }, JsonRequestBehavior.AllowGet);
+
+            // Check in OrgEvents
+            var orgEvent = db.OrgEvents.FirstOrDefault(m => m.eventId == eventId);
+            if (orgEvent != null)
+            {
+                return Json(new { success = true, url = Url.Action("EventDetails", "Volunteer", new { eventId = eventId }) }, JsonRequestBehavior.AllowGet);
+            }
+
+            // Check in DonationEvent
+            var donationEvent = db.DonationEvent.FirstOrDefault(m => m.donationEventId == eventId);
+            if (donationEvent != null)
+            {
+                return Json(new { success = true, url = Url.Action("DonationEventDetails", "Volunteer", new { donatioEventId = eventId }) }, JsonRequestBehavior.AllowGet);
+            }
+
+            return Json(new { success = false, message = "Event not found" }, JsonRequestBehavior.AllowGet);
+        }
         [Authorize]
         public async Task<ActionResult> EventDetails(int? eventId)
         {
@@ -652,6 +673,7 @@ namespace Tabang_Hub.Controllers
                 {
                     var userEventStartDate = userEvent.dateStart?.Date;
                     var userEventEndDate = userEvent.dateEnd?.Date;
+                    var getEventConflictName = _orgEvents.Get(userEvent.eventId);
 
                     if (userEventStartDate == null || userEventEndDate == null)
                     {
@@ -662,11 +684,11 @@ namespace Tabang_Hub.Controllers
                     {
                         if (userEvent.Volunteer_Status == 0)
                         {
-                            return Json(new { success = false, message = "Conflict with another registered event: \"" + checkDateOrgEvents.eventTitle + "\"" });
+                            return Json(new { success = false, message = "Conflict with another registered event: \"" + getEventConflictName.eventTitle + "\"" });
                         }
                         else if (userEvent.Volunteer_Status == 1)
                         {
-                            return Json(new { success = false, message = "Conflict with another applied event: \"" + checkDateOrgEvents.eventTitle + "\"" });
+                            return Json(new { success = false, message = "Conflict with another applied event: \"" + getEventConflictName.eventTitle + "\"" });
                         }
                     }
                 }
@@ -745,6 +767,7 @@ namespace Tabang_Hub.Controllers
                 {
                     var userEventStartDate = userEvent.dateStart?.Date;
                     var userEventEndDate = userEvent.dateEnd?.Date;
+                    var getEventConflictName = _orgEvents.Get(userEvent.eventId);
 
                     if (userEventStartDate == null || userEventEndDate == null)
                     {
@@ -755,7 +778,7 @@ namespace Tabang_Hub.Controllers
                     {
                         if (userEvent.Volunteer_Status == 0)
                         {
-                            return Json(new { success = false, message = "Conflict with another applied event: \"" + checkDateOrgEvents.eventTitle + "\"" });
+                            return Json(new { success = false, message = "Conflict with another applied event: \"" + getEventConflictName.eventTitle + "\"" });
                         }
                         else if (userEvent.Volunteer_Status == 2)
                         {
@@ -763,7 +786,7 @@ namespace Tabang_Hub.Controllers
                         }
                         else
                         {
-                            return Json(new { success = false, message = "Conflict with another registered event: \"" + checkDateOrgEvents.eventTitle + "\"" });
+                            return Json(new { success = false, message = "Conflict with another registered event: \"" + getEventConflictName.eventTitle + "\"" });
                         }
                     }
                 }

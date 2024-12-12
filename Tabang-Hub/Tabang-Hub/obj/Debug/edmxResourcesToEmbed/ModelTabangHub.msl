@@ -438,24 +438,6 @@
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
-    <EntitySetMapping Name="vw_ListOfEvent">
-      <EntityTypeMapping TypeName="TabangHubModel.vw_ListOfEvent">
-        <MappingFragment StoreEntitySet="vw_ListOfEvent">
-          <ScalarProperty Name="status" ColumnName="status" />
-          <ScalarProperty Name="location" ColumnName="location" />
-          <ScalarProperty Name="End_Date" ColumnName="End_Date" />
-          <ScalarProperty Name="Start_Date" ColumnName="Start_Date" />
-          <ScalarProperty Name="Maximum_Volunteer" ColumnName="Maximum_Volunteer" />
-          <ScalarProperty Name="Total_Volunteer" ColumnName="Total_Volunteer" />
-          <ScalarProperty Name="Target_Amount" ColumnName="Target_Amount" />
-          <ScalarProperty Name="Total_Donation" ColumnName="Total Donation" />
-          <ScalarProperty Name="Description" ColumnName="Description" />
-          <ScalarProperty Name="Event_Name" ColumnName="Event_Name" />
-          <ScalarProperty Name="User_Id" ColumnName="User_Id" />
-          <ScalarProperty Name="Event_Id" ColumnName="Event_Id" />
-        </MappingFragment>
-      </EntityTypeMapping>
-    </EntitySetMapping>
     <EntitySetMapping Name="vw_ListOfVolunteerToBeInvite">
       <EntityTypeMapping TypeName="TabangHubModel.vw_ListOfVolunteerToBeInvite">
         <MappingFragment StoreEntitySet="vw_ListOfVolunteerToBeInvite">
@@ -539,5 +521,23 @@
         </ComplexTypeMapping>
       </ResultMapping>
     </FunctionImportMapping>
+    <EntitySetMapping Name="vw_ListOfEvent">
+      <EntityTypeMapping TypeName="TabangHubModel.vw_ListOfEvent">
+        <MappingFragment StoreEntitySet="vw_ListOfEvent">
+          <ScalarProperty Name="status" ColumnName="status" />
+          <ScalarProperty Name="location" ColumnName="location" />
+          <ScalarProperty Name="End_Date" ColumnName="End_Date" />
+          <ScalarProperty Name="Start_Date" ColumnName="Start_Date" />
+          <ScalarProperty Name="Maximum_Volunteer" ColumnName="Maximum_Volunteer" />
+          <ScalarProperty Name="Total_Volunteer" ColumnName="Total_Volunteer" />
+          <ScalarProperty Name="Target_Amount" ColumnName="Target_Amount" />
+          <ScalarProperty Name="Total_Donation" ColumnName="Total Donation" />
+          <ScalarProperty Name="Description" ColumnName="Description" />
+          <ScalarProperty Name="Event_Name" ColumnName="Event_Name" />
+          <ScalarProperty Name="User_Id" ColumnName="User_Id" />
+          <ScalarProperty Name="Event_Id" ColumnName="Event_Id" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
   </EntityContainerMapping>
 </Mapping>
