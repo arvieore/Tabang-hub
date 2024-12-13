@@ -261,6 +261,38 @@ namespace Tabang_Hub.Repository
 
             return ErrorCode.Success;
         }
+
+        public ErrorCode EditDonationEvent(DonationEvent donationEvent, List<string> image, ref string errMsg)
+        {
+            var donationEvnt = GetDonationEventByDonationEventId(donationEvent.donationEventId);
+
+            donationEvnt.donationEventName = donationEvent.donationEventName;
+            donationEvnt.donationDescription = donationEvent.donationDescription;
+            donationEvnt.dateStart = donationEvent.dateStart;
+            donationEvnt.dateEnd = donationEvent.dateEnd;
+            donationEvnt.location = donationEvent.location;
+
+            if (image != null)
+            {
+                foreach (var imageItem in image)
+                {
+                    var imageToAdd = new DonationImage();
+                    imageToAdd.imagePath = imageItem;
+                    imageToAdd.donationEventId = donationEvent.donationEventId;
+
+                    if (_donationImage.Create(imageToAdd, out errMsg) != ErrorCode.Success)
+                    {
+                        return ErrorCode.Error;
+                    }
+                }
+            }
+
+            if (_donationEvent.Update(donationEvnt.donationEventId, donationEvnt, out errMsg) != ErrorCode.Success)
+            {
+                return ErrorCode.Error;
+            }
+            return ErrorCode.Success;
+        }
         public List<vw_ListOfEvent> ListOfEvents(int userId)
         {
             return _listOfEvents.GetAll()

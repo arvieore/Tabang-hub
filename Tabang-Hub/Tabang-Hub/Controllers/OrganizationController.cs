@@ -696,7 +696,41 @@ namespace Tabang_Hub.Controllers
 
             return View(indexModel);
         }
+        [HttpPost]
+        public JsonResult EditDonationEvent(DonationEvent donationEvent, HttpPostedFileBase[] images)
+        {
+            // Your logic here
+            // donationEvent.donationEventId, donationEvent.donationEventName, etc. will be populated
+            // images will contain any uploaded files
+            // Example:
+            List<string> uploadedFiles = new List<string>();
 
+            // Image processing
+            if (images != null && images.Length > 0)
+            {
+                var imagePath = Server.MapPath("~/Content/Events");
+                Directory.CreateDirectory(imagePath); // Create directory if it doesn't exist
+
+                foreach (var image in images)
+                {
+                    if (image != null && image.ContentLength > 0)
+                    {
+                        var fileName = Path.GetFileName(image.FileName);
+                        var filePath = Path.Combine(imagePath, fileName);
+                        image.SaveAs(filePath);
+                        uploadedFiles.Add(fileName);
+                    }
+                }
+            }
+
+            if (_organizationManager.EditDonationEvent(donationEvent, uploadedFiles, ref ErrorMessage) != ErrorCode.Success)
+            {
+                return Json(new { success = false, message = "Validation failed." });
+            }
+          
+            return Json(new { success = true, message = "Event updated successfully." });
+          
+        }
         [HttpGet]
         public JsonResult MyDonation(string refNum)
         {
