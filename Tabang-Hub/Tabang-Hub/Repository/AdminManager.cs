@@ -297,76 +297,77 @@ namespace Tabang_Hub.Repository
         {
             return _orgInfo.GetAll();
         }
-        public ErrorCode DeleteUser(int userId)
+        public ErrorCode DeleteUser(int userId, ref string errMsg)
         {
             var user = GetUserById(userId);
+            user.status = 0;
             if (user == null)
             {
                 return ErrorCode.Error;
             }
 
-            var info = GetVolunteerInfoByUserId(user.userId);
-            var skills = GetVolunteerSkillsByUserId(user.userId);
-            var joinedEvents = GetJoinedEventByUserId(user.userId);
-            var profilePic = GetProfileByUserId(user.userId);
-            var userRoles = GetRolesByUserId(user.userId);
+            //var info = GetVolunteerInfoByUserId(user.userId);
+            //var skills = GetVolunteerSkillsByUserId(user.userId);
+            //var joinedEvents = GetJoinedEventByUserId(user.userId);
+            //var profilePic = GetProfileByUserId(user.userId);
+            //var userRoles = GetRolesByUserId(user.userId);
 
-            if (info != null)
-            {
-                var result = _volunteerInfo.Delete(info.volunteerId);
-                if (result != ErrorCode.Success)
-                {
-                    return ErrorCode.Error;
-                }
-            }
+            //if (info != null)
+            //{
+            //    var result = _volunteerInfo.Delete(info.volunteerId);
+            //    if (result != ErrorCode.Success)
+            //    {
+            //        return ErrorCode.Error;
+            //    }
+            //}
 
-            if (joinedEvents != null)
-            {
-                foreach (var joinedEvent in joinedEvents)
-                {
-                    var result = _joinedEvent.Delete(joinedEvent.applyVolunteerId);
-                    if (result != ErrorCode.Success)
-                    {
-                        return ErrorCode.Error;
-                    }
-                }
-            }
+            //if (joinedEvents != null)
+            //{
+            //    foreach (var joinedEvent in joinedEvents)
+            //    {
+            //        var result = _joinedEvent.Delete(joinedEvent.applyVolunteerId);
+            //        if (result != ErrorCode.Success)
+            //        {
+            //            return ErrorCode.Error;
+            //        }
+            //    }
+            //}
 
-            if (skills != null)
-            {
-                foreach (var skill in skills)
-                {
-                    var result = _volunteerSkill.Delete(skill.volunteerSkillId);
-                    if (result != ErrorCode.Success)
-                    {
-                        return ErrorCode.Error;
-                    }
-                }
-            }
+            //if (skills != null)
+            //{
+            //    foreach (var skill in skills)
+            //    {
+            //        var result = _volunteerSkill.Delete(skill.volunteerSkillId);
+            //        if (result != ErrorCode.Success)
+            //        {
+            //            return ErrorCode.Error;
+            //        }
+            //    }
+            //}
 
-            if (profilePic != null)
-            {
-                foreach (var profile in profilePic)
-                {
-                    var result = _profilePic.Delete(profile.profileId);
-                    if (result != ErrorCode.Success)
-                    {
-                        return ErrorCode.Error;
-                    }
-                }
-            }
-            if (userRoles != null)
-            {
-                foreach (var roles in userRoles)
-                {
-                    var result = _userRoles.Delete(roles.userRoleId);
-                    if (result != ErrorCode.Success)
-                    {
-                        return ErrorCode.Error;
-                    }
-                }
-            }
-            var deleteUserResult = _userAccount.Delete(user.userId);
+            //if (profilePic != null)
+            //{
+            //    foreach (var profile in profilePic)
+            //    {
+            //        var result = _profilePic.Delete(profile.profileId);
+            //        if (result != ErrorCode.Success)
+            //        {
+            //            return ErrorCode.Error;
+            //        }
+            //    }
+            //}
+            //if (userRoles != null)
+            //{
+            //    foreach (var roles in userRoles)
+            //    {
+            //        var result = _userRoles.Delete(roles.userRoleId);
+            //        if (result != ErrorCode.Success)
+            //        {
+            //            return ErrorCode.Error;
+            //        }
+            //    }
+            //}
+            var deleteUserResult = _userAccount.Update(user.userId, user, out errMsg);
             if (deleteUserResult != ErrorCode.Success)
             {
                 return ErrorCode.Error;

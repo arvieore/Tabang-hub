@@ -19,6 +19,7 @@ using RestSharp;
 using Tabang_Hub.Hubs;
 using Microsoft.AspNet.SignalR;
 using AuthorizeAttribute = System.Web.Mvc.AuthorizeAttribute;
+using static Tabang_Hub.Utils.Lists;
 
 namespace Tabang_Hub.Controllers
 {
@@ -490,6 +491,32 @@ namespace Tabang_Hub.Controllers
                 var getProfile = db.ProfilePicture.Where(m => m.userId == UserId).ToList();
                 var getOrgInfo = db.DonationEvent.Where(m => m.donationEventId == donatioEventId).FirstOrDefault();
                 var getInfo = _orgInfo.GetAll().Where(m => m.userId == getOrgInfo.userId).ToList();
+                var donators1 = _volunteerManager.GetDonatesByEventIdAndUserId(donatioEventId, UserId);
+
+                var donators = new List<Donators>();
+
+                foreach (var group in donators1)
+                {
+                    var volInfo = _organizationManager.GetVolunteerInfoByUserId((int)group.userId);
+                    var donated = _organizationManager.GetDonatedByDonatesId(group.donatesId);
+
+
+                    if (volInfo != null)
+                    {
+                        var donatorsToAppend = new Donators()
+                        {
+                            donatesId = group.donatesId,
+                            userId = (int)group.userId,
+                            referenceNum = group.referenceNum,
+                            donationEventId = (int)donatioEventId,
+                            donorName = volInfo.lName + ", " + volInfo.fName,
+                            donationQuantity = donated.Count, // Use the count of donations
+                            status = (int)group.status,
+                        };
+
+                        donators.Add(donatorsToAppend);
+                    }
+                }
 
                 // Check if the donation event exists
                 var checkEventID = db.DonationEvent.Where(m => m.donationEventId == donatioEventId).FirstOrDefault();
@@ -527,7 +554,8 @@ namespace Tabang_Hub.Controllers
                     listOfEvents = filteredEvent.OrderByDescending(m => m.Event_Id).ToList(),
                     detailsEventImageOne = _eventImages.GetAll().Where(m => m.eventId == donatioEventId).ToList(),
                     detailsEventImage = _eventImages.GetAll().ToList(),
-                    orgInfos = getInfo
+                    orgInfos = getInfo,
+                    donators = donators
                 };
 
                 return View(indexModel);
@@ -548,15 +576,11 @@ namespace Tabang_Hub.Controllers
                 }
 
                 var referenceNumber = Guid.NewGuid().ToString();
-                var monetaryDonations = new Donated();
+                Donated monetaryDonations = donated.FirstOrDefault(d => d.donationType?.Equals("Money", StringComparison.OrdinalIgnoreCase) == true);
 
-                // Check for monetary donations and add them to the array
-                foreach (var donation in donated)
+                if (monetaryDonations != null)
                 {
-                    if (donation.donationType?.Equals("Money", StringComparison.OrdinalIgnoreCase) == true)
-                    {
-                        monetaryDonations = donation;
-                    }
+                    donated.Remove(monetaryDonations);
                 }
 
                 foreach (Donated donation in donated)
@@ -565,25 +589,28 @@ namespace Tabang_Hub.Controllers
                     {
                         if (_volunteerManager.SubmitDonation(donation, donationEventId, referenceNumber, UserId, ref ErrorMessage) != ErrorCode.Success)
                         {
-                            return Json(new { success = false, message = "There is problem upon submitting the donation, try again later!." });
+                            return Json(new { success = false, message = "There was a problem submitting the donation, try again later!" });
                         }
                     }
                 }
-                if (monetaryDonations.donationQuantity != null)
+
+                if (monetaryDonations?.donationQuantity != null)
                 {
                     var donationEvent = _organizationManager.GetDonationEventByDonationEventId(donationEventId);
-                    var checkoutUrl = await CreatePayMongoCheckoutSession1((decimal)monetaryDonations.donationQuantity, "Donation for event name: " + donationEvent.donationEventName + " - Reference No: " + referenceNumber, 2, donationEventId, referenceNumber);
-
+                    var checkoutUrl = await CreatePayMongoCheckoutSession1((decimal)monetaryDonations.donationQuantity,
+                        "Donation for event name: " + donationEvent.donationEventName + " - Reference No: " + referenceNumber,
+                        2, donationEventId, referenceNumber);
 
                     if (checkoutUrl != null)
                     {
-                        return Json(new { success = true, checkoutUrl = checkoutUrl });
+                        return Json(new { success = true, checkoutUrl });
                     }
                     else
                     {
                         return Json(new { success = false, message = "Failed to create checkout session. Please try again." });
                     }
                 }
+
                 return Json(new { success = true, message = "Donations submitted successfully." });
             }
             catch (Exception ex)
@@ -1037,57 +1064,106 @@ namespace Tabang_Hub.Controllers
         [Authorize]
         public async Task<ActionResult> PaymentSuccess(int eventId, decimal amount, int donationType, string referenceNumber)
         {
-            var exist = _volunteerManager.DonatesExist(UserId, eventId);
-            ViewBag.DonationType = donationType;
-            ViewBag.EventId = eventId;
+            var exist = _volunteerManager.DonatesIsExist(referenceNumber);
 
             if (exist != null)
             {
-                if (exist.eventType == 2)
+                Donated donated = new Donated()
                 {
-                    var monetaryDonation = new Donated
-                    {
-                        donatesId = exist.donatesId,
-                        donationType = "Money",
-                        donationQuantity = amount,
-                    };
-
-                    db.Donated.Add(monetaryDonation);
-                    db.SaveChanges();
-
-                    var org = db.DonationEvent
-                                 .Where(o => o.donationEventId == eventId)
-                                 .FirstOrDefault();
-
-                    var donationEvent = _organizationManager.GetDonationEventByDonationEventId(eventId);
-                    var sendNotif = _organizationManager.SentNotif((int)org.userId, UserId, eventId, "Donation", $"You have recieve donation for event name {donationEvent.donationEventName}", 0, ref ErrorMessage);
-
-                }
-            }
-            else
-            {
-                var donates = new Donates
-                {
-                    referenceNum = referenceNumber,
-                    eventType = donationType,
-                    userId = UserId,
-                    eventId = eventId,
-                    donatedAt = DateTime.Now,
-                    status = 0,
-                };
-
-                db.Donates.Add(donates);
-                db.SaveChanges();
-
-                var donation = new Donated
-                {
-                    donatesId = donates.donatesId,
+                    donatesId = exist.donatesId,
                     donationType = "Money",
                     donationQuantity = amount,
                 };
 
-                db.Donated.Add(donation);
-                db.SaveChanges(); // Save the donation to the database
+                if (_volunteerManager.SaveDonation(donated, eventId, referenceNumber, UserId, ref ErrorMessage) != ErrorCode.Success)
+                {
+                    return View("DonationEventDetails", eventId);
+                }
+
+                var org = db.DonationEvent
+                                 .Where(o => o.donationEventId == eventId)
+                                 .FirstOrDefault();
+
+                var donationEvent = _organizationManager.GetDonationEventByDonationEventId(eventId);
+                var sendNotif = _organizationManager.SentNotif((int)org.userId, UserId, eventId, "Donation", $"You have recieve donation for event name {donationEvent.donationEventName}", 0, ref ErrorMessage);
+
+                ViewBag.DonationType = donationType;
+                ViewBag.EventId = eventId;
+
+                // Now proceed with loading the user's profile information
+                var getUserAccount = db.UserAccount.Where(m => m.userId == UserId).ToList();
+                var getVolunteerInfo = db.VolunteerInfo.Where(m => m.userId == UserId).ToList();
+                var getVolunteerSkills = db.VolunteerSkill.Where(m => m.userId == UserId).ToList();
+                var getProfile = db.ProfilePicture.Where(m => m.userId == UserId).ToList();
+                var events = _organizationManager.GetEventByEventId(eventId);
+
+                var getUniqueSkill = db.sp_GetSkills(UserId).ToList();
+                if (getProfile.Count() <= 0)
+                {
+                    var defaultPicture = new ProfilePicture
+                    {
+                        userId = UserId,
+                        profilePath = "default.jpg"
+                    };
+                    _profilePic.Create(defaultPicture);
+
+                    getProfile = db.ProfilePicture.Where(m => m.userId == UserId).ToList();
+                }
+
+                if (getVolunteerSkills.Count() != 0)
+                {
+                    var recommendedEvents = await _volunteerManager.RunRecommendation(UserId);
+
+                    var filteredEvent = new List<vw_ListOfEvent>();
+                    foreach (var recommendedEvent in recommendedEvents)
+                    {
+                        var matchedEvents = _listsOfEvent.GetAll().Where(m => m.Event_Id == recommendedEvent.EventID).ToList();
+                        filteredEvent.AddRange(matchedEvents);
+                    }
+
+                    var indexModel = new Lists()
+                    {
+                        userAccounts = getUserAccount,
+                        volunteersInfo = getVolunteerInfo,
+                        volunteersSkills = getVolunteerSkills,
+                        uniqueSkill = getUniqueSkill,
+                        picture = getProfile,
+                        CreateEvents = events,
+                        skills = _skills.GetAll().ToList(),
+                        listOfEvents = filteredEvent.OrderByDescending(m => m.Event_Id).ToList(),
+                        detailsEventImage = _eventImages.GetAll().ToList()
+                    };
+                    return View(indexModel);
+                }
+                else
+                {
+                    var indexModel = new Lists()
+                    {
+                        userAccounts = getUserAccount,
+                        volunteersInfo = getVolunteerInfo,
+                        volunteersSkills = getVolunteerSkills,
+                        uniqueSkill = getUniqueSkill,
+                        picture = getProfile,
+                        CreateEvents = events,
+                        skills = _skills.GetAll().ToList(),
+                        listOfEvents = db.vw_ListOfEvent.Where(m => m.status != 3).OrderByDescending(m => m.Event_Id).ToList(),
+                        detailsEventImage = _eventImages.GetAll().ToList()
+                    };
+                    return View(indexModel);
+                }
+            }
+            else
+            {
+                Donated donated = new Donated()
+                {
+                    donationType = "Money",
+                    donationQuantity = amount,
+                };
+
+                if (_volunteerManager.SubmitDonation(donated, eventId, referenceNumber, UserId, ref ErrorMessage) != ErrorCode.Success)
+                {
+                    return View("DonationEventDetails", eventId);
+                }
 
                 // Find the organization associated with the event
                 var organization = db.OrgEvents
@@ -1103,7 +1179,7 @@ namespace Tabang_Hub.Controllers
                         senderUserId = UserId, // The user who donated
                         relatedId = eventId,
                         type = "Donation",
-                        content = $"You have received a donation of {donation.donationQuantity} for event #{eventId}.",
+                        content = $"You have received a donation of {donated.donationQuantity} for event #{eventId}.",
                         broadcast = 0, // Not a broadcast
                         status = 0, // Assuming 1 is the status for a new notification
                         createdAt = DateTime.Now,
@@ -1113,68 +1189,70 @@ namespace Tabang_Hub.Controllers
                     db.Notification.Add(notification);
                     db.SaveChanges(); // Save the notification
                 }
-            }
+                ViewBag.DonationType = donationType;
+                ViewBag.EventId = eventId;
 
-            // Now proceed with loading the user's profile information
-            var getUserAccount = db.UserAccount.Where(m => m.userId == UserId).ToList();
-            var getVolunteerInfo = db.VolunteerInfo.Where(m => m.userId == UserId).ToList();
-            var getVolunteerSkills = db.VolunteerSkill.Where(m => m.userId == UserId).ToList();
-            var getProfile = db.ProfilePicture.Where(m => m.userId == UserId).ToList();
-            var events = _organizationManager.GetEventByEventId(eventId);
+                // Now proceed with loading the user's profile information
+                var getUserAccount = db.UserAccount.Where(m => m.userId == UserId).ToList();
+                var getVolunteerInfo = db.VolunteerInfo.Where(m => m.userId == UserId).ToList();
+                var getVolunteerSkills = db.VolunteerSkill.Where(m => m.userId == UserId).ToList();
+                var getProfile = db.ProfilePicture.Where(m => m.userId == UserId).ToList();
+                var events = _organizationManager.GetEventByEventId(eventId);
 
-            var getUniqueSkill = db.sp_GetSkills(UserId).ToList();
-            if (getProfile.Count() <= 0)
-            {
-                var defaultPicture = new ProfilePicture
+                var getUniqueSkill = db.sp_GetSkills(UserId).ToList();
+                if (getProfile.Count() <= 0)
                 {
-                    userId = UserId,
-                    profilePath = "default.jpg"
-                };
-                _profilePic.Create(defaultPicture);
+                    var defaultPicture = new ProfilePicture
+                    {
+                        userId = UserId,
+                        profilePath = "default.jpg"
+                    };
+                    _profilePic.Create(defaultPicture);
 
-                getProfile = db.ProfilePicture.Where(m => m.userId == UserId).ToList();
-            }
-
-            if (getVolunteerSkills.Count() != 0)
-            {
-                var recommendedEvents = await _volunteerManager.RunRecommendation(UserId);
-
-                var filteredEvent = new List<vw_ListOfEvent>();
-                foreach (var recommendedEvent in recommendedEvents)
-                {
-                    var matchedEvents = _listsOfEvent.GetAll().Where(m => m.Event_Id == recommendedEvent.EventID).ToList();
-                    filteredEvent.AddRange(matchedEvents);
+                    getProfile = db.ProfilePicture.Where(m => m.userId == UserId).ToList();
                 }
 
-                var indexModel = new Lists()
+                if (getVolunteerSkills.Count() != 0)
                 {
-                    userAccounts = getUserAccount,
-                    volunteersInfo = getVolunteerInfo,
-                    volunteersSkills = getVolunteerSkills,
-                    uniqueSkill = getUniqueSkill,
-                    picture = getProfile,
-                    CreateEvents = events,
-                    skills = _skills.GetAll().ToList(),
-                    listOfEvents = filteredEvent.OrderByDescending(m => m.Event_Id).ToList(),
-                    detailsEventImage = _eventImages.GetAll().ToList()
-                };
-                return View(indexModel);
-            }
-            else
-            {
-                var indexModel = new Lists()
+                    var recommendedEvents = await _volunteerManager.RunRecommendation(UserId);
+
+                    var filteredEvent = new List<vw_ListOfEvent>();
+                    foreach (var recommendedEvent in recommendedEvents)
+                    {
+                        var matchedEvents = _listsOfEvent.GetAll().Where(m => m.Event_Id == recommendedEvent.EventID).ToList();
+                        filteredEvent.AddRange(matchedEvents);
+                    }
+
+                    var indexModel = new Lists()
+                    {
+                        userAccounts = getUserAccount,
+                        volunteersInfo = getVolunteerInfo,
+                        volunteersSkills = getVolunteerSkills,
+                        uniqueSkill = getUniqueSkill,
+                        picture = getProfile,
+                        CreateEvents = events,
+                        skills = _skills.GetAll().ToList(),
+                        listOfEvents = filteredEvent.OrderByDescending(m => m.Event_Id).ToList(),
+                        detailsEventImage = _eventImages.GetAll().ToList()
+                    };
+                    return View(indexModel);
+                }
+                else
                 {
-                    userAccounts = getUserAccount,
-                    volunteersInfo = getVolunteerInfo,
-                    volunteersSkills = getVolunteerSkills,
-                    uniqueSkill = getUniqueSkill,
-                    picture = getProfile,
-                    CreateEvents = events,
-                    skills = _skills.GetAll().ToList(),
-                    listOfEvents = db.vw_ListOfEvent.Where(m => m.status != 3).OrderByDescending(m => m.Event_Id).ToList(),
-                    detailsEventImage = _eventImages.GetAll().ToList()
-                };
-                return View(indexModel);
+                    var indexModel = new Lists()
+                    {
+                        userAccounts = getUserAccount,
+                        volunteersInfo = getVolunteerInfo,
+                        volunteersSkills = getVolunteerSkills,
+                        uniqueSkill = getUniqueSkill,
+                        picture = getProfile,
+                        CreateEvents = events,
+                        skills = _skills.GetAll().ToList(),
+                        listOfEvents = db.vw_ListOfEvent.Where(m => m.status != 3).OrderByDescending(m => m.Event_Id).ToList(),
+                        detailsEventImage = _eventImages.GetAll().ToList()
+                    };
+                    return View(indexModel);
+                }
             }
         }
 
@@ -1362,11 +1440,11 @@ namespace Tabang_Hub.Controllers
             return View(indexModel);
         }
         [HttpGet]
-        public JsonResult MyDonation(int userId, int eventId)
+        public JsonResult MyDonation(string refNum)
         {
             try
             {
-                var donates = _volunteerManager.GetDonatedByUserIdAndDonationEventId(userId, eventId);
+                var donates = _volunteerManager.GetDonatedByUserIdAndDonationEventId(refNum);
 
                 var myDonations = _volunteerManager.MyDonation(donates.donatesId)
                     .Select(d => new

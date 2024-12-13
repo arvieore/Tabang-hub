@@ -287,7 +287,7 @@ namespace Tabang_Hub.Controllers
         {
             try
             {
-                var user = _adminManager.DeleteUser(userId);
+                var user = _adminManager.DeleteUser(userId, ref ErrorMessage);
                 if (user != ErrorCode.Success)
                 {
                     return Json(new { success = false, message = "User not found" });

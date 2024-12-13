@@ -70,7 +70,7 @@ namespace Tabang_Hub.Repository
                 userId = userId,
                 eventId = donationEventId,
                 donatedAt = DateTime.Now,
-                status = 0,
+                status = 1,
             };
 
             if (_donates.Create(toSave, out errMsg) != ErrorCode.Success)
@@ -88,13 +88,30 @@ namespace Tabang_Hub.Repository
 
             return ErrorCode.Success;
         }
+        public ErrorCode SaveDonation(Donated donate, int donationEventId, string refNum, int userId, ref String errMsg)
+        {
+            var exist = DonatesIsExist(refNum);
+
+            donate.donatesId = exist.donatesId;
+
+            if (_donated.Create(donate, out errMsg) != ErrorCode.Success)
+            {
+                return ErrorCode.Error;
+            }
+
+            return ErrorCode.Success;
+        }
         public Donates GetDonatedByUserIdAndDonationEventId1(int donatesId)
         {
             return _donates._table.Where(m => m.donatesId == donatesId).FirstOrDefault();
         }
-        public Donates GetDonatedByUserIdAndDonationEventId(int userId, int donationEventId)
+        public Donates GetDonatedByUserIdAndDonationEventId(string refNum)
         {
-            return _donates._table.Where(m => m.userId == userId && m.eventId == donationEventId).FirstOrDefault();
+            return _donates._table.Where(m => m.referenceNum == refNum).FirstOrDefault();
+        }
+        public List<Donates> GetDonatesByEventIdAndUserId(int donationEventId, int userId)
+        { 
+            return _donates._table.Where(m => m.eventId == donationEventId && m.userId == userId).ToList();
         }
         public List<Donated> MyDonation(int donatesId)
         {
@@ -130,6 +147,11 @@ namespace Tabang_Hub.Repository
         public Donates DonatesExist(int userId, int eventId)
         {
             return _donates._table.Where(m => m.userId == userId && m.eventId == eventId).FirstOrDefault();
+        }
+
+        public Donates DonatesIsExist(string refNum)
+        {
+            return _donates._table.Where(m => m.referenceNum == refNum).FirstOrDefault();
         }
 
         public List<Volunteers> GetVolunteersEventParticipateByUserId(int userId)

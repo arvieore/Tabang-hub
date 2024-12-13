@@ -698,11 +698,11 @@ namespace Tabang_Hub.Controllers
         }
 
         [HttpGet]
-        public JsonResult MyDonation(int userId, int eventId)
+        public JsonResult MyDonation(string refNum)
         {
             try
             {
-                var donates = _volunteerManager.GetDonatedByUserIdAndDonationEventId(userId, eventId);
+                var donates = _volunteerManager.GetDonatedByUserIdAndDonationEventId(refNum);
 
                 var myDonations = _volunteerManager.MyDonation(donates.donatesId)
                     .Select(d => new

@@ -244,7 +244,7 @@
     <div class="tab-pane fade" id="donors" role="tabpanel" aria-labelledby="donors-tab">
         <div class="container py-4">
             <!-- Pending Donations Section -->
-            <div class="row mb-4">
+            @*<div class="row mb-4">
                 <div class="col-md-12">
                     <h5 class="mb-4">Pending Donations</h5>
                     <div class="table-responsive">
@@ -283,12 +283,12 @@
                         </table>
                     </div>
                 </div>
-            </div>
+            </div>*@
 
             <!-- Successful Donations Section -->
             <div class="row mb-4">
                 <div class="col-md-12">
-                    <h5 class="mb-4">Successful Donations</h5>
+                    <h5 class="mb-4">Donations</h5>
                     <div class="table-responsive">
                         <table class="table table-sm table-bordered table-striped align-middle bg-white">
                             <thead class="table-dark">
@@ -308,7 +308,7 @@
                                             <td>@items.donationQuantity</td>
                                             <td>
                                                 <div class="btn-group" role="group">
-                                                    <button type="button" class="btn btn-sm btn-primary" onclick="viewDonation(@items.userId, @items.donationEventId)">
+                                                    <button type="button" class="btn btn-sm btn-primary" onclick="viewDonation('@items.referenceNum')">
                                                         <i class="bi bi-eye"></i> View
                                                     </button>
                                                 </div>
@@ -356,11 +356,11 @@
 
 
 <script>
-    function viewDonation(userId, eventId) {
+    function viewDonation(refNum) {
         $.ajax({
             url: '/Organization/MyDonation',
             type: 'GET',
-            data: { userId: userId, eventId: eventId },
+            data: { refNum: refNum},
             success: function (response) {
                 if (response.success) {
                     const donationDetailsTable = $('#donationDetails');
