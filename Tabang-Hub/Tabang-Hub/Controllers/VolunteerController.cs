@@ -801,6 +801,11 @@ namespace Tabang_Hub.Controllers
                         continue; // Skip if the event dates are null
                     }
 
+                    if (checkEventStartDate == userEventEndDate)
+                    {
+                        return Json(new { success = false, message = "Cannot join event." });
+                    }
+
                     if (!(checkEventEndDate < userEventStartDate || checkEventStartDate > userEventEndDate))
                     {
                         if (userEvent.Volunteer_Status == 0)
@@ -820,24 +825,7 @@ namespace Tabang_Hub.Controllers
 
                 var getEventRequiredSkills = _skillRequirement.GetAll().Where(m => m.eventId == eventId).ToList();
                 var volSkill = _volunteerSkills.GetAll().Where(m => m.userId == UserId).Select(m => m.skillId).ToList();
-
-                //===========================================================================
-                //Volunteers apply = new Volunteers();
-                //foreach (var eventReq in getEventRequiredSkills)
-                //{
-                //    apply = new Volunteers()
-                //    {
-                //        userId = UserId,
-                //        eventId = eventId,
-                //        Status = 0,
-                //        skillId = db.Skills.Where(m => m.skillId == eventReq.skillId).Select(m => m.skillId).FirstOrDefault(),
-                //        appliedAt = DateTime.Now
-                //    };
-                //    _volunteers.Create(apply);
-                //}
-                //===========================================================================
-
-
+                
                 bool skillMatch = getEventRequiredSkills.All(skll => volSkill.Contains(skll.skillId));
 
                 if (!skillMatch)

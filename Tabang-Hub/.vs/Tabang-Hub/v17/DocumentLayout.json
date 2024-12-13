@@ -1,71 +1,12 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "D:\\School Shits\\Tabang-Hub For Deploy\\Tabang-hub\\Tabang-Hub\\",
-  "Documents": [
-    {
-      "AbsoluteMoniker": "D:0:0:{C91BF11D-2370-46E0-8461-E1D6FBCBCA76}|Tabang-Hub\\Tabang-Hub.csproj|d:\\school shits\\tabang-hub for deploy\\tabang-hub\\tabang-hub\\tabang-hub\\views\\organization\\organizationprofile.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{C91BF11D-2370-46E0-8461-E1D6FBCBCA76}|Tabang-Hub\\Tabang-Hub.csproj|solutionrelative:tabang-hub\\views\\organization\\organizationprofile.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C91BF11D-2370-46E0-8461-E1D6FBCBCA76}|Tabang-Hub\\Tabang-Hub.csproj|d:\\school shits\\tabang-hub for deploy\\tabang-hub\\tabang-hub\\tabang-hub\\controllers\\organizationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C91BF11D-2370-46E0-8461-E1D6FBCBCA76}|Tabang-Hub\\Tabang-Hub.csproj|solutionrelative:tabang-hub\\controllers\\organizationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C91BF11D-2370-46E0-8461-E1D6FBCBCA76}|Tabang-Hub\\Tabang-Hub.csproj|d:\\school shits\\tabang-hub for deploy\\tabang-hub\\tabang-hub\\tabang-hub\\views\\organization\\donationdetails.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{C91BF11D-2370-46E0-8461-E1D6FBCBCA76}|Tabang-Hub\\Tabang-Hub.csproj|solutionrelative:tabang-hub\\views\\organization\\donationdetails.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    }
-  ],
+  "WorkspaceRootPath": "C:\\Tabang-hub\\Tabang-hub\\Tabang-Hub\\",
+  "Documents": [],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
       "VerticalTabListWidth": 256,
-      "DocumentGroups": [
-        {
-          "DockedWidth": 200,
-          "SelectedChildIndex": 0,
-          "Children": [
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "OrganizationProfile.cshtml",
-              "DocumentMoniker": "D:\\School Shits\\Tabang-Hub For Deploy\\Tabang-hub\\Tabang-Hub\\Tabang-Hub\\Views\\Organization\\OrganizationProfile.cshtml",
-              "RelativeDocumentMoniker": "Tabang-Hub\\Views\\Organization\\OrganizationProfile.cshtml",
-              "ToolTip": "D:\\School Shits\\Tabang-Hub For Deploy\\Tabang-hub\\Tabang-Hub\\Tabang-Hub\\Views\\Organization\\OrganizationProfile.cshtml",
-              "RelativeToolTip": "Tabang-Hub\\Views\\Organization\\OrganizationProfile.cshtml",
-              "ViewState": "AQIAAHQBAAAAAAAAAAAqwIgBAAAvAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2024-12-13T06:36:33.587Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "OrganizationController.cs",
-              "DocumentMoniker": "D:\\School Shits\\Tabang-Hub For Deploy\\Tabang-hub\\Tabang-Hub\\Tabang-Hub\\Controllers\\OrganizationController.cs",
-              "RelativeDocumentMoniker": "Tabang-Hub\\Controllers\\OrganizationController.cs",
-              "ToolTip": "D:\\School Shits\\Tabang-Hub For Deploy\\Tabang-hub\\Tabang-Hub\\Tabang-Hub\\Controllers\\OrganizationController.cs",
-              "RelativeToolTip": "Tabang-Hub\\Controllers\\OrganizationController.cs",
-              "ViewState": "AQIAAHIAAAAAAAAAAAAawHsAAAAiAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-13T06:36:24.738Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "DonationDetails.cshtml",
-              "DocumentMoniker": "D:\\School Shits\\Tabang-Hub For Deploy\\Tabang-hub\\Tabang-Hub\\Tabang-Hub\\Views\\Organization\\DonationDetails.cshtml",
-              "RelativeDocumentMoniker": "Tabang-Hub\\Views\\Organization\\DonationDetails.cshtml",
-              "ToolTip": "D:\\School Shits\\Tabang-Hub For Deploy\\Tabang-hub\\Tabang-Hub\\Tabang-Hub\\Views\\Organization\\DonationDetails.cshtml",
-              "RelativeToolTip": "Tabang-Hub\\Views\\Organization\\DonationDetails.cshtml",
-              "ViewState": "AQIAAHMCAAAAAAAAAAAwwAIDAAAHAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2024-12-13T05:56:02.929Z",
-              "EditorCaption": ""
-            }
-          ]
-        }
-      ]
+      "DocumentGroups": []
     }
   ]
 }
