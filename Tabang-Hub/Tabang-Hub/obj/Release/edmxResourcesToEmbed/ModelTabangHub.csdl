@@ -75,7 +75,6 @@
     <EntitySet Name="VolunteersHistory" EntityType="TabangHubModel.VolunteersHistory" />
     <EntitySet Name="VolunteerSkill" EntityType="TabangHubModel.VolunteerSkill" />
     <EntitySet Name="vw_AllVolunteers" EntityType="TabangHubModel.vw_AllVolunteers" />
-    <EntitySet Name="vw_ListOfEvent" EntityType="TabangHubModel.vw_ListOfEvent" />
     <EntitySet Name="vw_ListOfVolunteerToBeInvite" EntityType="TabangHubModel.vw_ListOfVolunteerToBeInvite" />
     <EntitySet Name="vw_OrganizationAccounts" EntityType="TabangHubModel.vw_OrganizationAccounts" />
     <EntitySet Name="vw_UserRoles" EntityType="TabangHubModel.vw_UserRoles" />
@@ -176,6 +175,7 @@
     <FunctionImport Name="sp_checkMatchByUserId" ReturnType="Collection(TabangHubModel.sp_checkMatchByUserId_Result)">
       <Parameter Name="userId" Mode="In" Type="Int32" />
     </FunctionImport>
+    <EntitySet Name="vw_ListOfEvent" EntityType="TabangHubModel.vw_ListOfEvent" />
   </EntityContainer>
   <ComplexType Name="sp_GetAllMessage_Result">
     <Property Type="Int32" Name="groupChatId" Nullable="false" />
@@ -592,23 +592,6 @@
     <Property Name="Feedback" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
     <Property Name="availability" Type="String" MaxLength="25" FixedLength="false" Unicode="true" />
   </EntityType>
-  <EntityType Name="vw_ListOfEvent">
-    <Key>
-      <PropertyRef Name="Event_Id" />
-    </Key>
-    <Property Name="Event_Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-    <Property Name="User_Id" Type="Int32" />
-    <Property Name="Event_Name" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-    <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
-    <Property Name="Total_Donation" Type="Decimal" Precision="38" Scale="2" />
-    <Property Name="Target_Amount" Type="Decimal" Precision="10" Scale="2" />
-    <Property Name="Total_Volunteer" Type="Int32" />
-    <Property Name="Maximum_Volunteer" Type="Int32" />
-    <Property Name="Start_Date" Type="DateTime" Precision="3" />
-    <Property Name="End_Date" Type="DateTime" Precision="3" />
-    <Property Name="location" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-    <Property Name="status" Type="Int32" />
-  </EntityType>
   <EntityType Name="vw_ListOfVolunteerToBeInvite">
     <Key>
       <PropertyRef Name="userId" />
@@ -971,4 +954,21 @@
     <Property Type="Int32" Name="userId" Nullable="true" />
     <Property Type="String" Name="skillName" Nullable="true" MaxLength="255" />
   </ComplexType>
+  <EntityType Name="vw_ListOfEvent">
+    <Key>
+      <PropertyRef Name="Event_Id" />
+    </Key>
+    <Property Name="Event_Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="User_Id" Type="Int32" />
+    <Property Name="Event_Name" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+    <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+    <Property Name="Total_Donation" Type="Decimal" Precision="38" Scale="2" />
+    <Property Name="Target_Amount" Type="Decimal" Precision="10" Scale="2" />
+    <Property Name="Total_Volunteer" Type="Int32" />
+    <Property Name="Maximum_Volunteer" Type="Int32" />
+    <Property Name="Start_Date" Type="DateTime" Precision="3" />
+    <Property Name="End_Date" Type="DateTime" Precision="3" />
+    <Property Name="location" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+    <Property Name="status" Type="Int32" />
+  </EntityType>
 </Schema>

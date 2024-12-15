@@ -554,13 +554,18 @@ function applyEvent(eventId) {
                 });
             } else {
                 let title;
+                let textMessage = '';
                 if (response.message === "No match Skill.") {
                     title = "Skill Mismatch!";
                 } else if (response.message === "Already apply.") {
                     title = "Duplicate Application!";
                 }
+                if (response.message === "Cannot join event.") {
+                    textMessage = "Sorry! You are only allowed to join 1 event per day!";
+                }
                 Swal.fire({
                     title: response.message,
+                    text: textMessage,
                     icon: 'warning',
                     confirmButtonText: 'OK',
                     allowOutsideClick: false

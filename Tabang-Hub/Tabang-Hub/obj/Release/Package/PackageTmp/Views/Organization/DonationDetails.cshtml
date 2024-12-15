@@ -244,51 +244,51 @@
     <div class="tab-pane fade" id="donors" role="tabpanel" aria-labelledby="donors-tab">
         <div class="container py-4">
             <!-- Pending Donations Section -->
-            <div class="row mb-4">
-                <div class="col-md-12">
-                    <h5 class="mb-4">Pending Donations</h5>
-                    <div class="table-responsive">
-                        <table class="table table-sm table-bordered table-striped align-middle bg-white">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th scope="col">Ref. Number</th>
-                                    <th scope="col">Donor Name</th>
-                                    <th scope="col">Total Donations</th>
-                                    <th scope="col">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var items in Model.donators)
-                                {
-                                    if (items.status == 0)
+            @*<div class="row mb-4">
+                    <div class="col-md-12">
+                        <h5 class="mb-4">Pending Donations</h5>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered table-striped align-middle bg-white">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th scope="col">Ref. Number</th>
+                                        <th scope="col">Donor Name</th>
+                                        <th scope="col">Total Donations</th>
+                                        <th scope="col">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var items in Model.donators)
                                     {
-                                        <tr>
-                                            <td>@items.referenceNum</td>
-                                            <td>@items.donorName</td>
-                                            <td>@items.donationQuantity</td>
-                                            <td>
-                                                <div class="btn-group" role="group">
-                                                    <button type="button" class="btn btn-sm btn-primary" onclick="viewDonation(@items.userId, @items.donationEventId)">
-                                                        <i class="bi bi-eye"></i> View
-                                                    </button>
-                                                    <button type="button" class="btn btn-sm btn-success" onclick="markReceived(@items.donatesId)">
-                                                        <i class="bi bi-check-circle"></i> Mark as Received
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
+                                        if (items.status == 0)
+                                        {
+                                            <tr>
+                                                <td>@items.referenceNum</td>
+                                                <td>@items.donorName</td>
+                                                <td>@items.donationQuantity</td>
+                                                <td>
+                                                    <div class="btn-group" role="group">
+                                                        <button type="button" class="btn btn-sm btn-primary" onclick="viewDonation(@items.userId, @items.donationEventId)">
+                                                            <i class="bi bi-eye"></i> View
+                                                        </button>
+                                                        <button type="button" class="btn btn-sm btn-success" onclick="markReceived(@items.donatesId)">
+                                                            <i class="bi bi-check-circle"></i> Mark as Received
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
                                     }
-                                }
-                            </tbody>
-                        </table>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
-            </div>
+                </div>*@
 
             <!-- Successful Donations Section -->
             <div class="row mb-4">
                 <div class="col-md-12">
-                    <h5 class="mb-4">Successful Donations</h5>
+                    <h5 class="mb-4">Donations</h5>
                     <div class="table-responsive">
                         <table class="table table-sm table-bordered table-striped align-middle bg-white">
                             <thead class="table-dark">
@@ -308,7 +308,7 @@
                                             <td>@items.donationQuantity</td>
                                             <td>
                                                 <div class="btn-group" role="group">
-                                                    <button type="button" class="btn btn-sm btn-primary" onclick="viewDonation(@items.userId, @items.donationEventId)">
+                                                    <button type="button" class="btn btn-sm btn-primary" onclick="viewDonation('@items.referenceNum')">
                                                         <i class="bi bi-eye"></i> View
                                                     </button>
                                                 </div>
@@ -351,16 +351,88 @@
     </div>
 </div>
 
+<!-- Edit Event Modal -->
+<div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form id="editEventForm" action="/Organization/EditDonationEvent" method="post" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editEventModalLabel">Edit Event Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Hidden field for donationEventId -->
+                    <input type="hidden" id="editDonationEventId" name="donationEventId" value="@Model.DonationEvent.donationEventId" />
+
+                    <!-- Event Name -->
+                    <div class="mb-3">
+                        <label for="editEventName" class="form-label">Event Name</label>
+                        <input type="text" id="editEventName" name="donationEventName" class="form-control" value="@Model.DonationEvent.donationEventName" required>
+                        <span class="text-danger" id="editEventNameError"></span>
+                    </div>
+
+                    <!-- Event Description -->
+                    <div class="mb-3">
+                        <label for="editEventDescription" class="form-label">Description</label>
+                        <textarea id="editEventDescription" name="donationDescription" class="form-control" rows="4" required>@Model.DonationEvent.donationDescription</textarea>
+                        <span class="text-danger" id="editEventDescriptionError"></span>
+                    </div>
+
+                    <!-- Start Date -->
+                    <div class="mb-3">
+                        <label for="editEventStartDate" class="form-label">Start Date</label>
+                        <input type="datetime-local" id="editEventStartDate" name="dateStart" class="form-control"
+                               value="@(Model.DonationEvent.dateStart.HasValue ? Model.DonationEvent.dateStart.Value.ToString("yyyy-MM-ddTHH:mm") : "")" required>
+                        <span class="text-danger" id="editEventStartDateError"></span>
+                    </div>
+
+                    <!-- End Date -->
+                    <div class="mb-3">
+                        <label for="editEventEndDate" class="form-label">End Date</label>
+                        <input type="datetime-local" id="editEventEndDate" name="dateEnd" class="form-control"
+                               value="@(Model.DonationEvent.dateEnd.HasValue ? Model.DonationEvent.dateEnd.Value.ToString("yyyy-MM-ddTHH:mm") : "")">
+                        <span class="text-danger" id="editEventEndDateError"></span>
+                    </div>
+
+                    <!-- Map Section -->
+                    <div class="mb-3">
+                        <label class="form-label">Select Location on Map</label>
+                        <div id="editEventMap" style="height:300px; width:100%; border:1px solid #ced4da;"></div>
+                    </div>
+
+                    <!-- Input for Selected Location -->
+                    <div class="mb-3">
+                        <label for="editEventLocationName" class="form-label">Selected Location</label>
+                        <input type="text" id="editEventLocationName" name="location" class="form-control"
+                               value="@Model.DonationEvent.location" placeholder="Click on the map to select a location" readonly>
+                        <span class="text-danger" id="editEventLocationError"></span>
+                    </div>
+
+                    <!-- Image Upload (Optional) -->
+                    <div class="mb-3">
+                        <label for="editEventImage" class="form-label">Event Image</label>
+                        <input type="file" id="editEventImage" name="images" class="form-control" accept="image/*" multiple>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <!-- Change the button type to 'button' to prevent default form submission -->
+                    <button type="button" id="saveEditEventBtn" class="btn btn-primary">Save Changes</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
 <script>
-    function viewDonation(userId, eventId) {
+    function viewDonation(refNum) {
         $.ajax({
             url: '/Organization/MyDonation',
             type: 'GET',
-            data: { userId: userId, eventId: eventId },
+            data: { refNum: refNum },
             success: function (response) {
                 if (response.success) {
                     const donationDetailsTable = $('#donationDetails');
@@ -441,4 +513,260 @@
             }
         });
     }
+
+    function initializeEditEventMap() {
+        var validZipCodes = ["6015", "6016"]; // Allowed zip codes
+        var editMap = L.map('editEventMap').setView([10.3102, 123.9494], 13); // Coordinates for Lapu-Lapu City
+        var editMarker;
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(editMap);
+
+        // Initial marker at current event location if available
+        // If you have lat/lng stored for the event, replace with actual coords
+        editMarker = L.marker([10.3102, 123.9494], { draggable: true }).addTo(editMap)
+            .bindPopup('Drag me or click anywhere on the map.')
+            .openPopup();
+
+        function fetchEditLocationName(lat, lng) {
+            var apiUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
+            var locationInput = document.getElementById('editEventLocationName');
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.address) {
+                        var displayName = data.display_name || "";
+                        var zipCode = data.address.postcode || "";
+
+                        if (validZipCodes.includes(zipCode)) {
+                            locationInput.value = displayName;
+                            locationInput.classList.remove("is-invalid");
+                            locationInput.classList.add("is-valid");
+                            editMarker.bindPopup('Location selected').openPopup();
+                        } else {
+                            locationInput.value = "";
+                            locationInput.classList.remove("is-valid");
+                            locationInput.classList.add("is-invalid");
+                            editMarker.bindPopup(`Invalid Location: Only zip codes 6015 or 6016 are allowed.`).openPopup();
+                        }
+                    } else {
+                        locationInput.value = "";
+                        locationInput.classList.remove("is-valid");
+                        locationInput.classList.add("is-invalid");
+                        editMarker.bindPopup(`Could not determine address.`).openPopup();
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching location:", error);
+                    locationInput.value = "";
+                    locationInput.classList.remove("is-valid");
+                    locationInput.classList.add("is-invalid");
+                    editMarker.bindPopup(`Error fetching location. Try again.`).openPopup();
+                });
+        }
+
+        editMap.on('click', function (e) {
+            var lat = e.latlng.lat.toFixed(6);
+            var lng = e.latlng.lng.toFixed(6);
+
+            editMarker.setLatLng(e.latlng).update();
+            fetchEditLocationName(lat, lng);
+        });
+
+        editMarker.on('dragend', function (e) {
+            var lat = e.target.getLatLng().lat.toFixed(6);
+            var lng = e.target.getLatLng().lng.toFixed(6);
+            fetchEditLocationName(lat, lng);
+        });
+    }
+
+    // Initialize the map when the edit event modal is shown
+    document.getElementById('editEventModal').addEventListener('shown.bs.modal', function () {
+        initializeEditEventMap();
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const editEventForm = document.getElementById("editEventForm");
+        const editEventName = document.getElementById("editEventName");
+        const editEventDescription = document.getElementById("editEventDescription");
+        const editEventStartDate = document.getElementById("editEventStartDate");
+        const editEventEndDate = document.getElementById("editEventEndDate");
+        const editEventLocationName = document.getElementById("editEventLocationName");
+
+        // Error spans
+        const editEventNameError = document.getElementById("editEventNameError");
+        const editEventDescriptionError = document.getElementById("editEventDescriptionError");
+        const editEventStartDateError = document.getElementById("editEventStartDateError");
+        const editEventEndDateError = document.getElementById("editEventEndDateError");
+        const editEventLocationError = document.getElementById("editEventLocationError");
+
+        function isEmpty(value) {
+            return !value.trim();
+        }
+
+        function showError(input, errorElement, message) {
+            errorElement.textContent = message;
+            input.classList.add("is-invalid");
+            input.classList.remove("is-valid");
+        }
+
+        function clearError(input, errorElement) {
+            errorElement.textContent = "";
+            input.classList.remove("is-invalid");
+            input.classList.add("is-valid");
+        }
+
+        // Real-time validation for Event Name
+        editEventName.addEventListener("input", () => {
+            if (isEmpty(editEventName.value)) {
+                showError(editEventName, editEventNameError, "Event name is required.");
+            } else {
+                clearError(editEventName, editEventNameError);
+            }
+        });
+
+        // Real-time validation for Event Description
+        editEventDescription.addEventListener("input", () => {
+            if (isEmpty(editEventDescription.value)) {
+                showError(editEventDescription, editEventDescriptionError, "Event description is required.");
+            } else {
+                clearError(editEventDescription, editEventDescriptionError);
+            }
+        });
+
+        // Real-time validation for Start Date
+        editEventStartDate.addEventListener("input", () => {
+            const now = new Date();
+            const startDate = new Date(editEventStartDate.value);
+            if (!editEventStartDate.value || startDate <= now) {
+                showError(editEventStartDate, editEventStartDateError, "Start date must be in the future.");
+            } else {
+                clearError(editEventStartDate, editEventStartDateError);
+            }
+
+            // If end date is set, re-validate end date
+            if (editEventEndDate.value) {
+                validateEndDate();
+            }
+        });
+
+        // Real-time validation for End Date
+        editEventEndDate.addEventListener("input", () => {
+            validateEndDate();
+        });
+
+        function validateEndDate() {
+            const startDate = new Date(editEventStartDate.value);
+            const endDate = new Date(editEventEndDate.value);
+            if (editEventEndDate.value && endDate <= startDate) {
+                showError(editEventEndDate, editEventEndDateError, "End date must be after the start date.");
+            } else {
+                // If end date is empty or valid
+                if (!editEventEndDate.value) {
+                    // No error if not required
+                    editEventEndDateError.textContent = "";
+                    editEventEndDate.classList.remove("is-invalid");
+                    editEventEndDate.classList.remove("is-valid"); // optional field
+                } else {
+                    clearError(editEventEndDate, editEventEndDateError);
+                }
+            }
+        }
+
+        // Validate Location before submission
+        function validateLocation() {
+            if (isEmpty(editEventLocationName.value) || editEventLocationName.classList.contains("is-invalid")) {
+                showError(editEventLocationName, editEventLocationError, "Please select a valid location.");
+                return false;
+            } else {
+                editEventLocationError.textContent = "";
+                if (!editEventLocationName.classList.contains("is-valid")) {
+                    editEventLocationName.classList.add("is-valid");
+                }
+                return true;
+            }
+        }
+
+        // On clicking the Save Changes button, validate all fields, then submit via AJAX if valid
+        document.getElementById("saveEditEventBtn").addEventListener("click", (e) => {
+            let isValidForm = true;
+
+            // Validate Event Name
+            if (isEmpty(editEventName.value)) {
+                showError(editEventName, editEventNameError, "Event name is required.");
+                isValidForm = false;
+            }
+
+            // Validate Event Description
+            if (isEmpty(editEventDescription.value)) {
+                showError(editEventDescription, editEventDescriptionError, "Event description is required.");
+                isValidForm = false;
+            }
+
+            // Validate Start Date
+            const now = new Date();
+            const startDate = new Date(editEventStartDate.value);
+            if (!editEventStartDate.value || startDate <= now) {
+                showError(editEventStartDate, editEventStartDateError, "Start date must be in the future.");
+                isValidForm = false;
+            }
+
+            // Validate End Date
+            const endDate = new Date(editEventEndDate.value);
+            if (editEventEndDate.value && endDate <= startDate) {
+                showError(editEventEndDate, editEventEndDateError, "End date must be after the start date.");
+                isValidForm = false;
+            }
+
+            // Validate Location
+            if (!validateLocation()) {
+                isValidForm = false;
+            }
+
+            if (!isValidForm) {
+                // If form is not valid, do not proceed
+                return;
+            }
+
+            // If form is valid, use AJAX to submit
+            const formData = new FormData(editEventForm);
+
+            fetch(editEventForm.action, {
+                method: "POST",
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: data.message || 'Event updated successfully.',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            // Optionally reload the page or close the modal
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: data.message || 'An error occurred while updating the event.',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'An unexpected error occurred. Please try again later.',
+                        confirmButtonText: 'OK'
+                    });
+                });
+        });
+    });
 </script>

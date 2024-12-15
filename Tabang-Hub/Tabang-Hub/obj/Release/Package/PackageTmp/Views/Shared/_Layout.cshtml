@@ -466,7 +466,22 @@
 
             function handleSuggestionClick(element) {
                 const eventId = element.getAttribute('data-event-id');
-                window.location.href = '@Url.Action("EventDetails", "Volunteer")' + '?eventId=' + eventId;
+                // Call the ViewEvent function
+                fetch('/Volunteer/ViewEvent?eventId=' + eventId)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Redirect to the appropriate URL
+                            window.location.href = data.url;
+                        } else {
+                            // Handle error (e.g., show a message)
+                            alert(data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while fetching the event URL.');
+                    });
                 console.log(eventId);
             }
 

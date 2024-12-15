@@ -63,10 +63,14 @@
                                 <span class="view-only">@Model.OrgInfo.orgEmail</span>
                                 <input type="email" name="orgEmail" class="form-control edit-only d-none" value="@Model.OrgInfo.orgEmail" readonly />
                             </li>
-                            <li>
+                            <li class="mt-3">
                                 <strong>Phone:</strong>
                                 <span class="view-only">@Model.OrgInfo.phoneNum</span>
-                                <input type="text" id="phoneNumInput" name="phoneNum" class="form-control edit-only d-none" value="@Model.OrgInfo.phoneNum" />
+                                <input type="text" id="phoneNumInput" name="phoneNum" class="form-control edit-only d-none"
+                                       value="@Model.OrgInfo.phoneNum"
+                                       pattern="^09\d{9}$"
+                                       title="Please enter a valid mobile number (11 digits starting with 09)" />
+                                <span class="text-danger" id="phoneNumError"></span>
                             </li>
                         </ul>
                     </div>
@@ -83,17 +87,17 @@
                                 <span class="view-only">@Model.OrgInfo.street</span>
                                 <input type="text" id="streetInput" name="street" class="form-control edit-only d-none" value="@Model.OrgInfo.street" />
                             </li>
-                            <li>
+                            <li class="mt-3">
                                 <strong>City:</strong>
                                 <span class="view-only">@Model.OrgInfo.city</span>
                                 <input type="text" id="cityInput" name="city" class="form-control edit-only d-none" value="@Model.OrgInfo.city" />
                             </li>
-                            <li>
+                            <li class="mt-3">
                                 <strong>Province:</strong>
                                 <span class="view-only">@Model.OrgInfo.province</span>
                                 <input type="text" id="provinceInput" name="province" class="form-control edit-only d-none" value="@Model.OrgInfo.province" />
                             </li>
-                            <li>
+                            <li class="mt-3">
                                 <strong>Zip Code:</strong>
                                 <span class="view-only">@Model.OrgInfo.zipCode</span>
                                 <input type="text" id="zipCodeInput" name="zipCode" class="form-control edit-only d-none" value="@Model.OrgInfo.zipCode" />
@@ -103,7 +107,7 @@
                 </div>
             </div>
 
-            <div class="col-12">
+            <div class="col-12 mt-4">
                 <div class="card shadow-sm border-0">
                     <div class="card-body">
                         <h4 class="fw-bold text-primary">About Us</h4>
@@ -275,7 +279,6 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 
 <script>
-
     function paginateEvents(containerId, eventsPerPage) {
         const container = document.getElementById(containerId);
         const events = container.getElementsByClassName("event-card");
@@ -291,7 +294,6 @@
             }
         }
 
-        // Attach pagination functions specific to each section
         window[`prevPage_${containerId}`] = () => {
             if (currentPage > 1) {
                 currentPage--;
@@ -309,7 +311,6 @@
         showPage(currentPage); // Initialize the first page
     }
 
-    // Initialize pagination on page load
     document.addEventListener("DOMContentLoaded", () => {
         paginateEvents("ongoingEvents", 4);
         paginateEvents("upcomingEvents", 4);
@@ -348,7 +349,35 @@
     }
 
     function saveChanges() {
-        const formData = new FormData(document.getElementById('orgProfileForm'));
+        const form = document.getElementById('orgProfileForm');
+
+        // Validate phone number on save
+        const phoneNumInput = document.getElementById('phoneNumInput');
+        const phoneNumError = document.getElementById('phoneNumError');
+        function isEmpty(value) {
+            return !value.trim();
+        }
+        function showError(input, errorElement, message) {
+            errorElement.textContent = message;
+            input.classList.add("is-invalid");
+            input.classList.remove("is-valid");
+        }
+        function clearError(input, errorElement) {
+            errorElement.textContent = "";
+            input.classList.remove("is-invalid");
+            input.classList.add("is-valid");
+        }
+
+        const phoneValue = phoneNumInput.value.trim();
+        const phoneRegex = /^09\d{9}$/; // 09 + 9 more digits = 11 digits total
+        if (!phoneRegex.test(phoneValue)) {
+            showError(phoneNumInput, phoneNumError, "Phone number must start with 09 and be 11 digits");
+            return; // Stop submission if invalid
+        } else {
+            clearError(phoneNumInput, phoneNumError);
+        }
+
+        const formData = new FormData(form);
 
         fetch('/Organization/EditProf', {
             method: 'POST',

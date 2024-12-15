@@ -232,7 +232,7 @@
             </div>
             <div class="modal-body">
                 <!-- Pending Donations Table -->
-                <h3>Pending Donations</h3>
+                <!--<h3>Pending Donations</h3>
                 <table class="table table-striped">
                     <thead>
                         <tr>
@@ -242,24 +242,26 @@
                         </tr>
                     </thead>
                     <tbody id="pendingDonationsTable">
-                        @if (Model.MyDonations != null && Model.MyDonations.Any())
+                        @@if (Model.MyDonations != null && Model.MyDonations.Any())
                         {
                             foreach (var items in Model.MyDonations)
                             {
                                 if (Model.donates?.status == 0)
                                 {
                                     <tr>
-                                        <td>@items.donationType</td>
-                                        <td>@items.donationUnit</td>
+                                        <td>@@items.donationType</td>
+                                        <td>@@items.donationUnit</td>
                                         <td>
-                                            @if (items.donationType == "Money")
+                                            @@if (items.donationType == "Money")
                                             {
-                                                <span>₱</span>@(items.donationQuantity?.ToString("F2") ?? "N/A") <!-- Decimal for Money -->
-                                            }
-                                            else
-                                            {
-                                                @(items.donationQuantity?.ToString("F0") ?? "N/A") <!-- Integer for others -->
-                                            }
+                                                <span>₱</span>@@(items.donationQuantity?.ToString("F2") ?? "N/A")-->
+                <!-- Decimal for Money -->
+                <!--}
+                else
+                {
+                    @@(items.donationQuantity?.ToString("F0") ?? "N/A")-->
+                <!-- Integer for others -->
+                <!--}
                                         </td>
                                     </tr>
                                 }
@@ -272,48 +274,61 @@
                             </tr>
                         }
                     </tbody>
-                </table>
-
+                </table>-->
                 <!-- Delivered Donations Table -->
-                <h3>Successful Donations</h3>
-                <table class="table table-striped">
-                    <thead>
+                <h3>My Donations</h3>
+                <table class="table table-sm table-bordered table-striped align-middle bg-white">
+                    <thead class="table-dark">
                         <tr>
-                            <th>Donation Type</th>
-                            <th>Unit</th>
-                            <th>Amount/Quantity</th>
+                            <th scope="col">Donor Name</th>
+                            <th scope="col">Total Donations</th>
+                            <th scope="col">Action</th>
                         </tr>
                     </thead>
-                    <tbody id="deliveredDonationsTable">
-                        @if (Model.MyDonations != null && Model.MyDonations.Any())
+                    <tbody>
+                        @foreach (var items in Model.donators)
                         {
-                            foreach (var items in Model.MyDonations)
+                            if (items.status == 1)
                             {
-                                if (Model.donates?.status == 1)
-                                {
-                                    <tr>
-                                        <td>@items.donationType</td>
-                                        <td>@items.donationUnit</td>
-                                        <td>
-                                            @if (items.donationType == "Money")
-                                            {
-                                                <span>₱</span>@(items.donationQuantity?.ToString("F2") ?? "N/A") <!-- Decimal for Money -->
-                                            }
-                                            else
-                                            {
-                                                @(items.donationQuantity?.ToString("F0") ?? "N/A") <!-- Integer for others -->
-                                            }
-                                        </td>
-                                    </tr>
-                                }
+                                <tr>
+                                    <td>@items.donorName</td>
+                                    <td>@items.donationQuantity</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <button type="button" class="btn btn-sm btn-primary" onclick="viewMyDonation('@items.referenceNum')">
+                                                <i class="bi bi-eye"></i> View
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
                             }
                         }
-                        else
-                        {
-                            <tr>
-                                <td colspan="3" class="text-center">No successful donations available.</td>
-                            </tr>
-                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- My Donation Details Modal -->
+<div class="modal fade" id="myDonationDetailsModal" tabindex="-1" aria-labelledby="myDonationDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="myDonationDetailsModalLabel">My Donation Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-sm table-bordered table-striped align-middle bg-white">
+                    <thead class="table-dark">
+                        <tr>
+                            <th scope="col">Donation Type</th>
+                            <th scope="col">Unit</th>
+                            <th scope="col">Amount/Quantity</th>
+                        </tr>
+                    </thead>
+                    <tbody id="myDonationDetails">
+                        <!-- Donation details will be loaded here dynamically -->
                     </tbody>
                 </table>
             </div>
@@ -462,4 +477,43 @@
             });
         });
     });
+
+    function viewMyDonation(refNum) {
+        $.ajax({
+            url: '/Organization/MyDonation',
+            type: 'GET',
+            data: { refNum: refNum },
+            success: function (response) {
+                if (response.success) {
+                    const donationDetailsTable = $('#myDonationDetails');
+
+                    // Clear existing rows
+                    donationDetailsTable.empty();
+
+                    // Populate Donation Details
+                    response.data.forEach(function (item) {
+                        const row = `
+                        <tr>
+                            <td>${item.donationType}</td>
+                            <td>${item.donationUnit || 'N/A'}</td>
+                            <td>${item.donationType === 'Money'
+                                ? '₱' + (item.donationQuantity ? item.donationQuantity.toFixed(2) : 'N/A')
+                                : (item.donationQuantity ? item.donationQuantity.toFixed(0) : 'N/A')
+                            }</td>
+                        </tr>`;
+                        donationDetailsTable.append(row);
+                    });
+
+                    // Show the modal
+                    $('#myDonationDetailsModal').modal('show');
+                } else {
+                    alert(response.message || 'Unable to fetch donation details.');
+                }
+            },
+            error: function (error) {
+                console.error('Error:', error);
+                alert('An error occurred while fetching the donations. Please try again.');
+            }
+        });
+    }
 </script>
