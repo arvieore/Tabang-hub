@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -347,14 +348,74 @@ namespace Tabang_Hub.Controllers
                 return Json(new { success = false, message = "Skill already exists." });
             }
 
+            // Allowed image types: PNG and JPEG
+            var allowedTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    {
+        "image/png",
+        "image/jpeg"
+    };
+
+            const int targetWidth = 800;  // Desired width
+            const int targetHeight = 600; // Desired height
+
             if (skillImage != null && skillImage.ContentLength > 0)
             {
+                if (!allowedTypes.Contains(skillImage.ContentType))
+                {
+                    return Json(new { success = false, message = "Only PNG and JPEG images are allowed." });
+                }
+
                 var directoryPath = Server.MapPath("~/Content/SkillImages");
                 Directory.CreateDirectory(directoryPath);
 
                 var fileName = Path.GetFileName(skillImage.FileName);
                 var path = Path.Combine(directoryPath, fileName);
-                skillImage.SaveAs(path);
+
+                // Resize and save the image
+                using (var originalImage = System.Drawing.Image.FromStream(skillImage.InputStream))
+                {
+                    using (var resizedImage = new Bitmap(targetWidth, targetHeight))
+                    {
+                        using (var graphics = Graphics.FromImage(resizedImage))
+                        {
+                            graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                            graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                            graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+
+                            // Draw resized image
+                            graphics.DrawImage(originalImage, 0, 0, targetWidth, targetHeight);
+                        }
+
+                        if (skillImage.ContentType.Equals("image/jpeg", StringComparison.OrdinalIgnoreCase))
+                        {
+                            // Compress and save as JPEG
+                            var qualityParam = new System.Drawing.Imaging.EncoderParameter(
+                                System.Drawing.Imaging.Encoder.Quality, 75L); // Adjust compression as needed
+
+                            var jpegCodec = System.Drawing.Imaging.ImageCodecInfo
+                                .GetImageDecoders()
+                                .FirstOrDefault(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
+
+                            if (jpegCodec != null)
+                            {
+                                var encoderParams = new System.Drawing.Imaging.EncoderParameters(1);
+                                encoderParams.Param[0] = qualityParam;
+                                resizedImage.Save(path, jpegCodec, encoderParams);
+                            }
+                            else
+                            {
+                                // Fallback if JPEG encoder not found
+                                resizedImage.Save(path, System.Drawing.Imaging.ImageFormat.Jpeg);
+                            }
+                        }
+                        else
+                        {
+                            // Save as PNG
+                            resizedImage.Save(path, System.Drawing.Imaging.ImageFormat.Png);
+                        }
+                    }
+                }
+
                 skill.skillImage = fileName;
 
                 string errMsg = string.Empty;
@@ -366,7 +427,7 @@ namespace Tabang_Hub.Controllers
                     foreach (var usr in users)
                     {
                         var str = $"New skill has been created named {skll.skillName}!";
-                        if (_organizationManager.SentNotif(usr.userId, UserId, UserId, "Add Skill", str, 0, ref ErrorMessage) != ErrorCode.Success)
+                        if (_organizationManager.SentNotif(usr.userId, UserId, UserId, "Add Skill", str, 0, ref errMsg) != ErrorCode.Success)
                         {
                             return Json(new { success = false, message = "Failed to send notifications." });
                         }
@@ -382,6 +443,7 @@ namespace Tabang_Hub.Controllers
 
             return Json(new { success = false, message = "An error occurred while adding the skill." });
         }
+
         [HttpPost]
         public JsonResult EditSkill(int skillId, string skillName, HttpPostedFileBase skillImage)
         {
@@ -415,10 +477,25 @@ namespace Tabang_Hub.Controllers
                     return Json(new { success = false, message = "Skill not found." });
                 }
 
-                // Handle image update if a new image is uploaded
+                // Allowed image types: PNG and JPEG
+                var allowedTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "image/png",
+            "image/jpeg"
+        };
+
+                const int targetWidth = 800;  // Desired width
+                const int targetHeight = 600; // Desired height
                 string imagePath = existingSkill.skillImage; // Keep the current image by default
+
+                // Handle image update if a new image is uploaded
                 if (skillImage != null && skillImage.ContentLength > 0)
                 {
+                    if (!allowedTypes.Contains(skillImage.ContentType))
+                    {
+                        return Json(new { success = false, message = "Only PNG and JPEG images are allowed." });
+                    }
+
                     var directoryPath = Server.MapPath("~/Content/SkillImages/");
                     if (!Directory.Exists(directoryPath))
                     {
@@ -427,7 +504,52 @@ namespace Tabang_Hub.Controllers
 
                     var fileName = Path.GetFileName(skillImage.FileName);
                     var path = Path.Combine(directoryPath, fileName);
-                    skillImage.SaveAs(path);
+
+                    // Resize and save the image
+                    using (var originalImage = System.Drawing.Image.FromStream(skillImage.InputStream))
+                    {
+                        using (var resizedImage = new Bitmap(targetWidth, targetHeight))
+                        {
+                            using (var graphics = Graphics.FromImage(resizedImage))
+                            {
+                                graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                                graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                                graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+
+                                // Draw resized image
+                                graphics.DrawImage(originalImage, 0, 0, targetWidth, targetHeight);
+                            }
+
+                            if (skillImage.ContentType.Equals("image/jpeg", StringComparison.OrdinalIgnoreCase))
+                            {
+                                // Compress and save as JPEG
+                                var qualityParam = new System.Drawing.Imaging.EncoderParameter(
+                                    System.Drawing.Imaging.Encoder.Quality, 75L);
+
+                                var jpegCodec = System.Drawing.Imaging.ImageCodecInfo
+                                    .GetImageDecoders()
+                                    .FirstOrDefault(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
+
+                                if (jpegCodec != null)
+                                {
+                                    var encoderParams = new System.Drawing.Imaging.EncoderParameters(1);
+                                    encoderParams.Param[0] = qualityParam;
+                                    resizedImage.Save(path, jpegCodec, encoderParams);
+                                }
+                                else
+                                {
+                                    // Fallback if JPEG encoder not found
+                                    resizedImage.Save(path, System.Drawing.Imaging.ImageFormat.Jpeg);
+                                }
+                            }
+                            else
+                            {
+                                // Save as PNG
+                                resizedImage.Save(path, System.Drawing.Imaging.ImageFormat.Png);
+                            }
+                        }
+                    }
+
                     imagePath = fileName; // Update imagePath to the new file name
                 }
 
@@ -439,8 +561,9 @@ namespace Tabang_Hub.Controllers
 
                     foreach (var vol in volunteerSkill)
                     {
-                        var sendNotif = _organizationManager.SentNotif((int)vol.userId, UserId, (int)vol.skillId, "Edit Skill", $"The {vol.Skills.skillName} skill has been updated and removed from your skill set.", 0, ref errMsg);
+                        _organizationManager.SentNotif((int)vol.userId, UserId, (int)vol.skillId, "Edit Skill", $"The {vol.Skills.skillName} skill has been updated and removed from your skill set.", 0, ref errMsg);
                     }
+
                     return Json(new { success = true, message = "Skill updated successfully." });
                 }
                 else
@@ -534,10 +657,12 @@ namespace Tabang_Hub.Controllers
                 var listofUserDonated = _organizationManager.ListOfUserDonated((int)organizationId);
                 var allOrgAcc1 = _adminManager.GetOrganizationAccount();
                 var donationList = _organizationManager.GetListOfDonationEventByUserId((int)organizationId);
+                var listOfDoneEvents = _organizationManager.ListOfDoneEvents((int)organizationId);
                 var listOfvlntr = new List<Volunteers>();
 
                 // Dictionary to accumulate volunteer participation stats
                 var volunteerStats = new Dictionary<int, TopVolunteer>();
+                var volunteerStats1 = new Dictionary<int, TopVolunteer>();
                 var donatorStats = new Dictionary<int, TopDonators>();
 
                 foreach (var evnt in events)
@@ -623,6 +748,57 @@ namespace Tabang_Hub.Controllers
                     }
                 }
 
+                foreach (var doneEventsItem in listOfDoneEvents)
+                {
+                    // Retrieve volunteers for this event
+                    var volunteerItems = _organizationManager.GetTotalVolunteerHistoryByEventId(doneEventsItem.eventId);
+
+                    // Retrieve event image object
+                    var evntImg = _organizationManager.GetEventImageByEventId(doneEventsItem.eventId);
+
+                    // Retrieve users who donated (not currently used in logic)
+                    var userDntd = _organizationManager.ListOfUserDonated(doneEventsItem.eventId);
+
+                    foreach (var volItem in volunteerItems)
+                    {
+                        // Only proceed if volunteer's status is 1
+                        if (volItem.attended == 1)
+                        {
+                            int userId = (int)volItem.userId;
+
+                            // Check if this volunteer is already in the dictionary
+                            if (!volunteerStats1.TryGetValue(userId, out var topVol))
+                            {
+                                // If not, fetch volunteer info and create a new TopVolunteer entry
+                                var volInfo = _organizationManager.GetVolunteerInfoByUserId(userId);
+                                topVol = new TopVolunteer
+                                {
+                                    VolunteerId = userId,
+                                    Name = volInfo?.fName ?? "Unknown"
+                                };
+                                volunteerStats1[userId] = topVol;
+                            }
+
+                            // Update this volunteer's participation stats
+                            volunteerStats1[userId].TotalEventsParticipated++;
+                            volunteerStats1[userId].EventIds.Add(doneEventsItem.eventId);
+
+                            // If an event image is available, store it
+                            // Assuming evntImg.eventImage is the string property holding the image URL or path
+                            if (evntImg != null && !string.IsNullOrEmpty(evntImg.eventImage))
+                            {
+                                volunteerStats1[userId].EventImages.Add(evntImg.eventImage);
+                            }
+                        }
+                    }
+                }
+
+                // After processing all events, sort volunteers by their participation (descending) and take top 5
+                var top5Volunteers = volunteerStats1.Values
+                    .OrderByDescending(v => v.TotalEventsParticipated)
+                    .Take(5)
+                    .ToList();
+
                 // Get top 5 volunteers by total events participated
                 var topVolunteersList = volunteerStats.Values
                     .OrderByDescending(v => v.TotalEventsParticipated)
@@ -647,7 +823,7 @@ namespace Tabang_Hub.Controllers
                     totalSkills = totalSkills1,
                     orgEventHistory = eventHistory,
                     recentDonators = userDonated,
-                    topVolunteers = topVolunteersList, // Assign the top volunteers list here
+                    topVolunteers = top5Volunteers, // Assign the top volunteers list here
                     volunteers = listOfvlntr,
                     topDonators = topDonators,
                     listOfDonationEvent = donationList,
@@ -873,11 +1049,11 @@ namespace Tabang_Hub.Controllers
 
             foreach (var evnt in events)
             {
-                var volunteers = _organizationManager.GetVolunteersByEventId(evnt.Event_Id);
+                var volunteers = _organizationManager.GetVolunteerHistoryByEventId(evnt.Event_Id);
 
                 foreach (var volunteer in volunteers)
                 {
-                    if (volunteer.Status != 0) // Check if the volunteer is active
+                    if (volunteer.attended != 0) // Check if the volunteer is active
                     {
                         if (volunteerParticipation.ContainsKey((int)volunteer.userId))
                         {

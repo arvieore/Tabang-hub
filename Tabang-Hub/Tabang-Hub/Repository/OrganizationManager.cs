@@ -316,10 +316,15 @@ namespace Tabang_Hub.Repository
                                 .OrderByDescending(m => m.dateStart) // Replace `Event_Date` with the appropriate property for ordering
                                 .ToList();
         }
+        public List<Donates> GetDonatesByDonationEventId(int donationEventId)
+        {
+            return _donates._table.Where(m => m.eventId == donationEventId).ToList();
+        }
 
         public decimal GetTotalDonationByUserId(int userId)
         {
             var events = ListOfEvents(userId);
+            var donationEvent = GetListOfDonationEventByUserId(userId);
 
             decimal? totalDonation = 0;
 
@@ -333,6 +338,24 @@ namespace Tabang_Hub.Repository
                 }
             }
 
+            foreach (var donationEventItem in donationEvent)
+            {
+                var donates = GetDonatedByDonationEventId(donationEventItem.donationEventId);
+
+                foreach (var donatesItem in donates)
+                {
+                    var donated = GetDonatedByDonatesId(donatesItem.donatesId);
+
+                    foreach (var donatedItem in donated)
+                    {
+                        if (donatedItem.donationType == "Money")
+                        {
+                            totalDonation += donatedItem.donationQuantity;
+                        }
+                    }
+                }
+            }
+
             return (decimal)totalDonation;
         }
         public int GetTotalVolunteerByUserId(int userId)
@@ -343,7 +366,7 @@ namespace Tabang_Hub.Repository
 
             foreach (var totalEvent in events)
             {
-                var volunteers = GetTotalVolunteerByEventId(totalEvent.Event_Id);
+                var volunteers = GetTotalVolunteerHistoryByEventId(totalEvent.Event_Id);
 
                 totalVolunteer += volunteers.Count();
 
@@ -364,7 +387,10 @@ namespace Tabang_Hub.Repository
 
             return eventSummary;
         }
-
+        public List<OrgEvents> ListOfDoneEvents(int userId)
+        { 
+            return _orgEvents._table.Where(m => m.userId == userId && m.dateEnd <= DateTime.Now).ToList();
+        }
         public Dictionary<int, int> GetDonationEventSummaryByUserId(int userId)
         {
             // Donation Events from the main table
@@ -418,7 +444,7 @@ namespace Tabang_Hub.Repository
             foreach (var eventItem in events)
             {
                 // Assuming you have a method GetVolunteersByEventId that retrieves all volunteers for an event
-                var volunteers = GetVolunteersByEventId(eventItem.Event_Id);
+                var volunteers = GetVolunteerHistoryByEventId(eventItem.Event_Id);
 
                 // For each volunteer, get their skills
                 foreach (var volunteer in volunteers)
@@ -433,7 +459,7 @@ namespace Tabang_Hub.Repository
 
                         foreach (var require in req)
                         {
-                            if (skill.skillId == require.skillId && volunteer.Status == 1)
+                            if (skill.skillId == require.skillId && volunteer.attended == 1)
                             {
                                 if (skillFrequency.ContainsKey(skill.Skills.skillName)) // Assuming SkillName is a string representing the skill's name
                                 {

@@ -125,29 +125,137 @@ namespace Tabang_Hub.Controllers
         {
             try
             {
+                // Allowed image types: PNG and JPEG
+                var allowedTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "image/png",
+            "image/jpeg"
+        };
+
+                const int targetWidth = 800;  // Set desired width
+                const int targetHeight = 600; // Set desired height
+
                 // Handle Profile Picture Upload
                 if (profilePic != null && profilePic.ContentLength > 0)
                 {
+                    if (!allowedTypes.Contains(profilePic.ContentType))
+                    {
+                        return Json(new { success = false, message = "Only PNG and JPEG images are allowed for the profile picture." });
+                    }
+
                     var profileFileName = Path.GetFileName(profilePic.FileName);
-                    var profileSavePath = Path.Combine(Server.MapPath("~/Content/IdPicture/"), profileFileName);
+                    var profileDir = Server.MapPath("~/Content/IdPicture/");
+                    var profileSavePath = Path.Combine(profileDir, profileFileName);
 
-                    if (!Directory.Exists(Server.MapPath("~/Content/IdPicture/")))
-                        Directory.CreateDirectory(Server.MapPath("~/Content/IdPicture/"));
+                    if (!Directory.Exists(profileDir))
+                        Directory.CreateDirectory(profileDir);
 
-                    profilePic.SaveAs(profileSavePath);
+                    // Resize and save the profile image
+                    using (var originalImage = System.Drawing.Image.FromStream(profilePic.InputStream))
+                    {
+                        using (var resizedImage = new Bitmap(targetWidth, targetHeight))
+                        {
+                            using (var graphics = Graphics.FromImage(resizedImage))
+                            {
+                                graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                                graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                                graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+
+                                graphics.DrawImage(originalImage, 0, 0, targetWidth, targetHeight);
+                            }
+
+                            if (profilePic.ContentType.Equals("image/jpeg", StringComparison.OrdinalIgnoreCase))
+                            {
+                                // Compress and save as JPEG
+                                var qualityParam = new System.Drawing.Imaging.EncoderParameter(
+                                    System.Drawing.Imaging.Encoder.Quality, 75L); // Adjust quality if needed
+
+                                var jpegCodec = System.Drawing.Imaging.ImageCodecInfo
+                                    .GetImageDecoders()
+                                    .FirstOrDefault(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
+
+                                if (jpegCodec != null)
+                                {
+                                    var encoderParams = new System.Drawing.Imaging.EncoderParameters(1);
+                                    encoderParams.Param[0] = qualityParam;
+                                    resizedImage.Save(profileSavePath, jpegCodec, encoderParams);
+                                }
+                                else
+                                {
+                                    // Fallback if JPEG encoder not found
+                                    resizedImage.Save(profileSavePath, System.Drawing.Imaging.ImageFormat.Jpeg);
+                                }
+                            }
+                            else
+                            {
+                                // Save as PNG
+                                resizedImage.Save(profileSavePath, System.Drawing.Imaging.ImageFormat.Png);
+                            }
+                        }
+                    }
+
                     orginfo.profilePath = "~/Content/IdPicture/" + profileFileName;
                 }
 
                 // Handle Cover Photo Upload
                 if (coverPhoto != null && coverPhoto.ContentLength > 0)
                 {
+                    if (!allowedTypes.Contains(coverPhoto.ContentType))
+                    {
+                        return Json(new { success = false, message = "Only PNG and JPEG images are allowed for the cover photo." });
+                    }
+
                     var coverFileName = Path.GetFileName(coverPhoto.FileName);
-                    var coverSavePath = Path.Combine(Server.MapPath("~/Content/CoverPhotos/"), coverFileName);
+                    var coverDir = Server.MapPath("~/Content/CoverPhotos/");
+                    var coverSavePath = Path.Combine(coverDir, coverFileName);
 
-                    if (!Directory.Exists(Server.MapPath("~/Content/CoverPhotos/")))
-                        Directory.CreateDirectory(Server.MapPath("~/Content/CoverPhotos/"));
+                    if (!Directory.Exists(coverDir))
+                        Directory.CreateDirectory(coverDir);
 
-                    coverPhoto.SaveAs(coverSavePath);
+                    // Resize and save the cover image
+                    using (var originalImage = System.Drawing.Image.FromStream(coverPhoto.InputStream))
+                    {
+                        using (var resizedImage = new Bitmap(targetWidth, targetHeight))
+                        {
+                            using (var graphics = Graphics.FromImage(resizedImage))
+                            {
+                                graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                                graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                                graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+
+                                graphics.DrawImage(originalImage, 0, 0, targetWidth, targetHeight);
+                            }
+
+                            if (coverPhoto.ContentType.Equals("image/jpeg", StringComparison.OrdinalIgnoreCase))
+                            {
+                                // Compress and save as JPEG
+                                var qualityParam = new System.Drawing.Imaging.EncoderParameter(
+                                    System.Drawing.Imaging.Encoder.Quality, 75L); // Adjust quality if needed
+
+                                var jpegCodec = System.Drawing.Imaging.ImageCodecInfo
+                                    .GetImageDecoders()
+                                    .FirstOrDefault(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
+
+                                if (jpegCodec != null)
+                                {
+                                    var encoderParams = new System.Drawing.Imaging.EncoderParameters(1);
+                                    encoderParams.Param[0] = qualityParam;
+                                    resizedImage.Save(coverSavePath, jpegCodec, encoderParams);
+                                }
+                                else
+                                {
+                                    // Fallback if JPEG encoder not found
+                                    resizedImage.Save(coverSavePath, System.Drawing.Imaging.ImageFormat.Jpeg);
+                                }
+                            }
+                            else
+                            {
+                                // Save as PNG
+                                resizedImage.Save(coverSavePath, System.Drawing.Imaging.ImageFormat.Png);
+                            }
+                        }
+                    }
+
                     orginfo.coverPhoto = "~/Content/CoverPhotos/" + coverFileName;
                 }
 
@@ -298,6 +406,13 @@ namespace Tabang_Hub.Controllers
                     status = 1 // Assuming 1 means 'active' or 'upcoming'
                 };
 
+                // Allowed image types: PNG and JPEG
+                var allowedTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "image/png",
+            "image/jpeg"
+        };
+
                 // Image processing with resizing and compression
                 List<string> uploadedFiles = new List<string>();
                 const int targetWidth = 800;  // Set desired width
@@ -312,10 +427,15 @@ namespace Tabang_Hub.Controllers
                     {
                         if (image != null && image.ContentLength > 0)
                         {
+                            // Check if the file is either PNG or JPEG
+                            if (!allowedTypes.Contains(image.ContentType))
+                            {
+                                return Json(new { success = false, message = "Only PNG and JPEG images are allowed." });
+                            }
+
                             var fileName = Path.GetFileName(image.FileName);
                             var filePath = Path.Combine(imagePath, fileName);
 
-                            // Resize and compress image before saving
                             using (var originalImage = System.Drawing.Image.FromStream(image.InputStream))
                             {
                                 using (var resizedImage = new Bitmap(targetWidth, targetHeight))
@@ -326,12 +446,16 @@ namespace Tabang_Hub.Controllers
                                         graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
                                         graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
 
-                                        // Draw resized image
+                                        // Draw the resized image
                                         graphics.DrawImage(originalImage, 0, 0, targetWidth, targetHeight);
+                                    }
 
-                                        // Compress and save
+                                    // Determine if we should save as JPEG or PNG
+                                    if (image.ContentType.Equals("image/jpeg", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        // Compress and save as JPEG
                                         var qualityParam = new System.Drawing.Imaging.EncoderParameter(
-                                            System.Drawing.Imaging.Encoder.Quality, 75L); // Adjust compression level
+                                            System.Drawing.Imaging.Encoder.Quality, 75L); // Adjust quality as needed
 
                                         var jpegCodec = System.Drawing.Imaging.ImageCodecInfo
                                             .GetImageDecoders()
@@ -341,16 +465,22 @@ namespace Tabang_Hub.Controllers
                                         {
                                             var encoderParams = new System.Drawing.Imaging.EncoderParameters(1);
                                             encoderParams.Param[0] = qualityParam;
-
                                             resizedImage.Save(filePath, jpegCodec, encoderParams);
                                         }
                                         else
                                         {
-                                            resizedImage.Save(filePath); // Fallback if no encoder found
+                                            // Fallback if JPEG encoder not found
+                                            resizedImage.Save(filePath, System.Drawing.Imaging.ImageFormat.Jpeg);
                                         }
+                                    }
+                                    else
+                                    {
+                                        // Save as PNG
+                                        resizedImage.Save(filePath, System.Drawing.Imaging.ImageFormat.Png);
                                     }
                                 }
                             }
+
                             uploadedFiles.Add(fileName);
                         }
                     }
@@ -367,7 +497,7 @@ namespace Tabang_Hub.Controllers
 
                 foreach (var fltr in filtered.SortedByRating)
                 {
-                    if (_organizationManager.SentNotif(fltr.userId, UserId, newEvent.eventId, "Create Event", $"{user.orgName} create a new event that matched your skills!", 0, ref ErrorMessage) != ErrorCode.Success)
+                    if (_organizationManager.SentNotif(fltr.userId, UserId, newEvent.eventId, "Create Event", $"{user.orgName} created a new event that matched your skills!", 0, ref ErrorMessage) != ErrorCode.Success)
                     {
                         return Json(new { success = false, message = ErrorMessage });
                     }
@@ -509,6 +639,15 @@ namespace Tabang_Hub.Controllers
                     return Json(new { success = false, message = "At least one image is required." });
                 }
 
+                // Allowed image types: PNG and JPEG
+                var allowedTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "image/png",
+            "image/jpeg"
+        };
+
+                const int targetWidth = 800;  // Set desired width
+                const int targetHeight = 600; // Set desired height
                 List<string> uploadedFiles = new List<string>();
 
                 // Image processing
@@ -521,9 +660,58 @@ namespace Tabang_Hub.Controllers
                     {
                         if (image != null && image.ContentLength > 0)
                         {
+                            if (!allowedTypes.Contains(image.ContentType))
+                            {
+                                return Json(new { success = false, message = "Only PNG and JPEG images are allowed." });
+                            }
+
                             var fileName = Path.GetFileName(image.FileName);
                             var filePath = Path.Combine(imagePath, fileName);
-                            image.SaveAs(filePath);
+
+                            // Resize and save the image
+                            using (var originalImage = System.Drawing.Image.FromStream(image.InputStream))
+                            {
+                                using (var resizedImage = new Bitmap(targetWidth, targetHeight))
+                                {
+                                    using (var graphics = Graphics.FromImage(resizedImage))
+                                    {
+                                        graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                                        graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                                        graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+
+                                        // Draw resized image
+                                        graphics.DrawImage(originalImage, 0, 0, targetWidth, targetHeight);
+                                    }
+
+                                    if (image.ContentType.Equals("image/jpeg", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        // Compress and save as JPEG
+                                        var qualityParam = new System.Drawing.Imaging.EncoderParameter(
+                                            System.Drawing.Imaging.Encoder.Quality, 75L); // Adjust compression level
+                                        var jpegCodec = System.Drawing.Imaging.ImageCodecInfo
+                                            .GetImageDecoders()
+                                            .FirstOrDefault(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
+
+                                        if (jpegCodec != null)
+                                        {
+                                            var encoderParams = new System.Drawing.Imaging.EncoderParameters(1);
+                                            encoderParams.Param[0] = qualityParam;
+                                            resizedImage.Save(filePath, jpegCodec, encoderParams);
+                                        }
+                                        else
+                                        {
+                                            // Fallback if no encoder found
+                                            resizedImage.Save(filePath, System.Drawing.Imaging.ImageFormat.Jpeg);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // Save as PNG
+                                        resizedImage.Save(filePath, System.Drawing.Imaging.ImageFormat.Png);
+                                    }
+                                }
+                            }
+
                             uploadedFiles.Add(fileName);
                         }
                     }
@@ -699,37 +887,97 @@ namespace Tabang_Hub.Controllers
         [HttpPost]
         public JsonResult EditDonationEvent(DonationEvent donationEvent, HttpPostedFileBase[] images)
         {
-            // Your logic here
-            // donationEvent.donationEventId, donationEvent.donationEventName, etc. will be populated
-            // images will contain any uploaded files
-            // Example:
-            List<string> uploadedFiles = new List<string>();
-
-            // Image processing
-            if (images != null && images.Length > 0)
+            try
             {
-                var imagePath = Server.MapPath("~/Content/Events");
-                Directory.CreateDirectory(imagePath); // Create directory if it doesn't exist
+                // Allowed image types: PNG and JPEG
+                var allowedTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "image/png",
+            "image/jpeg"
+        };
 
-                foreach (var image in images)
+                const int targetWidth = 800;  // Set desired width
+                const int targetHeight = 600; // Set desired height
+                List<string> uploadedFiles = new List<string>();
+
+                // Image processing
+                if (images != null && images.Length > 0)
                 {
-                    if (image != null && image.ContentLength > 0)
+                    var imagePath = Server.MapPath("~/Content/Events");
+                    Directory.CreateDirectory(imagePath); // Create directory if it doesn't exist
+
+                    foreach (var image in images)
                     {
-                        var fileName = Path.GetFileName(image.FileName);
-                        var filePath = Path.Combine(imagePath, fileName);
-                        image.SaveAs(filePath);
-                        uploadedFiles.Add(fileName);
+                        if (image != null && image.ContentLength > 0)
+                        {
+                            if (!allowedTypes.Contains(image.ContentType))
+                            {
+                                return Json(new { success = false, message = "Only PNG and JPEG images are allowed." });
+                            }
+
+                            var fileName = Path.GetFileName(image.FileName);
+                            var filePath = Path.Combine(imagePath, fileName);
+
+                            // Resize and save the image
+                            using (var originalImage = System.Drawing.Image.FromStream(image.InputStream))
+                            {
+                                using (var resizedImage = new Bitmap(targetWidth, targetHeight))
+                                {
+                                    using (var graphics = Graphics.FromImage(resizedImage))
+                                    {
+                                        graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                                        graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                                        graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+
+                                        // Draw resized image
+                                        graphics.DrawImage(originalImage, 0, 0, targetWidth, targetHeight);
+                                    }
+
+                                    if (image.ContentType.Equals("image/jpeg", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        // Compress and save as JPEG
+                                        var qualityParam = new System.Drawing.Imaging.EncoderParameter(
+                                            System.Drawing.Imaging.Encoder.Quality, 75L); // Adjust compression level
+                                        var jpegCodec = System.Drawing.Imaging.ImageCodecInfo
+                                            .GetImageDecoders()
+                                            .FirstOrDefault(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
+
+                                        if (jpegCodec != null)
+                                        {
+                                            var encoderParams = new System.Drawing.Imaging.EncoderParameters(1);
+                                            encoderParams.Param[0] = qualityParam;
+                                            resizedImage.Save(filePath, jpegCodec, encoderParams);
+                                        }
+                                        else
+                                        {
+                                            // Fallback if no encoder found
+                                            resizedImage.Save(filePath, System.Drawing.Imaging.ImageFormat.Jpeg);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // Save as PNG
+                                        resizedImage.Save(filePath, System.Drawing.Imaging.ImageFormat.Png);
+                                    }
+                                }
+                            }
+
+                            uploadedFiles.Add(fileName);
+                        }
                     }
                 }
-            }
 
-            if (_organizationManager.EditDonationEvent(donationEvent, uploadedFiles, ref ErrorMessage) != ErrorCode.Success)
-            {
-                return Json(new { success = false, message = "Validation failed." });
+                if (_organizationManager.EditDonationEvent(donationEvent, uploadedFiles, ref ErrorMessage) != ErrorCode.Success)
+                {
+                    return Json(new { success = false, message = "Validation failed." });
+                }
+
+                return Json(new { success = true, message = "Event updated successfully." });
             }
-          
-            return Json(new { success = true, message = "Event updated successfully." });
-          
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
         [HttpGet]
         public JsonResult MyDonation(string refNum)
@@ -1452,8 +1700,18 @@ namespace Tabang_Hub.Controllers
                     }
                 }
 
-                // Image processing
+                // Allowed image types: PNG and JPEG
+                var allowedTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "image/png",
+            "image/jpeg"
+        };
+
+                // Image processing with resizing and compression
                 List<string> uploadedFiles = new List<string>();
+                const int targetWidth = 800;  // Desired width
+                const int targetHeight = 600; // Desired height
+
                 if (eventImages != null && eventImages.Length > 0)
                 {
                     var imagePath = Server.MapPath("~/Content/Events");
@@ -1463,9 +1721,60 @@ namespace Tabang_Hub.Controllers
                     {
                         if (image != null && image.ContentLength > 0)
                         {
+                            // Check if the file is either PNG or JPEG
+                            if (!allowedTypes.Contains(image.ContentType))
+                            {
+                                return Json(new { success = false, message = "Only PNG and JPEG images are allowed." });
+                            }
+
                             var fileName = Path.GetFileName(image.FileName);
                             var filePath = Path.Combine(imagePath, fileName);
-                            image.SaveAs(filePath);
+
+                            using (var originalImage = System.Drawing.Image.FromStream(image.InputStream))
+                            {
+                                using (var resizedImage = new Bitmap(targetWidth, targetHeight))
+                                {
+                                    using (var graphics = Graphics.FromImage(resizedImage))
+                                    {
+                                        graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                                        graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                                        graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+
+                                        // Draw resized image
+                                        graphics.DrawImage(originalImage, 0, 0, targetWidth, targetHeight);
+                                    }
+
+                                    // Determine if we should save as JPEG or PNG
+                                    if (image.ContentType.Equals("image/jpeg", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        // Compress and save as JPEG
+                                        var qualityParam = new System.Drawing.Imaging.EncoderParameter(
+                                            System.Drawing.Imaging.Encoder.Quality, 75L); // Adjust quality as needed
+
+                                        var jpegCodec = System.Drawing.Imaging.ImageCodecInfo
+                                            .GetImageDecoders()
+                                            .FirstOrDefault(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
+
+                                        if (jpegCodec != null)
+                                        {
+                                            var encoderParams = new System.Drawing.Imaging.EncoderParameters(1);
+                                            encoderParams.Param[0] = qualityParam;
+                                            resizedImage.Save(filePath, jpegCodec, encoderParams);
+                                        }
+                                        else
+                                        {
+                                            // Fallback if JPEG encoder not found
+                                            resizedImage.Save(filePath, System.Drawing.Imaging.ImageFormat.Jpeg);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // Save as PNG
+                                        resizedImage.Save(filePath, System.Drawing.Imaging.ImageFormat.Png);
+                                    }
+                                }
+                            }
+
                             uploadedFiles.Add(fileName);
                         }
                     }
@@ -1676,9 +1985,11 @@ namespace Tabang_Hub.Controllers
             var listofUserDonated = _organizationManager.ListOfUserDonated(UserId);
             var donationList = _organizationManager.GetListOfDonationEventByUserId(UserId);
             var listOfvlntr = new List<Volunteers>();
+            var listOfDoneEvents = _organizationManager.ListOfDoneEvents(UserId);
 
             // Dictionary to accumulate volunteer participation stats
             var volunteerStats = new Dictionary<int, TopVolunteer>();
+            var volunteerStats1 = new Dictionary<int, TopVolunteer>();
             var donatorStats = new Dictionary<int, TopDonators>();
 
             foreach (var evnt in events)
@@ -1764,6 +2075,57 @@ namespace Tabang_Hub.Controllers
                 }
             }
 
+            foreach (var doneEventsItem in listOfDoneEvents)
+            {
+                // Retrieve volunteers for this event
+                var volunteerItems = _organizationManager.GetTotalVolunteerHistoryByEventId(doneEventsItem.eventId);
+
+                // Retrieve event image object
+                var evntImg = _organizationManager.GetEventImageByEventId(doneEventsItem.eventId);
+
+                // Retrieve users who donated (not currently used in logic)
+                var userDntd = _organizationManager.ListOfUserDonated(doneEventsItem.eventId);
+
+                foreach (var volItem in volunteerItems)
+                {
+                    // Only proceed if volunteer's status is 1
+                    if (volItem.attended == 1)
+                    {
+                        int userId = (int)volItem.userId;
+
+                        // Check if this volunteer is already in the dictionary
+                        if (!volunteerStats1.TryGetValue(userId, out var topVol))
+                        {
+                            // If not, fetch volunteer info and create a new TopVolunteer entry
+                            var volInfo = _organizationManager.GetVolunteerInfoByUserId(userId);
+                            topVol = new TopVolunteer
+                            {
+                                VolunteerId = userId,
+                                Name = volInfo?.fName ?? "Unknown"
+                            };
+                            volunteerStats1[userId] = topVol;
+                        }
+
+                        // Update this volunteer's participation stats
+                        volunteerStats1[userId].TotalEventsParticipated++;
+                        volunteerStats1[userId].EventIds.Add(doneEventsItem.eventId);
+
+                        // If an event image is available, store it
+                        // Assuming evntImg.eventImage is the string property holding the image URL or path
+                        if (evntImg != null && !string.IsNullOrEmpty(evntImg.eventImage))
+                        {
+                            volunteerStats1[userId].EventImages.Add(evntImg.eventImage);
+                        }
+                    }
+                }
+            }
+
+            // After processing all events, sort volunteers by their participation (descending) and take top 5
+            var top5Volunteers = volunteerStats1.Values
+                .OrderByDescending(v => v.TotalEventsParticipated)
+                .Take(5)
+                .ToList();
+
             // Get top 5 volunteers by total events participated
             var topVolunteersList = volunteerStats.Values
                 .OrderByDescending(v => v.TotalEventsParticipated)
@@ -1788,7 +2150,7 @@ namespace Tabang_Hub.Controllers
                 totalSkills = totalSkills,
                 orgEventHistory = eventHistory,
                 recentDonators = userDonated,
-                topVolunteers = topVolunteersList, // Assign the top volunteers list here
+                topVolunteers = top5Volunteers, // Assign the top volunteers list here
                 volunteers = listOfvlntr,
                 topDonators = topDonators,
                 listOfDonationEvent = donationList,
@@ -2080,11 +2442,11 @@ namespace Tabang_Hub.Controllers
 
             foreach (var evnt in events)
             {
-                var volunteers = _organizationManager.GetVolunteersByEventId(evnt.Event_Id);
+                var volunteers = _organizationManager.GetVolunteerHistoryByEventId(evnt.Event_Id);
 
                 foreach (var volunteer in volunteers)
                 {
-                    if (volunteer.Status != 0) // Check if the volunteer is active
+                    if (volunteer.attended != 0) // Check if the volunteer is active
                     {
                         if (volunteerParticipation.ContainsKey((int)volunteer.userId))
                         {

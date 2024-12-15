@@ -370,6 +370,7 @@
     <Content Include="Content\images2\tabanghub3-No-Background.png" />
     <Content Include="Content\images2\tabanghub3.png" />
     <Content Include="Content\images2\volunteer.png" />
+    <Content Include="Content\images\defaultProfile.png" />
     <Content Include="Content\images\organization.png" />
     <Content Include="Content\images\tabanghub3-removebg-preview.png" />
     <Content Include="Content\images\tabanghub3.png" />

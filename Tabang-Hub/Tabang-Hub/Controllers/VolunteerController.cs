@@ -950,7 +950,7 @@ namespace Tabang_Hub.Controllers
                         show_description = true,
                         description = description,
                         cancel_url = Url.Action("PaymentFailed", "Volunteer", new { eventId = eventId, amount = amount }, Request.Url.Scheme),
-                        success_url = Url.Action("PaymentSuccess", "Volunteer", new { eventId = eventId, amount = amount, referenceNumber = referencereferenceNumber }, Request.Url.Scheme) // Passing eventId and amount                       
+                        success_url = Url.Action("PaymentSuccess", "Volunteer", new { eventId = eventId, amount = amount, donationType = 1, referenceNumber = referencereferenceNumber, }, Request.Url.Scheme) // Passing eventId and amount                       
                     }
                 }
             };

@@ -197,7 +197,7 @@ namespace Tabang_Hub.Repository
 
             foreach (var del in toDelete)
             {
-                if (_volunteerSkill.Delete(del.skillId) != ErrorCode.Success)
+                if (_volunteerSkill.Delete(del.volunteerSkillId) != ErrorCode.Success)
                 {
                     return ErrorCode.Error;
                 }
