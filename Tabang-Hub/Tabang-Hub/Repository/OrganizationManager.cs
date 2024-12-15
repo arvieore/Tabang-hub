@@ -1303,7 +1303,7 @@ namespace Tabang_Hub.Repository
 
         public async Task<List<VolunteerInvite>> GetFilterByRatingsWithAvailability(List<int> skillIds, int eventId, string availability)
         {
-            string flaskApiUrl = "https://tabangapi.as.r.appspot.com/filter_by_availability_with_skills";
+            string flaskApiUrl = "https://tabangapi.as.r.appspot.com/filter_by_ratings_with_availability";
             //string flaskApiUrl = "http://127.0.0.1:5000/filter_by_ratings_with_availability";
 
             var datas = new
@@ -1352,7 +1352,7 @@ namespace Tabang_Hub.Repository
 
         public async Task<List<VolunteerInvite>> GetFilterByRateWithAvailabilityAndSkills(List<int> skillIds, int eventId, string availability)
         {
-            string flaskApiUrl = "https://tabangapi.as.r.appspot.com/filter_by_ratings_with_availability";
+            string flaskApiUrl = "https://tabangapi.as.r.appspot.com/filter_by_rate_availability_skills";
             //string flaskApiUrl = "http://127.0.0.1:5000/filter_by_rate_availability_skills";
 
             var datas = new
