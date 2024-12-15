@@ -33,8 +33,7 @@
                             <td>@(history.donates?.donatedAt != null ? history.donates.donatedAt.Value.ToString("MMMM dd, yyyy hh:mm tt") : "N/A")</td>
                             <td>
                                 <button class="btn btn-sm btn-primary view-donation"
-                                        data-user-id="@history.donates.userId"
-                                        data-event-id="@history.donates.eventId">
+                                        data-ref-num="@(history.donates != null ? history.donates.referenceNum : "N/A")">
                                     My Donation
                                 </button>
                             </td>
@@ -83,13 +82,12 @@
 
 <script>
     $('.view-donation').click(function () {
-        const userId = $(this).data('user-id');
-        const eventId = $(this).data('event-id');
+        const refNum = $(this).data('ref-num');
 
-        console.log(`UserID: ${userId}, EventID: ${eventId}`); // Debugging: Check values
+        console.log(`RefNum: ${refNum}`); // Debugging: Check the value
 
-        // Fetch donation details via AJAX
-        $.get('/Volunteer/MyDonation', { userId: userId, eventId: eventId }, function (response) {
+        // Fetch donation details via AJAX, now only passing refNum
+        $.get('/Volunteer/MyDonation', { refNum: refNum }, function (response) {
             if (response.success) {
                 // Clear previous details
                 $('#myDonationDetails').empty();
@@ -100,18 +98,18 @@
 
                     // Format donationQuantity based on donationType
                     if (donation.donationType === "Money") {
-                        quantity = parseFloat(donation.donationQuantity).toFixed(2); // Show as decimal with 2 decimal places
+                        quantity = parseFloat(donation.donationQuantity).toFixed(2); // Show as decimal with 2 places
                     } else {
                         quantity = parseInt(donation.donationQuantity); // Show as integer
                     }
 
                     $('#myDonationDetails').append(`
-                        <tr>
-                            <td>${donation.donationType}</td>
-                            <td>${donation.donationUnit ?? 'N/A'}</td>
-                            <td>${quantity}</td>
-                        </tr>
-                    `);
+                    <tr>
+                        <td>${donation.donationType}</td>
+                        <td>${donation.donationUnit ?? 'N/A'}</td>
+                        <td>${quantity}</td>
+                    </tr>
+                `);
                 });
 
                 // Show the modal
