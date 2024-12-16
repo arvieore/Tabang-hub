@@ -531,6 +531,12 @@
                                                         badgeClass = "bg-success";
                                                         badgeText = "Recommended event";
                                                     }
+                                                    else
+                                                    {
+                                                        // Not recommended event
+                                                        badgeClass = "text-bg-info";
+                                                        badgeText = "No recommended event";
+                                                    }
                                                 }
 
                                                 @if (badgeClass != null && badgeText != null)
@@ -540,68 +546,68 @@
 
                                                 <div style="display: none">
                                                     @*{
-                                        // Retrieve all relevant data
-                                        @*var listUserEvents = Model.sp_userListEvent
-                                                                .Where(m => m.Event_Status == 1)
-                                                                .ToList(); // List of all events the volunteer is registered for
-                                        var checkDateOrgEvents = Model.orgEvents
-                                                                .FirstOrDefault(m => m.eventId == l_event.Event_Id && m.status == 1);
+                // Retrieve all relevant data
+                @*var listUserEvents = Model.sp_userListEvent
+                                        .Where(m => m.Event_Status == 1)
+                                        .ToList(); // List of all events the volunteer is registered for
+                var checkDateOrgEvents = Model.orgEvents
+                                        .FirstOrDefault(m => m.eventId == l_event.Event_Id && m.status == 1);
 
-                                        var volSkill = Model.volunteersSkills.Select(v => v.skillId).ToList();
-                                        var eventSkills = Model.skillRequirement1
-                                                            .Where(m => m.eventId == l_event.Event_Id)
-                                                            .Select(m => m.skillId)
-                                                            .ToList();
+                var volSkill = Model.volunteersSkills.Select(v => v.skillId).ToList();
+                var eventSkills = Model.skillRequirement1
+                                    .Where(m => m.eventId == l_event.Event_Id)
+                                    .Select(m => m.skillId)
+                                    .ToList();
 
-                                        // Check if all required event skills are present in the volunteer's skills
-                                        var isSkillMatched = eventSkills.All(skill => volSkill.Contains(skill));
+                // Check if all required event skills are present in the volunteer's skills
+                var isSkillMatched = eventSkills.All(skill => volSkill.Contains(skill));
 
-                                        // Check if this specific event is in the registered list
-                                        var isRegisteredEvent = listUserEvents.Any(e => e.eventId == l_event.Event_Id && e.Volunteer_Status == 1);
-                                        var isPendingRequest = listUserEvents.Any(e => e.eventId == l_event.Event_Id && e.Volunteer_Status == 0);
-                                    }
+                // Check if this specific event is in the registered list
+                var isRegisteredEvent = listUserEvents.Any(e => e.eventId == l_event.Event_Id && e.Volunteer_Status == 1);
+                var isPendingRequest = listUserEvents.Any(e => e.eventId == l_event.Event_Id && e.Volunteer_Status == 0);
+            }
 
-                                    @if (isRegisteredEvent)
-                                    {
-                                        // Show badge for registered event
-                                        <span class="badge bg-success position-absolute top-0 end-0 m-2 p-2">Registered event</span>
-                                    }
-                                    else if (isPendingRequest)
-                                    {
-                                        <span class="badge position-absolute top-0 end-0 m-2 p-2" style="background-color: #e3b868">Pending applied event</span>
-                                    }
-                                    else if (isSkillMatched && listUserEvents.Count().Equals(0))
-                                    {
-                                        <span class="badge bg-success position-absolute top-0 end-0 m-2 p-2">Recommended event</span>
-                                    }
-                                    else if (!isSkillMatched)
-                                    {
-                                        <span class="badge text-bg-info position-absolute top-0 end-0 m-2 p-2">Not recommended event</span>
-                                    }
-                                    else
-                                    {
-                                        foreach (var userEvent in listUserEvents)
-                                        {
-                                            if (checkDateOrgEvents != null &&
-                                                !(checkDateOrgEvents.dateEnd < userEvent.dateStart || checkDateOrgEvents.dateStart > userEvent.dateEnd))
-                                            {
-                                                // Conflict cases
-                                                if (userEvent.Volunteer_Status == 0)
-                                                {
-                                                    <span class="badge bg-danger position-absolute top-0 end-0 m-2 p-2">Conflict applied event</span>
-                                                }
-                                                else if (userEvent.Volunteer_Status == 1 && userEvent.eventId != l_event.Event_Id)
-                                                {
-                                                    <span class="badge bg-danger position-absolute top-0 end-0 m-2 p-2">Conflict registered event</span>
-                                                }
-                                            }
-                                            else if (isSkillMatched)
-                                            {
-                                                // Recommended event
-                                                <span class="badge bg-success position-absolute top-0 end-0 m-2 p-2">Recommended event</span>
-                                            }
-                                        }
-                                    }*@
+            @if (isRegisteredEvent)
+            {
+                // Show badge for registered event
+                <span class="badge bg-success position-absolute top-0 end-0 m-2 p-2">Registered event</span>
+            }
+            else if (isPendingRequest)
+            {
+                <span class="badge position-absolute top-0 end-0 m-2 p-2" style="background-color: #e3b868">Pending applied event</span>
+            }
+            else if (isSkillMatched && listUserEvents.Count().Equals(0))
+            {
+                <span class="badge bg-success position-absolute top-0 end-0 m-2 p-2">Recommended event</span>
+            }
+            else if (!isSkillMatched)
+            {
+                <span class="badge text-bg-info position-absolute top-0 end-0 m-2 p-2">Not recommended event</span>
+            }
+            else
+            {
+                foreach (var userEvent in listUserEvents)
+                {
+                    if (checkDateOrgEvents != null &&
+                        !(checkDateOrgEvents.dateEnd < userEvent.dateStart || checkDateOrgEvents.dateStart > userEvent.dateEnd))
+                    {
+                        // Conflict cases
+                        if (userEvent.Volunteer_Status == 0)
+                        {
+                            <span class="badge bg-danger position-absolute top-0 end-0 m-2 p-2">Conflict applied event</span>
+                        }
+                        else if (userEvent.Volunteer_Status == 1 && userEvent.eventId != l_event.Event_Id)
+                        {
+                            <span class="badge bg-danger position-absolute top-0 end-0 m-2 p-2">Conflict registered event</span>
+                        }
+                    }
+                    else if (isSkillMatched)
+                    {
+                        // Recommended event
+                        <span class="badge bg-success position-absolute top-0 end-0 m-2 p-2">Recommended event</span>
+                    }
+                }
+            }*@
                                                 </div>
                                                 <div class="custom-block">
                                                     <div class="custom-block-body">
