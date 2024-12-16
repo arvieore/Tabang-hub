@@ -61,7 +61,38 @@ namespace Tabang_Hub.Repository
             }
             return ErrorCode.Success;
         }
-        public ErrorCode SubmitDonation(Donated donate, int donationEventId, string refNum, int userId, ref String errMsg)
+        public ErrorCode SubmitDonation(List<Donated> donate, int donationEventId, string refNum, int userId, ref String errMsg)
+        {
+            var toSave = new Donates()
+            {
+                eventType = 2,
+                referenceNum = refNum,
+                userId = userId,
+                eventId = donationEventId,
+                donatedAt = DateTime.Now,
+                status = 1,
+            };
+
+            if (_donates.Create(toSave, out errMsg) != ErrorCode.Success)
+            {
+                return ErrorCode.Error;
+            }
+
+            foreach (var donatedItem in donate)
+            {
+
+                donatedItem.donatesId = toSave.donatesId;
+                donatedItem.status = 0;
+
+                if (_donated.Create(donatedItem, out errMsg) != ErrorCode.Success)
+                {
+                    return ErrorCode.Error;
+                }
+            }
+           
+            return ErrorCode.Success;
+        }
+        public ErrorCode SubmitDonation1(Donated donate, int donationEventId, string refNum, int userId, ref String errMsg)
         {
             var toSave = new Donates()
             {

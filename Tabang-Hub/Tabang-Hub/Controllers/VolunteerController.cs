@@ -583,15 +583,9 @@ namespace Tabang_Hub.Controllers
                     donated.Remove(monetaryDonations);
                 }
 
-                foreach (Donated donation in donated)
+                if (_volunteerManager.SubmitDonation(donated, donationEventId, referenceNumber, UserId, ref ErrorMessage) != ErrorCode.Success)
                 {
-                    if (!donation.donationType?.Equals("Money", StringComparison.OrdinalIgnoreCase) == true)
-                    {
-                        if (_volunteerManager.SubmitDonation(donation, donationEventId, referenceNumber, UserId, ref ErrorMessage) != ErrorCode.Success)
-                        {
-                            return Json(new { success = false, message = "There was a problem submitting the donation, try again later!" });
-                        }
-                    }
+                    return Json(new { success = false, message = "There was a problem submitting the donation, try again later!" });
                 }
 
                 if (monetaryDonations?.donationQuantity != null)
@@ -1148,7 +1142,7 @@ namespace Tabang_Hub.Controllers
                     donationQuantity = amount,
                 };
 
-                if (_volunteerManager.SubmitDonation(donated, eventId, referenceNumber, UserId, ref ErrorMessage) != ErrorCode.Success)
+                if (_volunteerManager.SubmitDonation1(donated, eventId, referenceNumber, UserId, ref ErrorMessage) != ErrorCode.Success)
                 {
                     return View("DonationEventDetails", eventId);
                 }

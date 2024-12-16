@@ -339,24 +339,38 @@
 <script>
     const donationTableBody = document.querySelector('#donationTable tbody');
 
-    // Add Monetary Donation
     document.getElementById('addMonetaryDonation').addEventListener('click', () => {
         const amount = document.getElementById('donationAmount').value;
+        const existingMonetaryDonation = document.querySelector('#donationTable tbody tr[data-type="Money"]');
 
-        if (amount) {
+        if (existingMonetaryDonation) {
+            Swal.fire({
+                title: 'Error!',
+                text: 'You can only make one monetary donation.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+
+        if (amount && amount > 0) {
             const newRow = document.createElement('tr');
+            newRow.setAttribute('data-type', 'Money');
             newRow.innerHTML = `
             <td>Money</td>
             <td>N/A</td>
             <td>${amount}</td>
             <td><button type="button" class="btn btn-danger btn-sm removeDonation">Remove</button></td>
         `;
-            donationTableBody.appendChild(newRow);
+            document.querySelector('#donationTable tbody').appendChild(newRow);
             addRemoveEvent(newRow);
+
+            // Clear input after adding
+            document.getElementById('donationAmount').value = '';
         } else {
             Swal.fire({
                 title: 'Error!',
-                text: 'Please enter an amount for the monetary donation.',
+                text: 'Please enter a valid amount for the monetary donation.',
                 icon: 'error',
                 confirmButtonText: 'OK'
             });
