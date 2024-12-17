@@ -2168,7 +2168,7 @@ document.getElementById('submitAllRatings').addEventListener('click', function (
                         text: 'All ratings and attendance submitted successfully.',
                         confirmButtonText: 'OK'
                     }).then(() => {
-                        window.location.href = '@Url.Action("EventsList", "Organization")';
+                        window.location.href = '@Url.Action("ListOfEvent", "Organization")';
                     });
                 } else {
                     Swal.fire({

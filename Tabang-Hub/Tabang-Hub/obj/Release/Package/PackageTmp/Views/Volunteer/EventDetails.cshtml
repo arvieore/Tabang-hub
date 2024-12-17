@@ -1,4 +1,4 @@
-﻿﻿@model Tabang_Hub.Utils.Lists
+﻿@model Tabang_Hub.Utils.Lists
 @{
     ViewBag.Title = "EventDetails";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -385,24 +385,34 @@ else
                             {
                                 foreach (var evnt in Model.listOfEventsOne)
                                 {
-                                    <div class="donation-progress">
-                                        <label>Funds Donated</label>
-                                        <div class="progress">
-                                            @{
-                                                decimal? raisedAmount = 0;
+                                    <div class="d-flex align-items-center my-2">
+                                        <p class="mb-0">
+                                            <strong>Fund Donated: </strong>
+                                        </p>
+                                        @{
+                                            decimal? raisedAmount = 0;
 
-                                                foreach (var donated in Model.listofUserDonated)
-                                                {
-                                                    raisedAmount += donated.amount;
-                                                }
-
-                                                var percentage = (raisedAmount / evnt.Target_Amount) * 100;
+                                            foreach (var donated in Model.MyDonations)
+                                            {
+                                                raisedAmount += donated.donationQuantity;
                                             }
-                                            <div class="progress-bar" role="progressbar" style="width: @percentage%; background-color: mediumseagreen;" aria-valuenow="@raisedAmount" aria-valuemin="0" aria-valuemax="@evnt.Target_Amount"></div>
-                                            @*<div class="progress-label">@($"{raisedAmount:₱#,##0.00}") / @($"{evnt.Target_Amount:₱#,##0.00}")</div>*@
-                                            <div class="progress-label">@($"{raisedAmount:₱#,##0.00}")</div>
-                                        </div>
+                                        }
+                                        <p class="ms-auto mb-0">
+                                            <!-- <strong>Goal:</strong> -->
+                                            @($"{raisedAmount:₱ #,##0.00}") @*/ ₱@evt.Target_Amount*@
+                                        </p>
                                     </div>
+
+                                    <!--<div class="donation-progress">
+                                    <label>Funds Donated</label>
+                                    <div class="progress">
+                                        @{
+                                        }-->
+                                    @*<div class="progress-bar" role="progressbar" style="width: @percentage%; background-color: mediumseagreen;" aria-valuenow="@raisedAmount" aria-valuemin="0" aria-valuemax="@evnt.Target_Amount"></div>*@
+                                    @*<div class="progress-label">@($"{raisedAmount:₱#,##0.00}") / @($"{evnt.Target_Amount:₱#,##0.00}")</div>*@
+                                    @*<div class="progress-label">@($"{raisedAmount:₱#,##0.00}")</div>*@
+                                    <!--</div>
+                                    </div>-->
                                     <div class="donate-button mt-2">
                                         <!-- Button to open the donation modal -->
                                         <button style="width: 100%" type="button" class="btn btn-primary btn-block" data-toggle="modal" data-target="#donationModal">
