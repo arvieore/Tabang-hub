@@ -2079,6 +2079,7 @@
     <Compile Include="Controllers\MessageController.cs" />
     <Compile Include="Controllers\OrganizationController.cs" />
     <Compile Include="Controllers\PageController.cs" />
+    <Compile Include="Controllers\PageNotFoundController.cs" />
     <Compile Include="Controllers\VolunteerController.cs" />
     <Compile Include="Donated.cs">
       <DependentUpon>ModelTabangHub.tt</DependentUpon>
@@ -2299,6 +2300,7 @@
     <Content Include="Views\Organization\ListOfEvent.cshtml" />
     <Content Include="Views\Volunteer\DonationsHistory.cshtml" />
     <Content Include="Views\Organization\OrganizationProfile.cshtml" />
+    <Content Include="Views\PageNotFound\PageNotFound.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
