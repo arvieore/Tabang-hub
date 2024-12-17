@@ -150,12 +150,21 @@ namespace Tabang_Hub.Controllers
         [HttpGet]
         public JsonResult GetUnreadNotifications()
         {
-            var unreadNotifications = db.Notification
-                .Where(n => n.userId == 3 && n.status == 0)
-                .OrderByDescending(n => n.createdAt)
-                .ToList();
+            int organizationId = UserId;
+            var notifications = db.Notification
+               .Where(n => n.userId == organizationId)
+               .OrderBy(n => n.status) // Unread (status = 0) first
+               .ThenByDescending(n => n.createdAt)
+               .Select(n => new
+               {
+                   n.notificationId,
+                   n.content,
+                   n.status, // 0 for unread, 1 for read
+                   n.createdAt
+               })
+               .ToList();
 
-            return Json(unreadNotifications, JsonRequestBehavior.AllowGet);
+            return Json(notifications, JsonRequestBehavior.AllowGet);
         }
         [HttpPost]
         public JsonResult OpenNotification(int notificationId)

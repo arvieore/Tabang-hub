@@ -22,6 +22,53 @@
     <link rel="shortcut icon" href="~/Content/images1/favicon.svg" type="image/x-icon">
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        .unread-notification {
+            font-weight: bold;
+            background-color: #e6e6e6; /* Light gray background for highlight */
+        }
+
+            .unread-notification hr {
+                border-color: #ddd; /* Optional: Change color of the line for better visibility */
+                margin: 5px 0; /* Adjust spacing around the line */
+            }
+
+        .dropdown-menu-scrollable {
+            max-height: 500px;
+            overflow-y: auto;
+            width: 400px; /* Adjust width as needed */
+            word-wrap: break-word; /* Wrap words if necessary */
+        }
+
+        .notification-item {
+            white-space: normal; /* Allow wrapping */
+            overflow: hidden;
+            text-overflow: ellipsis; /* Truncate overflowing text */
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 3; /* Limit to 2 lines */
+        }
+
+        @@media (max-width: 768px) {
+            /* Adjust the dropdown for smaller screens */
+            .dropdown-menu-scrollable {
+                width: 90%; /* Make it adapt to the screen size */
+                max-height: 500px; /* Reduce height for better fit */
+            }
+
+            .notification-item {
+                font-size: 0.9rem; /* Slightly smaller text for better readability */
+                -webkit-line-clamp: 5; /* Limit to 2 lines on smaller screens */
+            }
+
+            #notificationCount {
+                font-size: 0.75rem; /* Adjust badge size for mobile */
+                width: 2.5em;
+                height: 2em;
+                line-height: 1.5em;
+            }
+        }
+    </style>
 </head>
 <body>
     <div id="app">
@@ -71,11 +118,11 @@
                             </a>
                         </li>
                         @*<li class="sidebar-item">
-                            <a href="~/Admin/History" class='sidebar-link'>
-                                <i class="bi bi-clock-history"></i>
-                                <span>History</span>
-                            </a>
-                        </li>*@
+                                <a href="~/Admin/History" class='sidebar-link'>
+                                    <i class="bi bi-clock-history"></i>
+                                    <span>History</span>
+                                </a>
+                            </li>*@
                     </ul>
                 </div>
                 <button class="sidebar-toggler btn x"><i data-feather="x"></i></button>
@@ -102,11 +149,12 @@
                                         <i class='bi bi-bell bi-sub fs-4 text-gray-600'></i>
                                         <span id="notificationCount" class="badge rounded-pill bg-danger" style="display: none;">0</span>
                                     </a>
-                                    <ul class="dropdown-menu dropdown-menu-end" id="notificationDropdown" aria-labelledby="notificationBell">
+                                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-scrollable" id="notificationDropdown" aria-labelledby="notificationBell">
+                                        <li><h6 class="dropdown-header">Notifications</h6></li>
                                         <li>
-                                            <h6 class="dropdown-header">Notifications</h6>
+                                            <a href="#" class="dropdown-item notification-item">
+                                            </a>
                                         </li>
-                                        <li><a class="dropdown-item">No new notifications</a></li>
                                     </ul>
                                 </li>
                             </ul>
@@ -167,85 +215,78 @@
     <!-- Admin-specific script for notifications -->
     <script>
         $(document).ready(function () {
-            // URL for AJAX calls
-            var getUnreadNotificationsUrl = '@Url.Action("GetUnreadNotifications", "Admin")';
-            var openNotificationUrl = '@Url.Action("OpenNotification", "Admin")';
+    var getUnreadNotificationsUrl = '@Url.Action("GetUnreadNotifications", "Admin")';
+    var openNotificationUrl = '@Url.Action("OpenNotification", "Admin")';
 
-            // Fetch unread notifications every 5 seconds
-            fetchUnreadNotifications();
-            setInterval(fetchUnreadNotifications, 5000);
+    fetchUnreadNotifications();
+    setInterval(fetchUnreadNotifications, 5000);
 
-            function fetchUnreadNotifications() {
-                $.ajax({
-                    url: getUnreadNotificationsUrl,
-                    type: 'GET',
-                    success: function (data) {
-                        let unreadCount = data.length;
-                        updateNotificationCount(unreadCount);
+    function fetchUnreadNotifications() {
+        $.ajax({
+            url: getUnreadNotificationsUrl,
+            type: 'GET',
+            success: function (data) {
+                let unreadCount = data.filter(n => n.status === 0).length; // Count only unread notifications
+                updateNotificationCount(unreadCount);
 
-                        if (unreadCount > 0) {
-                            let notificationsHtml = '<li><h6 class="dropdown-header">Notifications</h6></li>';
-                            data.forEach(notification => {
-                                notificationsHtml += `
-                                    <li>
-                                        <a href="#" class="dropdown-item notification-item" data-notification-id="${notification.notificationId}">
-                                            ${notification.content}
-                                        </a>
-                                    </li>`;
-                            });
-                            $('#notificationDropdown').html(notificationsHtml);
-                        } else {
-                            $('#notificationDropdown').html('<li><a class="dropdown-item">No new notifications</a></li>');
-                        }
-                    },
-                    error: function () {
-                        console.error("Error fetching unread notifications.");
-                    }
-                });
+                if (data.length > 0) {
+                    let notificationsHtml = '<li><h6 class="dropdown-header">Notifications</h6></li>';
+                    data.forEach(notification => {
+                        notificationsHtml += `
+                <li class="${notification.status === 0 ? 'unread-notification' : ''}">
+                    <a href="#"
+                       class="dropdown-item notification-item"
+                       data-notification-id="${notification.notificationId}">
+                        ${notification.content}
+                    </a>
+                    <hr>
+                </li>`;
+                    });
+                    $('#notificationDropdown').html(notificationsHtml);
+                } else {
+                    $('#notificationDropdown').html('<li><a class="dropdown-item">No new notifications</a></li>');
+                }
+            },
+            error: function () {
+                console.error("Error fetching notifications.");
             }
+        });
+    }
 
-            // Update notification count badge
-            function updateNotificationCount(count) {
-                const notificationCountElement = $('#notificationCount');
-                if (count > 0) {
-                    if (count > 99) {
-                        notificationCountElement.text('99+').show();
-                    } else {
-                        notificationCountElement.text(count).show();
+    function updateNotificationCount(count) {
+        const notificationCountElement = $('#notificationCount');
+        if (count > 0) {
+            notificationCountElement.text(count > 99 ? '99+' : count).show();
+        } else {
+            notificationCountElement.hide();
+        }
+    }
+
+    $(document).on('click', '.notification-item', function (e) {
+        e.preventDefault();
+        var notificationId = $(this).data('notification-id');
+
+        $.ajax({
+            url: openNotificationUrl,
+            type: 'POST',
+            data: { notificationId: notificationId },
+            success: function (response) {
+                if (response.success) {
+                    $(e.target).closest('li').remove();
+                    fetchUnreadNotifications();
+                    if (response.redirectUrl) {
+                        window.location.href = response.redirectUrl;
                     }
                 } else {
-                    notificationCountElement.hide();
+                    console.error('Failed to open notification:', response.message);
                 }
+            },
+            error: function () {
+                console.error('Error opening notification.');
             }
-
-            // Handle notification item click
-            $(document).on('click', '.notification-item', function (e) {
-                e.preventDefault();
-                var notificationId = $(this).data('notification-id');
-                console.log('Notification item clicked. ID:', notificationId);
-
-                $.ajax({
-                    url: openNotificationUrl,
-                    type: 'POST',
-                    data: {
-                        notificationId: notificationId
-                    },
-                    success: function (response) {
-                        if (response.success) {
-                            fetchUnreadNotifications();
-                            if (response.redirectUrl) {
-                                window.location.href = response.redirectUrl;
-                            }
-                        } else {
-                            console.error('Failed to open notification:', response.message);
-                        }
-                    },
-                    error: function () {
-                        console.error('Error opening notification.');
-                    }
-                });
-            });
         });
+    });
+});
     </script>
 </body>
 </html>

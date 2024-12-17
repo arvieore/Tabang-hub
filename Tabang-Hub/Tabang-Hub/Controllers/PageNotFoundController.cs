@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using Tabang_Hub.Utils;
 
 namespace Tabang_Hub.Controllers
 {
@@ -11,7 +12,13 @@ namespace Tabang_Hub.Controllers
         // GET: PageNotFound
         public ActionResult PageNotFound()
         {
-            return View();
+            var userAccount = _organizationManager.GetUserByUserId(UserId);
+
+            var indexModel = new Lists()
+            { 
+                userAccount = userAccount,
+            };
+            return View(indexModel);
         }
     }
 }
