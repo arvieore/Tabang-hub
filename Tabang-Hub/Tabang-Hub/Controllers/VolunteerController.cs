@@ -399,8 +399,14 @@ namespace Tabang_Hub.Controllers
                     var getOrgOtherEvent = db.sp_OtherEvent(getOrgInfo.userId).ToList();
                     var getEvents = _listsOfEvent.GetAll().Where(m => m.Event_Id == getOrgInfo.eventId && m.status != 3).ToList();
                     var getVolunteers = _volunteers.GetAll().Where(m => m.eventId == eventId).ToList();
-                    var listofUserDonated = db.UserDonated.Where(m => m.eventId == eventId).ToList();
+                    //var listofUserDonated = db.UserDonated.Where(m => m.eventId == eventId).ToList();
+                    var listofUserDonated = db.Donates.Where(m => m.eventId == eventId).ToList();
                     var volunteerStatusEvent = _volunteersStatusEvent.GetAll().Where(m => m.userId == UserId && m.eventId == eventId).ToList();
+
+                    var getAmountDonateInfo = db.Donated.Where(m => db.Donates
+                                                        .Any(d => d.eventId == eventId 
+                                                         && m.donatesId == d.donatesId))
+                                                         .ToList();
 
                     var eventStart = getEvent.Where(m => m.eventId == eventId).Select(m => m.dateStart).FirstOrDefault();
                     //if (eventStart < DateTime.Now)
@@ -437,7 +443,10 @@ namespace Tabang_Hub.Controllers
                             listOfEventsOne = getEvents,
                             listOfEvents = filteredEvent.OrderByDescending(m => m.Event_Id).ToList(),
                             volunteers = getVolunteers,
-                            listofUserDonated = listofUserDonated,
+                            //listofUserDonated = listofUserDonated,
+                            listOfDonates = listofUserDonated,
+                            MyDonations = getAmountDonateInfo,
+
                             volunteersStatusEvent = _volunteers.GetAll().Where(m => m.eventId == eventId && m.userId == UserId).ToList(),
                             matchSkill = db.sp_matchSkill(UserId, eventId).ToList(),
                             volunteer = volunteer,
@@ -461,7 +470,10 @@ namespace Tabang_Hub.Controllers
                             listOfEventsOne = getEvents,
                             listOfEvents = db.vw_ListOfEvent.Where(m => m.status != 3).OrderByDescending(m => m.Event_Id).ToList(),
                             volunteers = getVolunteers,
-                            listofUserDonated = listofUserDonated,
+                            //listofUserDonated = listofUserDonated,
+                            listOfDonates = listofUserDonated,
+                            MyDonations = getAmountDonateInfo,
+
                             volunteersStatusEvent = _volunteers.GetAll().Where(m => m.eventId == eventId).ToList(),
                             matchSkill = db.sp_matchSkill(UserId, eventId).ToList(),
                             volunteer = volunteer,

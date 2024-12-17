@@ -76,9 +76,20 @@ namespace Tabang_Hub.Controllers
 
                         var getUserDonated = new List<UserDonated>();
                         foreach (var eventId in orgEventsSelectId)
-                        {           
+                        {
                             getUserDonated = _userDonated.GetAll().Where(m => m.eventId == eventId && m.userId == UserId).ToList();
                         }
+
+                        var getDonated = new List<Donated>();
+                        foreach (var eventId in orgEventsSelectId)
+                        {
+                            var getAmountDonateInfo = db.Donated.Where(m => db.Donates
+                                                        .Any(d => d.eventId == eventId
+                                                         && m.donatesId == d.donatesId))
+                                                         .ToList();
+                            getDonated.AddRange(getAmountDonateInfo);
+                        }
+
                         if (getVolunteerSkills.Count() != 0)
                         {
                             var recommendedEvents = await _volunteerManager.RunRecommendation(UserId);
@@ -110,6 +121,9 @@ namespace Tabang_Hub.Controllers
                                 listOfEventsSection = db.vw_ListOfEvent.Where(m => m.End_Date >= DateTime.Now && m.status != 3).ToList(),
                                 ListOfDonationEvents = donationList,
 
+                                MyDonations = getDonated,
+                                listOfDonates = db.Donates.ToList(),
+
                                 skillRequirement1 = db.OrgSkillRequirement.Where(m => m.eventId != 3).ToList(),
                                 matchSkillByUserId = db.sp_checkMatchByUserId(UserId).ToList(),
                                 volunteersStatusEvent = _volunteers.GetAll().Where(m => m.userId == UserId).ToList(),
@@ -132,6 +146,9 @@ namespace Tabang_Hub.Controllers
                                 listofUserDonated = getUserDonated,
                                 detailsEventImage = _eventImages.GetAll().ToList(),
                                 listOfEventsSection = db.vw_ListOfEvent.Where(m => m.End_Date >= DateTime.Now & m.status != 3).ToList(),
+
+                                MyDonations = getDonated,
+                                listOfDonates = db.Donates.ToList(),
 
                                 volunteersStatusEvent = _volunteers.GetAll().Where(m => m.userId == UserId).ToList(),
                                 sp_userListEvent = db.sp_UserListEvent(UserId).ToList(),

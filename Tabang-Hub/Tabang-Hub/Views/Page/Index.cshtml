@@ -417,9 +417,18 @@
                                                                 <p class="mb-0">
                                                                     <strong>Fund Donated: </strong>
                                                                 </p>
+                                                                @{
+                                                                    decimal? raisedAmount = 0;
+
+                                                                    foreach (var donated in Model.MyDonations.Where(m => Model.listOfDonates
+                                                                                            .Any(e => e.eventId == evt.Event_Id && m.donatesId == e.donatesId)).ToList())
+                                                                    {
+                                                                        raisedAmount += donated.donationQuantity;
+                                                                    }
+                                                                }
                                                                 <p class="ms-auto mb-0">
                                                                     <!-- <strong>Goal:</strong> -->
-                                                                    ₱ @(evt.Total_Donation.Equals(null) ? "0.00 " : evt.Total_Donation.ToString()) @*/ ₱@evt.Target_Amount*@
+                                                                    @($"{raisedAmount:₱ #,##0.00}") @*/ ₱@evt.Target_Amount*@
                                                                 </p>
                                                             </div>
                                                         }
@@ -641,27 +650,28 @@
                                                                 @Model.volunteers.Where(m => m.Status == 1 && m.eventId == l_event.Event_Id).Count()/@l_event.Maximum_Volunteer
                                                             </p>
                                                         </div>
-                                                        @if (Model.orgEvents.Where(m => m.eventId == l_event.Event_Id).Select(m => m.donationIsAllowed).FirstOrDefault() == 1)
-                                                        {
-                                                            <div class="d-flex align-items-center my-2">
-                                                                <p class="mb-0">
-                                                                    <strong>Fund Donated: </strong>
-                                                                </p>
-                                                                <p class="ms-auto mb-0">
-                                                                    <!-- <strong>Goal:</strong> -->
-                                                                    ₱@(l_event.Total_Donation.Equals(null) ? "0.00 " : l_event.Total_Donation.ToString()) @*/ ₱@l_event.Target_Amount*@
-                                                                </p>
-                                                            </div>
+                                                        @{
+                                                            var checkDonationStatus = Model.orgEvents.Any(m => m.eventId == l_event.Event_Id && m.donationIsAllowed == 1);
                                                         }
-                                                        else if (l_event.Total_Donation != null)
+
+                                                        @if (checkDonationStatus)
                                                         {
                                                             <div class="d-flex align-items-center my-2">
                                                                 <p class="mb-0">
                                                                     <strong>Fund Donated: </strong>
                                                                 </p>
+                                                                @{
+                                                                    decimal? raisedAmount = 0;
+
+                                                                    foreach (var donated in Model.MyDonations.Where(m => Model.listOfDonates
+                                                                                            .Any(e => e.eventId == l_event.Event_Id && m.donatesId == e.donatesId)).ToList())
+                                                                    {
+                                                                        raisedAmount += donated.donationQuantity;
+                                                                    }
+                                                                }
                                                                 <p class="ms-auto mb-0">
                                                                     <!-- <strong>Goal:</strong> -->
-                                                                    ₱@(l_event.Total_Donation.Equals(null) ? "0.00 " : l_event.Total_Donation.ToString()) @*/ ₱@l_event.Target_Amount*@
+                                                                    @($"{raisedAmount:₱ #,##0.00}") @*/ ₱@evt.Target_Amount*@
                                                                 </p>
                                                             </div>
                                                         }
