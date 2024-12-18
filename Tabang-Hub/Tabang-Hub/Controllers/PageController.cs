@@ -51,11 +51,11 @@ namespace Tabang_Hub.Controllers
                         var getVolunteers = _volunteers.GetAll().ToList();
                         var orgEventsSelectId = _orgEvents.GetAll().Where(m => m.dateEnd >= philippineTime).Select(m => m.eventId).ToList();
 
-                        //var donationEvents = _userManager.ListOfOngoinDonationEvent();
-                        var donationEvents = _userManager.ListOfOngoinDonationEvent()
-                        .Where(donationEvent => donationEvent.dateStart <= philippineTime // Event has started
-                                             && donationEvent.dateEnd > philippineTime)   // Event has not ended
-                        .ToList();
+                        var donationEvents = _userManager.ListOfOngoinDonationEvent();
+                        //var donationEvents = _userManager.ListOfOngoinDonationEvent()
+                        //.Where(donationEvent => donationEvent.dateStart <= philippineTime // Event has started
+                        //                     && donationEvent.dateEnd > philippineTime)   // Event has not ended
+                        //.ToList();
 
                         var donationList = new List<Donation>();
 
