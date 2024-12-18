@@ -52,10 +52,11 @@ namespace Tabang_Hub.Controllers
                         var orgEventsSelectId = _orgEvents.GetAll().Where(m => m.dateEnd >= philippineTime).Select(m => m.eventId).ToList();
 
                         //var donationEvents = _userManager.ListOfOngoinDonationEvent();
+                        var currentDateTime = DateTime.UtcNow.AddHours(8); // Convert to Philippine Time (UTC+8)
                         var donationEvents = _userManager.ListOfOngoinDonationEvent()
-                        .Where(donationEvent => donationEvent.dateStart <= philippineTime // Event has started
-                                             && donationEvent.dateEnd > philippineTime)   // Event has not ended
-                        .ToList();
+                            .Where(e => e.dateEnd > currentDateTime) // Filter events still ongoing
+                            .ToList();
+
 
                         var donationList = new List<Donation>();
 
