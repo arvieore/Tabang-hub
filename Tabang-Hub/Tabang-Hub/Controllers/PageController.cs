@@ -319,7 +319,8 @@ namespace Tabang_Hub.Controllers
             }
 
             string registrationMessage = $"A new organization named {o.orgName} is awaiting for your registration approval.";
-            if (_organizationManager.SentNotif(3, u.userId, u.userId, "Registration", registrationMessage, 0, ref ErrorMessage) != ErrorCode.Success)
+            var admin = _organizationManager.GetInfoByEmail("admin");
+            if (_organizationManager.SentNotif((int)admin.userId, u.userId, u.userId, "Registration", registrationMessage, 0, ref ErrorMessage) != ErrorCode.Success)
             {
                 TempData["ErrorMessage"] = ErrorMessage;
                 return View();

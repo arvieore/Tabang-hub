@@ -528,6 +528,10 @@ namespace Tabang_Hub.Repository
                 return ErrorCode.Error;
             }
         }
+        public UserAccount GetInfoByEmail(string email)
+        {
+            return _userAccount._table.Where(m => m.email == email).FirstOrDefault();
+        }
         public ErrorCode SentNotif(int userId, int senderId, int relatedId, string type, string content, int broadcast, ref string errMsg)
         {
             var notif = new Notification()
