@@ -63,13 +63,20 @@ namespace Tabang_Hub.Repository
         }
         public ErrorCode SubmitDonation(List<Donated> donate, int donationEventId, string refNum, int userId, ref String errMsg)
         {
+
+            // Define Philippine time zone
+            TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+            // Get current Philippine time
+            DateTime philippineTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, philippineTimeZone);
+
             var toSave = new Donates()
             {
                 eventType = 2,
                 referenceNum = refNum,
                 userId = userId,
                 eventId = donationEventId,
-                donatedAt = DateTime.Now,
+                donatedAt = philippineTime,
                 status = 1,
             };
 
@@ -94,13 +101,20 @@ namespace Tabang_Hub.Repository
         }
         public ErrorCode SubmitDonation1(Donated donate, int donationEventId, string refNum, int userId, int donationType, ref String errMsg)
         {
+
+            // Define Philippine time zone
+            TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+            // Get current Philippine time
+            DateTime philippineTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, philippineTimeZone);
+
             var toSave = new Donates()
             {
                 eventType = donationType,
                 referenceNum = refNum,
                 userId = userId,
                 eventId = donationEventId,
-                donatedAt = DateTime.Now,
+                donatedAt = philippineTime,
                 status = 1,
             };
 
@@ -219,8 +233,15 @@ namespace Tabang_Hub.Repository
         }
         public void CheckVolunteerEventEndByUserId(int userId)
         {
+
+            // Define Philippine time zone
+            TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+            // Get current Philippine time
+            DateTime philippineTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, philippineTimeZone);
+
             var getEvents = _orgEvents.GetAll().ToList();
-            var endedEvent = getEvents.Where(m => m.dateEnd < DateTime.Now && m.status == 1).ToList();
+            var endedEvent = getEvents.Where(m => m.dateEnd < philippineTime && m.status == 1).ToList();
 
             foreach (var evt in endedEvent)
             {
@@ -266,11 +287,18 @@ namespace Tabang_Hub.Repository
 
          public async Task<List<FilteredEvent>> RunRecommendation(int UserId)
          {
+
+            // Define Philippine time zone
+            TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+            // Get current Philippine time
+            DateTime philippineTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, philippineTimeZone);
+
             // Prepare the data to pass to Flask
             var datas = new
             {
                 user_skills = db.VolunteerSkill.Where(m => m.userId == UserId).Select(m => new { userId = m.userId, skillId = m.skillId }).ToList(),
-                event_data = _orgEvents.GetAll().Where(m => m.dateEnd >= DateTime.Now && m.status != 3).Select(m => new { eventId = m.eventId, eventDescription = m.eventDescription }).ToList(),
+                event_data = _orgEvents.GetAll().Where(m => m.dateEnd >= philippineTime && m.status != 3).Select(m => new { eventId = m.eventId, eventDescription = m.eventDescription }).ToList(),
                 event_skills = db.OrgSkillRequirement.Select(es => new { eventId = es.eventId, skillId = es.skillId }).ToList()
                 //volunteer_history = db.VolunteersHistory.Where(vh => vh.userId == UserId).Select(vh => new { eventId = vh.eventId, attended = vh.attended }).ToList()
             };

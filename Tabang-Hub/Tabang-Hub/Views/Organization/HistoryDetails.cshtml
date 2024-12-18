@@ -83,6 +83,15 @@
         position: relative;
     }
 </style>
+
+@{
+    // Define Philippine time zone
+    TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+    // Get current Philippine time
+    DateTime philippineTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, philippineTimeZone);
+}
+
 <div class="container mt-5">
     <!-- Navigation Tabs -->
     <ul class="nav nav-pills mb-4 justify-content-center" id="eventTabs" role="tablist">
@@ -100,7 +109,7 @@
             <div class="row mb-4">
                 <div class="col-md-12">
                     <div class="profile-card d-flex align-items-center">
-                        <img src="@Url.Content("~/Content/images/tabanghub3.png")" class="profile-img me-3" alt="Organization Profile">
+                        <img src="@Url.Content(Model.OrgInfo.profilePath)" class="profile-img me-3" alt="Organization Profile">
                         <div>
                             <h4>@Model.OrgInfo.orgName</h4>
                             <p>@Model.OrgInfo.orgDescription</p>
@@ -145,7 +154,7 @@
                     <div class="card h-100">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h5 class="card-title mb-0">Event Details</h5>
-                            @if (Model.eventDetails.dateStart >= DateTime.Now)
+                            @if (Model.eventDetails.dateStart >= philippineTime)
                             {
                                 <button class="btn btn-outline-primary edit-button" data-bs-toggle="modal" data-bs-target="#editEventModal">Edit</button>
                             }
@@ -260,7 +269,6 @@
                                             <th scope="col" style="width: 20%;">Email</th>
                                             <th scope="col" style="width: 25%;">Skills</th>
                                             <th scope="col" style="width: 20%;">Ratings</th>
-                                            <th scope="col" style="width: 20%;">Feedback</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -278,7 +286,7 @@
                                                                 <td>
                                                                     <img src="@Url.Content("~/Content/UserProfile/" + profile.profilePath)" class="profile-img" alt="Volunteer Image" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
                                                                 </td>
-                                                                <td>@ratingItem.VolunteerId</td>
+                                                                <td>@ratingItem.Name</td>
                                                                 <td>
                                                                     @foreach (var skillRating in ratingItem.SkillRatings)
                                                                     {
@@ -303,20 +311,6 @@
                                                                                 }
                                                                             }
                                                                         </div>
-                                                                    }
-                                                                </td>
-                                                                <td>
-                                                                    @if (!string.IsNullOrEmpty(ratingItem.Feedback) && ratingItem.Feedback.Length > 50)
-                                                                    {
-                                                                        <span data-bs-toggle="popover"
-                                                                              data-bs-trigger="hover focus"
-                                                                              data-bs-content="@ratingItem.Feedback">
-                                                                            @ratingItem.Feedback.Substring(0, 50)...
-                                                                        </span>
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        @ratingItem.Feedback
                                                                     }
                                                                 </td>
                                                             </tr>

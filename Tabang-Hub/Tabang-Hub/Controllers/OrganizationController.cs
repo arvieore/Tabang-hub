@@ -18,6 +18,7 @@ using System.Globalization;
 using System.Security.Cryptography.X509Certificates;
 using iTextSharp.text.pdf;
 using iTextSharp.text;
+using System.Web.UI.WebControls;
 
 namespace Tabang_Hub.Controllers
 {
@@ -612,6 +613,11 @@ namespace Tabang_Hub.Controllers
         {
             try
             {
+                TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+                // Get current Philippine time
+                DateTime philippineTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, philippineTimeZone);
+
                 donation.userId = UserId;
                 // Validate the donation details
                 if (string.IsNullOrEmpty(donation.donationEventName))
@@ -619,7 +625,7 @@ namespace Tabang_Hub.Controllers
                     return Json(new { success = false, message = "Donation name is required." });
                 }
 
-                if (donation.dateStart < DateTime.Now)
+                if (donation.dateStart < philippineTime)
                 {
                     return Json(new { success = false, message = "Start date must be in the future." });
                 }
@@ -745,6 +751,15 @@ namespace Tabang_Hub.Controllers
             var listofEventVolunteerHistory = _organizationManager.ListOfEventVolunteersHistory(id);
             var skillReq = _organizationManager.listOfSkillRequirement(events.eventId);
             var volunteerSkills = _organizationManager.ListOfEventVolunteerSkills();
+            var getdonate = _organizationManager.GetDonatesByDonationEventId(events.eventId);
+            var donated = new List<Donated>();
+
+            foreach (var donatesItem in getdonate)
+            {
+                var donatedItem = _organizationManager.GetDonatedByDonatesId((int)donatesItem.donatesId);
+
+                donated.AddRange(donatedItem);
+            }
 
             //var matchedSkill = _organizationManager.GetMatchedVolunteers(id);
             var matchedSkill = await _organizationManager.GetMatchedVolunteers(id);
@@ -815,6 +830,7 @@ namespace Tabang_Hub.Controllers
 
             var indexModel = new Lists()
             {
+                donateds = donated,
                 OrgInfo = orgInfo,
                 eventDetails = events,
                 listOfSkills = listOfSkill,
@@ -1032,6 +1048,11 @@ namespace Tabang_Hub.Controllers
         [HttpPost]
         public JsonResult InviteVolunteer(List<int> selectedVolunteers, int eventId)
         {
+            TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+            // Get current Philippine time
+            DateTime philippineTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, philippineTimeZone);
+
             string errMsg = string.Empty;
             var events = _organizationManager.GetEventByEventId(eventId);
             List<int> alreadyJoinedUsers = new List<int>();
@@ -1076,7 +1097,7 @@ namespace Tabang_Hub.Controllers
                     content = $"You have been invited to join the {events.eventTitle} event.",
                     broadcast = 0,
                     status = 0,
-                    createdAt = DateTime.Now,
+                    createdAt = philippineTime,
                     readAt = null
                 };
 
@@ -1797,6 +1818,11 @@ namespace Tabang_Hub.Controllers
         [HttpPost]
         public ActionResult Delete(int eventId)
         {
+            TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+            // Get current Philippine time
+            DateTime philippineTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, philippineTimeZone);
+
             var deleteEvent = _organizationManager.DeleteEvent(eventId, ref ErrorMessage);
             var volunteer = _organizationManager.GetVolunteersByEventId(eventId);
             var events = _organizationManager.GetEventByEventId(eventId);
@@ -1817,7 +1843,7 @@ namespace Tabang_Hub.Controllers
                     content = $"{events.eventTitle} Event has been deleted.",
                     broadcast = 0,
                     status = 0,
-                    createdAt = DateTime.Now,
+                    createdAt = philippineTime,
                     readAt = null
                 };
 
@@ -1980,17 +2006,41 @@ namespace Tabang_Hub.Controllers
             var donationSummary = _organizationManager.GetDonationEventSummaryByUserId(UserId);
             var recentEvents = _organizationManager.GetRecentOngoingEventsByUserId(UserId);
             var totalSkills = _organizationManager.GetAllVolunteerSkills(UserId);
-            var userDonated = _organizationManager.GetRecentUserDonationsByUserId(UserId);
             var eventHistory = _organizationManager.GetEventHistoryByUserId(UserId);
             var listofUserDonated = _organizationManager.ListOfUserDonated(UserId);
             var donationList = _organizationManager.GetListOfDonationEventByUserId(UserId);
             var listOfvlntr = new List<Volunteers>();
             var listOfDoneEvents = _organizationManager.ListOfDoneEvents(UserId);
+            var donationEvent = _organizationManager.ListOfDonationEventByUserId(UserId);
 
             // Dictionary to accumulate volunteer participation stats
             var volunteerStats = new Dictionary<int, TopVolunteer>();
             var volunteerStats1 = new Dictionary<int, TopVolunteer>();
             var donatorStats = new Dictionary<int, TopDonators>();
+            var recentDonators = new List<RecentDonate>();
+
+            foreach (var donationEventItem in donationEvent)
+            {
+                var donates = _organizationManager.GetDonatesByDonationEventId(donationEventItem.donationEventId);
+
+                foreach (var donatesItem in donates)
+                {
+                    var volunteerInfo = _organizationManager.GetVolunteerInfoByUserId((int)donatesItem.userId);
+                    var donated = _organizationManager.GetDonatedByDonatesId(donatesItem.donatesId);
+
+                    // Create a new RecentDonate object
+                    var recentDonate = new RecentDonate
+                    {
+                        donates = donatesItem,
+                        donated = donated,
+                        votingerInfo = volunteerInfo
+                    };
+
+                    // Add to the list
+                    recentDonators.Add(recentDonate);
+                }
+            }
+
 
             foreach (var evnt in events)
             {
@@ -2149,7 +2199,7 @@ namespace Tabang_Hub.Controllers
                 donationSummary = donationSummary,
                 totalSkills = totalSkills,
                 orgEventHistory = eventHistory,
-                recentDonators = userDonated,
+                recentDonators1 = recentDonators,
                 topVolunteers = top5Volunteers, // Assign the top volunteers list here
                 volunteers = listOfvlntr,
                 topDonators = topDonators,
@@ -2255,6 +2305,10 @@ namespace Tabang_Hub.Controllers
         {
             string errMsg = string.Empty;
             var feedback = "Great Job";
+            TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+            // Get current Philippine time
+            DateTime philippineTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, philippineTimeZone);
 
 
             if (volunteerRatings == null || volunteerRatings.Count == 0)
@@ -2291,7 +2345,7 @@ namespace Tabang_Hub.Controllers
                     content = $"{events.eventTitle} has ended",
                     broadcast = 0,
                     status = 0,
-                    createdAt = DateTime.Now,
+                    createdAt = philippineTime,
                     readAt = null
                 };
 
@@ -2377,6 +2431,7 @@ namespace Tabang_Hub.Controllers
                 var toAppend = new VolunteerRatingData()
                 {
                     VolunteerId = (int)item.userId,
+                    Name = item.UserAccount.email,
                     Attendance = (int)item.attended,
                     Feedback = feedback.feedback1,
                     SkillRatings = rateToAppend,

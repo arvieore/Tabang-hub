@@ -227,12 +227,30 @@ namespace Tabang_Hub.Repository
         {
             return _userDonated.GetAll();
         }
+        //public List<OrgEvents> GetAllRecentOrgEvents()
+        //{
+        //    var recentEvents = _orgEvents._table
+        //        .Where(m => m.dateStart.HasValue && m.dateEnd.HasValue &&
+        //                    m.dateStart.Value <= DateTime.Now && m.dateEnd.Value > DateTime.Now)
+        //        // Events that have started but not yet ended
+        //        .OrderByDescending(m => m.dateStart.Value) // Order by dateStart, most recent first
+        //        .Take(5) // Get the top 5 most recent events
+        //        .ToList();
+
+        //    return recentEvents;
+        //}
         public List<OrgEvents> GetAllRecentOrgEvents()
         {
+            // Define the Philippine time zone
+            TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+            // Get the current time in the Philippine time zone
+            DateTime philippineTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, philippineTimeZone);
+
+            // Query for events based on Philippine time
             var recentEvents = _orgEvents._table
                 .Where(m => m.dateStart.HasValue && m.dateEnd.HasValue &&
-                            m.dateStart.Value <= DateTime.Now && m.dateEnd.Value > DateTime.Now)
-                // Events that have started but not yet ended
+                            m.dateStart.Value <= philippineTime && m.dateEnd.Value > philippineTime)
                 .OrderByDescending(m => m.dateStart.Value) // Order by dateStart, most recent first
                 .Take(5) // Get the top 5 most recent events
                 .ToList();
@@ -251,23 +269,64 @@ namespace Tabang_Hub.Repository
 
         //    return recentEvents;
         //}
+        //public Dictionary<int, int> AllEventSummary()
+        //{
+        //    // Events from the main table
+        //    var eventSummary = _orgEvents._table
+        //        .Where(m => m.dateStart.HasValue && m.dateEnd.HasValue && m.dateEnd.Value <= DateTime.Now)
+        //        .GroupBy(m => m.dateStart.Value.Month)
+        //        .ToDictionary(
+        //            group => group.Key,
+        //            group => group.Count()
+        //        );
+
+        //    // Events from the history table
+        //    var historySummary = _orgEvents._table.Where(m => m.status == 2)
+        //        .GroupBy(m => m.dateStart.Value.Month)
+        //        .ToDictionary(
+        //            group => group.Key,
+        //            group => group.Count()
+        //        );
+
+        //    // Merge the two dictionaries
+        //    foreach (var month in historySummary.Keys)
+        //    {
+        //        if (eventSummary.ContainsKey(month))
+        //        {
+        //            eventSummary[month] += historySummary[month];
+        //        }
+        //        else
+        //        {
+        //            eventSummary[month] = historySummary[month];
+        //        }
+        //    }
+
+        //    return eventSummary;
+        //}
         public Dictionary<int, int> AllEventSummary()
         {
+            // Define Philippine time zone
+            TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+            // Get the current Philippine time
+            DateTime philippineTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, philippineTimeZone);
+
             // Events from the main table
             var eventSummary = _orgEvents._table
-                .Where(m => m.dateStart.HasValue && m.dateEnd.HasValue && m.dateEnd.Value <= DateTime.Now)
+                .Where(m => m.dateStart.HasValue && m.dateEnd.HasValue && m.dateEnd.Value <= philippineTime)
                 .GroupBy(m => m.dateStart.Value.Month)
                 .ToDictionary(
-                    group => group.Key,
-                    group => group.Count()
+                    group => group.Key,  // Month
+                    group => group.Count()  // Event count
                 );
 
             // Events from the history table
-            var historySummary = _orgEvents._table.Where(m => m.status == 2)
+            var historySummary = _orgEvents._table
+                .Where(m => m.status == 2)
                 .GroupBy(m => m.dateStart.Value.Month)
                 .ToDictionary(
-                    group => group.Key,
-                    group => group.Count()
+                    group => group.Key,  // Month
+                    group => group.Count()  // Event count
                 );
 
             // Merge the two dictionaries

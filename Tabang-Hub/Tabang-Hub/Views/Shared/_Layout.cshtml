@@ -127,6 +127,15 @@
         }
     </style>
 </head>
+
+@{
+    // Define Philippine time zone
+    TimeZoneInfo philippineTimeZone3 = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+    // Get current Philippine time
+    DateTime philippineTime3 = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, philippineTimeZone3);
+}
+
 <body id="section_1">
     <!-- Overlay -->
     <div class="overlay" id="overlay"></div>
@@ -153,7 +162,7 @@
 
                             <!-- Suggestion Item with Online Image -->
                             <div id="suggestions" class="suggestions">
-                                @foreach (var eventSuggest in Model.listOfEvents.Where(m => m.End_Date >= DateTime.Now))
+                                @foreach (var eventSuggest in Model.listOfEvents.Where(m => m.End_Date >= philippineTime3))
                                 {
                                     <div class="suggestion-item d-flex align-items-center"
                                          data-event-name="@eventSuggest.Event_Name"

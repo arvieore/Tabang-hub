@@ -20,6 +20,14 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <link href="~/Content/Css/Participate.css" rel="stylesheet" />
 
+@{
+    // Define Philippine time zone
+    TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+    // Get current Philippine time
+    DateTime philippineTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, philippineTimeZone);
+}
+
 <nav class="navbar navbar-expand-sm navbar-light bg-light custom-navbar mb-4">
     <div class="container justify-content-center section-title-container">
         <ul class="navbar-nav d-flex flex-row" style="margin-left: 15px;">
@@ -54,7 +62,7 @@
                     </div>
                 </div>
             </div>
-            foreach (var org in Model.orgEvents.Where(m => m.status != 2 && m.dateEnd >= DateTime.Now))
+            foreach (var org in Model.orgEvents.Where(m => m.status != 2 && m.dateEnd >= philippineTime))
             {
                 DateTime? originalDateStart = org.dateStart;
                 string formattedDateStart = originalDateStart.HasValue ? originalDateStart.Value.ToString("MMMM dd, yyyy") : "N/A";
@@ -341,7 +349,7 @@
 
                     <div class="container mt-5 event-card"
                          data-start-date="@formattedDateStart"
-                        data-end-date="@formattedDateEnd"
+                         data-end-date="@formattedDateEnd"
                          data-rating="@(group.Skills.Average(s => s.Rating) ?? 0)">
                         <div class="card custom-card shadow-lg" data-bs-toggle="modal" data-bs-target="#eventModal-@vh.eventId">
                             <div class="row g-0 history-card">

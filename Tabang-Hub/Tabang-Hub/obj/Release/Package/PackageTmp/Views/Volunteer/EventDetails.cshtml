@@ -13,6 +13,15 @@
         padding-top: 70px;
     }
 </style>
+
+@{
+    // Define Philippine time zone
+    TimeZoneInfo philippineTimeZone1 = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+    // Get current Philippine time
+    DateTime philippineTime1 = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, philippineTimeZone1);
+}
+
 @if (Model.volunteer != null && Model.volunteer.Status == 2)
 {
     <div class="container mt-5">
@@ -124,7 +133,23 @@
                             bool hasAllRequiredSkills = Model.detailsSkillRequirement
                                 .All(reqSkill => Model.volunteersSkills.Any(volSkill => volSkill.skillId == reqSkill.skillId));
 
-                            if (orgDetails.dateStart <= DateTime.Now)
+                            @*if (orgDetails.dateStart <= DateTime.Now)
+                                {
+                                    <div class="join-button mt-2 mb-2" style="width: 100%; padding: 10px; background-color: mediumseagreen; color: white; text-align: center">
+                                        <span>
+                                            Ongoing Event
+                                        </span>
+                                    </div>
+                                }*@
+
+                            // Get Philippine Standard Time timezone info
+                            TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+                            // Convert the current server time to Philippine Standard Time
+                            DateTime philippineTimeNow = TimeZoneInfo.ConvertTime(DateTime.Now, philippineTimeZone);
+
+
+                            if (orgDetails.dateStart <= philippineTimeNow)
                             {
                                 <div class="join-button mt-2 mb-2" style="width: 100%; padding: 10px; background-color: mediumseagreen; color: white; text-align: center">
                                     <span>
@@ -132,6 +157,7 @@
                                     </span>
                                 </div>
                             }
+
                             if (hasAllRequiredSkills)
                             {
 
@@ -141,7 +167,7 @@
                                     foreach (var status in Model.volunteersStatusEvent)
                                     {
                                         var getDateOfEvent = Model.listOfEventsOne.FirstOrDefault();
-                                        if (status.Status.Equals(1) && Model.volunteersStatusEvent.Count() != 0 && getDateOfEvent.Start_Date > DateTime.Now)
+                                        if (status.Status.Equals(1) && Model.volunteersStatusEvent.Count() != 0 && getDateOfEvent.Start_Date > philippineTime1)
                                         {
                                             <button style="width: 100%" onclick="leaveEvent('@orgDetails.eventId')" class="btn btnRequest">
                                                 Leave event
@@ -176,44 +202,44 @@
                                 {
                                     foreach (var evnt in Model.listOfEventsOne)
                                     {
-                                    <div class="donation-progress">
-                                        <label>Funds Donated</label>
+                                        <div class="donation-progress">
+                                            <label>Funds Donated</label>
 
-                                        <div class="d-flex align-items-center my-2">
-                                            <p class="mb-0">
-                                                <strong>Fund Donated: </strong>
-                                            </p>
-                                            @{
+                                            <div class="d-flex align-items-center my-2">
+                                                <p class="mb-0">
+                                                    <strong>Fund Donated: </strong>
+                                                </p>
+                                                @{
+                                                    decimal? raisedAmount = 0;
+
+                                                    foreach (var donated in Model.MyDonations)
+                                                    {
+                                                        raisedAmount += donated.donationQuantity;
+                                                    }
+                                                }
+                                                <p class="ms-auto mb-0">
+                                                    <!-- <strong>Goal:</strong> -->
+                                                    @($"{raisedAmount:₱ #,##0.00}") @*/ ₱@evt.Target_Amount*@
+                                                </p>
+                                            </div>
+
+                                            <!--<div class="progress">
+                                            {
                                                 decimal? raisedAmount = 0;
 
-                                                foreach (var donated in Model.MyDonations)
+                                                foreach (var donated in Model.listofUserDonated)
                                                 {
-                                                    raisedAmount += donated.donationQuantity;
+                                                    raisedAmount += donated.amount;
                                                 }
+
+                                                var percentage = (raisedAmount / evnt.Target_Amount) * 100;
                                             }
-                                            <p class="ms-auto mb-0">
-                                                <!-- <strong>Goal:</strong> -->
-                                                @($"{raisedAmount:₱ #,##0.00}") @*/ ₱@evt.Target_Amount*@
-                                            </p>
+                                            <div class="progress-bar" role="progressbar" style="width: percentage%; background-color: mediumseagreen;" aria-valuenow="raisedAmount" aria-valuemin="0" aria-valuemax="@evnt.Target_Amount"></div>
+                                            <div class="progress-label">($"{raisedAmount:₱#,##0.00}")-->
+                                            @*/ @($"{evnt.Target_Amount:₱#,##0.00}")*@
+                                            <!--</div>
+                                            </div>-->
                                         </div>
-
-                        <!--<div class="progress">
-        {
-            decimal? raisedAmount = 0;
-
-            foreach (var donated in Model.listofUserDonated)
-            {
-                raisedAmount += donated.amount;
-            }
-
-            var percentage = (raisedAmount / evnt.Target_Amount) * 100;
-        }
-        <div class="progress-bar" role="progressbar" style="width: percentage%; background-color: mediumseagreen;" aria-valuenow="raisedAmount" aria-valuemin="0" aria-valuemax="@evnt.Target_Amount"></div>
-        <div class="progress-label">($"{raisedAmount:₱#,##0.00}")-->
-                        @*/ @($"{evnt.Target_Amount:₱#,##0.00}")*@
-                        <!--</div>
-    </div>-->
-                    </div>
                                         <div class="donate-button mt-2">
                                             <!-- Button to open the donation modal -->
                                             <button style="width: 100%" type="button" class="btn btn-primary btn-block" data-toggle="modal" data-target="#donationModal">
@@ -355,7 +381,14 @@ else
                             {
                                 var getVolStatus = Model.volunteersStatusEvent.Select(m => m.Status).FirstOrDefault();
 
-                                if (orgDetails.dateStart <= DateTime.Now)
+                                // Get Philippine Standard Time timezone info
+                                TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+                                // Convert the current server time to Philippine Standard Time
+                                DateTime philippineTimeNow = TimeZoneInfo.ConvertTime(philippineTime1, philippineTimeZone);
+
+
+                                if (orgDetails.dateStart <= philippineTimeNow)
                                 {
                                     <div class="join-button mt-2 mb-2" style="width: 100%; padding: 10px; background-color: mediumseagreen; color: white; text-align: center">
                                         <span>
@@ -363,6 +396,15 @@ else
                                         </span>
                                     </div>
                                 }
+
+                                @*if (orgDetails.dateStart <= DateTime.Now)
+                                    {
+                                        <div class="join-button mt-2 mb-2" style="width: 100%; padding: 10px; background-color: mediumseagreen; color: white; text-align: center">
+                                            <span>
+                                                Ongoing Event
+                                            </span>
+                                        </div>
+                                    }*@
 
                                 if (getVolStatus.Equals(1) && Model.volunteersStatusEvent.Count() != 0)
                                 {
@@ -383,7 +425,15 @@ else
                                     .All(reqSkill => Model.volunteersSkills.Any(volSkill => volSkill.skillId == reqSkill.skillId));
                                 if (hasAllRequiredSkills)
                                 {
-                                    if (@orgDetails.dateStart <= DateTime.Now)
+
+                                    // Get Philippine Standard Time timezone info
+                                    TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+                                    // Convert the current server time to Philippine Standard Time
+                                    DateTime philippineTimeNow = TimeZoneInfo.ConvertTime(DateTime.Now, philippineTimeZone);
+
+
+                                    if (orgDetails.dateStart <= philippineTimeNow)
                                     {
                                         <div class="join-button mt-2 mb-2" style="width: 100%; padding: 10px; background-color: mediumseagreen; color: white; text-align: center">
                                             <span>
@@ -391,12 +441,48 @@ else
                                             </span>
                                         </div>
                                     }
+
+                                    @*if (@orgDetails.dateStart <= DateTime.Now)
+                                        {
+                                            <div class="join-button mt-2 mb-2" style="width: 100%; padding: 10px; background-color: mediumseagreen; color: white; text-align: center">
+                                                <span>
+                                                    Ongoing Event
+                                                </span>
+                                            </div>
+                                        }*@
                                     else
                                     {
                                         <div class="join-button mt-2">
                                             <button style="width: 100%" type="button" class="btn btn-primary btn-block" onclick="applyEvent('@orgDetails.eventId')">
                                                 Join now
                                             </button>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    @*if (@orgDetails.dateStart <= DateTime.Now)
+                                        {
+                                            <div class="join-button mt-2 mb-2" style="width: 100%; padding: 10px; background-color: mediumseagreen; color: white; text-align: center">
+                                                <span>
+                                                    Ongoing Event
+                                                </span>
+                                            </div>
+                                        }*@
+
+                                    // Get Philippine Standard Time timezone info
+                                    TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+                                    // Convert the current server time to Philippine Standard Time
+                                    DateTime philippineTimeNow = TimeZoneInfo.ConvertTime(DateTime.Now, philippineTimeZone);
+
+
+                                    if (orgDetails.dateStart <= philippineTimeNow)
+                                    {
+                                        <div class="join-button mt-2 mb-2" style="width: 100%; padding: 10px; background-color: mediumseagreen; color: white; text-align: center">
+                                            <span>
+                                                Ongoing Event
+                                            </span>
                                         </div>
                                     }
                                 }

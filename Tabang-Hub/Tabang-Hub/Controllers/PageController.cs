@@ -29,6 +29,13 @@ namespace Tabang_Hub.Controllers
         public async Task<ActionResult> Index()
         {
             var user = _userManager.GetUserByEmail(User.Identity.Name);
+
+            // Define Philippine time zone
+            TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+            // Get current Philippine time
+            DateTime philippineTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, philippineTimeZone);
+
             if (user != null)
             {
                 switch (user.roleId)
@@ -42,7 +49,7 @@ namespace Tabang_Hub.Controllers
                         var getOrgInfo = _orgInfo.GetAll().ToList();
                         _volunteerManager.CheckVolunteerEventEndByUserId(UserId);
                         var getVolunteers = _volunteers.GetAll().ToList();
-                        var orgEventsSelectId = _orgEvents.GetAll().Where(m => m.dateEnd >= DateTime.Now).Select(m => m.eventId).ToList();
+                        var orgEventsSelectId = _orgEvents.GetAll().Where(m => m.dateEnd >= philippineTime).Select(m => m.eventId).ToList();
 
                         var donationEvents = _userManager.ListOfOngoinDonationEvent();
                         var donationList = new List<Donation>();
@@ -118,7 +125,7 @@ namespace Tabang_Hub.Controllers
                                 orgInfos = getOrgInfo,
                                 listofUserDonated = getUserDonated,
                                 detailsEventImage = _eventImages.GetAll().ToList(),
-                                listOfEventsSection = db.vw_ListOfEvent.Where(m => m.End_Date >= DateTime.Now && m.status != 3).ToList(),
+                                listOfEventsSection = db.vw_ListOfEvent.Where(m => m.End_Date >= philippineTime && m.status != 3).ToList(),
                                 ListOfDonationEvents = donationList,
 
                                 MyDonations = getDonated,
@@ -145,7 +152,7 @@ namespace Tabang_Hub.Controllers
                                 orgInfos = getOrgInfo,
                                 listofUserDonated = getUserDonated,
                                 detailsEventImage = _eventImages.GetAll().ToList(),
-                                listOfEventsSection = db.vw_ListOfEvent.Where(m => m.End_Date >= DateTime.Now & m.status != 3).ToList(),
+                                listOfEventsSection = db.vw_ListOfEvent.Where(m => m.End_Date >= philippineTime && m.status != 3).ToList(),
 
                                 MyDonations = getDonated,
                                 listOfDonates = db.Donates.ToList(),
@@ -166,8 +173,14 @@ namespace Tabang_Hub.Controllers
         }
         public JsonResult GetFilteredEvents(string searchTerm)
         {
+            // Define Philippine time zone
+            TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+            // Get current Philippine time
+            DateTime philippineTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, philippineTimeZone);
+
             var events = db.vw_ListOfEvent
-                          .Where(e => e.End_Date >= DateTime.Now && e.Event_Name.Contains(searchTerm) && e.status != 3)
+                          .Where(e => e.End_Date >= philippineTime && e.Event_Name.Contains(searchTerm) && e.status != 3)
                           .Select(e => new
                           {
                               Event_Id = e.Event_Id,
@@ -177,7 +190,7 @@ namespace Tabang_Hub.Controllers
                           .ToList();
 
             var donationEvent = db.DonationEvent
-                           .Where(e => e.dateEnd >= DateTime.Now && e.donationEventName.Contains(searchTerm) && e.status != 3)
+                           .Where(e => e.dateEnd >= philippineTime && e.donationEventName.Contains(searchTerm) && e.status != 3)
                            .Select(e => new
                            {
                                Event_Id = e.donationEventId,

@@ -831,7 +831,6 @@ namespace Tabang_Hub.Controllers
                     donationSummary = donationSummary,
                     totalSkills = totalSkills1,
                     orgEventHistory = eventHistory,
-                    recentDonators = userDonated,
                     topVolunteers = top5Volunteers, // Assign the top volunteers list here
                     volunteers = listOfvlntr,
                     topDonators = topDonators,

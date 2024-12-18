@@ -116,6 +116,7 @@ namespace Tabang_Hub.Utils
         public class VolunteerRatingData
         {
             public int VolunteerId { get; set; }
+            public string Name { get; set; }
             public int Attendance { get; set; } // Process Attendance
             public string Feedback { get; set; }
             public List<SkillRating> SkillRatings { get; set; }
@@ -189,6 +190,15 @@ namespace Tabang_Hub.Utils
             public Donates donates { get; set; }
             public DonationEvent donationEvent { get; set; }
             public OrgEvents orgEvents { get; set; }
+        }
+
+        public List<RecentDonate> recentDonators1 { get; set; }
+
+        public class RecentDonate
+        { 
+            public Donates donates { get; set; }
+            public List<Donated> donated  { get; set; }
+            public VolunteerInfo votingerInfo { get; set; }
         }
     }
 }

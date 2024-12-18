@@ -80,6 +80,15 @@
         }
     </style>
 </head>
+
+@{
+    // Define Philippine time zone
+    TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+    // Get current Philippine time
+    DateTime philippineTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, philippineTimeZone);
+}
+
 <body>
     <div class="wrapper">
 
@@ -288,13 +297,13 @@
                             <!-- Recommended Event Tab -->
                             <div class="tab-pane fade show active" id="recommendedSection" role="tabpanel" aria-labelledby="recommended-tab">
                                 <div class="row" id="recommendedContainer">
-                                    @if (Model.listOfEvents.Where(m => m.End_Date >= DateTime.Now).Count().Equals(0))
+                                    @if (Model.listOfEvents.Where(m => m.End_Date >= philippineTime).Count().Equals(0))
                                     {
                                         <div style="text-align: center; margin-top: 100px; margin-bottom: 70px;">
                                             <div>No recommended event available.</div>
                                         </div>
                                     }
-                                    @foreach (var evt in Model.listOfEvents.Where(m => m.End_Date >= DateTime.Now))
+                                    @foreach (var evt in Model.listOfEvents.Where(m => m.End_Date >= philippineTime))
                                     {
                                         <div class="col-lg-4 col-md-6 mt-2 col-12 mb-4 mb-lg-0 event-card">
                                             <div class="custom-block-wrap">

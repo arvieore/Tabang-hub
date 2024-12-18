@@ -407,19 +407,20 @@
                                 <h4>Recent Donators</h4>
                             </div>
                             <div class="card-body mt-4" style="max-height: 350px; overflow-y: auto;">
-                                @if (Model.recentDonators.Any())
+                                @if (Model.recentDonators1.Any())
                                 {
-                                    foreach (var recent in Model.recentDonators)
+                                    foreach (var recent in Model.recentDonators1
+                                                                  .OrderByDescending(r => r.donates.donatedAt)
+                                                                  .Take(5))
                                     {
                                         <div class="recent-message d-flex align-items-center mb-3">
                                             <div class="avatar avatar-lg">
                                                 <img src="~/Content/images1/faces/4.jpg" class="rounded-circle" alt="Donor Image">
                                             </div>
                                             <div class="ms-3 w-100">
-                                                <h5 class="mb-1 text-md" data-bs-toggle="tooltip" title="@recent.UserAccount.email">
-                                                    @recent.UserAccount.email
+                                                <h5 class="mb-1 text-md" data-bs-toggle="tooltip" title="@recent.votingerInfo.lName, @recent.votingerInfo.lName">
+                                                    @recent.votingerInfo.lName, @recent.votingerInfo.lName
                                                 </h5>
-                                                <p class="text-muted mb-0 text-sm">@recent.amount</p>
                                             </div>
                                         </div>
                                     }
@@ -429,6 +430,7 @@
                                     <p class="text-muted">No recent donator.</p>
                                 }
                             </div>
+
                         </div>
                     </div>
 

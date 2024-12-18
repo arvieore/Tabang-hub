@@ -7,6 +7,14 @@
 
 <link href="~/Content/Css/orgProfs.css" rel="stylesheet" />
 
+@{
+    // Define Philippine time zone
+    TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+    // Get current Philippine time
+    DateTime philippineTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, philippineTimeZone);
+}
+
 <form id="orgProfileForm" action="/Organization/EditProf" method="post" enctype="multipart/form-data">
     <div class="container my-5">
         <!-- Organization Header Section -->
@@ -127,7 +135,7 @@
         {
             foreach (var events in Model.getAllOrgEvent)
             {
-                if (events.dateStart > DateTime.Now)
+                if (events.dateStart > philippineTime)
                 {
                     <div class="col-md-6 event-card">
                         <div class="card shadow-sm h-100" style="background-color: #f8f9fa;">
@@ -179,7 +187,7 @@
         {
             foreach (var events in Model.getAllOrgEvent)
             {
-                if (events.dateStart <= DateTime.Now && events.dateEnd > DateTime.Now)
+                if (events.dateStart <= philippineTime && events.dateEnd > philippineTime)
                 {
                     <div class="col-md-6 event-card">
                         <div class="card shadow-sm h-100" style="background-color: #f8f9fa;">
@@ -231,7 +239,7 @@
         {
             foreach (var events in Model.getAllOrgEvent)
             {
-                if (events.dateEnd < DateTime.Now)
+                if (events.dateEnd < philippineTime)
                 {
                     <div class="col-md-6 event-card">
                         <div class="card shadow-sm h-100" style="background-color: #f8f9fa;">

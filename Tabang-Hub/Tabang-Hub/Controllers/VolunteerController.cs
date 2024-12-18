@@ -377,12 +377,19 @@ namespace Tabang_Hub.Controllers
         {
             try
             {
+
+                // Define Philippine time zone
+                TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+                // Get current Philippine time
+                DateTime philippineTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, philippineTimeZone);
+
                 var checkEventStatus = db.OrgEvents.Where(m => m.eventId == eventId).FirstOrDefault();
                 if (checkEventStatus == null)
                 {
                     return RedirectToAction("Index", "Page");
                 }
-                if (checkEventStatus.status.Equals(2) || checkEventStatus.dateEnd <= DateTime.Now)
+                if (checkEventStatus.status.Equals(2) || checkEventStatus.dateEnd <= philippineTime)
                 {
                     return RedirectToAction("Index", "Page");
                 }
@@ -779,6 +786,13 @@ namespace Tabang_Hub.Controllers
         {
             try
             {
+
+                // Define Philippine time zone
+                TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+                // Get current Philippine time
+                DateTime philippineTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, philippineTimeZone);
+
                 var checkVolunteer = _volunteers.GetAll().Where(m => m.userId == UserId && m.eventId == eventId).FirstOrDefault();
                 var checkDateOrgEvents = _orgEvents.GetAll().Where(m => m.eventId == eventId).FirstOrDefault();
 
@@ -845,7 +859,7 @@ namespace Tabang_Hub.Controllers
                     eventId = eventId,
                     Status = 0,
                     //skillId = db.Skills.Where(m => m.skillName == skill).Select(m => m.skillId).FirstOrDefault(),
-                    appliedAt = DateTime.Now
+                    appliedAt = philippineTime
                 };
 
                 //var updateVolunteerNeeded = db.OrgEvents.Where(m => m.eventId == eventId).FirstOrDefault();
@@ -1060,6 +1074,12 @@ namespace Tabang_Hub.Controllers
         {
             var exist = _volunteerManager.DonatesIsExist(referenceNumber);
 
+            // Define Philippine time zone
+            TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+            // Get current Philippine time
+            DateTime philippineTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, philippineTimeZone);
+
             if (exist != null)
             {
                 Donated donated = new Donated()
@@ -1176,7 +1196,7 @@ namespace Tabang_Hub.Controllers
                         content = $"You have received a donation of {donated.donationQuantity} for event #{eventId}.",
                         broadcast = 0, // Not a broadcast
                         status = 0, // Assuming 1 is the status for a new notification
-                        createdAt = DateTime.Now,
+                        createdAt = philippineTime,
                         readAt = null // Initially unread
                     };
 
@@ -1254,6 +1274,13 @@ namespace Tabang_Hub.Controllers
         [Authorize]
         public async Task<ActionResult> PaymentFailed(int eventId, int donationType, decimal amount)
         {
+
+            // Define Philippine time zone
+            TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+            // Get current Philippine time
+            DateTime philippineTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, philippineTimeZone);
+
             ViewBag.DonationType = donationType;
             ViewBag.EventId = eventId;
             // Save the donation to the database
@@ -1262,7 +1289,7 @@ namespace Tabang_Hub.Controllers
                 userId = UserId, // User who made the donation
                 eventId = eventId,
                 amount = amount,
-                donatedAt = DateTime.Now,
+                donatedAt = philippineTime,
                 Status = 0
             };
 
@@ -1536,6 +1563,13 @@ namespace Tabang_Hub.Controllers
         {
             try
             {
+
+                // Define Philippine time zone
+                TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+                // Get current Philippine time
+                DateTime philippineTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, philippineTimeZone);
+
                 var updateVol = _volunteers.GetAll().Where(m => m.userId == UserId && m.eventId == eventId).FirstOrDefault();
                 var events = _organizationManager.GetEventByEventId(eventId);
                 var volInfo = _volunteerManager.GetVolunteerInfoByUserId((int)updateVol.userId);
@@ -1554,7 +1588,7 @@ namespace Tabang_Hub.Controllers
                         content = $"{volInfo.lName + ", " + volInfo.lName} Left {events.eventTitle} Event.",
                         broadcast = 0, // Not a broadcast
                         status = 0, // Assuming 1 is the status for a new notification
-                        createdAt = DateTime.Now,
+                        createdAt = philippineTime,
                         readAt = null // Initially unread
                     };
 

@@ -151,6 +151,10 @@ namespace Tabang_Hub.Repository
         { 
             return _donates._table.Where(m => m.donatesId == donatesId).FirstOrDefault();
         }
+        public List<DonationEvent> ListOfDonationEventByUserId(int userId)
+        { 
+            return _donationEvent._table.Where(m => m.userId == userId).ToList();
+        }
         public ErrorCode MarkAsReceived(int donateId, ref string errMsg)
         {
             var donate = GetDonatesByDonateId(donateId);
@@ -296,7 +300,7 @@ namespace Tabang_Hub.Repository
         public List<vw_ListOfEvent> ListOfEvents(int userId)
         {
             return _listOfEvents.GetAll()
-                                .Where(m => m.User_Id == userId)
+                                .Where(m => m.User_Id == userId && m.status != 3)
                                 .OrderByDescending(m => m.Start_Date) // Replace `Event_Date` with the appropriate property for ordering
                                 .ToList();
         }
@@ -388,8 +392,13 @@ namespace Tabang_Hub.Repository
             return eventSummary;
         }
         public List<OrgEvents> ListOfDoneEvents(int userId)
-        { 
-            return _orgEvents._table.Where(m => m.userId == userId && m.dateEnd <= DateTime.Now).ToList();
+        {
+            TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+            // Get current Philippine time
+            DateTime philippineTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, philippineTimeZone);
+
+            return _orgEvents._table.Where(m => m.userId == userId && m.dateEnd <= philippineTime).ToList();
         }
         public Dictionary<int, int> GetDonationEventSummaryByUserId(int userId)
         {
@@ -416,16 +425,16 @@ namespace Tabang_Hub.Repository
 
             return recentEvents;
         }
-        public List<UserDonated> GetRecentUserDonationsByUserId(int userId)
+        public List<Donates> GetRecentUserDonationsByUserId(int userId)
         {
             // Step 1: Get the list of events created by the organization
-            var events = ListOfEvents(userId); // Assuming ListOfEvents(userId) returns a list of events for the user
+            var events = ListOfEvents2(userId); // Assuming ListOfEvents(userId) returns a list of events for the user
 
             // Step 2: Extract the event IDs from the event list
-            var eventIds = events.Select(e => e.Event_Id).ToList();
+            var eventIds = events.Select(e => e.eventId).ToList();
 
             // Step 3: Get donations related to those event IDs, sorted by the most recent donation date
-            var recentDonations = _userDonated._table
+            var recentDonations = _donates._table
                 .Where(d => eventIds.Contains((int)d.eventId)) // This will work if eventIds is a list of integers
                 .OrderByDescending(d => d.donatedAt) // Sort by donation date
                 .Take(5) // Get the top 5 most recent donations
@@ -490,8 +499,13 @@ namespace Tabang_Hub.Repository
         // Fetches all donation events for the user
         public List<DonationEvent> ListOfFinishedDonationEvents(int userId)
         {
+            TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+            // Get current Philippine time
+            DateTime philippineTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, philippineTimeZone);
+
             return _donationEvent._table
-                .Where(m => m.userId == userId && m.dateEnd <= DateTime.Now && m.status == 1)
+                .Where(m => m.userId == userId && m.dateEnd <= philippineTime && m.status == 1)
                 .ToList();
         }
 
@@ -500,12 +514,17 @@ namespace Tabang_Hub.Repository
         {
             try
             {
+                TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+                // Get current Philippine time
+                DateTime philippineTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, philippineTimeZone);
+
                 var donationEvents = ListOfFinishedDonationEvents(userId);
 
                 foreach (var donationEventItem in donationEvents)
                 {
                     // Ensure the event's end date has passed
-                    if (donationEventItem.dateEnd <= DateTime.Now)
+                    if (donationEventItem.dateEnd <= philippineTime)
                     {
                         // Update the status to "Finished"
                         donationEventItem.status = 2;
@@ -534,6 +553,11 @@ namespace Tabang_Hub.Repository
         }
         public ErrorCode SentNotif(int userId, int senderId, int relatedId, string type, string content, int broadcast, ref string errMsg)
         {
+            TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+            // Get current Philippine time
+            DateTime philippineTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, philippineTimeZone);
+
             var notif = new Notification()
             {
                 userId = userId,
@@ -543,7 +567,7 @@ namespace Tabang_Hub.Repository
                 content = content,
                 broadcast = broadcast,
                 status = 0,
-                createdAt = DateTime.Now,
+                createdAt = philippineTime,
 
             };
             try
@@ -725,6 +749,10 @@ namespace Tabang_Hub.Repository
             var userDonated = ListOfUserDonated(eventId);
             var groupChat = GetGroupChatByEventId(eventId);
 
+            TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+            // Get current Philippine time
+            DateTime philippineTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, philippineTimeZone);
 
             //if (groupChat != null)
             //{
@@ -826,7 +854,7 @@ namespace Tabang_Hub.Repository
 
             var evnt = GetEventByEventId(eventId);
 
-            if (evnt.dateStart >= DateTime.Now && evnt.dateEnd <= DateTime.Now)
+            if (evnt.dateStart >= philippineTime && evnt.dateEnd <= philippineTime)
             {
                 errMsg = "Event is ongoing";
                 return ErrorCode.Error;
@@ -1445,6 +1473,12 @@ namespace Tabang_Hub.Repository
         public ErrorCode SaveRating(int eventId, int attended, string feedback, int userId, int skillId, int rating, ref string errMsg)
         {
             var skillId1 = GetSkillIdByEventIdAndUserId(eventId, userId);
+
+            TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+            // Get current Philippine time
+            DateTime philippineTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, philippineTimeZone);
+
             skillId1.attended = attended;
             var ratings = new Rating()
             {
@@ -1452,7 +1486,7 @@ namespace Tabang_Hub.Repository
                 userId = userId,
                 rate = rating,
                 skillId = skillId,             
-                ratedAt = DateTime.Now,
+                ratedAt = philippineTime,
             };
 
             var feedbck = new Feedback()

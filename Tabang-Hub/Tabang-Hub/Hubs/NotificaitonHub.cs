@@ -26,6 +26,11 @@ namespace Tabang_Hub.Hubs
                 return;
             }
 
+            TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+            // Get current Philippine time
+            DateTime philippineTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, philippineTimeZone);
+
             // Save notification to the database
             var notification = new Notification
             {
@@ -36,7 +41,7 @@ namespace Tabang_Hub.Hubs
                 content = content,
                 broadcast = isBroadcast ? 1 : 0,
                 status = 0, // Assume 0 = unread, 1 = read
-                createdAt = DateTime.Now
+                createdAt = philippineTime
             };
 
             _db.Notification.Add(notification);
@@ -65,18 +70,42 @@ namespace Tabang_Hub.Hubs
 
 
         // Method to mark a notification as read
+        //public void MarkAsRead(int notificationId)
+        //{
+        //    var notification = _db.Notification.Find(notificationId);
+        //    if (notification != null && notification.status == 0)
+        //    {
+        //        notification.status = 1; // Mark as read
+        //        notification.readAt = DateTime.Now;
+        //        _db.SaveChanges();
+
+        //        Clients.Caller.updateNotificationStatus(notificationId, "read");
+        //    }
+        //}
+
         public void MarkAsRead(int notificationId)
         {
+            // Find the notification in the database
             var notification = _db.Notification.Find(notificationId);
+
             if (notification != null && notification.status == 0)
             {
-                notification.status = 1; // Mark as read
-                notification.readAt = DateTime.Now;
+                // Define Philippine time zone
+                TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+                // Get current Philippine time
+                DateTime philippineTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, philippineTimeZone);
+
+                // Mark as read and update timestamp
+                notification.status = 1;  // Mark as read
+                notification.readAt = philippineTime;  // Use Philippine time
                 _db.SaveChanges();
 
+                // Notify the client
                 Clients.Caller.updateNotificationStatus(notificationId, "read");
             }
         }
+
 
         // Method to broadcast a notification to all users
         //public void BroadcastNotification(int senderUserId, string type, string content)

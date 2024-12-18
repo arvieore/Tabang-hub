@@ -5,6 +5,14 @@
     Layout = "~/Views/Shared/_Admin.cshtml";
 }
 
+@{
+    // Define Philippine time zone
+    TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+    // Get current Philippine time
+    DateTime philippineTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, philippineTimeZone);
+}
+
 <<div class="container">
     <form id="editOrgProfileForm" enctype="multipart/form-data">
         <div class="card mb-4">
@@ -83,7 +91,7 @@
     <div class="row gy-4" id="ongoingEvents">
         @foreach (var events in Model.getAllOrgEvent)
         {
-            if (events.dateStart > DateTime.Now)
+            if (events.dateStart > philippineTime)
             {
                 <div class="col-md-6 event-card">
                     <div class="card shadow-sm h-100" style="background-color: #f8f9fa;">
@@ -127,7 +135,7 @@
     <div class="row gy-4" id="upcomingEvents">
         @foreach (var events in Model.getAllOrgEvent)
         {
-            if (events.dateStart <= DateTime.Now && events.dateEnd > DateTime.Now)
+            if (events.dateStart <= philippineTime && events.dateEnd > philippineTime)
             {
                 <div class="col-md-6 event-card">
                     <div class="card shadow-sm h-100" style="background-color: #f8f9fa;">
@@ -171,7 +179,7 @@
     <div class="row gy-4" id="doneEvents">
         @foreach (var events in Model.getAllOrgEvent)
         {
-            if (events.dateEnd < DateTime.Now)
+            if (events.dateEnd < philippineTime)
             {
                 <div class="col-md-6 event-card">
                     <div class="card shadow-sm h-100" style="background-color: #f8f9fa;">
