@@ -106,76 +106,93 @@
 
                     }
 
-                    <div class="apply-button mt-2">
-                        @foreach (var orgDetails in Model.orgEvents)
+                <div class="apply-button mt-2">
+                    @foreach (var orgDetails in Model.orgEvents)
+                    {
+                        <div class="action-buttons mt-2">
+                            <div class="d-flex justify-content-between">
+                                <!-- Accept Button -->
+                                <button type="button" class="btn btn-success flex-fill me-1" onclick="acceptEvent('@orgDetails.eventId')" @*data-toggle="modal" data-target="#acceptEventModal"*@ data-event-id="@orgDetails.eventId" id="acceptButton">
+                                    Accept Invitation
+                                </button>
+                                <!-- Decline Button -->
+                                <button type="button" class="btn btn-danger flex-fill ms-1" onclick="declineInvite('@orgDetails.eventId')" data-event-id="@orgDetails.eventId" id="declineButton">
+                                    Decline Invitation
+                                </button>
+                            </div>
+                        </div>
+                        bool hasAllRequiredSkills = Model.detailsSkillRequirement
+                            .All(reqSkill => Model.volunteersSkills.Any(volSkill => volSkill.skillId == reqSkill.skillId));
+
+                        @*if (orgDetails.dateStart <= DateTime.Now)
                         {
-                            <div class="action-buttons mt-2">
-                                <div class="d-flex justify-content-between">
-                                    <!-- Accept Button -->
-                                    <button type="button" class="btn btn-success flex-fill me-1" onclick="acceptEvent('@orgDetails.eventId')" @*data-toggle="modal" data-target="#acceptEventModal"*@ data-event-id="@orgDetails.eventId" id="acceptButton">
-                                        Accept Invitation
-                                    </button>
-                                    <!-- Decline Button -->
-                                    <button type="button" class="btn btn-danger flex-fill ms-1" onclick="declineInvite('@orgDetails.eventId')" data-event-id="@orgDetails.eventId" id="declineButton">
+                            <div class="join-button mt-2 mb-2" style="width: 100%; padding: 10px; background-color: mediumseagreen; color: white; text-align: center">
+                                <span>
+                                    Ongoing Event
+                                </span>
+                            </div>
+                        }*@
+
+                        // Get Philippine Standard Time timezone info
+                        TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+                        // Convert the current server time to Philippine Standard Time
+                        DateTime philippineTimeNow = TimeZoneInfo.ConvertTime(DateTime.Now, philippineTimeZone);
+
+
+                        if (orgDetails.dateStart <= philippineTimeNow)
+                        {
+                            <div class="join-button mt-2 mb-2" style="width: 100%; padding: 10px; background-color: mediumseagreen; color: white; text-align: center">
+                                <span>
+                                    Ongoing Event
+                                </span>
+                            </div>
+                        }
+
+                        if (hasAllRequiredSkills)
+                        {
+
+                            // Display join buttons if all required skills are met
+                            if (!Model.volunteersStatusEvent.Count().Equals(0))
+                            {
+                                foreach (var status in Model.volunteersStatusEvent)
+                                {
+                                    var getDateOfEvent = Model.listOfEventsOne.FirstOrDefault();
+                                    if (status.Status.Equals(1) && Model.volunteersStatusEvent.Count() != 0 && getDateOfEvent.Start_Date > DateTime.Now)
+                                    {
+                                        <button style="width: 100%" onclick="leaveEvent('@orgDetails.eventId')" class="btn btnRequest">
+                                            Leave event
+                                        </button>
+                                    }
+                                    else if (status.Status.Equals(0) && Model.volunteersStatusEvent.Count() != 0)
+                                    {
+                                        <button style="width: 100%" onclick="cancelEvent('@orgDetails.eventId')" class="btn btnRequest">
+                                            Cancel application
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        @*<div class="action-buttons mt-2">
+                            <div class="d-flex justify-content-between">*@
+                                        <!-- Accept Button -->
+                                        <!--<button type="button" class="btn btn-success flex-fill me-1" onclick="acceptEvent('@orgDetails.eventId')"--> @*data-toggle="modal" data-target="#acceptEventModal"*@
+                                        <!--data-event-id="@orgDetails.eventId" id="acceptButton">
+                            Accept Invitation
+                        </button>-->
+                                        <!-- Decline Button -->
+                                        @*<button type="button" class="btn btn-danger flex-fill ms-1" onclick="declineInvite('@orgDetails.eventId')" data-event-id="@orgDetails.eventId" id="declineButton">
                                         Decline Invitation
                                     </button>
                                 </div>
-                            </div>
-                            bool hasAllRequiredSkills = Model.detailsSkillRequirement
-                                .All(reqSkill => Model.volunteersSkills.Any(volSkill => volSkill.skillId == reqSkill.skillId));
-
-                            if (orgDetails.dateStart <= DateTime.Now)
-                            {
-                                <div class="join-button mt-2 mb-2" style="width: 100%; padding: 10px; background-color: mediumseagreen; color: white; text-align: center">
-                                    <span>
-                                        Ongoing Event
-                                    </span>
-                                </div>
-                            }
-                            if (hasAllRequiredSkills)
-                            {
-
-                                // Display join buttons if all required skills are met
-                                if (!Model.volunteersStatusEvent.Count().Equals(0))
-                                {
-                                    foreach (var status in Model.volunteersStatusEvent)
-                                    {
-                                        var getDateOfEvent = Model.listOfEventsOne.FirstOrDefault();
-                                        if (status.Status.Equals(1) && Model.volunteersStatusEvent.Count() != 0 && getDateOfEvent.Start_Date > DateTime.Now)
-                                        {
-                                            <button style="width: 100%" onclick="leaveEvent('@orgDetails.eventId')" class="btn btnRequest">
-                                                Leave event
-                                            </button>
-                                        }
-                                        else if (status.Status.Equals(0) && Model.volunteersStatusEvent.Count() != 0)
-                                        {
-                                            <button style="width: 100%" onclick="cancelEvent('@orgDetails.eventId')" class="btn btnRequest">
-                                                Cancel application
-                                            </button>
-                                        }
-                                        else
-                                        {
-                                            @*<div class="action-buttons mt-2">
-                                                <div class="d-flex justify-content-between">*@
-                                            <!-- Accept Button -->
-                                            <!--<button type="button" class="btn btn-success flex-fill me-1" onclick="acceptEvent('@orgDetails.eventId')"--> @*data-toggle="modal" data-target="#acceptEventModal"*@
-                                            <!--data-event-id="@orgDetails.eventId" id="acceptButton">
-                                                Accept Invitation
-                                            </button>-->
-                                            <!-- Decline Button -->
-                                            @*<button type="button" class="btn btn-danger flex-fill ms-1" onclick="declineInvite('@orgDetails.eventId')" data-event-id="@orgDetails.eventId" id="declineButton">
-                                                            Decline Invitation
-                                                        </button>
-                                                    </div>
-                                                </div>*@
-                                        }
+                            </div>*@
                                     }
                                 }
+                            }
 
-                                if (orgDetails.donationIsAllowed == 1)
+                            if (orgDetails.donationIsAllowed == 1)
+                            {
+                                foreach (var evnt in Model.listOfEventsOne)
                                 {
-                                    foreach (var evnt in Model.listOfEventsOne)
-                                    {
                                     <div class="donation-progress">
                                         <label>Funds Donated</label>
 
@@ -197,59 +214,59 @@
                                             </p>
                                         </div>
 
-                        <!--<div class="progress">
-        {
-            decimal? raisedAmount = 0;
+                                        <!--<div class="progress">
+                            {
+                                decimal? raisedAmount = 0;
 
-            foreach (var donated in Model.listofUserDonated)
-            {
-                raisedAmount += donated.amount;
-            }
+                                foreach (var donated in Model.listofUserDonated)
+                                {
+                                    raisedAmount += donated.amount;
+                                }
 
-            var percentage = (raisedAmount / evnt.Target_Amount) * 100;
-        }
-        <div class="progress-bar" role="progressbar" style="width: percentage%; background-color: mediumseagreen;" aria-valuenow="raisedAmount" aria-valuemin="0" aria-valuemax="@evnt.Target_Amount"></div>
-        <div class="progress-label">($"{raisedAmount:₱#,##0.00}")-->
-                        @*/ @($"{evnt.Target_Amount:₱#,##0.00}")*@
-                        <!--</div>
-    </div>-->
-                    </div>
-                                        <div class="donate-button mt-2">
-                                            <!-- Button to open the donation modal -->
-                                            <button style="width: 100%" type="button" class="btn btn-primary btn-block" data-toggle="modal" data-target="#donationModal">
-                                                Donate
-                                            </button>
-                                        </div>
+                                var percentage = (raisedAmount / evnt.Target_Amount) * 100;
+                            }
+                            <div class="progress-bar" role="progressbar" style="width: percentage%; background-color: mediumseagreen;" aria-valuenow="raisedAmount" aria-valuemin="0" aria-valuemax="@evnt.Target_Amount"></div>
+                            <div class="progress-label">($"{raisedAmount:₱#,##0.00}")-->
+                                        @*/ @($"{evnt.Target_Amount:₱#,##0.00}")*@
+                                        <!--</div>
+                        </div>-->
+                                    </div>
+                                    <div class="donate-button mt-2">
+                                        <!-- Button to open the donation modal -->
+                                        <button style="width: 100%" type="button" class="btn btn-primary btn-block" data-toggle="modal" data-target="#donationModal">
+                                            Donate
+                                        </button>
+                                    </div>
 
-                                        <!-- Donation Modal -->
-                                        <div class="modal fade" id="donationModal" tabindex="-1" role="dialog" aria-labelledby="donationModalLabel" aria-hidden="true">
-                                            <div class="modal-dialog modal-dialog-centered" role="document">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="donationModalLabel">Donate</h5>
-                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                            <span aria-hidden="true">&times;</span>
-                                                        </button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <form id="donationForm">
-                                                            <div class="form-group">
-                                                                <label for="donationAmount">Amount</label>
-                                                                <input type="number" class="form-control" id="donationAmount" min="1" required>
-                                                            </div>
-                                                        </form>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-primary" onclick="submitDonation('@orgDetails.eventId')">Donate</button>
-                                                    </div>
+                                    <!-- Donation Modal -->
+                                    <div class="modal fade" id="donationModal" tabindex="-1" role="dialog" aria-labelledby="donationModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="donationModalLabel">Donate</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <form id="donationForm">
+                                                        <div class="form-group">
+                                                            <label for="donationAmount">Amount</label>
+                                                            <input type="number" class="form-control" id="donationAmount" min="1" required>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-primary" onclick="submitDonation('@orgDetails.eventId')">Donate</button>
                                                 </div>
                                             </div>
                                         </div>
-                                    }
+                                    </div>
                                 }
                             }
                         }
-                    </div>
+                    }
+                </div>
                     <br />
                 </div>
             </div>
@@ -348,14 +365,66 @@ else
                         </div>
                     }
 
-                    <div class="apply-button mt-2">
-                        @foreach (var orgDetails in Model.orgEvents)
+                <div class="apply-button mt-2">
+                    @foreach (var orgDetails in Model.orgEvents)
+                    {
+                        if (!Model.volunteersStatusEvent.Count().Equals(0))
                         {
-                            if (!Model.volunteersStatusEvent.Count().Equals(0))
-                            {
-                                var getVolStatus = Model.volunteersStatusEvent.Select(m => m.Status).FirstOrDefault();
+                            var getVolStatus = Model.volunteersStatusEvent.Select(m => m.Status).FirstOrDefault();
 
-                                if (orgDetails.dateStart <= DateTime.Now)
+                            // Get Philippine Standard Time timezone info
+                            TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+                            // Convert the current server time to Philippine Standard Time
+                            DateTime philippineTimeNow = TimeZoneInfo.ConvertTime(DateTime.Now, philippineTimeZone);
+
+
+                            if (orgDetails.dateStart <= philippineTimeNow)
+                            {
+                                <div class="join-button mt-2 mb-2" style="width: 100%; padding: 10px; background-color: mediumseagreen; color: white; text-align: center">
+                                    <span>
+                                        Ongoing Event
+                                    </span>
+                                </div>
+                            }
+
+                            @*if (orgDetails.dateStart <= DateTime.Now)
+                            {
+                                <div class="join-button mt-2 mb-2" style="width: 100%; padding: 10px; background-color: mediumseagreen; color: white; text-align: center">
+                                    <span>
+                                        Ongoing Event
+                                    </span>
+                                </div>
+                            }*@
+
+                            if (getVolStatus.Equals(1) && Model.volunteersStatusEvent.Count() != 0)
+                            {
+                                <button style="width: 100%" onclick="leaveEvent('@orgDetails.eventId')" class="btn btnRequest">
+                                    Leave event
+                                </button>
+                            }
+                            else if (getVolStatus.Equals(0) && Model.volunteersStatusEvent.Count() != 0)
+                            {
+                                <button style="width: 100%" onclick="cancelEvent('@orgDetails.eventId')" class="btn btnRequest">
+                                    Cancel application
+                                </button>
+                            }
+                        }
+                        if (Model.volunteersStatusEvent.Count().Equals(0))
+                        {
+                            bool hasAllRequiredSkills = Model.detailsSkillRequirement
+                                .All(reqSkill => Model.volunteersSkills.Any(volSkill => volSkill.skillId == reqSkill.skillId));
+                            if (hasAllRequiredSkills)
+                            {
+
+                                // Get Philippine Standard Time timezone info
+                                TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+                                // Convert the current server time to Philippine Standard Time
+                                DateTime philippineTimeNow = TimeZoneInfo.ConvertTime(DateTime.Now, philippineTimeZone);
+
+
+                                if (orgDetails.dateStart <= philippineTimeNow)
                                 {
                                     <div class="join-button mt-2 mb-2" style="width: 100%; padding: 10px; background-color: mediumseagreen; color: white; text-align: center">
                                         <span>
@@ -364,111 +433,119 @@ else
                                     </div>
                                 }
 
-                                if (getVolStatus.Equals(1) && Model.volunteersStatusEvent.Count() != 0)
+                                @*if (@orgDetails.dateStart <= DateTime.Now)
                                 {
-                                    <button style="width: 100%" onclick="leaveEvent('@orgDetails.eventId')" class="btn btnRequest">
-                                        Leave event
-                                    </button>
-                                }
-                                else if (getVolStatus.Equals(0) && Model.volunteersStatusEvent.Count() != 0)
-                                {
-                                    <button style="width: 100%" onclick="cancelEvent('@orgDetails.eventId')" class="btn btnRequest">
-                                        Cancel application
-                                    </button>
-                                }
-                            }
-                            if (Model.volunteersStatusEvent.Count().Equals(0))
-                            {
-                                bool hasAllRequiredSkills = Model.detailsSkillRequirement
-                                    .All(reqSkill => Model.volunteersSkills.Any(volSkill => volSkill.skillId == reqSkill.skillId));
-                                if (hasAllRequiredSkills)
-                                {
-                                    if (@orgDetails.dateStart <= DateTime.Now)
-                                    {
-                                        <div class="join-button mt-2 mb-2" style="width: 100%; padding: 10px; background-color: mediumseagreen; color: white; text-align: center">
-                                            <span>
-                                                Ongoing Event
-                                            </span>
-                                        </div>
-                                    }
-                                    else
-                                    {
-                                        <div class="join-button mt-2">
-                                            <button style="width: 100%" type="button" class="btn btn-primary btn-block" onclick="applyEvent('@orgDetails.eventId')">
-                                                Join now
-                                            </button>
-                                        </div>
-                                    }
-                                }
-                            }
-
-                            if (orgDetails.donationIsAllowed == 1)
-                            {
-                                foreach (var evnt in Model.listOfEventsOne)
-                                {
-                                    <div class="d-flex align-items-center my-2">
-                                        <p class="mb-0">
-                                            <strong>Fund Donated: </strong>
-                                        </p>
-                                        @{
-                                            decimal? raisedAmount = 0;
-
-                                            foreach (var donated in Model.MyDonations)
-                                            {
-                                                raisedAmount += donated.donationQuantity;
-                                            }
-                                        }
-                                        <p class="ms-auto mb-0">
-                                            <!-- <strong>Goal:</strong> -->
-                                            @($"{raisedAmount:₱ #,##0.00}") @*/ ₱@evt.Target_Amount*@
-                                        </p>
+                                    <div class="join-button mt-2 mb-2" style="width: 100%; padding: 10px; background-color: mediumseagreen; color: white; text-align: center">
+                                        <span>
+                                            Ongoing Event
+                                        </span>
                                     </div>
-
-                                    <!--<div class="donation-progress">
-                                    <label>Funds Donated</label>
-                                    <div class="progress">
-                                        @{
-                                        }-->
-                                    @*<div class="progress-bar" role="progressbar" style="width: @percentage%; background-color: mediumseagreen;" aria-valuenow="@raisedAmount" aria-valuemin="0" aria-valuemax="@evnt.Target_Amount"></div>*@
-                                    @*<div class="progress-label">@($"{raisedAmount:₱#,##0.00}") / @($"{evnt.Target_Amount:₱#,##0.00}")</div>*@
-                                    @*<div class="progress-label">@($"{raisedAmount:₱#,##0.00}")</div>*@
-                                    <!--</div>
-                                    </div>-->
-                                    <div class="donate-button mt-2">
-                                        <!-- Button to open the donation modal -->
-                                        <button style="width: 100%" type="button" class="btn btn-primary btn-block" data-toggle="modal" data-target="#donationModal">
-                                            Donate
+                                }*@
+                                else
+                                {
+                                    <div class="join-button mt-2">
+                                        <button style="width: 100%" type="button" class="btn btn-primary btn-block" onclick="applyEvent('@orgDetails.eventId')">
+                                            Join now
                                         </button>
                                     </div>
+                                }
+                            }
+                            else
+                            {
+                                @*if (@orgDetails.dateStart <= DateTime.Now)
+                                {
+                                    <div class="join-button mt-2 mb-2" style="width: 100%; padding: 10px; background-color: mediumseagreen; color: white; text-align: center">
+                                        <span>
+                                            Ongoing Event
+                                        </span>
+                                    </div>
+                                }*@
 
-                                    <!-- Donation Modal -->
-                                    <div class="modal fade" id="donationModal" tabindex="-1" role="dialog" aria-labelledby="donationModalLabel" aria-hidden="true">
-                                        <div class="modal-dialog modal-dialog-centered" role="document">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="donationModalLabel">Donate</h5>
-                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                        <span aria-hidden="true">&times;</span>
-                                                    </button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <form id="donationForm">
-                                                        <div class="form-group">
-                                                            <label for="donationAmount">Amount</label>
-                                                            <input type="number" class="form-control" id="donationAmount" min="1" required>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-primary" onclick="submitDonation('@orgDetails.eventId')">Donate</button>
-                                                </div>
-                                            </div>
-                                        </div>
+                                // Get Philippine Standard Time timezone info
+                                TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+                                // Convert the current server time to Philippine Standard Time
+                                DateTime philippineTimeNow = TimeZoneInfo.ConvertTime(DateTime.Now, philippineTimeZone);
+
+
+                                if (orgDetails.dateStart <= philippineTimeNow)
+                                {
+                                    <div class="join-button mt-2 mb-2" style="width: 100%; padding: 10px; background-color: mediumseagreen; color: white; text-align: center">
+                                        <span>
+                                            Ongoing Event
+                                        </span>
                                     </div>
                                 }
                             }
                         }
-                    </div>
+
+                        if (orgDetails.donationIsAllowed == 1)
+                        {
+                            foreach (var evnt in Model.listOfEventsOne)
+                            {
+                                <div class="d-flex align-items-center my-2">
+                                    <p class="mb-0">
+                                        <strong>Fund Donated: </strong>
+                                    </p>
+                                    @{
+                                        decimal? raisedAmount = 0;
+
+                                        foreach (var donated in Model.MyDonations)
+                                        {
+                                            raisedAmount += donated.donationQuantity;
+                                        }
+                                    }
+                                    <p class="ms-auto mb-0">
+                                        <!-- <strong>Goal:</strong> -->
+                                        @($"{raisedAmount:₱ #,##0.00}") @*/ ₱@evt.Target_Amount*@
+                                    </p>
+                                </div>
+
+                                <!--<div class="donation-progress">
+                <label>Funds Donated</label>
+                <div class="progress">
+                    @{
+                    }-->
+                                @*<div class="progress-bar" role="progressbar" style="width: @percentage%; background-color: mediumseagreen;" aria-valuenow="@raisedAmount" aria-valuemin="0" aria-valuemax="@evnt.Target_Amount"></div>*@
+                                @*<div class="progress-label">@($"{raisedAmount:₱#,##0.00}") / @($"{evnt.Target_Amount:₱#,##0.00}")</div>*@
+                                @*<div class="progress-label">@($"{raisedAmount:₱#,##0.00}")</div>*@
+                                <!--</div>
+                </div>-->
+                                <div class="donate-button mt-2">
+                                    <!-- Button to open the donation modal -->
+                                    <button style="width: 100%" type="button" class="btn btn-primary btn-block" data-toggle="modal" data-target="#donationModal">
+                                        Donate
+                                    </button>
+                                </div>
+
+                                <!-- Donation Modal -->
+                                <div class="modal fade" id="donationModal" tabindex="-1" role="dialog" aria-labelledby="donationModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="donationModalLabel">Donate</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form id="donationForm">
+                                                    <div class="form-group">
+                                                        <label for="donationAmount">Amount</label>
+                                                        <input type="number" class="form-control" id="donationAmount" min="1" required>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-primary" onclick="submitDonation('@orgDetails.eventId')">Donate</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    }
+                </div>
                     <br />
                 </div>
             </div>

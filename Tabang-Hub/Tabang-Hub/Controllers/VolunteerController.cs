@@ -404,7 +404,7 @@ namespace Tabang_Hub.Controllers
                     var volunteerStatusEvent = _volunteersStatusEvent.GetAll().Where(m => m.userId == UserId && m.eventId == eventId).ToList();
 
                     var getAmountDonateInfo = db.Donated.Where(m => db.Donates
-                                                        .Any(d => d.eventId == eventId
+                                                        .Any(d => d.eventId == eventId && d.userId == UserId
                                                          && m.donatesId == d.donatesId))
                                                          .ToList();
 

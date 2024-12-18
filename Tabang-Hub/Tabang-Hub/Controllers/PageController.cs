@@ -84,7 +84,7 @@ namespace Tabang_Hub.Controllers
                         foreach (var eventId in orgEventsSelectId)
                         {
                             var getAmountDonateInfo = db.Donated.Where(m => db.Donates
-                                                        .Any(d => d.eventId == eventId
+                                                        .Any(d => d.eventId == eventId && d.userId == UserId
                                                          && m.donatesId == d.donatesId))
                                                          .ToList();
                             getDonated.AddRange(getAmountDonateInfo);
