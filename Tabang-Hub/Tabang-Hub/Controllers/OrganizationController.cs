@@ -2001,6 +2001,7 @@ namespace Tabang_Hub.Controllers
             var profile = _organizationManager.GetProfileByProfileId(UserId);
             var events = _organizationManager.ListOfEvents(UserId);
             var totalDonation = _organizationManager.GetTotalDonationByUserId(UserId);
+            var totalVolunteerDonation = _organizationManager.GetTotalVolunteerDonationByUserId(UserId);
             var totalVolunteer = _organizationManager.GetTotalVolunteerByUserId(UserId);
             var eventSummary = _organizationManager.GetEventsByUserId(UserId);
             var donationSummary = _organizationManager.GetDonationEventSummaryByUserId(UserId);
@@ -2183,8 +2184,20 @@ namespace Tabang_Hub.Controllers
                 .ToList();
 
             // Get top 5 volunteers by total events participated
-            var topDonators = donatorStats.Values
-                .OrderByDescending(v => v.totalAmountDonated)
+            //var topDonators = donatorStats.Values
+            //    .OrderByDescending(v => v.totalAmountDonated)
+            //    .Take(5)
+            //    .ToList();
+
+            // Get top 5 donators by total donation count
+            var top5Donators = recentDonators
+                .GroupBy(r => r.votingerInfo.userId)
+                .Select(g => new TopDonator
+                {
+                    VolunteerInfo = g.First().votingerInfo,
+                    TotalDonations = g.Count() // Count how many times the user donated
+                })
+                .OrderByDescending(v => v.TotalDonations)
                 .Take(5)
                 .ToList();
 
@@ -2193,6 +2206,7 @@ namespace Tabang_Hub.Controllers
                 OrgInfo = orgInfo,
                 listOfEvents = events,
                 totalDonation = totalDonation,
+                totalVolunteerDonation = totalVolunteerDonation,
                 totalVolunteer = totalVolunteer,
                 eventSummary = eventSummary,
                 recentEvents = recentEvents,
@@ -2202,7 +2216,7 @@ namespace Tabang_Hub.Controllers
                 recentDonators1 = recentDonators,
                 topVolunteers = top5Volunteers, // Assign the top volunteers list here
                 volunteers = listOfvlntr,
-                topDonators = topDonators,
+                top5Donator = top5Donators,
                 listOfDonationEvent = donationList,
                 listofUserDonated = listofUserDonated,
             };

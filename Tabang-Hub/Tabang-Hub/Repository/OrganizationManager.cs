@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using iText.StyledXmlParser.Node;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -324,27 +325,41 @@ namespace Tabang_Hub.Repository
         {
             return _donates._table.Where(m => m.eventId == donationEventId).ToList();
         }
-
         public decimal GetTotalDonationByUserId(int userId)
         {
-            var events = ListOfEvents(userId);
             var donationEvent = GetListOfDonationEventByUserId(userId);
 
             decimal? totalDonation = 0;
-
-            foreach (var totalEvent in events)
-            {
-                var donations = GetTotalDonationByEventId(totalEvent.Event_Id);
-
-                foreach (var donation in donations)
-                {
-                    totalDonation += donation.amount;
-                }
-            }
-
+      
             foreach (var donationEventItem in donationEvent)
             {
                 var donates = GetDonatedByDonationEventId(donationEventItem.donationEventId);
+
+                foreach (var donatesItem in donates)
+                {
+                    var donated = GetDonatedByDonatesId(donatesItem.donatesId);
+
+                    foreach (var donatedItem in donated)
+                    {
+                        if (donatedItem.donationType == "Money")
+                        {
+                            totalDonation += donatedItem.donationQuantity;
+                        }
+                    }
+                }
+            }
+
+            return (decimal)totalDonation;
+        }
+        public decimal GetTotalVolunteerDonationByUserId(int userId)
+        {
+            var donationEvent = ListOfEvents2(userId);
+
+            decimal? totalDonation = 0;
+
+            foreach (var donationEventItem in donationEvent)
+            {
+                var donates = GetDonatedByDonationEventId(donationEventItem.eventId);
 
                 foreach (var donatesItem in donates)
                 {

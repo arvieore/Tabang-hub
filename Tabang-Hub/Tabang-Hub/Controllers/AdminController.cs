@@ -631,6 +631,21 @@ namespace Tabang_Hub.Controllers
         public ActionResult Deactivate(int userId)
         {
             string errMsg = string.Empty;
+
+            var user = _adminManager.GetUserById(userId);
+
+            if (user.roleId == 2)
+            {
+                var orgevents = _organizationManager.GetOrgEventsByUserId(user.userId);
+
+                foreach (var eventItem in orgevents)
+                {
+                    if (eventItem.status == 1)
+                    {
+                        return Json(new { success = false, message = "This Organization has upcoming/ongoin event!" });
+                    }
+                }
+            }
             if (_adminManager.DeactivateAccount(userId, ref errMsg) != ErrorCode.Success)
             {
                 return Json(new { success = false, message = errMsg });
@@ -656,23 +671,50 @@ namespace Tabang_Hub.Controllers
                 var profile = _organizationManager.GetProfileByProfileId(organizationId);
                 var events = _organizationManager.ListOfEvents((int)organizationId);
                 var totalDonation = _organizationManager.GetTotalDonationByUserId((int)organizationId);
+                var totalVolunteerDonation = _organizationManager.GetTotalVolunteerDonationByUserId((int)organizationId);
                 var totalVolunteer = _organizationManager.GetTotalVolunteerByUserId((int)organizationId);
                 var eventSummary = _organizationManager.GetEventsByUserId((int)organizationId);
                 var donationSummary = _organizationManager.GetDonationEventSummaryByUserId((int)organizationId);
                 var recentEvents1 = _organizationManager.GetRecentOngoingEventsByUserId((int)organizationId);
                 var totalSkills1 = _organizationManager.GetAllVolunteerSkills((int)organizationId);
-                var userDonated = _organizationManager.GetRecentUserDonationsByUserId((int)organizationId);
                 var eventHistory = _organizationManager.GetEventHistoryByUserId((int)organizationId);
                 var listofUserDonated = _organizationManager.ListOfUserDonated((int)organizationId);
-                var allOrgAcc1 = _adminManager.GetOrganizationAccount();
                 var donationList = _organizationManager.GetListOfDonationEventByUserId((int)organizationId);
-                var listOfDoneEvents = _organizationManager.ListOfDoneEvents((int)organizationId);
                 var listOfvlntr = new List<Volunteers>();
+                var listOfDoneEvents = _organizationManager.ListOfDoneEvents((int)organizationId);
+                var donationEvent = _organizationManager.ListOfDonationEventByUserId((int)organizationId);
+                var allOrgEvents1 = _adminManager.GetAllEvents();
+                var allOrgAcc1 = _adminManager.GetOrganizationAccount();
+                var allVolunteerAccounts1 = _adminManager.GetVolunteerAccount();
 
                 // Dictionary to accumulate volunteer participation stats
                 var volunteerStats = new Dictionary<int, TopVolunteer>();
                 var volunteerStats1 = new Dictionary<int, TopVolunteer>();
                 var donatorStats = new Dictionary<int, TopDonators>();
+                var recentDonators = new List<RecentDonate>();
+
+                foreach (var donationEventItem in donationEvent)
+                {
+                    var donates = _organizationManager.GetDonatesByDonationEventId(donationEventItem.donationEventId);
+
+                    foreach (var donatesItem in donates)
+                    {
+                        var volunteerInfo = _organizationManager.GetVolunteerInfoByUserId((int)donatesItem.userId);
+                        var donated = _organizationManager.GetDonatedByDonatesId(donatesItem.donatesId);
+
+                        // Create a new RecentDonate object
+                        var recentDonate = new RecentDonate
+                        {
+                            donates = donatesItem,
+                            donated = donated,
+                            votingerInfo = volunteerInfo
+                        };
+
+                        // Add to the list
+                        recentDonators.Add(recentDonate);
+                    }
+                }
+
 
                 foreach (var evnt in events)
                 {
@@ -815,30 +857,47 @@ namespace Tabang_Hub.Controllers
                     .ToList();
 
                 // Get top 5 volunteers by total events participated
-                var topDonators = donatorStats.Values
-                    .OrderByDescending(v => v.totalAmountDonated)
+                //var topDonators = donatorStats.Values
+                //    .OrderByDescending(v => v.totalAmountDonated)
+                //    .Take(5)
+                //    .ToList();
+
+                // Get top 5 donators by total donation count
+                var top5Donators = recentDonators
+                    .GroupBy(r => r.votingerInfo.userId)
+                    .Select(g => new TopDonator
+                    {
+                        VolunteerInfo = g.First().votingerInfo,
+                        TotalDonations = g.Count() // Count how many times the user donated
+                    })
+                    .OrderByDescending(v => v.TotalDonations)
                     .Take(5)
                     .ToList();
 
-                var indexModel1 = new Lists()
+                var indexModel = new Lists()
                 {
                     OrgInfo = orgInfo,
                     listOfEvents = events,
                     totalDonation = totalDonation,
+                    totalVolunteerDonation = totalVolunteerDonation,
                     totalVolunteer = totalVolunteer,
                     eventSummary = eventSummary,
                     recentEvents = recentEvents1,
                     donationSummary = donationSummary,
                     totalSkills = totalSkills1,
                     orgEventHistory = eventHistory,
+                    recentDonators1 = recentDonators,
                     topVolunteers = top5Volunteers, // Assign the top volunteers list here
                     volunteers = listOfvlntr,
-                    topDonators = topDonators,
+                    top5Donator = top5Donators,
                     listOfDonationEvent = donationList,
                     listofUserDonated = listofUserDonated,
+                    getAllOrgEvents = allOrgEvents1,
                     getAllOrgAccounts = allOrgAcc1,
+                    getAllVolunteerAccounts = allVolunteerAccounts1,
                 };
-                return View(indexModel1);
+
+                return View(indexModel);
             }
             var allOrgEvents = _adminManager.GetAllEvents();
             var allOrgAcc = _adminManager.GetOrganizationAccount();

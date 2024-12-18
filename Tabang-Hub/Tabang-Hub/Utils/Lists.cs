@@ -92,6 +92,7 @@ namespace Tabang_Hub.Utils
         public List<vw_ListOfEvent> listOfEventsSection { get; set; }
 
         public decimal totalDonation { get; set; }
+        public decimal totalVolunteerDonation { get; set; }
         public int totalVolunteer { get; set; }
 
         public Dictionary<int, int> eventSummary { get; set; }
@@ -199,6 +200,14 @@ namespace Tabang_Hub.Utils
             public Donates donates { get; set; }
             public List<Donated> donated  { get; set; }
             public VolunteerInfo votingerInfo { get; set; }
+        }
+
+        public List<TopDonator> top5Donator { get; set; }
+
+        public class TopDonator
+        {
+            public VolunteerInfo VolunteerInfo { get; set; }
+            public int TotalDonations { get; set; }
         }
     }
 }

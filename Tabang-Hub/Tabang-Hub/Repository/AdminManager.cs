@@ -346,7 +346,7 @@ namespace Tabang_Hub.Repository
         }
         public List<VolunteerInfo> GetVolunteerAccount()
         {
-            return _volunteerInfo.GetAll();
+            return _volunteerInfo._table.Where(m => m.UserAccount.status == 1).ToList(); ;
         }
         public List<UserAccount> GetPendingOrg()
         { 
@@ -354,7 +354,7 @@ namespace Tabang_Hub.Repository
         }
         public List<OrgInfo> GetOrganizationAccount()
         {
-            return _orgInfo.GetAll();
+            return _orgInfo._table.Where(m => m.UserAccount.status == 1).ToList(); ;
         }
         public ErrorCode DeleteUser(int userId, ref string errMsg)
         {
