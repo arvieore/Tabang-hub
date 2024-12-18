@@ -430,11 +430,28 @@ namespace Tabang_Hub.Controllers
                         var recommendedEvents = await _volunteerManager.RunRecommendation(UserId);
 
                         var filteredEvent = new List<vw_ListOfEvent>();
+                        var activeOrgUser = db.UserAccount.Where(m => m.status != 0 && m.roleId == 2).Select(m => m.userId).ToHashSet();
+
                         foreach (var recommendedEvent in recommendedEvents)
                         {
-                            var matchedEvents = _listsOfEvent.GetAll().Where(m => m.Event_Id == recommendedEvent.EventID).ToList();
-                            filteredEvent.AddRange(matchedEvents);
+                            var isExcluded = _volunteers.GetAll().Any(v => v.eventId == recommendedEvent.EventID && v.Status == 1);
+                            if (!isExcluded)
+                            {
+                                var matchedEvents = _listsOfEvent.GetAll().Where(m => m.Event_Id == recommendedEvent.EventID).ToList();
+
+                                if (matchedEvents.Any(m => activeOrgUser.Contains(m.User_Id.Value)))
+                                {
+                                    filteredEvent.AddRange(matchedEvents);
+                                }
+
+                            }
                         }
+
+                        //foreach (var recommendedEvent in recommendedEvents)
+                        //{
+                        //    var matchedEvents = _listsOfEvent.GetAll().Where(m => m.Event_Id == recommendedEvent.EventID).ToList();
+                        //    filteredEvent.AddRange(matchedEvents);
+                        //}
 
                         var indexModel = new Lists()
                         {
@@ -475,7 +492,13 @@ namespace Tabang_Hub.Controllers
                             orgEvents = getEvent,
                             orgOtherEvent = getOrgOtherEvent,
                             listOfEventsOne = getEvents,
-                            listOfEvents = db.vw_ListOfEvent.Where(m => m.status != 3).OrderByDescending(m => m.Event_Id).ToList(),
+
+                            //listOfEvents = db.vw_ListOfEvent.Where(m => m.status != 3).OrderByDescending(m => m.Event_Id).ToList(),
+                            listOfEvents = db.vw_ListOfEvent
+                                    .Where(e => db.UserAccount.Any(u => u.status != 0 && u.roleId == 3 && u.userId == e.User_Id))
+                                    .OrderByDescending(e => e.Event_Id)
+                                    .ToList(),
+
                             volunteers = getVolunteers,
                             //listofUserDonated = listofUserDonated,
                             listOfDonates = listofUserDonated,
@@ -552,11 +575,29 @@ namespace Tabang_Hub.Controllers
                 var recommendedEvents = await _volunteerManager.RunRecommendation(UserId);
                 var filteredEvent = new List<vw_ListOfEvent>();
 
+                var activeOrgUser = db.UserAccount.Where(m => m.status != 0 && m.roleId == 2).Select(m => m.userId).ToHashSet();
+
                 foreach (var recommendedEvent in recommendedEvents)
                 {
-                    var matchedEvents = _listsOfEvent.GetAll().Where(m => m.Event_Id == recommendedEvent.EventID).ToList();
-                    filteredEvent.AddRange(matchedEvents);
+                    var isExcluded = _volunteers.GetAll().Any(v => v.eventId == recommendedEvent.EventID && v.Status == 1);
+                    if (!isExcluded)
+                    {
+                        var matchedEvents = _listsOfEvent.GetAll().Where(m => m.Event_Id == recommendedEvent.EventID).ToList();
+
+                        if (matchedEvents.Any(m => activeOrgUser.Contains(m.User_Id.Value)))
+                        {
+                            filteredEvent.AddRange(matchedEvents);
+                        }
+
+                    }
                 }
+
+
+                //foreach (var recommendedEvent in recommendedEvents)
+                //{
+                //    var matchedEvents = _listsOfEvent.GetAll().Where(m => m.Event_Id == recommendedEvent.EventID).ToList();
+                //    filteredEvent.AddRange(matchedEvents);
+                //}
 
                 // Prepare the model
                 var indexModel = new Lists()
@@ -570,7 +611,13 @@ namespace Tabang_Hub.Controllers
                     donationEvents = db.DonationEvent.Where(m => m.donationEventId == donatioEventId && m.status == 1).ToList(),
                     donationImages = db.DonationImage.Where(m => m.donationEventId == donatioEventId).ToList(),
                     listOfEventsOne = _listsOfEvent.GetAll().Where(m => m.status != 3).ToList(),
-                    listOfEvents = filteredEvent.OrderByDescending(m => m.Event_Id).ToList(),
+
+                    //listOfEvents = filteredEvent.OrderByDescending(m => m.Event_Id).ToList(),
+                    listOfEvents = db.vw_ListOfEvent
+                    .Where(e => db.UserAccount.Any(u => u.status != 0 && u.roleId == 3 && u.userId == e.User_Id))
+                    .OrderByDescending(e => e.Event_Id)
+                    .ToList(),
+
                     detailsEventImageOne = _eventImages.GetAll().Where(m => m.eventId == donatioEventId).ToList(),
                     detailsEventImage = _eventImages.GetAll().ToList(),
                     orgInfos = getInfo,
@@ -1129,11 +1176,28 @@ namespace Tabang_Hub.Controllers
                     var recommendedEvents = await _volunteerManager.RunRecommendation(UserId);
 
                     var filteredEvent = new List<vw_ListOfEvent>();
+                    var activeOrgUser = db.UserAccount.Where(m => m.status != 0 && m.roleId == 2).Select(m => m.userId).ToHashSet();
+
                     foreach (var recommendedEvent in recommendedEvents)
                     {
-                        var matchedEvents = _listsOfEvent.GetAll().Where(m => m.Event_Id == recommendedEvent.EventID).ToList();
-                        filteredEvent.AddRange(matchedEvents);
+                        var isExcluded = _volunteers.GetAll().Any(v => v.eventId == recommendedEvent.EventID && v.Status == 1);
+                        if (!isExcluded)
+                        {
+                            var matchedEvents = _listsOfEvent.GetAll().Where(m => m.Event_Id == recommendedEvent.EventID).ToList();
+
+                            if (matchedEvents.Any(m => activeOrgUser.Contains(m.User_Id.Value)))
+                            {
+                                filteredEvent.AddRange(matchedEvents);
+                            }
+
+                        }
                     }
+
+                    //foreach (var recommendedEvent in recommendedEvents)
+                    //{
+                    //    var matchedEvents = _listsOfEvent.GetAll().Where(m => m.Event_Id == recommendedEvent.EventID).ToList();
+                    //    filteredEvent.AddRange(matchedEvents);
+                    //}
 
                     var indexModel = new Lists()
                     {
@@ -1160,7 +1224,13 @@ namespace Tabang_Hub.Controllers
                         picture = getProfile,
                         CreateEvents = events,
                         skills = _skills.GetAll().ToList(),
-                        listOfEvents = db.vw_ListOfEvent.Where(m => m.status != 3).OrderByDescending(m => m.Event_Id).ToList(),
+
+                        //listOfEvents = db.vw_ListOfEvent.Where(m => m.status != 3).OrderByDescending(m => m.Event_Id).ToList(),
+                        listOfEvents = db.vw_ListOfEvent
+                        .Where(e => db.UserAccount.Any(u => u.status != 0 && u.roleId == 3 && u.userId == e.User_Id))
+                        .OrderByDescending(e => e.Event_Id)
+                        .ToList(),
+
                         detailsEventImage = _eventImages.GetAll().ToList()
                     };
                     return View(indexModel);
@@ -1231,11 +1301,28 @@ namespace Tabang_Hub.Controllers
                     var recommendedEvents = await _volunteerManager.RunRecommendation(UserId);
 
                     var filteredEvent = new List<vw_ListOfEvent>();
+                    var activeOrgUser = db.UserAccount.Where(m => m.status != 0 && m.roleId == 2).Select(m => m.userId).ToHashSet();
+
                     foreach (var recommendedEvent in recommendedEvents)
                     {
-                        var matchedEvents = _listsOfEvent.GetAll().Where(m => m.Event_Id == recommendedEvent.EventID).ToList();
-                        filteredEvent.AddRange(matchedEvents);
+                        var isExcluded = _volunteers.GetAll().Any(v => v.eventId == recommendedEvent.EventID && v.Status == 1);
+                        if (!isExcluded)
+                        {
+                            var matchedEvents = _listsOfEvent.GetAll().Where(m => m.Event_Id == recommendedEvent.EventID).ToList();
+
+                            if (matchedEvents.Any(m => activeOrgUser.Contains(m.User_Id.Value)))
+                            {
+                                filteredEvent.AddRange(matchedEvents);
+                            }
+
+                        }
                     }
+
+                    //foreach (var recommendedEvent in recommendedEvents)
+                    //{
+                    //    var matchedEvents = _listsOfEvent.GetAll().Where(m => m.Event_Id == recommendedEvent.EventID).ToList();
+                    //    filteredEvent.AddRange(matchedEvents);
+                    //}
 
                     var indexModel = new Lists()
                     {
@@ -1262,7 +1349,13 @@ namespace Tabang_Hub.Controllers
                         picture = getProfile,
                         CreateEvents = events,
                         skills = _skills.GetAll().ToList(),
-                        listOfEvents = db.vw_ListOfEvent.Where(m => m.status != 3).OrderByDescending(m => m.Event_Id).ToList(),
+
+                        //listOfEvents = db.vw_ListOfEvent.Where(m => m.status != 3).OrderByDescending(m => m.Event_Id).ToList(),
+                        listOfEvents = db.vw_ListOfEvent
+                        .Where(e => db.UserAccount.Any(u => u.status != 0 && u.roleId == 3 && u.userId == e.User_Id))
+                        .OrderByDescending(e => e.Event_Id)
+                        .ToList(),
+
                         detailsEventImage = _eventImages.GetAll().ToList()
                     };
                     return View(indexModel);
@@ -1321,11 +1414,28 @@ namespace Tabang_Hub.Controllers
                 var recommendedEvents = await _volunteerManager.RunRecommendation(UserId);
 
                 var filteredEvent = new List<vw_ListOfEvent>();
+                var activeOrgUser = db.UserAccount.Where(m => m.status != 0 && m.roleId == 2).Select(m => m.userId).ToHashSet();
+
                 foreach (var recommendedEvent in recommendedEvents)
                 {
-                    var matchedEvents = _listsOfEvent.GetAll().Where(m => m.Event_Id == recommendedEvent.EventID).ToList();
-                    filteredEvent.AddRange(matchedEvents);
+                    var isExcluded = _volunteers.GetAll().Any(v => v.eventId == recommendedEvent.EventID && v.Status == 1);
+                    if (!isExcluded)
+                    {
+                        var matchedEvents = _listsOfEvent.GetAll().Where(m => m.Event_Id == recommendedEvent.EventID).ToList();
+
+                        if (matchedEvents.Any(m => activeOrgUser.Contains(m.User_Id.Value)))
+                        {
+                            filteredEvent.AddRange(matchedEvents);
+                        }
+
+                    }
                 }
+
+                //foreach (var recommendedEvent in recommendedEvents)
+                //{
+                //    var matchedEvents = _listsOfEvent.GetAll().Where(m => m.Event_Id == recommendedEvent.EventID).ToList();
+                //    filteredEvent.AddRange(matchedEvents);
+                //}
 
                 var indexModel = new Lists()
                 {
@@ -1352,7 +1462,13 @@ namespace Tabang_Hub.Controllers
                     CreateEvents = events,
                     picture = getProfile,
                     skills = _skills.GetAll().ToList(),
-                    listOfEvents = db.vw_ListOfEvent.Where(m => m.status != 3).OrderByDescending(m => m.Event_Id).ToList(),
+
+                    //listOfEvents = db.vw_ListOfEvent.Where(m => m.status != 3).OrderByDescending(m => m.Event_Id).ToList(),
+                    listOfEvents = db.vw_ListOfEvent
+                    .Where(e => db.UserAccount.Any(u => u.status != 0 && u.roleId == 3 && u.userId == e.User_Id))
+                    .OrderByDescending(e => e.Event_Id)
+                    .ToList(),
+
                     detailsEventImage = _eventImages.GetAll().ToList()
                 };
                 return View(indexModel);
@@ -1454,7 +1570,13 @@ namespace Tabang_Hub.Controllers
                 volunteersInfo = db.VolunteerInfo.Where(m => m.userId == UserId).ToList(),
                 listofUserDonated = db.UserDonated.Where(m => m.userId == UserId).ToList(),
                 userDonatedInformations = db.sp_GetUserDonatedInformations(UserId).ToList(),
-                listOfEvents = db.vw_ListOfEvent.Where(m => m.status != 3).OrderByDescending(m => m.Event_Id).ToList(),
+
+                //listOfEvents = db.vw_ListOfEvent.Where(m => m.status != 3).OrderByDescending(m => m.Event_Id).ToList(),
+                listOfEvents = db.vw_ListOfEvent
+                .Where(e => db.UserAccount.Any(u => u.status != 0 && u.roleId == 3 && u.userId == e.User_Id))
+                .OrderByDescending(e => e.Event_Id)
+                .ToList(),
+
                 detailsEventImage = _eventImages.GetAll().ToList()
             };
 
@@ -1506,11 +1628,28 @@ namespace Tabang_Hub.Controllers
                     var recommendedEvents = await _volunteerManager.RunRecommendation(UserId);
 
                     var filteredEvent = new List<vw_ListOfEvent>();
+                    var activeOrgUser = db.UserAccount.Where(m => m.status != 0 && m.roleId == 2).Select(m => m.userId).ToHashSet();
+
                     foreach (var recommendedEvent in recommendedEvents)
                     {
-                        var matchedEvents = _listsOfEvent.GetAll().Where(m => m.Event_Id == recommendedEvent.EventID).ToList();
-                        filteredEvent.AddRange(matchedEvents);
+                        var isExcluded = _volunteers.GetAll().Any(v => v.eventId == recommendedEvent.EventID && v.Status == 1);
+                        if (!isExcluded)
+                        {
+                            var matchedEvents = _listsOfEvent.GetAll().Where(m => m.Event_Id == recommendedEvent.EventID).ToList();
+
+                            if (matchedEvents.Any(m => activeOrgUser.Contains(m.User_Id.Value)))
+                            {
+                                filteredEvent.AddRange(matchedEvents);
+                            }
+
+                        }
                     }
+
+                    //foreach (var recommendedEvent in recommendedEvents)
+                    //{
+                    //    var matchedEvents = _listsOfEvent.GetAll().Where(m => m.Event_Id == recommendedEvent.EventID).ToList();
+                    //    filteredEvent.AddRange(matchedEvents);
+                    //}
 
                     var indexModel = new Lists()
                     {
@@ -1543,7 +1682,13 @@ namespace Tabang_Hub.Controllers
                         volunteersHistories = db.sp_VolunteerHistory(UserId).ToList(),
                         rating = db.Rating.Where(m => m.userId == UserId).ToList(),
                         detailsEventImage = getOrgImages,
-                        listOfEvents = db.vw_ListOfEvent.Where(m => m.status != 3).OrderByDescending(m => m.Event_Id).ToList(),
+
+                        //listOfEvents = db.vw_ListOfEvent.Where(m => m.status != 3).OrderByDescending(m => m.Event_Id).ToList(),
+                        listOfEvents = db.vw_ListOfEvent
+                        .Where(e => db.UserAccount.Any(u => u.status != 0 && u.roleId == 3 && u.userId == e.User_Id))
+                        .OrderByDescending(e => e.Event_Id)
+                        .ToList(),
+
                         detailsSkillRequirement = _skillRequirement.GetAll(),
                         allSkill = db.Skills.ToList()
                     };
@@ -1665,11 +1810,28 @@ namespace Tabang_Hub.Controllers
                 var recommendedEvents = await _volunteerManager.RunRecommendation(UserId);
 
                 var filteredEvent = new List<vw_ListOfEvent>();
+                var activeOrgUser = db.UserAccount.Where(m => m.status != 0 && m.roleId == 2).Select(m => m.userId).ToHashSet();
+
                 foreach (var recommendedEvent in recommendedEvents)
                 {
-                    var matchedEvents = _listsOfEvent.GetAll().Where(m => m.Event_Id == recommendedEvent.EventID).ToList();
-                    filteredEvent.AddRange(matchedEvents);
+                    var isExcluded = _volunteers.GetAll().Any(v => v.eventId == recommendedEvent.EventID && v.Status == 1);
+                    if (!isExcluded)
+                    {
+                        var matchedEvents = _listsOfEvent.GetAll().Where(m => m.Event_Id == recommendedEvent.EventID).ToList();
+
+                        if (matchedEvents.Any(m => activeOrgUser.Contains(m.User_Id.Value)))
+                        {
+                            filteredEvent.AddRange(matchedEvents);
+                        }
+
+                    }
                 }
+
+                //foreach (var recommendedEvent in recommendedEvents)
+                //{
+                //    var matchedEvents = _listsOfEvent.GetAll().Where(m => m.Event_Id == recommendedEvent.EventID).ToList();
+                //    filteredEvent.AddRange(matchedEvents);
+                //}
 
                 var indexModel = new Lists()
                 {
@@ -1691,7 +1853,12 @@ namespace Tabang_Hub.Controllers
                     OrgInfo = getOrgInfo,
                     detailsEventImage = orgImage,
                     getAllOrgEvent = orgEvents,
-                    listOfEvents = db.vw_ListOfEvent.Where(m => m.status != 3).OrderByDescending(m => m.Event_Id).ToList(),
+
+                    //listOfEvents = db.vw_ListOfEvent.Where(m => m.status != 3).OrderByDescending(m => m.Event_Id).ToList(),
+                    listOfEvents = db.vw_ListOfEvent
+                    .Where(e => db.UserAccount.Any(u => u.status != 0 && u.roleId == 3 && u.userId == e.User_Id))
+                    .OrderByDescending(e => e.Event_Id)
+                    .ToList(),
                 };
                 return View(indexModel);
             }

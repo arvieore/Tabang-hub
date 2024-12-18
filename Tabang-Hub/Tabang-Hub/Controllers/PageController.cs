@@ -51,14 +51,21 @@ namespace Tabang_Hub.Controllers
                         var getVolunteers = _volunteers.GetAll().ToList();
                         var orgEventsSelectId = _orgEvents.GetAll().Where(m => m.dateEnd >= philippineTime).Select(m => m.eventId).ToList();
 
-                        var donationEvents = _userManager.ListOfOngoinDonationEvent();
+                        //var donationEvents = _userManager.ListOfOngoinDonationEvent();
+                        var donationEvents = _userManager.ListOfOngoinDonationEvent()
+                        .Where(donationEvent => donationEvent.dateStart <= philippineTime // Event has started
+                                             && donationEvent.dateEnd > philippineTime)   // Event has not ended
+                        .ToList();
+
                         var donationList = new List<Donation>();
 
                         foreach (var donationEvent in donationEvents)
                         {
-                            var donationImages = _userManager.GetDonationEventImageByEventId(donationEvent.donationEventId);
-                            foreach (var donationImage in donationImages)
+                            // Check if the associated user account is active
+                            var isActiveUser = db.UserAccount.Any(u => u.userId == donationEvent.userId && u.status != 0);
+                            if (isActiveUser) // Proceed only if the user is active
                             {
+                                var donationImages = _userManager.GetDonationEventImageByEventId(donationEvent.donationEventId);
                                 donationList.Add(new Donation
                                 {
                                     Event = new List<DonationEvent> { donationEvent },
@@ -66,6 +73,20 @@ namespace Tabang_Hub.Controllers
                                 });
                             }
                         }
+
+
+                        //foreach (var donationEvent in donationEvents)
+                        //{
+                        //    var donationImages = _userManager.GetDonationEventImageByEventId(donationEvent.donationEventId);
+                        //    foreach (var donationImage in donationImages)
+                        //    {
+                        //        donationList.Add(new Donation
+                        //        {
+                        //            Event = new List<DonationEvent> { donationEvent },
+                        //            Image = donationImages
+                        //        });
+                        //    }
+                        //}
 
 
                         if (getProfile.Count() <= 0)
@@ -103,15 +124,32 @@ namespace Tabang_Hub.Controllers
 
                             var filteredEvent = new List<vw_ListOfEvent>();
 
+                            var activeOrgUser = db.UserAccount.Where(m => m.status != 0 && m.roleId == 2).Select(m => m.userId).ToHashSet();
+
                             foreach (var recommendedEvent in recommendedEvents)
                             {
                                 var isExcluded = _volunteers.GetAll().Any(v => v.eventId == recommendedEvent.EventID && v.Status == 1);
                                 if (!isExcluded)
                                 {
                                     var matchedEvents = _listsOfEvent.GetAll().Where(m => m.Event_Id == recommendedEvent.EventID).ToList();
-                                    filteredEvent.AddRange(matchedEvents);
+
+                                    if (matchedEvents.Any(m => activeOrgUser.Contains(m.User_Id.Value)))
+                                    {
+                                        filteredEvent.AddRange(matchedEvents);
+                                    }
+
                                 }
                             }
+
+                            //foreach (var recommendedEvent in recommendedEvents)
+                            //{
+                            //    var isExcluded = _volunteers.GetAll().Any(v => v.eventId == recommendedEvent.EventID && v.Status == 1);
+                            //    if (!isExcluded)
+                            //    {
+                            //        var matchedEvents = _listsOfEvent.GetAll().Where(m => m.Event_Id == recommendedEvent.EventID).ToList();
+                            //        filteredEvent.AddRange(matchedEvents);
+                            //    }
+                            //}
 
 
                             var indexModel = new Lists()
@@ -125,7 +163,14 @@ namespace Tabang_Hub.Controllers
                                 orgInfos = getOrgInfo,
                                 listofUserDonated = getUserDonated,
                                 detailsEventImage = _eventImages.GetAll().ToList(),
-                                listOfEventsSection = db.vw_ListOfEvent.Where(m => m.End_Date >= philippineTime && m.status != 3).ToList(),
+
+                                //listOfEventsSection = db.vw_ListOfEvent.Where(m => m.End_Date >= philippineTime && m.status != 3).ToList(),
+                                listOfEventsSection = db.vw_ListOfEvent
+                                .Where(m => m.End_Date >= DateTime.Now
+                                            && m.status != 3
+                                            && db.UserAccount.Any(u => u.userId == m.User_Id && u.status > 0))
+                                .ToList(),
+
                                 ListOfDonationEvents = donationList,
 
                                 MyDonations = getDonated,
@@ -147,12 +192,24 @@ namespace Tabang_Hub.Controllers
                                 volunteersSkills = getVolunteerSkills,
                                 skills = getSkills,
                                 picture = getProfile,
-                                listOfEvents = db.vw_ListOfEvent.OrderByDescending(m => m.Event_Id).ToList(),
+
+                                //listOfEvents = db.vw_ListOfEvent.OrderByDescending(m => m.Event_Id).ToList(),
+                                listOfEvents = db.vw_ListOfEvent
+                                    .Where(e => db.UserAccount.Any(u => u.status != 0 && u.roleId == 3 && u.userId == e.User_Id))
+                                    .OrderByDescending(e => e.Event_Id)
+                                    .ToList(),
+
                                 volunteers = getVolunteers,
                                 orgInfos = getOrgInfo,
                                 listofUserDonated = getUserDonated,
                                 detailsEventImage = _eventImages.GetAll().ToList(),
-                                listOfEventsSection = db.vw_ListOfEvent.Where(m => m.End_Date >= philippineTime && m.status != 3).ToList(),
+
+                                //listOfEventsSection = db.vw_ListOfEvent.Where(m => m.End_Date >= philippineTime && m.status != 3).ToList(),
+                                listOfEventsSection = db.vw_ListOfEvent
+                                .Where(m => m.End_Date >= DateTime.Now
+                                            && m.status != 3
+                                            && db.UserAccount.Any(u => u.userId == m.User_Id && u.status > 0))
+                                .ToList(),
 
                                 MyDonations = getDonated,
                                 listOfDonates = db.Donates.ToList(),
@@ -171,38 +228,78 @@ namespace Tabang_Hub.Controllers
             }
             return View();
         }
+        //public JsonResult GetFilteredEvents(string searchTerm)
+        //{
+        //    // Define Philippine time zone
+        //    TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+
+        //    // Get current Philippine time
+        //    DateTime philippineTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, philippineTimeZone);
+
+        //    var events = db.vw_ListOfEvent
+        //                  .Where(e => e.End_Date >= philippineTime && e.Event_Name.Contains(searchTerm) && e.status != 3)
+        //                  .Select(e => new
+        //                  {
+        //                      Event_Id = e.Event_Id,
+        //                      Event_Name = e.Event_Name,
+        //                      EventImage = db.OrgEventImage.Where(m => m.eventId == e.Event_Id).Select(m => m.eventImage).FirstOrDefault()
+        //                  })
+        //                  .ToList();
+
+        //    var donationEvent = db.DonationEvent
+        //                   .Where(e => e.dateEnd >= philippineTime && e.donationEventName.Contains(searchTerm) && e.status != 3)
+        //                   .Select(e => new
+        //                   {
+        //                       Event_Id = e.donationEventId,
+        //                       Event_Name = e.donationEventName,
+        //                       EventImage = db.DonationImage.Where(m => m.donationEventId == e.donationEventId).Select(m => m.imagePath).FirstOrDefault()
+        //                   })
+        //                   .ToList();
+
+        //    var combinedEvents = events.Concat(donationEvent);
+
+        //    return Json(combinedEvents, JsonRequestBehavior.AllowGet);
+        //}
+
         public JsonResult GetFilteredEvents(string searchTerm)
         {
-            // Define Philippine time zone
-            TimeZoneInfo philippineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
-
-            // Get current Philippine time
-            DateTime philippineTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, philippineTimeZone);
-
             var events = db.vw_ListOfEvent
-                          .Where(e => e.End_Date >= philippineTime && e.Event_Name.Contains(searchTerm) && e.status != 3)
-                          .Select(e => new
-                          {
-                              Event_Id = e.Event_Id,
-                              Event_Name = e.Event_Name,
-                              EventImage = db.OrgEventImage.Where(m => m.eventId == e.Event_Id).Select(m => m.eventImage).FirstOrDefault()
-                          })
-                          .ToList();
+                .Where(e => e.End_Date >= DateTime.Now
+                            && e.Event_Name.Contains(searchTerm)
+                            && e.status != 3
+                            && db.UserAccount.Any(u => u.userId == e.User_Id && u.status != 0)) // Check UserAccount status
+                .Select(e => new
+                {
+                    Event_Id = e.Event_Id,
+                    Event_Name = e.Event_Name,
+                    EventImage = db.OrgEventImage
+                                   .Where(m => m.eventId == e.Event_Id)
+                                   .Select(m => m.eventImage)
+                                   .FirstOrDefault()
+                })
+                .ToList();
 
             var donationEvent = db.DonationEvent
-                           .Where(e => e.dateEnd >= philippineTime && e.donationEventName.Contains(searchTerm) && e.status != 3)
-                           .Select(e => new
-                           {
-                               Event_Id = e.donationEventId,
-                               Event_Name = e.donationEventName,
-                               EventImage = db.DonationImage.Where(m => m.donationEventId == e.donationEventId).Select(m => m.imagePath).FirstOrDefault()
-                           })
-                           .ToList();
+                .Where(e => e.dateEnd >= DateTime.Now
+                            && e.donationEventName.Contains(searchTerm)
+                            && e.status != 3
+                            && db.UserAccount.Any(u => u.userId == e.userId && u.status != 0)) // Check UserAccount status
+                .Select(e => new
+                {
+                    Event_Id = e.donationEventId,
+                    Event_Name = e.donationEventName,
+                    EventImage = db.DonationImage
+                                   .Where(m => m.donationEventId == e.donationEventId)
+                                   .Select(m => m.imagePath)
+                                   .FirstOrDefault()
+                })
+                .ToList();
 
             var combinedEvents = events.Concat(donationEvent);
 
             return Json(combinedEvents, JsonRequestBehavior.AllowGet);
         }
+
         [AllowAnonymous]
         public ActionResult ChooseRegister()
         {
