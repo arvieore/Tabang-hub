@@ -264,11 +264,15 @@ namespace Tabang_Hub.Controllers
 
         public JsonResult GetFilteredEvents(string searchTerm)
         {
+            // Convert to Philippine Standard Time (UTC+8)
+            var currentDateTime = DateTime.UtcNow.AddHours(8);
+
+            // Filter general events
             var events = db.vw_ListOfEvent
-                .Where(e => e.End_Date >= DateTime.Now
+                .Where(e => e.End_Date >= currentDateTime
                             && e.Event_Name.Contains(searchTerm)
                             && e.status != 3
-                            && db.UserAccount.Any(u => u.userId == e.User_Id && u.status != 0)) // Check UserAccount status
+                            && db.UserAccount.Any(u => u.userId == e.User_Id && u.status != 0))
                 .Select(e => new
                 {
                     Event_Id = e.Event_Id,
@@ -280,11 +284,12 @@ namespace Tabang_Hub.Controllers
                 })
                 .ToList();
 
+            // Filter donation events
             var donationEvent = db.DonationEvent
-                .Where(e => e.dateEnd >= DateTime.Now
+                .Where(e => e.dateEnd >= currentDateTime
                             && e.donationEventName.Contains(searchTerm)
                             && e.status != 3
-                            && db.UserAccount.Any(u => u.userId == e.userId && u.status != 0)) // Check UserAccount status
+                            && db.UserAccount.Any(u => u.userId == e.userId && u.status != 0))
                 .Select(e => new
                 {
                     Event_Id = e.donationEventId,
@@ -296,10 +301,12 @@ namespace Tabang_Hub.Controllers
                 })
                 .ToList();
 
+            // Combine both event lists
             var combinedEvents = events.Concat(donationEvent);
 
             return Json(combinedEvents, JsonRequestBehavior.AllowGet);
         }
+
 
         [AllowAnonymous]
         public ActionResult ChooseRegister()
