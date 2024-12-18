@@ -1154,7 +1154,7 @@ namespace Tabang_Hub.Controllers
                     donationQuantity = amount,
                 };
 
-                if (_volunteerManager.SubmitDonation1(donated, eventId, referenceNumber, UserId, ref ErrorMessage) != ErrorCode.Success)
+                if (_volunteerManager.SubmitDonation1(donated, eventId, referenceNumber, UserId, donationType, ref ErrorMessage) != ErrorCode.Success)
                 {
                     return View("DonationEventDetails", eventId);
                 }
@@ -1388,7 +1388,7 @@ namespace Tabang_Hub.Controllers
         [Authorize]
         public ActionResult DonationsHistory()
         {
-            var myDonates = db.Donates.Where(m => m.userId == UserId && m.status == 1).ToList();
+            var myDonates = db.Donates.Where(m => m.userId == UserId && m.status == 1).OrderByDescending(m => m.donatedAt).ToList();
 
             // Initialize the list of donation history
             var donationHistories = new List<Lists.DonationHistory>();

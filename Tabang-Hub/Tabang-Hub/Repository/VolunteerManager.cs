@@ -92,11 +92,11 @@ namespace Tabang_Hub.Repository
            
             return ErrorCode.Success;
         }
-        public ErrorCode SubmitDonation1(Donated donate, int donationEventId, string refNum, int userId, ref String errMsg)
+        public ErrorCode SubmitDonation1(Donated donate, int donationEventId, string refNum, int userId, int donationType, ref String errMsg)
         {
             var toSave = new Donates()
             {
-                eventType = 2,
+                eventType = donationType,
                 referenceNum = refNum,
                 userId = userId,
                 eventId = donationEventId,
