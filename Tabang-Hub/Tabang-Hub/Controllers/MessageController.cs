@@ -177,8 +177,17 @@ namespace Tabang_Hub.Controllers
                 if (checkVol != null)
                 {
                     db.sp_RemoveVolunteer(userId, checkVol.eventId);
+
+
+                    var events = _organizationManager.GetEventByEventId((int)geteventId);
+                    if (_organizationManager.SentNotif(userId, UserId, gc, "Kick", $"You have been removed in {events.eventTitle} event!", 0, ref ErrorMessage) != ErrorCode.Success)
+                    {
+                        return Json(new { success = false, message = "An error occurred while kicking the volunteer." });
+                    }
+
                     return Json(new { success = true, message = "Volunteer successfully kicked." });
                 }
+
 
                 return Json(new { success = false, message = "An error occurred while kicking the volunteer." });
             }
