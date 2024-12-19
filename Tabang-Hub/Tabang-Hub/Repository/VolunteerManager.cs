@@ -303,8 +303,9 @@ namespace Tabang_Hub.Repository
                 //volunteer_history = db.VolunteersHistory.Where(vh => vh.userId == UserId).Select(vh => new { eventId = vh.eventId, attended = vh.attended }).ToList()
             };
 
-            string flaskApiUrl = "https://tabangapi.as.r.appspot.com/predict"; // Flask API URL
-            //string flaskApiUrl = "http://127.0.0.1:5000/predict"; // Flask API URL
+            //string flaskApiUrl = "https://tabangapi.as.r.appspot.com/predict"; // Flask API URL
+            //string flaskApiUrl = "http://127.0.0.1:5000/predictMatchOneSkillOrMore"; // Flask API URL
+            string flaskApiUrl = "https://tabangapi.as.r.appspot.com/predictMatchOneSkillOrMore";
 
             List<FilteredEvent> recommendedEvents = new List<FilteredEvent>();
 

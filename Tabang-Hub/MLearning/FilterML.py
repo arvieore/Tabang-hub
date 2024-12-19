@@ -186,8 +186,54 @@ def filter_skills_and_ratings():
 #     # Debugging: Print the filtered events
 #     print('Filtered Events: ', filtered_events)
 #     return jsonify(filtered_events)
-@app.route('/predict', methods=['POST'])
-def predict_hybrid():
+# @app.route('/predict', methods=['POST'])
+# def predict_hybrid():
+#     try:
+#         data = request.get_json()
+
+#         # Convert received data to DataFrames
+#         user_skills_data = pd.DataFrame(data['user_skills'], columns=['userId', 'skillId'])
+#         event_data = pd.DataFrame(data['event_data'], columns=['eventId', 'eventDescription'])
+#         event_skills_data = pd.DataFrame(data['event_skills'], columns=['eventId', 'skillId'])
+
+#         filtered_events = []
+#         volunteer_skills = set(user_skills_data['skillId'].tolist())
+#         user_id = user_skills_data['userId'].iloc[0]  # Use the actual userId passed in the input
+
+#         for _, event_row in event_data.iterrows():
+#             event_id = event_row['eventId']
+#             required_skills = set(event_skills_data[event_skills_data['eventId'] == event_id]['skillId'].tolist())
+
+#             # Step 1: CBF Filtering
+#             if required_skills.issubset(volunteer_skills):
+#                 # Step 2: Logistic Regression Prediction
+#                 logistic_input = [[user_id, event_id, skill] for skill in required_skills]
+#                 logistic_input_df = pd.DataFrame(logistic_input, columns=['userId', 'eventId', 'skillId'])
+                
+#                 # Predict probabilities
+#                 probabilities = logistic_model.predict_proba(logistic_input_df)
+#                 predictions = (probabilities[:, 1] >= 0.5).astype(int)  # Adjust threshold as needed
+
+#                 # Include event if all predictions are positive
+#                 if all(predictions):
+#                     similarity_score = calculate_cbf_similarity(volunteer_skills, required_skills)
+#                     filtered_events.append({
+#                         'eventId': event_id,
+#                         'eventDescription': event_row['eventDescription'],
+#                         'requiredSkills': list(required_skills),
+#                         'similarityScore': similarity_score
+#                     })
+
+#         # Return the filtered events directly as a JSON array
+#         return jsonify(filtered_events)
+
+#     except Exception as e:
+#         print("Error in /predict:", e)
+#         return jsonify({"success": False, "message": str(e)}), 500
+
+
+@app.route('/predictMatchOneSkillOrMore', methods=['POST'])
+def predict_match_one_skill_or_more():
     try:
         data = request.get_json()
 
@@ -204,18 +250,18 @@ def predict_hybrid():
             event_id = event_row['eventId']
             required_skills = set(event_skills_data[event_skills_data['eventId'] == event_id]['skillId'].tolist())
 
-            # Step 1: CBF Filtering
-            if required_skills.issubset(volunteer_skills):
+            # Step 1: CBF Filtering - At least one matching skill
+            if volunteer_skills.intersection(required_skills):
                 # Step 2: Logistic Regression Prediction
                 logistic_input = [[user_id, event_id, skill] for skill in required_skills]
                 logistic_input_df = pd.DataFrame(logistic_input, columns=['userId', 'eventId', 'skillId'])
-                
+
                 # Predict probabilities
                 probabilities = logistic_model.predict_proba(logistic_input_df)
                 predictions = (probabilities[:, 1] >= 0.5).astype(int)  # Adjust threshold as needed
 
-                # Include event if all predictions are positive
-                if all(predictions):
+                # Include event if at least one prediction is positive
+                if any(predictions):
                     similarity_score = calculate_cbf_similarity(volunteer_skills, required_skills)
                     filtered_events.append({
                         'eventId': event_id,
@@ -228,8 +274,9 @@ def predict_hybrid():
         return jsonify(filtered_events)
 
     except Exception as e:
-        print("Error in /predict:", e)
+        print("Error in /predictMatchOneSkillOrMore:", e)
         return jsonify({"success": False, "message": str(e)}), 500
+
 
 
 

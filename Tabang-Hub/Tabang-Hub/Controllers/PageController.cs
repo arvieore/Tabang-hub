@@ -118,7 +118,7 @@ namespace Tabang_Hub.Controllers
                                                          .ToList();
                             getDonated.AddRange(getAmountDonateInfo);
                         }
-
+                        var currentDateTimes = DateTime.UtcNow.AddHours(8);
                         if (getVolunteerSkills.Count() != 0)
                         {
                             var recommendedEvents = await _volunteerManager.RunRecommendation(UserId);
@@ -166,8 +166,8 @@ namespace Tabang_Hub.Controllers
                                 detailsEventImage = _eventImages.GetAll().ToList(),
 
                                 //listOfEventsSection = db.vw_ListOfEvent.Where(m => m.End_Date >= philippineTime && m.status != 3).ToList(),
-                                listOfEventsSection = db.vw_ListOfEvent
-                                .Where(m => m.End_Date >= DateTime.Now
+                                listOfEventsSection = db.vw_ListOfEvent.OrderByDescending(m => m.Event_Id)
+                                .Where(m => m.End_Date >= currentDateTimes
                                             && m.status != 3
                                             && db.UserAccount.Any(u => u.userId == m.User_Id && u.status > 0))
                                 .ToList(),
@@ -207,7 +207,7 @@ namespace Tabang_Hub.Controllers
 
                                 //listOfEventsSection = db.vw_ListOfEvent.Where(m => m.End_Date >= philippineTime && m.status != 3).ToList(),
                                 listOfEventsSection = db.vw_ListOfEvent
-                                .Where(m => m.End_Date >= DateTime.Now
+                                .Where(m => m.End_Date >= currentDateTimes
                                             && m.status != 3
                                             && db.UserAccount.Any(u => u.userId == m.User_Id && u.status > 0))
                                 .ToList(),

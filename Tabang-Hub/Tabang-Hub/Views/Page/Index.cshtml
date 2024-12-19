@@ -321,14 +321,25 @@
                                                     var checkDateOrgEvents = Model.orgEvents
                                                                             .FirstOrDefault(m => m.eventId == evt.Event_Id && m.status == 1);
 
+                                                    //var volSkill = Model.volunteersSkills.Select(v => v.skillId).ToList();
+                                                    //var eventSkills = Model.skillRequirement1
+                                                    //                    .Where(m => m.eventId == evt.Event_Id)
+                                                    //                    .Select(m => m.skillId)
+                                                    //                    .ToList();
+
+                                                    //// Check if all required event skills are present in the volunteer's skills
+                                                    //var isSkillMatched = eventSkills.All(skill => volSkill.Contains(skill));
+
                                                     var volSkill = Model.volunteersSkills.Select(v => v.skillId).ToList();
                                                     var eventSkills = Model.skillRequirement1
                                                                         .Where(m => m.eventId == evt.Event_Id)
                                                                         .Select(m => m.skillId)
                                                                         .ToList();
 
-                                                    // Check if all required event skills are present in the volunteer's skills
-                                                    var isSkillMatched = eventSkills.All(skill => volSkill.Contains(skill));
+                                                    // Check if at least one required event skill is present in the volunteer's skills
+                                                    var isSkillMatched = eventSkills.Any(skill => volSkill.Contains(skill));
+
+
 
                                                     // Check if this specific event is in the registered list
                                                     var isRegisteredEvent = listUserEvents.Any(e => e.eventId == evt.Event_Id && e.Volunteer_Status == 1);
@@ -496,14 +507,24 @@
                                                     var checkDateOrgEvents = Model.orgEvents
                                                                             .FirstOrDefault(m => m.eventId == l_event.Event_Id && m.status == 1);
 
+                                                    //var volSkill = Model.volunteersSkills.Select(v => v.skillId).ToList();
+                                                    //var eventSkills = Model.skillRequirement1
+                                                    //                    .Where(m => m.eventId == l_event.Event_Id)
+                                                    //                    .Select(m => m.skillId)
+                                                    //                    .ToList();
+
+                                                    //// Check if all required event skills are present in the volunteer's skills
+                                                    //var isSkillMatched = eventSkills.All(skill => volSkill.Contains(skill));
+
                                                     var volSkill = Model.volunteersSkills.Select(v => v.skillId).ToList();
                                                     var eventSkills = Model.skillRequirement1
                                                                         .Where(m => m.eventId == l_event.Event_Id)
                                                                         .Select(m => m.skillId)
                                                                         .ToList();
 
-                                                    // Check if all required event skills are present in the volunteer's skills
-                                                    var isSkillMatched = eventSkills.All(skill => volSkill.Contains(skill));
+                                                    // Check if at least one required event skill is present in the volunteer's skills
+                                                    var isSkillMatched = eventSkills.Any(skill => volSkill.Contains(skill));
+
 
                                                     // Check if this specific event is in the registered list
                                                     var isRegisteredEvent = listUserEvents.Any(e => e.eventId == l_event.Event_Id && e.Volunteer_Status == 1);

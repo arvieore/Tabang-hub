@@ -318,7 +318,7 @@ namespace Tabang_Hub.Repository
         {
             return _orgEvents.GetAll()
                                 .Where(m => m.userId == userId && m.status == 1)
-                                .OrderByDescending(m => m.dateStart) // Replace `Event_Date` with the appropriate property for ordering
+                                .OrderByDescending(m => m.eventId) // Replace `Event_Date` with the appropriate property for ordering
                                 .ToList();
         }
         public List<Donates> GetDonatesByDonationEventId(int donationEventId)
