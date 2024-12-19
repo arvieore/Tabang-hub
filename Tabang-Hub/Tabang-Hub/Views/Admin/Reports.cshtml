@@ -131,7 +131,7 @@
                                                     </div>
                                                     <div>
                                                         <h6 class="text-muted">Overall Donations</h6>
-                                                        <h6 class="font-extrabold mb-0">₱@Model.totalVolunteerDonation</h6>
+                                                        <h6 class="font-extrabold mb-0">₱@Model.overAllDonation.Sum(m => m.donationQuantity)</h6>
                                                     </div>
                                                 </div>
                                             </div>
@@ -317,7 +317,7 @@
                                                     </div>
                                                     <div>
                                                         <h6 class="text-muted">Overall Events</h6>
-                                                        <h6 class="font-extrabold mb-0">@Model.listOfEvents.Count()</h6>
+                                                        <h6 class="font-extrabold mb-0">@Model.listOfDonationEvents.Count()</h6>
                                                     </div>
                                                 </div>
                                             </div>

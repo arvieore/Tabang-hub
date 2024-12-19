@@ -440,6 +440,17 @@ namespace Tabang_Hub.Repository
 
             return recentEvents;
         }
+        public List<OrgEvents> GetRecentOngoingEvents()
+        {
+            var recentEvents = _orgEvents._table
+                .Where(m => m.dateStart.HasValue && m.dateEnd.HasValue)
+                // Events that have started but not yet ended
+                .OrderByDescending(m => m.eventId) // Order by dateStart, most recent first
+                .Take(5) // Get the top 5 most recent events
+                .ToList();
+
+            return recentEvents;
+        }
         public List<Donates> GetRecentUserDonationsByUserId(int userId)
         {
             // Step 1: Get the list of events created by the organization

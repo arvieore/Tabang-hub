@@ -32,20 +32,73 @@ namespace Tabang_Hub.Controllers
             var totalVolunteer = _organizationManager.GetTotalVolunteerByUserId(UserId);
             var totalDonation = _organizationManager.GetTotalDonationByUserId(UserId);
             var totalEvents = _organizationManager.GetOrgEventsByUserId(UserId);
+            var donationEvent = _organizationManager.ListOfDonationEventByUserId(UserId);
+            var orgevent = _organizationManager.ListOfEvents2(UserId);
 
             //var profile = _organizationManager.GetProfileByProfileId(orgInfo.profileId);
+            var overallDonated = new List<Donated>();
 
             var pendingVol = new List<Volunteers>();
-            var donated = new List<UserDonated>();
+            var donated1 = new List<Donates>();
+            var recentDonators = new List<DashboardRecentDonate>();
+
+            foreach (var donationEventItem in donationEvent)
+            {
+                var donates = _organizationManager.GetDonatesByDonationEventId(donationEventItem.donationEventId);
+
+                foreach (var donatesItem in donates)
+                {
+                    var volunteerInfo = _organizationManager.GetVolunteerInfoByUserId((int)donatesItem.userId);
+                    var donated = _organizationManager.GetDonatedByDonatesId(donatesItem.donatesId);
+
+                    overallDonated.AddRange(donated);
+                    // Create a new RecentDonate object
+                    var recentDonate = new DashboardRecentDonate
+                    {
+                        donationEvent = donationEventItem,
+                        donates = donatesItem,
+                        donated = donated,
+                        volunteerInfo = volunteerInfo
+                    };
+
+                    // Add to the list
+                    recentDonators.Add(recentDonate);
+                }
+            }
+
+            foreach (var donationEventItem in orgevent)
+            {
+                var donates = _organizationManager.GetDonatesByDonationEventId(donationEventItem.eventId);
+
+                foreach (var donatesItem in donates)
+                {
+                    var volunteerInfo = _organizationManager.GetVolunteerInfoByUserId((int)donatesItem.userId);
+                    var donated = _organizationManager.GetDonatedByDonatesId(donatesItem.donatesId);
+
+                    overallDonated.AddRange(donated);
+
+                    // Create a new RecentDonate object
+                    var recentDonate = new DashboardRecentDonate
+                    {
+                        orgEvents = donationEventItem,
+                        donates = donatesItem,
+                        donated = donated,
+                        volunteerInfo = volunteerInfo
+                    };
+
+                    // Add to the list
+                    recentDonators.Add(recentDonate);
+                }
+            }
 
             foreach (var events in totalEvents)
             {
                 var volunteers = _organizationManager.GetPendingVolunteersByEventId(events.eventId);
-                var userDonated = _organizationManager.ListOfUserDonated(events.eventId);
+                var userDonated = _organizationManager.GetDonatesByDonationEventId(events.eventId);
 
                 foreach (var volDonated in userDonated)
                 {
-                    donated.Add(volDonated);
+                    donated1.Add(volDonated);
                 }
                 foreach (var vol in volunteers)
                 {
@@ -56,7 +109,7 @@ namespace Tabang_Hub.Controllers
                 }
             }
 
-            var recentDonations = donated
+            var recentDonations = donated1
                .OrderByDescending(d => d.donatedAt)
                .Take(7)
                .ToList();
@@ -68,7 +121,8 @@ namespace Tabang_Hub.Controllers
                 totalDonation = totalDonation,
                 orgEvents = totalEvents,
                 volunteers = pendingVol,
-                listofUserDonated = recentDonations
+                dashboardRecentDonates = recentDonators,
+                overAllDonation = overallDonated
                 //profilePic = profile,
             };
             return View(indexModel);
@@ -2013,6 +2067,7 @@ namespace Tabang_Hub.Controllers
             var listOfvlntr = new List<Volunteers>();
             var listOfDoneEvents = _organizationManager.ListOfDoneEvents(UserId);
             var donationEvent = _organizationManager.ListOfDonationEventByUserId(UserId);
+            var evnt1 = _organizationManager.ListOfEvents2(UserId);
 
             // Dictionary to accumulate volunteer participation stats
             var volunteerStats = new Dictionary<int, TopVolunteer>();
@@ -2171,6 +2226,23 @@ namespace Tabang_Hub.Controllers
                 }
             }
 
+            var listofDonated = new List<Donated>();
+
+            foreach (var evntItem in evnt1)
+            {
+                if (evntItem.donationIsAllowed == 1)
+                {
+                    var donates = _organizationManager.GetDonatesByDonationEventId(evntItem.eventId);
+
+                    foreach (var dntsItem in donates)
+                    {
+                        var donated = _organizationManager.GetDonatedByDonatesId(dntsItem.donatesId);
+
+                        listofDonated.AddRange(donated);
+                    }
+                }
+            }
+
             // After processing all events, sort volunteers by their participation (descending) and take top 5
             var top5Volunteers = volunteerStats1.Values
                 .OrderByDescending(v => v.TotalEventsParticipated)
@@ -2205,6 +2277,7 @@ namespace Tabang_Hub.Controllers
             {
                 OrgInfo = orgInfo,
                 listOfEvents = events,
+                listOfDonationEvents = donationEvent,
                 totalDonation = totalDonation,
                 totalVolunteerDonation = totalVolunteerDonation,
                 totalVolunteer = totalVolunteer,
@@ -2219,6 +2292,7 @@ namespace Tabang_Hub.Controllers
                 top5Donator = top5Donators,
                 listOfDonationEvent = donationList,
                 listofUserDonated = listofUserDonated,
+                overAllDonation = listofDonated,
             };
 
             return View(indexModel);

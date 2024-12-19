@@ -24,6 +24,7 @@ namespace Tabang_Hub.Repository
         private BaseRepository<OrgValidation> _orgValidation;
         private BaseRepository<OrgInfo> _orgInfo;
         private BaseRepository<Skills> _skills;
+        private BaseRepository<DonationEvent> _donationEvent;
 
 
         public AdminManager()
@@ -44,8 +45,17 @@ namespace Tabang_Hub.Repository
             _orgValidation = new BaseRepository<OrgValidation>();
             _orgInfo = new BaseRepository<OrgInfo>();
             _skills = new BaseRepository<Skills>();
+            _donationEvent = new BaseRepository<DonationEvent>();
         }
 
+        public List<DonationEvent> ListOfDonationEvent()
+        { 
+            return _donationEvent.GetAll();
+        }
+        public List<OrgEvents> ListOfOrgEvent()
+        { 
+            return _orgEvents.GetAll();
+        }
         public List<vw_VolunteerAccounts> GetVolunteerAccounts()
         {
             return _volunteerAccounts.GetAll();
@@ -249,8 +259,7 @@ namespace Tabang_Hub.Repository
 
             // Query for events based on Philippine time
             var recentEvents = _orgEvents._table
-                .Where(m => m.dateStart.HasValue && m.dateEnd.HasValue &&
-                            m.dateStart.Value <= philippineTime && m.dateEnd.Value > philippineTime)
+                .Where(m => m.dateStart.HasValue && m.dateEnd.HasValue)
                 .OrderByDescending(m => m.dateStart.Value) // Order by dateStart, most recent first
                 .Take(5) // Get the top 5 most recent events
                 .ToList();

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Org.BouncyCastle.Asn1.Mozilla;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -87,6 +88,7 @@ namespace Tabang_Hub.Utils
 
         //View
         public List<vw_ListOfEvent> listOfEvents { get; set; }
+        public List<DonationEvent> listOfDonationEvents { get; set; }
         public List<vw_ListOfEvent> listOfEventsOne {  get; set; }
         public List<vw_ListOfVolunteerToBeInvite> ListToBeInvite { get; set; }
         public List<vw_ListOfEvent> listOfEventsSection { get; set; }
@@ -209,5 +211,16 @@ namespace Tabang_Hub.Utils
             public VolunteerInfo VolunteerInfo { get; set; }
             public int TotalDonations { get; set; }
         }
+        public List<DashboardRecentDonate> dashboardRecentDonates { get; set; }
+        public class DashboardRecentDonate
+        { 
+            public Donates donates { get; set; }
+            public List<Donated> donated { get; set; }
+            public OrgEvents orgEvents { get; set; }
+            public DonationEvent donationEvent { get; set; }
+            public VolunteerInfo volunteerInfo { get; set; }
+        }
+
+        public List<Donated> overAllDonation { get; set; }
     }
 }
