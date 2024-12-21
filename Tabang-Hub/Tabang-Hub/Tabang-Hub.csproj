@@ -2162,6 +2162,9 @@
     <Compile Include="Repository\OrganizationManager.cs" />
     <Compile Include="Repository\UserManager.cs" />
     <Compile Include="Repository\VolunteerManager.cs" />
+    <Compile Include="RequestSkill.cs">
+      <DependentUpon>ModelTabangHub.tt</DependentUpon>
+    </Compile>
     <Compile Include="Role.cs">
       <DependentUpon>ModelTabangHub.tt</DependentUpon>
     </Compile>

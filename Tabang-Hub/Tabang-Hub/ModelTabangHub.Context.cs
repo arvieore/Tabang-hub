@@ -45,6 +45,7 @@ namespace Tabang_Hub
         public DbSet<OrgValidation> OrgValidation { get; set; }
         public DbSet<ProfilePicture> ProfilePicture { get; set; }
         public DbSet<Rating> Rating { get; set; }
+        public DbSet<RequestSkill> RequestSkill { get; set; }
         public DbSet<Role> Role { get; set; }
         public DbSet<Skills> Skills { get; set; }
         public DbSet<UserAccount> UserAccount { get; set; }
@@ -55,12 +56,12 @@ namespace Tabang_Hub
         public DbSet<VolunteersHistory> VolunteersHistory { get; set; }
         public DbSet<VolunteerSkill> VolunteerSkill { get; set; }
         public DbSet<vw_AllVolunteers> vw_AllVolunteers { get; set; }
+        public DbSet<vw_ListOfEvent> vw_ListOfEvent { get; set; }
         public DbSet<vw_ListOfVolunteerToBeInvite> vw_ListOfVolunteerToBeInvite { get; set; }
         public DbSet<vw_OrganizationAccounts> vw_OrganizationAccounts { get; set; }
         public DbSet<vw_UserRoles> vw_UserRoles { get; set; }
         public DbSet<vw_VolunteerAccounts> vw_VolunteerAccounts { get; set; }
         public DbSet<vw_VolunteerSkills> vw_VolunteerSkills { get; set; }
-        public DbSet<vw_ListOfEvent> vw_ListOfEvent { get; set; }
     
         public virtual int sp_CancelRequest(Nullable<int> eventId, Nullable<int> userId)
         {

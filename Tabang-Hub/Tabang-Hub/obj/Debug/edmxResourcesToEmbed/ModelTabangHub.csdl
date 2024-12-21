@@ -48,6 +48,9 @@
       <Parameter Name="userId" Mode="In" Type="Int32" />
       <Parameter Name="eventId" Mode="In" Type="Int32" />
     </FunctionImport>
+    <FunctionImport Name="sp_checkMatchByUserId" ReturnType="Collection(TabangHubModel.sp_checkMatchByUserId_Result)">
+      <Parameter Name="userId" Mode="In" Type="Int32" />
+    </FunctionImport>
     <EntitySet Name="Donated" EntityType="TabangHubModel.Donated" />
     <EntitySet Name="Donates" EntityType="TabangHubModel.Donates" />
     <EntitySet Name="DonationEvent" EntityType="TabangHubModel.DonationEvent" />
@@ -65,6 +68,7 @@
     <EntitySet Name="OrgValidation" EntityType="TabangHubModel.OrgValidation" />
     <EntitySet Name="ProfilePicture" EntityType="TabangHubModel.ProfilePicture" />
     <EntitySet Name="Rating" EntityType="TabangHubModel.Rating" />
+    <EntitySet Name="RequestSkill" EntityType="TabangHubModel.RequestSkill" />
     <EntitySet Name="Role" EntityType="TabangHubModel.Role" />
     <EntitySet Name="Skills" EntityType="TabangHubModel.Skills" />
     <EntitySet Name="UserAccount" EntityType="TabangHubModel.UserAccount" />
@@ -75,6 +79,7 @@
     <EntitySet Name="VolunteersHistory" EntityType="TabangHubModel.VolunteersHistory" />
     <EntitySet Name="VolunteerSkill" EntityType="TabangHubModel.VolunteerSkill" />
     <EntitySet Name="vw_AllVolunteers" EntityType="TabangHubModel.vw_AllVolunteers" />
+    <EntitySet Name="vw_ListOfEvent" EntityType="TabangHubModel.vw_ListOfEvent" />
     <EntitySet Name="vw_ListOfVolunteerToBeInvite" EntityType="TabangHubModel.vw_ListOfVolunteerToBeInvite" />
     <EntitySet Name="vw_OrganizationAccounts" EntityType="TabangHubModel.vw_OrganizationAccounts" />
     <EntitySet Name="vw_UserRoles" EntityType="TabangHubModel.vw_UserRoles" />
@@ -172,10 +177,6 @@
       <End Role="UserAccount" EntitySet="UserAccount" />
       <End Role="VolunteersHistory" EntitySet="VolunteersHistory" />
     </AssociationSet>
-    <FunctionImport Name="sp_checkMatchByUserId" ReturnType="Collection(TabangHubModel.sp_checkMatchByUserId_Result)">
-      <Parameter Name="userId" Mode="In" Type="Int32" />
-    </FunctionImport>
-    <EntitySet Name="vw_ListOfEvent" EntityType="TabangHubModel.vw_ListOfEvent" />
   </EntityContainer>
   <ComplexType Name="sp_GetAllMessage_Result">
     <Property Type="Int32" Name="groupChatId" Nullable="false" />
@@ -260,6 +261,12 @@
     <Property Type="Int32" Name="userId" Nullable="true" />
     <Property Type="Int32" Name="eventId" Nullable="true" />
     <Property Type="String" Name="eventTitle" Nullable="true" MaxLength="255" />
+  </ComplexType>
+  <ComplexType Name="sp_checkMatchByUserId_Result">
+    <Property Type="Int32" Name="eventId" Nullable="true" />
+    <Property Type="Int32" Name="skillId" Nullable="true" />
+    <Property Type="Int32" Name="userId" Nullable="true" />
+    <Property Type="String" Name="skillName" Nullable="true" MaxLength="255" />
   </ComplexType>
   <EntityType Name="Donated">
     <Key>
@@ -388,6 +395,7 @@
     <Property Name="userId" Type="Int32" />
     <Property Name="eventTitle" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
     <Property Name="eventDescription" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+    <Property Name="donationIsAllowed" Type="Int32" />
     <Property Name="targetAmount" Type="Decimal" Precision="10" Scale="2" />
     <Property Name="maxVolunteer" Type="Int32" />
     <Property Name="dateStart" Type="DateTime" Precision="3" />
@@ -402,7 +410,6 @@
     <NavigationProperty Name="OrgSkillRequirement" Relationship="TabangHubModel.FK_OrgSkillRequirement_OrgEvents" FromRole="OrgEvents" ToRole="OrgSkillRequirement" />
     <NavigationProperty Name="UserDonated" Relationship="TabangHubModel.FK_UserDonated_OrgEvents" FromRole="OrgEvents" ToRole="UserDonated" />
     <NavigationProperty Name="Volunteers" Relationship="TabangHubModel.FK_Volunteers_OrgEvents" FromRole="OrgEvents" ToRole="Volunteers" />
-    <Property Name="donationIsAllowed" Type="Int32" />
   </EntityType>
   <EntityType Name="OrgInfo">
     <Key>
@@ -466,6 +473,14 @@
     <Property Name="ratedAt" Type="DateTime" Precision="3" />
     <NavigationProperty Name="Skills" Relationship="TabangHubModel.FK_Rating_Skills" FromRole="Rating" ToRole="Skills" />
     <NavigationProperty Name="UserAccount" Relationship="TabangHubModel.FK_Rating_UserAccount" FromRole="Rating" ToRole="UserAccount" />
+  </EntityType>
+  <EntityType Name="RequestSkill">
+    <Key>
+      <PropertyRef Name="requestSkillId" />
+    </Key>
+    <Property Name="requestSkillId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="requestSkillName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="requestSkillImage" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
   </EntityType>
   <EntityType Name="Role">
     <Key>
@@ -591,6 +606,23 @@
     <Property Name="OverallRating" Type="Decimal" Precision="10" Scale="1" />
     <Property Name="Feedback" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
     <Property Name="availability" Type="String" MaxLength="25" FixedLength="false" Unicode="true" />
+  </EntityType>
+  <EntityType Name="vw_ListOfEvent">
+    <Key>
+      <PropertyRef Name="Event_Id" />
+    </Key>
+    <Property Name="Event_Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="User_Id" Type="Int32" />
+    <Property Name="Event_Name" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+    <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+    <Property Name="Total_Donation" Type="Decimal" Precision="38" Scale="2" />
+    <Property Name="Target_Amount" Type="Decimal" Precision="10" Scale="2" />
+    <Property Name="Total_Volunteer" Type="Int32" />
+    <Property Name="Maximum_Volunteer" Type="Int32" />
+    <Property Name="Start_Date" Type="DateTime" Precision="3" />
+    <Property Name="End_Date" Type="DateTime" Precision="3" />
+    <Property Name="location" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+    <Property Name="status" Type="Int32" />
   </EntityType>
   <EntityType Name="vw_ListOfVolunteerToBeInvite">
     <Key>
@@ -948,27 +980,4 @@
       </Dependent>
     </ReferentialConstraint>
   </Association>
-  <ComplexType Name="sp_checkMatchByUserId_Result">
-    <Property Type="Int32" Name="eventId" Nullable="true" />
-    <Property Type="Int32" Name="skillId" Nullable="true" />
-    <Property Type="Int32" Name="userId" Nullable="true" />
-    <Property Type="String" Name="skillName" Nullable="true" MaxLength="255" />
-  </ComplexType>
-  <EntityType Name="vw_ListOfEvent">
-    <Key>
-      <PropertyRef Name="Event_Id" />
-    </Key>
-    <Property Name="Event_Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-    <Property Name="User_Id" Type="Int32" />
-    <Property Name="Event_Name" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-    <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
-    <Property Name="Total_Donation" Type="Decimal" Precision="38" Scale="2" />
-    <Property Name="Target_Amount" Type="Decimal" Precision="10" Scale="2" />
-    <Property Name="Total_Volunteer" Type="Int32" />
-    <Property Name="Maximum_Volunteer" Type="Int32" />
-    <Property Name="Start_Date" Type="DateTime" Precision="3" />
-    <Property Name="End_Date" Type="DateTime" Precision="3" />
-    <Property Name="location" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-    <Property Name="status" Type="Int32" />
-  </EntityType>
 </Schema>

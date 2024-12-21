@@ -42,6 +42,7 @@ namespace Tabang_Hub.Repository
         private BaseRepository<DonationImage> _donationImage;
         private BaseRepository<Donated> _donated;
         private BaseRepository<Donates> _donates;
+        private BaseRepository<RequestSkill> _requestSkill;
         public OrganizationManager()
         {
             db = new TabangHubEntities();
@@ -70,8 +71,21 @@ namespace Tabang_Hub.Repository
             _donationImage = new BaseRepository<DonationImage>();
             _donated = new BaseRepository<Donated>();
             _donates = new BaseRepository<Donates>();
+            _requestSkill = new BaseRepository<RequestSkill>();
         }
+        public ErrorCode RequestSkill(RequestSkill requestSkill, ref string errMsg)
+        {
+            if (_requestSkill.Create(requestSkill, out errMsg) != ErrorCode.Success)
+            { 
+                return ErrorCode.Error;
+            }
 
+            return ErrorCode.Success;
+        }
+        public UserAccount GetUserByEmail(string email)
+        { 
+            return _userAccount._table.Where(m => m.email == email).FirstOrDefault();
+        }
         public ErrorCode CreateEvents(OrgEvents orgEvents, List<string> imageFileNames, List<SkillDto> skills, ref string errMsg)
         {
             // Create the event

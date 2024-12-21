@@ -566,6 +566,107 @@ namespace Tabang_Hub.Controllers
             }
         }
 
+        [HttpPost]
+        public JsonResult RequestSkill(string skillName, HttpPostedFileBase skillImage)
+        {
+            // Allowed image types: PNG and JPEG
+            var allowedTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    {
+        "image/png",
+        "image/jpeg"
+    };
+
+            const int targetWidth = 800;  // Desired width
+            const int targetHeight = 600; // Desired height
+
+            if (string.IsNullOrWhiteSpace(skillName))
+            {
+                return Json(new { success = false, message = "Skill name is required." });
+            }
+
+            if (skillImage == null || skillImage.ContentLength <= 0)
+            {
+                return Json(new { success = false, message = "Skill image is required." });
+            }
+
+            if (!allowedTypes.Contains(skillImage.ContentType))
+            {
+                return Json(new { success = false, message = "Only PNG and JPEG images are allowed." });
+            }
+
+            var directoryPath = Server.MapPath("~/Content/SkillImages");
+            Directory.CreateDirectory(directoryPath);
+
+            var fileName = Path.GetFileNameWithoutExtension(skillImage.FileName);
+            var fileExtension = Path.GetExtension(skillImage.FileName);
+            var newFileName = $"{fileName}_{Guid.NewGuid()}{fileExtension}";
+            var path = Path.Combine(directoryPath, newFileName);
+
+            // Resize and save the image
+            using (var originalImage = System.Drawing.Image.FromStream(skillImage.InputStream))
+            {
+                using (var resizedImage = new Bitmap(targetWidth, targetHeight))
+                {
+                    using (var graphics = Graphics.FromImage(resizedImage))
+                    {
+                        graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                        graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                        graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+
+                        // Draw resized image
+                        graphics.DrawImage(originalImage, 0, 0, targetWidth, targetHeight);
+                    }
+
+                    if (skillImage.ContentType.Equals("image/jpeg", StringComparison.OrdinalIgnoreCase))
+                    {
+                        // Compress and save as JPEG
+                        var qualityParam = new System.Drawing.Imaging.EncoderParameter(
+                            System.Drawing.Imaging.Encoder.Quality, 75L);
+
+                        var jpegCodec = System.Drawing.Imaging.ImageCodecInfo
+                            .GetImageDecoders()
+                            .FirstOrDefault(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
+
+                        if (jpegCodec != null)
+                        {
+                            var encoderParams = new System.Drawing.Imaging.EncoderParameters(1);
+                            encoderParams.Param[0] = qualityParam;
+                            resizedImage.Save(path, jpegCodec, encoderParams);
+                        }
+                        else
+                        {
+                            resizedImage.Save(path, System.Drawing.Imaging.ImageFormat.Jpeg);
+                        }
+                    }
+                    else
+                    {
+                        resizedImage.Save(path, System.Drawing.Imaging.ImageFormat.Png);
+                    }
+                }
+            }
+
+            // Save to the database
+            var requestSkill = new RequestSkill()
+            {
+                requestSkillName = skillName,
+                requestSkillImage = newFileName
+            };
+
+            if (_organizationManager.RequestSkill(requestSkill, ref ErrorMessage) != ErrorCode.Success)
+            {
+                return Json(new { success = false, message = "An error occurred while saving the skill request." });
+            }
+
+            var admin = _organizationManager.GetUserByEmail("admin");
+
+            if (_organizationManager.SentNotif(admin.userId, UserId, requestSkill.requestSkillId, "Request Skill", $"There is a new skill requested", 0, ref ErrorMessage) != ErrorCode.Success)
+            {
+                return Json(new { success = false, message = "There is an error sending notification." });
+            }
+
+            return Json(new { success = true, message = "Skill request submitted successfully!" });
+        }
+
         //[HttpPost]
         //public async Task<ActionResult> CreateEvents(Lists events, List<string> skills, HttpPostedFileBase[] images)
         //{

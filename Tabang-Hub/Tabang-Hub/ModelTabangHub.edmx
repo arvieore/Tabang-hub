@@ -188,6 +188,14 @@
           <Property Name="rate" Type="int" />
           <Property Name="ratedAt" Type="datetime" />
         </EntityType>
+        <EntityType Name="RequestSkill">
+          <Key>
+            <PropertyRef Name="requestSkillId" />
+          </Key>
+          <Property Name="requestSkillId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="requestSkillName" Type="nvarchar" MaxLength="50" />
+          <Property Name="requestSkillImage" Type="nvarchar" MaxLength="255" />
+        </EntityType>
         <EntityType Name="Role">
           <Key>
             <PropertyRef Name="roleId" />
@@ -745,6 +753,7 @@ warning 6002: The table/view 'TabangHub.dbo.vw_VolunteerSkills' does not have a 
           <EntitySet Name="OrgValidation" EntityType="Self.OrgValidation" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ProfilePicture" EntityType="Self.ProfilePicture" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Rating" EntityType="Self.Rating" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="RequestSkill" EntityType="Self.RequestSkill" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Role" EntityType="Self.Role" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Skills" EntityType="Self.Skills" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="UserAccount" EntityType="Self.UserAccount" Schema="dbo" store:Type="Tables" />
@@ -987,6 +996,9 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
             <Parameter Name="userId" Mode="In" Type="Int32" />
             <Parameter Name="eventId" Mode="In" Type="Int32" />
           </FunctionImport>
+          <FunctionImport Name="sp_checkMatchByUserId" ReturnType="Collection(TabangHubModel.sp_checkMatchByUserId_Result)">
+          <Parameter Name="userId" Mode="In" Type="Int32" />
+          </FunctionImport>
           <EntitySet Name="Donated" EntityType="TabangHubModel.Donated" />
           <EntitySet Name="Donates" EntityType="TabangHubModel.Donates" />
           <EntitySet Name="DonationEvent" EntityType="TabangHubModel.DonationEvent" />
@@ -1004,6 +1016,7 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
           <EntitySet Name="OrgValidation" EntityType="TabangHubModel.OrgValidation" />
           <EntitySet Name="ProfilePicture" EntityType="TabangHubModel.ProfilePicture" />
           <EntitySet Name="Rating" EntityType="TabangHubModel.Rating" />
+          <EntitySet Name="RequestSkill" EntityType="TabangHubModel.RequestSkill" />
           <EntitySet Name="Role" EntityType="TabangHubModel.Role" />
           <EntitySet Name="Skills" EntityType="TabangHubModel.Skills" />
           <EntitySet Name="UserAccount" EntityType="TabangHubModel.UserAccount" />
@@ -1014,6 +1027,7 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
           <EntitySet Name="VolunteersHistory" EntityType="TabangHubModel.VolunteersHistory" />
           <EntitySet Name="VolunteerSkill" EntityType="TabangHubModel.VolunteerSkill" />
           <EntitySet Name="vw_AllVolunteers" EntityType="TabangHubModel.vw_AllVolunteers" />
+          <EntitySet Name="vw_ListOfEvent" EntityType="TabangHubModel.vw_ListOfEvent" />
           <EntitySet Name="vw_ListOfVolunteerToBeInvite" EntityType="TabangHubModel.vw_ListOfVolunteerToBeInvite" />
           <EntitySet Name="vw_OrganizationAccounts" EntityType="TabangHubModel.vw_OrganizationAccounts" />
           <EntitySet Name="vw_UserRoles" EntityType="TabangHubModel.vw_UserRoles" />
@@ -1111,10 +1125,6 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
             <End Role="UserAccount" EntitySet="UserAccount" />
             <End Role="VolunteersHistory" EntitySet="VolunteersHistory" />
           </AssociationSet>
-          <FunctionImport Name="sp_checkMatchByUserId" ReturnType="Collection(TabangHubModel.sp_checkMatchByUserId_Result)">
-          <Parameter Name="userId" Mode="In" Type="Int32" />
-          </FunctionImport>
-          <EntitySet Name="vw_ListOfEvent" EntityType="TabangHubModel.vw_ListOfEvent" />
           </EntityContainer>
         <ComplexType Name="sp_GetAllMessage_Result">
           <Property Type="Int32" Name="groupChatId" Nullable="false" />
@@ -1199,6 +1209,12 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
           <Property Type="Int32" Name="userId" Nullable="true" />
           <Property Type="Int32" Name="eventId" Nullable="true" />
           <Property Type="String" Name="eventTitle" Nullable="true" MaxLength="255" />
+        </ComplexType>
+        <ComplexType Name="sp_checkMatchByUserId_Result">
+          <Property Type="Int32" Name="eventId" Nullable="true" />
+          <Property Type="Int32" Name="skillId" Nullable="true" />
+          <Property Type="Int32" Name="userId" Nullable="true" />
+          <Property Type="String" Name="skillName" Nullable="true" MaxLength="255" />
         </ComplexType>
         <EntityType Name="Donated">
           <Key>
@@ -1327,6 +1343,7 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
           <Property Name="userId" Type="Int32" />
           <Property Name="eventTitle" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
           <Property Name="eventDescription" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="donationIsAllowed" Type="Int32" />
           <Property Name="targetAmount" Type="Decimal" Precision="10" Scale="2" />
           <Property Name="maxVolunteer" Type="Int32" />
           <Property Name="dateStart" Type="DateTime" Precision="3" />
@@ -1341,7 +1358,6 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
           <NavigationProperty Name="OrgSkillRequirement" Relationship="TabangHubModel.FK_OrgSkillRequirement_OrgEvents" FromRole="OrgEvents" ToRole="OrgSkillRequirement" />
           <NavigationProperty Name="UserDonated" Relationship="TabangHubModel.FK_UserDonated_OrgEvents" FromRole="OrgEvents" ToRole="UserDonated" />
           <NavigationProperty Name="Volunteers" Relationship="TabangHubModel.FK_Volunteers_OrgEvents" FromRole="OrgEvents" ToRole="Volunteers" />
-          <Property Name="donationIsAllowed" Type="Int32" />
         </EntityType>
         <EntityType Name="OrgInfo">
           <Key>
@@ -1405,6 +1421,14 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
           <Property Name="ratedAt" Type="DateTime" Precision="3" />
           <NavigationProperty Name="Skills" Relationship="TabangHubModel.FK_Rating_Skills" FromRole="Rating" ToRole="Skills" />
           <NavigationProperty Name="UserAccount" Relationship="TabangHubModel.FK_Rating_UserAccount" FromRole="Rating" ToRole="UserAccount" />
+        </EntityType>
+        <EntityType Name="RequestSkill">
+          <Key>
+            <PropertyRef Name="requestSkillId" />
+          </Key>
+          <Property Name="requestSkillId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="requestSkillName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="requestSkillImage" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="Role">
           <Key>
@@ -1530,6 +1554,23 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
           <Property Name="OverallRating" Type="Decimal" Precision="10" Scale="1" />
           <Property Name="Feedback" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="availability" Type="String" MaxLength="25" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="vw_ListOfEvent">
+          <Key>
+            <PropertyRef Name="Event_Id" />
+          </Key>
+          <Property Name="Event_Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="User_Id" Type="Int32" />
+          <Property Name="Event_Name" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Total_Donation" Type="Decimal" Precision="38" Scale="2" />
+          <Property Name="Target_Amount" Type="Decimal" Precision="10" Scale="2" />
+          <Property Name="Total_Volunteer" Type="Int32" />
+          <Property Name="Maximum_Volunteer" Type="Int32" />
+          <Property Name="Start_Date" Type="DateTime" Precision="3" />
+          <Property Name="End_Date" Type="DateTime" Precision="3" />
+          <Property Name="location" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="status" Type="Int32" />
         </EntityType>
         <EntityType Name="vw_ListOfVolunteerToBeInvite">
           <Key>
@@ -1887,29 +1928,6 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <ComplexType Name="sp_checkMatchByUserId_Result">
-          <Property Type="Int32" Name="eventId" Nullable="true" />
-          <Property Type="Int32" Name="skillId" Nullable="true" />
-          <Property Type="Int32" Name="userId" Nullable="true" />
-          <Property Type="String" Name="skillName" Nullable="true" MaxLength="255" />
-        </ComplexType>
-        <EntityType Name="vw_ListOfEvent">
-          <Key>
-            <PropertyRef Name="Event_Id" />
-          </Key>
-          <Property Name="Event_Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="User_Id" Type="Int32" />
-          <Property Name="Event_Name" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
-          <Property Name="Total_Donation" Type="Decimal" Precision="38" Scale="2" />
-          <Property Name="Target_Amount" Type="Decimal" Precision="10" Scale="2" />
-          <Property Name="Total_Volunteer" Type="Int32" />
-          <Property Name="Maximum_Volunteer" Type="Int32" />
-          <Property Name="Start_Date" Type="DateTime" Precision="3" />
-          <Property Name="End_Date" Type="DateTime" Precision="3" />
-          <Property Name="location" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="status" Type="Int32" />
-        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -2041,6 +2059,16 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
             </ResultMapping>
           </FunctionImportMapping>
           <FunctionImportMapping FunctionImportName="sp_RemoveVolunteer" FunctionName="TabangHubModel.Store.sp_RemoveVolunteer" />
+          <FunctionImportMapping FunctionImportName="sp_checkMatchByUserId" FunctionName="TabangHubModel.Store.sp_checkMatchByUserId">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="TabangHubModel.sp_checkMatchByUserId_Result">
+                <ScalarProperty Name="eventId" ColumnName="eventId" />
+                <ScalarProperty Name="skillId" ColumnName="skillId" />
+                <ScalarProperty Name="userId" ColumnName="userId" />
+                <ScalarProperty Name="skillName" ColumnName="skillName" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
           <EntitySetMapping Name="Donated">
             <EntityTypeMapping TypeName="TabangHubModel.Donated">
               <MappingFragment StoreEntitySet="Donated">
@@ -2166,7 +2194,6 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
           <EntitySetMapping Name="OrgEvents">
             <EntityTypeMapping TypeName="TabangHubModel.OrgEvents">
               <MappingFragment StoreEntitySet="OrgEvents">
-                <ScalarProperty Name="donationIsAllowed" ColumnName="donationIsAllowed" />
                 <ScalarProperty Name="status" ColumnName="status" />
                 <ScalarProperty Name="eventImage" ColumnName="eventImage" />
                 <ScalarProperty Name="location" ColumnName="location" />
@@ -2174,6 +2201,7 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
                 <ScalarProperty Name="dateStart" ColumnName="dateStart" />
                 <ScalarProperty Name="maxVolunteer" ColumnName="maxVolunteer" />
                 <ScalarProperty Name="targetAmount" ColumnName="targetAmount" />
+                <ScalarProperty Name="donationIsAllowed" ColumnName="donationIsAllowed" />
                 <ScalarProperty Name="eventDescription" ColumnName="eventDescription" />
                 <ScalarProperty Name="eventTitle" ColumnName="eventTitle" />
                 <ScalarProperty Name="userId" ColumnName="userId" />
@@ -2238,6 +2266,15 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
                 <ScalarProperty Name="userId" ColumnName="userId" />
                 <ScalarProperty Name="eventId" ColumnName="eventId" />
                 <ScalarProperty Name="ratingId" ColumnName="ratingId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="RequestSkill">
+            <EntityTypeMapping TypeName="TabangHubModel.RequestSkill">
+              <MappingFragment StoreEntitySet="RequestSkill">
+                <ScalarProperty Name="requestSkillImage" ColumnName="requestSkillImage" />
+                <ScalarProperty Name="requestSkillName" ColumnName="requestSkillName" />
+                <ScalarProperty Name="requestSkillId" ColumnName="requestSkillId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -2353,6 +2390,24 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="vw_ListOfEvent">
+            <EntityTypeMapping TypeName="TabangHubModel.vw_ListOfEvent">
+              <MappingFragment StoreEntitySet="vw_ListOfEvent">
+                <ScalarProperty Name="status" ColumnName="status" />
+                <ScalarProperty Name="location" ColumnName="location" />
+                <ScalarProperty Name="End_Date" ColumnName="End_Date" />
+                <ScalarProperty Name="Start_Date" ColumnName="Start_Date" />
+                <ScalarProperty Name="Maximum_Volunteer" ColumnName="Maximum_Volunteer" />
+                <ScalarProperty Name="Total_Volunteer" ColumnName="Total_Volunteer" />
+                <ScalarProperty Name="Target_Amount" ColumnName="Target_Amount" />
+                <ScalarProperty Name="Total_Donation" ColumnName="Total Donation" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Event_Name" ColumnName="Event_Name" />
+                <ScalarProperty Name="User_Id" ColumnName="User_Id" />
+                <ScalarProperty Name="Event_Id" ColumnName="Event_Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="vw_ListOfVolunteerToBeInvite">
             <EntityTypeMapping TypeName="TabangHubModel.vw_ListOfVolunteerToBeInvite">
               <MappingFragment StoreEntitySet="vw_ListOfVolunteerToBeInvite">
@@ -2423,34 +2478,6 @@ FROM [dbo].[vw_VolunteerSkills] AS [vw_VolunteerSkills]</DefiningQuery>
                 <ScalarProperty Name="skillId" ColumnName="skillId" />
                 <ScalarProperty Name="userId" ColumnName="userId" />
                 <ScalarProperty Name="volunteerSkillId" ColumnName="volunteerSkillId" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <FunctionImportMapping FunctionImportName="sp_checkMatchByUserId" FunctionName="TabangHubModel.Store.sp_checkMatchByUserId">
-            <ResultMapping>
-              <ComplexTypeMapping TypeName="TabangHubModel.sp_checkMatchByUserId_Result">
-                <ScalarProperty Name="eventId" ColumnName="eventId" />
-                <ScalarProperty Name="skillId" ColumnName="skillId" />
-                <ScalarProperty Name="userId" ColumnName="userId" />
-                <ScalarProperty Name="skillName" ColumnName="skillName" />
-              </ComplexTypeMapping>
-            </ResultMapping>
-          </FunctionImportMapping>
-          <EntitySetMapping Name="vw_ListOfEvent">
-            <EntityTypeMapping TypeName="TabangHubModel.vw_ListOfEvent">
-              <MappingFragment StoreEntitySet="vw_ListOfEvent">
-                <ScalarProperty Name="status" ColumnName="status" />
-                <ScalarProperty Name="location" ColumnName="location" />
-                <ScalarProperty Name="End_Date" ColumnName="End_Date" />
-                <ScalarProperty Name="Start_Date" ColumnName="Start_Date" />
-                <ScalarProperty Name="Maximum_Volunteer" ColumnName="Maximum_Volunteer" />
-                <ScalarProperty Name="Total_Volunteer" ColumnName="Total_Volunteer" />
-                <ScalarProperty Name="Target_Amount" ColumnName="Target_Amount" />
-                <ScalarProperty Name="Total_Donation" ColumnName="Total Donation" />
-                <ScalarProperty Name="Description" ColumnName="Description" />
-                <ScalarProperty Name="Event_Name" ColumnName="Event_Name" />
-                <ScalarProperty Name="User_Id" ColumnName="User_Id" />
-                <ScalarProperty Name="Event_Id" ColumnName="Event_Id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

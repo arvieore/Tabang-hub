@@ -25,6 +25,7 @@ namespace Tabang_Hub.Repository
         private BaseRepository<OrgInfo> _orgInfo;
         private BaseRepository<Skills> _skills;
         private BaseRepository<DonationEvent> _donationEvent;
+        private BaseRepository<RequestSkill> _requestSkill;
 
 
         public AdminManager()
@@ -46,11 +47,16 @@ namespace Tabang_Hub.Repository
             _orgInfo = new BaseRepository<OrgInfo>();
             _skills = new BaseRepository<Skills>();
             _donationEvent = new BaseRepository<DonationEvent>();
+            _requestSkill = new BaseRepository<RequestSkill>();
         }
 
         public List<DonationEvent> ListOfDonationEvent()
         { 
             return _donationEvent.GetAll();
+        }
+        public List<RequestSkill> ListOfRequestSkill()
+        { 
+            return _requestSkill.GetAll();    
         }
         public List<OrgEvents> ListOfOrgEvent()
         { 
@@ -66,7 +72,7 @@ namespace Tabang_Hub.Repository
         }
         public Skills GetSkillByName(string name)
         {
-            return _skills._table.Where(m => m.skillName == name).FirstOrDefault();
+            return _skills._table.Where(m => m.skillName.Equals(name, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
         }
         public UserAccount GetUserById(int userId)
         {
@@ -213,6 +219,25 @@ namespace Tabang_Hub.Repository
                 }
             }
             return ErrorCode.Success;
+        }
+        public ErrorCode EditRequestedSkill(int skillId, string skillName, string imagePath, ref string errMsg)
+        { 
+
+            var requestedSkill = GetRequestSkillById(skillId);
+
+            requestedSkill.requestSkillName = skillName;
+            requestedSkill.requestSkillImage = imagePath;
+
+            if (_requestSkill.Update(skillId, requestedSkill, out errMsg) != ErrorCode.Success)
+            {
+                return ErrorCode.Error;
+            }
+
+            return ErrorCode.Success;
+        }
+        public RequestSkill GetRequestSkillById(int id)
+        { 
+            return _requestSkill._table.Where(m => m.requestSkillId == id).FirstOrDefault();
         }
         public List<OrgInfo> GetRecentOrgAccount()
         {
@@ -547,6 +572,13 @@ namespace Tabang_Hub.Repository
         }
         public ErrorCode AddSkills(Skills skill, ref string errMsg)
         {
+            var isExist = GetSkillByName(skill.skillName);
+
+            if (isExist != null)
+            {
+                errMsg = "Skill already exist";
+            }
+
             if (skill == null)
             {
                 errMsg = "Skill information is required.";
@@ -557,6 +589,43 @@ namespace Tabang_Hub.Repository
             {
                 return ErrorCode.Error;
             }
+            return ErrorCode.Success;
+        }
+        public ErrorCode AddRequestedSkill(int skillId, Skills skill, ref string errMsg)
+        {
+            var isExist = GetSkillByName(skill.skillName);
+            var requestSkill = GetRequestSkillById(skillId);
+
+            if (isExist != null)
+            {
+                errMsg = "Skill already exist";
+            }
+
+            if (skill == null)
+            {
+                errMsg = "Skill information is required.";
+                return ErrorCode.Error;
+            }
+
+            if (_skills.Create(skill, out errMsg) != ErrorCode.Success)
+            {
+                return ErrorCode.Error;
+            }
+
+            if (_requestSkill.Delete(requestSkill.requestSkillId) != ErrorCode.Success)
+            {
+                return ErrorCode.Error;
+            }
+            return ErrorCode.Success;
+        }
+        public ErrorCode DeleteRequestedSkill(int id)
+        {
+            var requestSkill = GetRequestSkillById(id);
+            if (_requestSkill.Delete(requestSkill.requestSkillId) != ErrorCode.Success)
+            {
+                return ErrorCode.Error;
+            }
+
             return ErrorCode.Success;
         }
         public ErrorCode DeleteSkill(int skillId)

@@ -28,6 +28,7 @@ namespace Tabang_Hub
         public Nullable<int> userId { get; set; }
         public string eventTitle { get; set; }
         public string eventDescription { get; set; }
+        public Nullable<int> donationIsAllowed { get; set; }
         public Nullable<decimal> targetAmount { get; set; }
         public Nullable<int> maxVolunteer { get; set; }
         public Nullable<System.DateTime> dateStart { get; set; }
@@ -35,7 +36,6 @@ namespace Tabang_Hub
         public string location { get; set; }
         public string eventImage { get; set; }
         public Nullable<int> status { get; set; }
-        public Nullable<int> donationIsAllowed { get; set; }
     
         public virtual ICollection<Feedback> Feedback { get; set; }
         public virtual ICollection<GroupChat> GroupChat { get; set; }

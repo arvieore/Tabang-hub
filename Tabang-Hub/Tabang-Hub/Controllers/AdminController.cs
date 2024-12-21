@@ -396,10 +396,12 @@ namespace Tabang_Hub.Controllers
         public ActionResult ManageSkill()
         {
             var skills = _adminManager.GetSkills();
+            var requestedSkill = _adminManager.ListOfRequestSkill();
 
             var indexModel = new Lists()
             {
                 allSkill = skills,
+                listOfRequestSkill = requestedSkill
             };
             return View(indexModel);
         }
@@ -415,10 +417,10 @@ namespace Tabang_Hub.Controllers
 
             // Allowed image types: PNG and JPEG
             var allowedTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-    {
-        "image/png",
-        "image/jpeg"
-    };
+            {
+                "image/png",
+                "image/jpeg"
+            };
 
             const int targetWidth = 800;  // Desired width
             const int targetHeight = 600; // Desired height
@@ -508,7 +510,55 @@ namespace Tabang_Hub.Controllers
 
             return Json(new { success = false, message = "An error occurred while adding the skill." });
         }
+        [HttpPost]
+        public JsonResult AddRequestSkill(int skillId, string skillName, string skillImagePath)
+        {
+            // Check if the skill already exists in the database
+            var existingSkill = _adminManager.GetSkillByName(skillName);
+            if (existingSkill != null)
+            {
+                return Json(new { success = false, message = "Skill already exists." });
+            }
 
+            var requestedSkill = new Skills()
+            {
+                skillName = skillName,
+                skillImage = skillImagePath,
+            };
+
+            string errMsg = string.Empty;
+
+            if (_adminManager.AddRequestedSkill(skillId, requestedSkill, ref errMsg) == ErrorCode.Success)
+            {
+                var users = _adminManager.GetAllUser();
+                var skll = _adminManager.GetSkillById(requestedSkill.skillId);
+
+                foreach (var usr in users)
+                {
+                    var str = $"New skill has been created named {skll.skillName}!";
+                    if (_organizationManager.SentNotif(usr.userId, UserId, UserId, "Add Skill", str, 0, ref errMsg) != ErrorCode.Success)
+                    {
+                        return Json(new { success = false, message = "Failed to send notifications." });
+                    }
+                }
+
+                return Json(new { success = true, message = "Skill added successfully!" });
+            }
+            else
+            {
+                return Json(new { success = false, message = errMsg });
+            }
+        }
+        [HttpPost]
+        public JsonResult DeleteRequestSkill(int skillId)
+        {
+            if (_adminManager.DeleteRequestedSkill(skillId) != ErrorCode.Success)
+            {
+                return Json(new { success = false, message = "Failed to delete the requested skill." });
+            }
+
+            return Json(new { success = true, message = "Requested skill deleted successfully!" });
+        }
         [HttpPost]
         public JsonResult EditSkill(int skillId, string skillName, HttpPostedFileBase skillImage)
         {
@@ -544,10 +594,10 @@ namespace Tabang_Hub.Controllers
 
                 // Allowed image types: PNG and JPEG
                 var allowedTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        {
-            "image/png",
-            "image/jpeg"
-        };
+                {
+                    "image/png",
+                    "image/jpeg"
+                };
 
                 const int targetWidth = 800;  // Desired width
                 const int targetHeight = 600; // Desired height
@@ -642,6 +692,105 @@ namespace Tabang_Hub.Controllers
                 System.Diagnostics.Debug.WriteLine($"Error: {ex.Message}");
                 return Json(new { success = false, message = "An error occurred while updating the skill. Please try again later." });
             }
+        }
+
+        [HttpPost]
+        public JsonResult EditRequestSkill(int skillId, string skillName, HttpPostedFileBase skillImage)
+        {
+            // Validate inputs
+            if (string.IsNullOrWhiteSpace(skillName))
+            {
+                return Json(new { success = false, message = "Skill name cannot be empty." });
+            }
+
+            // Fetch the current skill details from the database
+            var existingSkill = _adminManager.GetRequestSkillById(skillId);
+            if (existingSkill == null)
+            {
+                return Json(new { success = false, message = "Skill not found." });
+            }
+
+            // Allowed image types: PNG and JPEG
+            var allowedTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    "image/png",
+                    "image/jpeg"
+                };
+
+            const int targetWidth = 800;  // Desired width
+            const int targetHeight = 600; // Desired height
+            string imagePath = existingSkill.requestSkillImage; // Keep the current image by default
+
+            // Handle image update if a new image is uploaded
+            if (skillImage != null && skillImage.ContentLength > 0)
+            {
+                if (!allowedTypes.Contains(skillImage.ContentType))
+                {
+                    return Json(new { success = false, message = "Only PNG and JPEG images are allowed." });
+                }
+
+                var directoryPath = Server.MapPath("~/Content/SkillImages/");
+                if (!Directory.Exists(directoryPath))
+                {
+                    Directory.CreateDirectory(directoryPath);
+                }
+
+                var fileName = Path.GetFileName(skillImage.FileName);
+                var path = Path.Combine(directoryPath, fileName);
+
+                // Resize and save the image
+                using (var originalImage = System.Drawing.Image.FromStream(skillImage.InputStream))
+                {
+                    using (var resizedImage = new Bitmap(targetWidth, targetHeight))
+                    {
+                        using (var graphics = Graphics.FromImage(resizedImage))
+                        {
+                            graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                            graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                            graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+
+                            // Draw resized image
+                            graphics.DrawImage(originalImage, 0, 0, targetWidth, targetHeight);
+                        }
+
+                        if (skillImage.ContentType.Equals("image/jpeg", StringComparison.OrdinalIgnoreCase))
+                        {
+                            // Compress and save as JPEG
+                            var qualityParam = new System.Drawing.Imaging.EncoderParameter(
+                                System.Drawing.Imaging.Encoder.Quality, 75L);
+
+                            var jpegCodec = System.Drawing.Imaging.ImageCodecInfo
+                                .GetImageDecoders()
+                                .FirstOrDefault(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
+
+                            if (jpegCodec != null)
+                            {
+                                var encoderParams = new System.Drawing.Imaging.EncoderParameters(1);
+                                encoderParams.Param[0] = qualityParam;
+                                resizedImage.Save(path, jpegCodec, encoderParams);
+                            }
+                            else
+                            {
+                                // Fallback if JPEG encoder not found
+                                resizedImage.Save(path, System.Drawing.Imaging.ImageFormat.Jpeg);
+                            }
+                        }
+                        else
+                        {
+                            // Save as PNG
+                            resizedImage.Save(path, System.Drawing.Imaging.ImageFormat.Png);
+                        }
+                    }
+                }
+
+                imagePath = fileName; // Update imagePath to the new file name
+            }
+
+            if (_adminManager.EditRequestedSkill(skillId, skillName, imagePath, ref ErrorMessage) != ErrorCode.Success)
+            {
+                return Json(new { success = false, message = "There is an error editing the skill" });
+            }
+            return Json(new { success = true, message = "Skill updated successfully." });
         }
         // Action to handle the deletion of a skill
         [HttpPost]

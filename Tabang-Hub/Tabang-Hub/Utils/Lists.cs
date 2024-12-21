@@ -26,6 +26,7 @@ namespace Tabang_Hub.Utils
         //public List<Skills> skills { get; set; }
         //public List<ProfilePicture> picture { get; set; }
         public List<OrgEvents> listOfOrgEvents { get; set; }
+        public List<RequestSkill> listOfRequestSkill { get; set; }
         public List<vw_VolunteerAccounts> volunteerAccounts { get; set; }
         public List<DonationImage> DonationImages { get; set; }
         public List<OrgInfo> recentOrgAcc {  get; set; }
