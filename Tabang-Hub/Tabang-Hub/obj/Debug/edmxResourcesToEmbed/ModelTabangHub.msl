@@ -339,6 +339,7 @@
     <EntitySetMapping Name="RequestSkill">
       <EntityTypeMapping TypeName="TabangHubModel.RequestSkill">
         <MappingFragment StoreEntitySet="RequestSkill">
+          <ScalarProperty Name="orgName" ColumnName="orgName" />
           <ScalarProperty Name="requestSkillImage" ColumnName="requestSkillImage" />
           <ScalarProperty Name="requestSkillName" ColumnName="requestSkillName" />
           <ScalarProperty Name="requestSkillId" ColumnName="requestSkillId" />

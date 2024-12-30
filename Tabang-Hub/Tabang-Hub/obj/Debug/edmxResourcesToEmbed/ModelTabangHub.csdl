@@ -481,6 +481,7 @@
     <Property Name="requestSkillId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
     <Property Name="requestSkillName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
     <Property Name="requestSkillImage" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+    <Property Name="orgName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
   </EntityType>
   <EntityType Name="Role">
     <Key>

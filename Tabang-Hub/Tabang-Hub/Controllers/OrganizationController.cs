@@ -644,12 +644,13 @@ namespace Tabang_Hub.Controllers
                     }
                 }
             }
-
+            var org = _organizationManager.GetOrgInfoByUserId(UserId);
             // Save to the database
             var requestSkill = new RequestSkill()
             {
                 requestSkillName = skillName,
-                requestSkillImage = newFileName
+                requestSkillImage = newFileName,
+                orgName = org.orgName
             };
 
             if (_organizationManager.RequestSkill(requestSkill, ref ErrorMessage) != ErrorCode.Success)
@@ -658,8 +659,9 @@ namespace Tabang_Hub.Controllers
             }
 
             var admin = _organizationManager.GetUserByEmail("admin");
+            
 
-            if (_organizationManager.SentNotif(admin.userId, UserId, requestSkill.requestSkillId, "Request Skill", $"There is a new skill requested", 0, ref ErrorMessage) != ErrorCode.Success)
+            if (_organizationManager.SentNotif(admin.userId, UserId, requestSkill.requestSkillId, "Request Skill", $"There is a new skill requested by: {org.orgName}", 0, ref ErrorMessage) != ErrorCode.Success)
             {
                 return Json(new { success = false, message = "There is an error sending notification." });
             }

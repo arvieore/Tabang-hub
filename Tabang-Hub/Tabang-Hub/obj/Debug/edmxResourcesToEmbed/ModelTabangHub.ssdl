@@ -190,6 +190,7 @@
     <Property Name="requestSkillId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
     <Property Name="requestSkillName" Type="nvarchar" MaxLength="50" />
     <Property Name="requestSkillImage" Type="nvarchar" MaxLength="255" />
+    <Property Name="orgName" Type="nvarchar" MaxLength="50" />
   </EntityType>
   <EntityType Name="Role">
     <Key>

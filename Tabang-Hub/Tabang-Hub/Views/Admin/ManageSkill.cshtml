@@ -63,6 +63,7 @@
                             <tr class="text-nowrap text-center">
                                 <th class="small">Skill Name</th>
                                 <th class="small">Skill Image</th>
+                                <th class="small">Requested By</th>
                                 <th class="small">Action</th>
                             </tr>
                         </thead>
@@ -74,6 +75,7 @@
                                     <td>
                                         <img src="@Url.Content("~/Content/SkillImages/" + requestedSkill.requestSkillImage)" alt="Skill Image" class="img-thumbnail" style="max-width: 100px; max-height: 100px;" />
                                     </td>
+                                    <td class="skill-name">@requestedSkill.orgName</td>
                                     <td>
                                         <button type="button" class="btn btn-sm btn-primary edit-request-button"
                                                 data-skill-id="@requestedSkill.requestSkillId"
