@@ -30,7 +30,7 @@
             <div class="card text-center shadow-sm">
                 <div class="card-body">
                     <h5 class="card-title">Overall Donations</h5>
-                    <p class="card-text fs-4">₱@Model.totalDonation</p> <!-- Replace with dynamic total -->
+                    <p class="card-text fs-4">@Model.overAllDonation.Count()</p> <!-- Replace with dynamic total -->
                 </div>
             </div>
         </div>
@@ -58,17 +58,25 @@
                                 <tr>
                                     <th>Event Name</th>
                                     <th>Donor</th>
-                                    <th>Amount (₱)</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var donated in Model.listofUserDonated)
+                                @foreach (var donated in Model.dashboardRecentDonates)
                                 {
-                                    <tr>
-                                        <td>@donated.OrgEvents.eventTitle</td>
-                                        <td>@donated.UserAccount.email</td>
-                                        <td>₱@donated.amount</td>
-                                    </tr>
+                                    if (donated.orgEvents != null)
+                                    {
+                                        <tr>
+                                            <td>@donated.orgEvents.eventTitle</td>
+                                            <td>@donated.volunteerInfo.lName, @donated.volunteerInfo.fName</td>
+                                        </tr>
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td>@donated.donationEvent.donationEventName</td>
+                                            <td>@donated.volunteerInfo.lName, @donated.volunteerInfo.fName</td>
+                                        </tr>
+                                    }
                                 }
                             </tbody>
                         </table>

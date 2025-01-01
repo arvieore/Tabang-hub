@@ -24,10 +24,13 @@
         <div class="tab-pane fade show active" id="volunteering" role="tabpanel" aria-labelledby="volunteering-tab">
             <!-- Create Event Button -->
             <div class="d-flex justify-content-start mb-3">
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createEventModal">
+                <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#createEventModal">
                     Create Event
                 </button>
 
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addSkillModal">
+                    Request New Skill
+                </button>
             </div>
             <div class="mb-3 d-flex justify-content-between align-items-center">
                 <!-- Search Input -->
@@ -177,6 +180,37 @@
 </div>
 
 <!-- Modals -->
+<!-- Modal for Request Add Skill -->
+<div class="modal fade" id="addSkillModal" tabindex="-1" aria-labelledby="addSkillModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addSkillModalLabel">Request Add Skill</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addSkillForm" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="skillName" class="form-label">Skill Name</label>
+                        <input type="text" class="form-control" id="skillName" name="skillName" placeholder="Enter skill name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="skillImage" class="form-label">Skill Image</label>
+                        <input type="file" class="form-control" id="skillImage" name="skillImage" accept="image/*" required>
+                        <div class="mt-3">
+                            <img id="skillImagePreview" src="#" alt="Preview" class="img-fluid d-none" style="max-width: 150px; height: auto; border: 1px solid #ddd; border-radius: 5px;">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="submitSkillRequest">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Create Event Modal -->
 <div class="modal fade" id="createEventModal" tabindex="-1" aria-labelledby="createEventModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
@@ -1480,5 +1514,68 @@
                 });
             });
         });
+    });
+
+    document.getElementById('submitSkillRequest').addEventListener('click', function () {
+        const form = document.getElementById('addSkillForm');
+        const formData = new FormData(form);
+
+        fetch('/Organization/RequestSkill', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: data.message,
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        location.reload(); // Reload the page on confirmation
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message,
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        location.reload(); // Reload the page on confirmation
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred while submitting the request.',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    location.reload(); // Reload the page on confirmation
+                });
+            });
+    });
+
+    // Image Preview Logic
+    document.getElementById('skillImage').addEventListener('change', function (event) {
+        const preview = document.getElementById('skillImagePreview');
+        const file = event.target.files[0];
+
+        if (file) {
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                preview.src = e.target.result;
+                preview.classList.remove('d-none');
+            };
+
+            reader.readAsDataURL(file);
+        } else {
+            preview.src = '#';
+            preview.classList.add('d-none');
+        }
     });
 </script>
